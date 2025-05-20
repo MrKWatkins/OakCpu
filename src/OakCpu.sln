@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrKWatkins.OakCpu.Z80", "MrKWatkins.OakCpu.Z80\MrKWatkins.OakCpu.Z80.csproj", "{377A7908-C58C-4D05-BBF5-7866639A32F4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CF6CC39D-85D3-443F-B491-4552DB6C50FD}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "definitions", "definitions", "{C18D2C0D-B892-41EF-AA43-20F981CA5A56}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "z80", "z80", "{4C2E5424-BCEA-47D9-82A3-D9894FDFAC41}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\z80\registers.yaml = ..\definitions\z80\registers.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{70301D17-1802-49A0-A12A-40E03D316AF5}"
+	ProjectSection(SolutionItems) = preProject
+		..\Icon.png = ..\Icon.png
+		..\License.md = ..\License.md
+		..\ReadMe.md = ..\ReadMe.md
+		..\.gitignore = ..\.gitignore
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrKWatkins.OakCpu.Z80.Tests", "MrKWatkins.OakCpu.Z80.Tests\MrKWatkins.OakCpu.Z80.Tests.csproj", "{C0E307B6-B1E3-421A-99C7-62804DAE1A39}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrKWatkins.OakCpu.SourceGenerator", "MrKWatkins.OakCpu.SourceGenerator\MrKWatkins.OakCpu.SourceGenerator.csproj", "{8A2CB62E-FEEB-4C79-8CCA-C0F5367130C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrKWatkins.OakCpu.SourceGenerator.Tests", "MrKWatkins.OakCpu.SourceGenerator.Tests\MrKWatkins.OakCpu.SourceGenerator.Tests.csproj", "{A11D673A-4A2B-4D6A-9BFC-F43270ADC5B4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{377A7908-C58C-4D05-BBF5-7866639A32F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{377A7908-C58C-4D05-BBF5-7866639A32F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{377A7908-C58C-4D05-BBF5-7866639A32F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{377A7908-C58C-4D05-BBF5-7866639A32F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0E307B6-B1E3-421A-99C7-62804DAE1A39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0E307B6-B1E3-421A-99C7-62804DAE1A39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0E307B6-B1E3-421A-99C7-62804DAE1A39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0E307B6-B1E3-421A-99C7-62804DAE1A39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A2CB62E-FEEB-4C79-8CCA-C0F5367130C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A2CB62E-FEEB-4C79-8CCA-C0F5367130C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A2CB62E-FEEB-4C79-8CCA-C0F5367130C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A2CB62E-FEEB-4C79-8CCA-C0F5367130C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A11D673A-4A2B-4D6A-9BFC-F43270ADC5B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A11D673A-4A2B-4D6A-9BFC-F43270ADC5B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A11D673A-4A2B-4D6A-9BFC-F43270ADC5B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A11D673A-4A2B-4D6A-9BFC-F43270ADC5B4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4C2E5424-BCEA-47D9-82A3-D9894FDFAC41} = {C18D2C0D-B892-41EF-AA43-20F981CA5A56}
+	EndGlobalSection
+EndGlobal
