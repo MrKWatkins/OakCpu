@@ -1,0 +1,30 @@
+registers:
+  - register:
+      name: A
+      type: u8
+  - register:
+      name: F
+      type: u8
+      flags: true
+  - register:
+      name: AF
+      type: u16
+      combines: A, F
+  - register:
+      name: AF'
+      type: u16
+      category: Shadow
+  - register:
+    name: B
+    type: u8
+  - register:
+      name: C
+      type: u8
+  - register:
+      name: BC
+      type: u16
+      combines: B, C
+  - register:
+      name: BC'
+      type: u16
+      category: Shadow

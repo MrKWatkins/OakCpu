@@ -1,2 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <!-- TODO: Remove! -->
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\MrKWatkins.OakCpu.SourceGenerator\MrKWatkins.OakCpu.SourceGenerator.csproj"
+                        PrivateAssets="all" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
+    <ItemGroup>
+        <AdditionalFiles Include="..\..\definitions\z80\registers.yaml" />
+    </ItemGroup>
 </Project>
