@@ -1,2 +1,8 @@
 cpu:
   name: Z80
+  actions:
+    - MemoryRead
+    - MemoryWrite
+    - MemoryRefresh
+    - IORead
+    - IOWrite

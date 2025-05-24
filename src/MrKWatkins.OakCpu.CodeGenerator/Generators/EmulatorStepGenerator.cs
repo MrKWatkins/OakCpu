@@ -20,7 +20,7 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
     private static MethodDeclarationSyntax CreateStepMethod(GeneratorInput input) =>
         SyntaxFactory
             .MethodDeclaration(
-                SyntaxFactory.IdentifierName(ActionRequired.EnumName),
+                SyntaxFactory.IdentifierName(ActionRequiredEnumName),
                 SyntaxFactory.Identifier(StepMethodName))
             .AddModifiers(Public)
             .WithBody(SyntaxFactory.Block(
@@ -53,7 +53,7 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
 
     [Pure]
     private static SwitchSectionSyntax CreateMemoryReadRequest(int index, ExpressionSyntax addressExpression) =>
-        CreateSwitchSection(index, true, CreateSetMember(AddressPropertyName, addressExpression), CreateSetAction(ActionRequired.MemoryRead));
+        CreateSwitchSection(index, true, CreateSetMember(AddressPropertyName, addressExpression), CreateSetAction("MemoryRead"));
 
     [Pure]
     private static SwitchSectionSyntax CreateSwitchSection(int index, params StatementSyntax[] statements) => CreateSwitchSection(index, true, statements);
@@ -77,15 +77,15 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
     private static StatementSyntax CreateActionVariable() =>
         SyntaxFactory.LocalDeclarationStatement(
             SyntaxFactory.VariableDeclaration(
-                SyntaxFactory.IdentifierName(ActionRequired.EnumName),
+                SyntaxFactory.IdentifierName(ActionRequiredEnumName),
                 SyntaxFactory.SingletonSeparatedList(
                     SyntaxFactory.VariableDeclarator(SyntaxFactory.Identifier(ActionVariableName))
                         .WithInitializer(
                             SyntaxFactory.EqualsValueClause(
                                 SyntaxFactory.MemberAccessExpression(
                                     SyntaxKind.SimpleMemberAccessExpression,
-                                    SyntaxFactory.IdentifierName(ActionRequired.EnumName),
-                                    SyntaxFactory.IdentifierName(ActionRequired.None)))))));
+                                    SyntaxFactory.IdentifierName(ActionRequiredEnumName),
+                                    SyntaxFactory.IdentifierName(ActionRequiredNone)))))));
 
 
     [Pure]
@@ -96,7 +96,7 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
                 SyntaxFactory.IdentifierName(ActionVariableName),
                 SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.IdentifierName(ActionRequired.EnumName),
+                    SyntaxFactory.IdentifierName(ActionRequiredEnumName),
                     SyntaxFactory.IdentifierName(name))));
 
     [Pure]

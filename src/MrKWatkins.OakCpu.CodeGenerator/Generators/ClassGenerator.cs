@@ -8,17 +8,8 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public abstract class ClassGenerator
 {
     protected const string EmulatorFieldName = "emulator";
-
-    protected static class ActionRequired
-    {
-        public const string EnumName = "ActionRequired";
-        public const string None = "None";
-        public const string MemoryRead = "MemoryRead";
-        public const string MemoryWrite = "MemoryWrite";
-        public const string IORead = "IORead";
-        public const string IOWrite = "IOWrite";
-        public static readonly IReadOnlyList<string> Members = [None, MemoryRead, MemoryWrite, IORead, IOWrite];
-    }
+    protected const string ActionRequiredEnumName = "ActionRequired";
+    protected const string ActionRequiredNone = "None";
 
     private protected ClassGenerator()
     {

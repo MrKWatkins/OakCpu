@@ -13,9 +13,9 @@ public sealed class ActionRequiredGenerator : ClassGenerator
 
     protected override BaseTypeDeclarationSyntax CreateType(HashSet<string> requiredUsings, GeneratorInput input)
     {
-        var members = ActionRequired.Members.Select(name => SyntaxFactory.EnumMemberDeclaration(SyntaxFactory.Identifier(name))).ToArray();
+        var members = input.Cpu.Actions.Prepend(ActionRequiredNone).Select(name => SyntaxFactory.EnumMemberDeclaration(SyntaxFactory.Identifier(name))).ToArray();
 
-        return SyntaxFactory.EnumDeclaration(ActionRequired.EnumName)
+        return SyntaxFactory.EnumDeclaration(ActionRequiredEnumName)
             .AddModifiers(Public)
             .AddMembers(members);
     }

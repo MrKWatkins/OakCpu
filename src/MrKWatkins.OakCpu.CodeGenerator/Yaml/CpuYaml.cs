@@ -11,5 +11,7 @@ public sealed partial class CpuYaml
 
     public string Name { get; private set; } = null!;
 
+    public IReadOnlyList<string> Actions { get; private set; } = [];
+
     public override string ToString() => Name;
 }
