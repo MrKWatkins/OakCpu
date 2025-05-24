@@ -31,7 +31,8 @@ public sealed class CpuGenerator() : IncrementalGenerator(nameof(CpuGenerator))
     {
         try
         {
-            AddSource(context, "FieldsAndConstructor", EmulatorFieldsAndConstructor.Instance.Generate(input));
+            AddSource(context, "Z80Emulator.FieldsAndConstructor.g", EmulatorFieldsAndConstructor.Instance.Generate(input));
+            AddSource(context, "Registers.g", RegistersClassGenerator.Instance.Generate(input));
         }
         catch (Exception exception)
         {
@@ -40,5 +41,5 @@ public sealed class CpuGenerator() : IncrementalGenerator(nameof(CpuGenerator))
     }
 
     private static void AddSource(SgfSourceProductionContext context, string name, CompilationUnitSyntax compilationUnit) =>
-        context.AddSource($"Z80Emulator.{name}.g", SourceText.From(compilationUnit.ToFullString(), Encoding.UTF8));
+        context.AddSource(name, SourceText.From(compilationUnit.ToFullString(), Encoding.UTF8));
 }
