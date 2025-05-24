@@ -22,4 +22,39 @@ public sealed class Z80EmulatorTests
         emulator.A.Should().Be(0x56);
         emulator.F.Should().Be(0x78);
     }
+
+    [Test]
+    public void Registers()
+    {
+        var emulator = new Z80Emulator();
+
+        emulator.Registers.A.Should().Be(0x00);
+        emulator.Registers.F.Should().Be(0x00);
+        emulator.Registers.AF.Should().Be(0x0000);
+
+        emulator.Registers.A = 0x12;
+        emulator.Registers.AF.Should().Be(0x1200);
+        emulator.AF.Should().Be(0x1200);
+
+        emulator.Registers.F = 0x34;
+        emulator.Registers.AF.Should().Be(0x1234);
+        emulator.AF.Should().Be(0x1234);
+
+        emulator.Registers.AF = 0x5678;
+        emulator.Registers.A.Should().Be(0x56);
+        emulator.Registers.F.Should().Be(0x78);
+        emulator.AF.Should().Be(0x5678);
+    }
+
+    [Test]
+    public void ShadowRegisters()
+    {
+        var emulator = new Z80Emulator();
+
+        emulator.Registers.Shadow.AF.Should().Be(0x0000);
+
+        emulator.Shadow_AF = 0x1234;
+        emulator.Registers.Shadow.AF.Should().Be(0x1234);
+        emulator.Shadow_AF.Should().Be(0x1234);
+    }
 }

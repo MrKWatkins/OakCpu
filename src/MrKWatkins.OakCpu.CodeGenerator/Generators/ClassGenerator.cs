@@ -6,16 +6,22 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public abstract class ClassGenerator
 {
+    protected const string EmulatorClassName = "Z80Emulator";
+
     private protected ClassGenerator()
     {
     }
+
+    public static readonly IReadOnlyList<ClassGenerator> AllGenerators = [EmulatorFieldsPropertiesAndConstructorGenerator.Instance, RegistersClassesGenerator.Instance];
+
+    public string FileName => GetType().Name.Substring(0, GetType().Name.Length - "Generator".Length);
 
     [Pure]
     public CompilationUnitSyntax Generate(GeneratorInput input)
     {
         var requiredUsings = new HashSet<string>();
 
-        var classDeclaration = CreateClass(requiredUsings, input);
+        var classDeclarations = CreateClasses(requiredUsings, input).ToArray<MemberDeclarationSyntax>();
 
         return SyntaxFactory
             .CompilationUnit()
@@ -23,11 +29,36 @@ public abstract class ClassGenerator
             .AddMembers(
                 input
                     .CreateRootNamespaceDeclaration()
-                    .AddMembers(classDeclaration))
+                    .AddMembers(classDeclarations))
             .NormalizeWhitespace();
     }
 
-    protected abstract ClassDeclarationSyntax CreateClass(HashSet<string> requiredUsings, GeneratorInput input);
+    [MustUseReturnValue]
+    protected virtual IEnumerable<ClassDeclarationSyntax> CreateClasses(HashSet<string> requiredUsings, GeneratorInput input)
+    {
+        yield return CreateClass(requiredUsings, input);
+    }
+
+    [MustUseReturnValue]
+    protected virtual ClassDeclarationSyntax CreateClass(HashSet<string> requiredUsings, GeneratorInput input)
+    {
+        throw new NotImplementedException($"{nameof(CreateClass)} is not implemented and {nameof(CreateClasses)} has not been overridden.");
+    }
+
+    [Pure]
+    protected static PropertyDeclarationSyntax CreateGetOnlyProperty(string typeName, string propertyName) => CreateGetOnlyProperty(SyntaxFactory.IdentifierName(typeName), propertyName);
+
+    [Pure]
+    protected static PropertyDeclarationSyntax CreateGetOnlyProperty(TypeSyntax type, string propertyName) =>
+        SyntaxFactory
+            .PropertyDeclaration(type, SyntaxFactory.Identifier(propertyName))
+            .WithModifiers(SyntaxFactory.TokenList(Public))
+            .WithAccessorList(
+                SyntaxFactory.AccessorList(SyntaxFactory.SingletonList(SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Semicolon))));
+
+
+    [Pure]
+    protected static SyntaxToken Field => SyntaxFactory.Token(SyntaxKind.FieldKeyword);
 
     [Pure]
     protected static SyntaxToken Internal => SyntaxFactory.Token(SyntaxKind.InternalKeyword);
@@ -46,6 +77,12 @@ public abstract class ClassGenerator
 
     [Pure]
     protected static SyntaxToken Sealed => SyntaxFactory.Token(SyntaxKind.SealedKeyword);
+
+    [Pure]
+    protected static SyntaxToken Semicolon => SyntaxFactory.Token(SyntaxKind.SemicolonToken);
+
+    [Pure]
+    protected static string GetRegistersClassName(string? category = null) => $"Z80{category}Registers";
 
     [Pure]
     private static UsingDirectiveSyntax CreateUsingStatement(string ns) => SyntaxFactory.UsingDirective(SyntaxFactory.IdentifierName(ns));

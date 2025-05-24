@@ -10,7 +10,7 @@ public abstract class EmulatorClassGenerator : ClassGenerator
     }
 
     protected sealed override ClassDeclarationSyntax CreateClass(HashSet<string> requiredUsings, GeneratorInput input) =>
-        PopulateClass(requiredUsings, input, SyntaxFactory.ClassDeclaration("Z80Emulator").AddModifiers(Public, Sealed, Partial));
+        PopulateClass(requiredUsings, input, SyntaxFactory.ClassDeclaration(EmulatorClassName).AddModifiers(Public, Sealed, Partial));
 
     [Pure]
     protected abstract ClassDeclarationSyntax PopulateClass(HashSet<string> requiredUsings, GeneratorInput input, ClassDeclarationSyntax classDeclaration);

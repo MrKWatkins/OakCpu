@@ -1,6 +1,5 @@
 using System.Text;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using MrKWatkins.OakCpu.CodeGenerator;
 using MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -9,7 +8,7 @@ using SGF;
 namespace MrKWatkins.OakCpu.SourceGenerator;
 
 [IncrementalGenerator]
-public sealed class CpuGenerator() : IncrementalGenerator(nameof(CpuGenerator))
+public sealed class Generator() : IncrementalGenerator(nameof(Generator))
 {
     public override void OnInitialize(SgfInitializationContext context)
     {
@@ -29,17 +28,17 @@ public sealed class CpuGenerator() : IncrementalGenerator(nameof(CpuGenerator))
 
     private void GenerateCode(SgfSourceProductionContext context, GeneratorInput input)
     {
-        try
+        foreach (var generator in ClassGenerator.AllGenerators)
         {
-            AddSource(context, "Z80Emulator.FieldsAndConstructor.g", EmulatorFieldsAndConstructor.Instance.Generate(input));
-            AddSource(context, "Registers.g", RegistersClassGenerator.Instance.Generate(input));
-        }
-        catch (Exception exception)
-        {
-            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("OC0001", "Path", exception.ToString(), "Files", DiagnosticSeverity.Error, true), Location.None));
+            try
+            {
+                var compilationUnit = generator.Generate(input);
+                context.AddSource(generator.FileName, SourceText.From(compilationUnit.ToFullString(), Encoding.UTF8));
+            }
+            catch (Exception exception)
+            {
+                Logger.Error(exception, $"Error generating {generator.FileName}.");
+            }
         }
     }
-
-    private static void AddSource(SgfSourceProductionContext context, string name, CompilationUnitSyntax compilationUnit) =>
-        context.AddSource(name, SourceText.From(compilationUnit.ToFullString(), Encoding.UTF8));
 }

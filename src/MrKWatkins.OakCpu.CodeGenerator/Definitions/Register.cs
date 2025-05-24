@@ -15,7 +15,9 @@ public sealed class Register
 
     public string Name { get; }
 
-    public string FieldName => (Category != null ? $"{Category}_{Name}" : Name).Replace("'", "");
+    public string FieldName => Category != null ? $"{Category}_{PropertyName}" : PropertyName;
+
+    public string PropertyName => Name.Replace("'", "");
 
     public DataType Type { get; }
 
@@ -55,5 +57,7 @@ public sealed class Register
     }
 
     [Pure]
-    private static IOrderedEnumerable<RegisterYaml> Order(IEnumerable<RegisterYaml> yamls) => yamls.OrderBy(y => y.Type).ThenBy(y => y.Category).ThenBy(y => y.Name);
+    private static IOrderedEnumerable<RegisterYaml> Order(IEnumerable<RegisterYaml> yamls) =>
+        // Put U16s first, so they are all on a two-byte boundary.
+        yamls.OrderByDescending(y => y.Type).ThenBy(y => y.Category).ThenBy(y => y.Name);
 }

@@ -5,11 +5,12 @@ using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-public sealed class EmulatorFieldsAndConstructor : EmulatorClassGenerator
+public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorClassGenerator
 {
-    public static readonly EmulatorFieldsAndConstructor Instance = new();
+    private const string RegistersPropertyName = "Registers";
+    public static readonly EmulatorFieldsPropertiesAndConstructorGenerator Instance = new();
 
-    private EmulatorFieldsAndConstructor()
+    private EmulatorFieldsPropertiesAndConstructorGenerator()
     {
     }
 
@@ -17,9 +18,61 @@ public sealed class EmulatorFieldsAndConstructor : EmulatorClassGenerator
     {
         var structLayout = CreateStructLayoutAttribute(requiredUsings);
 
+        var members = new List<MemberDeclarationSyntax>();
+        members.AddRange(input.Registers.Select(r => CreateField(requiredUsings, r)));
+
+        members.Add(CreateConstructor());
+
+        var objectPropertiesFieldOffset = GetObjectPropertiesFieldOffset(input);
+        members.Add(CreateGetOnlyProperty(requiredUsings, GetRegistersClassName(), RegistersPropertyName, objectPropertiesFieldOffset));
+
         return classDeclaration
             .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(structLayout)))
-            .AddMembers(input.Registers.Select(r => CreateField(requiredUsings, r)).ToArray<MemberDeclarationSyntax>());
+            .AddMembers(members.ToArray<MemberDeclarationSyntax>());
+    }
+
+    [Pure]
+    private static ConstructorDeclarationSyntax CreateConstructor()
+    {
+        var statements = new List<StatementSyntax>
+        {
+            // Registers = new Z80Register(this);
+            SyntaxFactory.ExpressionStatement(
+                SyntaxFactory.AssignmentExpression(
+                    SyntaxKind.SimpleAssignmentExpression,
+                    SyntaxFactory.IdentifierName(RegistersPropertyName),
+                    SyntaxFactory
+                        .ObjectCreationExpression(SyntaxFactory.IdentifierName(GetRegistersClassName()))
+                        .WithArgumentList(
+                            SyntaxFactory.ArgumentList(
+                                SyntaxFactory.SingletonSeparatedList(
+                                    SyntaxFactory.Argument(SyntaxFactory.ThisExpression()))))))
+        };
+
+        return SyntaxFactory
+            .ConstructorDeclaration(EmulatorClassName)
+            .WithModifiers(SyntaxFactory.TokenList(Public))
+            .WithBody(SyntaxFactory.Block(statements.ToArray()));
+    }
+
+    [Pure]
+    private static PropertyDeclarationSyntax CreateGetOnlyProperty(HashSet<string> requiredUsings, string typeName, string propertyName, int fieldOffset)
+    {
+        var attributeList = SyntaxFactory
+            .AttributeList(SyntaxFactory.SingletonSeparatedList(CreateFieldOffsetAttribute(requiredUsings, fieldOffset)))
+            .WithTarget(SyntaxFactory.AttributeTargetSpecifier(Field));
+
+        return CreateGetOnlyProperty(typeName, propertyName).AddAttributeLists(attributeList);
+    }
+
+    [Pure]
+    private static int GetObjectPropertiesFieldOffset(GeneratorInput input)
+    {
+        var lastRegister = input.Registers.OrderByDescending(r => r.FieldOffset).First();
+        var nextFieldOffset = lastRegister.FieldOffset + lastRegister.Type.Size();
+
+        // Round up to the next multiple of 64 bits, i.e. 8 bytes.
+        return (nextFieldOffset + 7) & ~7;
     }
 
     [MustUseReturnValue]
