@@ -52,7 +52,7 @@
         <Using Include="FluentAssertions"/>
     </ItemGroup>
 
-    <PropertyGroup Condition="!$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('SourceGenerator'))">
+    <PropertyGroup Condition="!$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Generator'))">
         <IsPackable>true</IsPackable>
         <Title>$(MSBuildProjectName)</Title>
         <Authors>Kevin Watkins</Authors>
@@ -66,7 +66,7 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
     </PropertyGroup>
 
-    <ItemGroup Condition="!$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.EndsWith('SourceGenerator'))">
+    <ItemGroup Condition="!$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.EndsWith('Generator'))">
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
         <Content Include="..\..\Icon.png" Pack="true" PackagePath="\">
             <Link>Icon.png</Link>

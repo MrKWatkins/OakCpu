@@ -11,11 +11,6 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
       <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
-      <PackageReference Include="SourceGenerator.Foundations" />
       <PackageReference Include="VYaml" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\MrKWatkins.OakCpu.CodeGenerator\MrKWatkins.OakCpu.CodeGenerator.csproj" />
     </ItemGroup>
 </Project>

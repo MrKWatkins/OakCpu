@@ -85,15 +85,15 @@ registers:
   - name: AF'
     type: u16
     category: Shadow
-    
+
   - name: BC'
     type: u16
     category: Shadow
-    
+
   - name: DE'
     type: u16
     category: Shadow
-    
+
   - name: HL'
     type: u16
     category: Shadow

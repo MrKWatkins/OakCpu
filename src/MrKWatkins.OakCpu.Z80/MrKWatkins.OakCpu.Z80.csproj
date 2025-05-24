@@ -3,13 +3,19 @@
     <PropertyGroup>
         <!-- TODO: Remove! -->
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <!-- TODO: Remove! -->
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     </PropertyGroup>
-    
+
+    <ItemGroup>
+        <CompilerVisibleProperty Include="RootNamespace" />
+    </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\MrKWatkins.OakCpu.SourceGenerator\MrKWatkins.OakCpu.SourceGenerator.csproj"
                         PrivateAssets="all" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
     <ItemGroup>
-        <AdditionalFiles Include="..\..\definitions\z80\registers.yaml" />
+        <AdditionalFiles Include="..\..\definitions\z80\*.yaml" />
     </ItemGroup>
 </Project>

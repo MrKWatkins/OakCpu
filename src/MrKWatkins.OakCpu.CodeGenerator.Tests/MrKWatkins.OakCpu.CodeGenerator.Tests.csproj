@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
+        <EmbeddedResource Include="TestData\registers.yaml" />
         <EmbeddedResource Include="Yaml\TestData\*.yaml" />
     </ItemGroup>
 
@@ -9,6 +10,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MrKWatkins.OakCpu.SourceGenerator\MrKWatkins.OakCpu.SourceGenerator.csproj" />
+      <ProjectReference Include="..\MrKWatkins.OakCpu.CodeGenerator\MrKWatkins.OakCpu.CodeGenerator.csproj" />
     </ItemGroup>
 </Project>
