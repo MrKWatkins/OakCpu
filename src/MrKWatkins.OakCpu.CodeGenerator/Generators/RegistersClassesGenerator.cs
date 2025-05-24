@@ -26,7 +26,7 @@ public sealed class RegistersClassesGenerator : ClassGenerator
     {
         var members = new List<MemberDeclarationSyntax>
         {
-            CreateEmulatorField(),
+            CreateEmulatorField(input),
             CreateConstructor(input, category)
         };
         if (category == null)
@@ -36,13 +36,13 @@ public sealed class RegistersClassesGenerator : ClassGenerator
         members.AddRange(CreateRegisterProperties(input, category));
 
         return SyntaxFactory
-            .ClassDeclaration(GetRegistersClassName(category))
+            .ClassDeclaration(GetRegistersClassName(input, category))
             .AddModifiers(Public, Sealed)
             .AddMembers(members.ToArray());
     }
 
     [Pure]
-    private static IEnumerable<PropertyDeclarationSyntax> CreateCategoryProperties(GeneratorInput input) => GetCategories(input).Select(c => CreateGetOnlyProperty(GetRegistersClassName(c), c));
+    private static IEnumerable<PropertyDeclarationSyntax> CreateCategoryProperties(GeneratorInput input) => GetCategories(input).Select(c => CreateGetOnlyProperty(GetRegistersClassName(input, c), c));
 
     [Pure]
     private static IEnumerable<PropertyDeclarationSyntax> CreateRegisterProperties(GeneratorInput input, string? category) => input.Registers.Where(r => r.Category == category).OrderBy(r => r.Name).Select(CreateRegisterProperty);
@@ -78,19 +78,19 @@ public sealed class RegistersClassesGenerator : ClassGenerator
             foreach (var c in GetCategories(input))
             {
                 // Category = new Z80CategoryRegisters(emulator);
-                statements.Add(CreateNewObjectAndAssignToProperty(c, GetRegistersClassName(c), SyntaxFactory.IdentifierName(EmulatorFieldName)));
+                statements.Add(CreateNewObjectAndAssignToProperty(c, GetRegistersClassName(input, c), SyntaxFactory.IdentifierName(EmulatorFieldName)));
             }
         }
 
         return SyntaxFactory
-            .ConstructorDeclaration(GetRegistersClassName(category))
+            .ConstructorDeclaration(GetRegistersClassName(input, category))
             .WithModifiers(SyntaxFactory.TokenList(Internal))
             .WithParameterList(
                 SyntaxFactory.ParameterList(
                     SyntaxFactory.SingletonSeparatedList(
                         SyntaxFactory
                             .Parameter(SyntaxFactory.Identifier(EmulatorFieldName))
-                            .WithType(SyntaxFactory.IdentifierName(EmulatorClassName)))))
+                            .WithType(GetEmulatorClassIdentifier(input)))))
             .WithBody(SyntaxFactory.Block(statements.ToArray()));
     }
 

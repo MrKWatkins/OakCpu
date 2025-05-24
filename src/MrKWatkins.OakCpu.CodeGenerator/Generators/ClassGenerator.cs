@@ -7,9 +7,6 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public abstract class ClassGenerator
 {
-    protected const string EmulatorClassName = "Z80Emulator";
-    protected const string FlagsClassName = "Z80Flags";
-    protected const string RegistersClassName = "Z80Registers";
     protected const string EmulatorFieldName = "emulator";
 
     protected static class ActionRequired
@@ -104,11 +101,11 @@ public abstract class ClassGenerator
                         .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
                 ])));
     [Pure]
-    protected static FieldDeclarationSyntax CreateEmulatorField() =>
+    protected static FieldDeclarationSyntax CreateEmulatorField(GeneratorInput input) =>
         SyntaxFactory
             .FieldDeclaration(
                 SyntaxFactory
-                    .VariableDeclaration(SyntaxFactory.IdentifierName(EmulatorClassName))
+                    .VariableDeclaration(GetEmulatorClassIdentifier(input))
                     .WithVariables(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.VariableDeclarator(SyntaxFactory.Identifier(EmulatorFieldName)))))
             .WithModifiers(SyntaxFactory.TokenList(Private, ReadOnly));
 
@@ -179,8 +176,23 @@ public abstract class ClassGenerator
     protected static LiteralExpressionSyntax GetNumericLiteralExpression(int value) => SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
 
     [Pure]
-    protected static string GetRegistersClassName(string? category = null) => $"Z80{category}Registers";
+    protected static string GetEmulatorClassName(GeneratorInput input) => $"{input.Cpu.Name}Emulator";
 
     [Pure]
-    private static UsingDirectiveSyntax CreateUsingStatement(string ns) => SyntaxFactory.UsingDirective(SyntaxFactory.IdentifierName(ns));
+    protected static IdentifierNameSyntax GetEmulatorClassIdentifier(GeneratorInput input) => SyntaxFactory.IdentifierName(GetEmulatorClassName(input));
+
+    [Pure]
+    protected static string GetRegistersClassName(GeneratorInput input, string? category = null) => $"{input.Cpu.Name}{category}Registers";
+
+    [Pure]
+    protected static IdentifierNameSyntax GetRegistersClassIdentifier(GeneratorInput input, string? category = null) => SyntaxFactory.IdentifierName(GetRegistersClassName(input, category));
+
+    [Pure]
+    protected static string GetFlagsClassName(GeneratorInput input) => $"{input.Cpu.Name}Flags";
+
+    [Pure]
+    protected static IdentifierNameSyntax GetFlagsClassIdentifier(GeneratorInput input) => SyntaxFactory.IdentifierName(GetFlagsClassName(input));
+
+    [Pure]
+    private static UsingDirectiveSyntax CreateUsingStatement(string @namespace) => SyntaxFactory.UsingDirective(SyntaxFactory.IdentifierName(@namespace));
 }

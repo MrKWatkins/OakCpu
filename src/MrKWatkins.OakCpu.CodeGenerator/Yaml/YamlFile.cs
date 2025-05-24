@@ -13,6 +13,8 @@ public sealed partial class YamlFile
     {
     }
 
+    public CpuYaml Cpu { get; private set; } = null!;
+
     public IReadOnlyList<RegisterYaml> Registers
     {
         get => registers ?? [];
@@ -34,15 +36,17 @@ public sealed partial class YamlFile
     [Pure]
     public static YamlFile Combine(params IEnumerable<YamlFile> files)
     {
+        CpuYaml? cpu = null;
         var registers = new List<RegisterYaml>();
         var flags = new List<FlagYaml>();
         var instructions = new List<InstructionYaml>();
         foreach (var file in files)
         {
+            cpu ??= file.Cpu;
             registers.AddRange(file.Registers);
             flags.AddRange(file.Flags);
             instructions.AddRange(file.Instructions);
         }
-        return new YamlFile { Registers = registers, Flags = flags, Instructions = instructions };
+        return new YamlFile { Cpu = cpu ?? throw new InvalidOperationException("No cpu definition found."), Registers = registers, Flags = flags, Instructions = instructions };
     }
 }

@@ -22,13 +22,13 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
         var members = new List<MemberDeclarationSyntax>();
         members.AddRange(input.Registers.Select(r => CreateField(requiredUsings, r)));
 
-        members.Add(CreateConstructor());
+        members.Add(CreateConstructor(input));
 
         var fieldOffset = GetObjectPropertiesFieldOffset(input);
-        members.Add(CreateGetOnlyProperty(requiredUsings, RegistersClassName, RegistersPropertyName, fieldOffset));
+        members.Add(CreateGetOnlyProperty(requiredUsings, GetRegistersClassName(input), RegistersPropertyName, fieldOffset));
 
         fieldOffset += 8;
-        members.Add(CreateGetOnlyProperty(requiredUsings, FlagsClassName, FlagsPropertyName, fieldOffset));
+        members.Add(CreateGetOnlyProperty(requiredUsings, GetFlagsClassName(input), FlagsPropertyName, fieldOffset));
 
         fieldOffset += 8;
         members.Add(CreateGetSetProperty(requiredUsings, UShort, AddressPropertyName, fieldOffset));
@@ -48,19 +48,19 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     }
 
     [Pure]
-    private static ConstructorDeclarationSyntax CreateConstructor()
+    private static ConstructorDeclarationSyntax CreateConstructor(GeneratorInput input)
     {
         var statements = new List<StatementSyntax>
         {
             // Registers = new Z80Registers(this);
-            CreateNewObjectAndAssignToProperty(RegistersPropertyName, RegistersClassName, SyntaxFactory.ThisExpression()),
+            CreateNewObjectAndAssignToProperty(RegistersPropertyName, GetRegistersClassName(input), SyntaxFactory.ThisExpression()),
 
             // Flags = new Z80Flags(this);
-            CreateNewObjectAndAssignToProperty(FlagsPropertyName, FlagsClassName, SyntaxFactory.ThisExpression())
+            CreateNewObjectAndAssignToProperty(FlagsPropertyName, GetFlagsClassName(input), SyntaxFactory.ThisExpression())
         };
 
         return SyntaxFactory
-            .ConstructorDeclaration(EmulatorClassName)
+            .ConstructorDeclaration(GetEmulatorClassName(input))
             .WithModifiers(SyntaxFactory.TokenList(Public))
             .WithBody(SyntaxFactory.Block(statements));
     }

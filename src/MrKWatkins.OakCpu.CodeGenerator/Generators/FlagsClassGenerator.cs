@@ -16,14 +16,14 @@ public sealed class FlagsClassGenerator : ClassGenerator
     {
         var members = new List<MemberDeclarationSyntax>
         {
-            CreateEmulatorField(),
-            CreateConstructor()
+            CreateEmulatorField(input),
+            CreateConstructor(input)
         };
 
         members.AddRange(CreateFlagProperties(input));
 
         return SyntaxFactory
-            .ClassDeclaration(FlagsClassName)
+            .ClassDeclaration(GetFlagsClassName(input))
             .AddModifiers(Public, Sealed)
             .AddMembers(members.ToArray());
     }
@@ -73,7 +73,7 @@ public sealed class FlagsClassGenerator : ClassGenerator
     }
 
     [Pure]
-    private static ConstructorDeclarationSyntax CreateConstructor()
+    private static ConstructorDeclarationSyntax CreateConstructor(GeneratorInput input)
     {
         var statements = new StatementSyntax[]
         {
@@ -81,14 +81,14 @@ public sealed class FlagsClassGenerator : ClassGenerator
         };
 
         return SyntaxFactory
-            .ConstructorDeclaration(FlagsClassName)
+            .ConstructorDeclaration(GetFlagsClassName(input))
             .WithModifiers(SyntaxFactory.TokenList(Internal))
             .WithParameterList(
                 SyntaxFactory.ParameterList(
                     SyntaxFactory.SingletonSeparatedList(
                         SyntaxFactory
                             .Parameter(SyntaxFactory.Identifier(EmulatorFieldName))
-                            .WithType(SyntaxFactory.IdentifierName(EmulatorClassName)))))
+                            .WithType(GetEmulatorClassIdentifier(input)))))
             .WithBody(SyntaxFactory.Block(statements));
     }
 }

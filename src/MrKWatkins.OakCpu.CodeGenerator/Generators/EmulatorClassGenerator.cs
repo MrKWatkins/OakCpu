@@ -15,7 +15,7 @@ public abstract class EmulatorClassGenerator : ClassGenerator
     }
 
     protected sealed override BaseTypeDeclarationSyntax CreateType(HashSet<string> requiredUsings, GeneratorInput input) =>
-        PopulateClass(requiredUsings, input, SyntaxFactory.ClassDeclaration(EmulatorClassName).AddModifiers(Public, Sealed, Partial));
+        PopulateClass(requiredUsings, input, SyntaxFactory.ClassDeclaration(GetEmulatorClassName(input)).AddModifiers(Public, Sealed, Partial));
 
     [Pure]
     protected abstract ClassDeclarationSyntax PopulateClass(HashSet<string> requiredUsings, GeneratorInput input, ClassDeclarationSyntax classDeclaration);
