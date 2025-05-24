@@ -11,11 +11,14 @@ namespace MrKWatkins.OakCpu.CodeGenerator;
 
 public sealed class GeneratorInput
 {
-    private GeneratorInput(string rootNamespace, IReadOnlyList<Register> registers, IReadOnlyList<Flag> flags)
+    private GeneratorInput(string rootNamespace, IReadOnlyList<Register> registers, IReadOnlyList<Flag> flags, IReadOnlyList<Instruction> instructions)
     {
         RootNamespace = rootNamespace;
         Registers = registers;
         Flags = flags;
+        Instructions = instructions;
+        FlagsRegister = Registers.Single(r => r.Flags);
+        ProgramCounter = Registers.Single(r => r.ProgramCounter);
     }
 
     public string RootNamespace { get; }
@@ -23,6 +26,12 @@ public sealed class GeneratorInput
     public IReadOnlyList<Register> Registers { get; }
 
     public IReadOnlyList<Flag> Flags { get; }
+
+    public IReadOnlyList<Instruction> Instructions { get; }
+
+    public Register FlagsRegister { get; }
+
+    public Register ProgramCounter { get; }
 
     [Pure]
     public NamespaceDeclarationSyntax CreateRootNamespaceDeclaration() => SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(RootNamespace));
@@ -39,7 +48,7 @@ public sealed class GeneratorInput
             throw new ArgumentNullException(nameof(rootNamespace));
         }
 
-        return new GeneratorInput(rootNamespace, Register.Create(yaml.Registers), Flag.Create(yaml.Flags));
+        return new GeneratorInput(rootNamespace, Register.Create(yaml.Registers), Flag.Create(yaml.Flags), Instruction.Create(yaml.Instructions));
     }
 
     [Pure]
@@ -48,7 +57,7 @@ public sealed class GeneratorInput
         try
         {
             var bytes = Encoding.UTF8.GetBytes(text.GetText()!.ToString());
-            return YamlSerializer.Deserialize<YamlFile>(bytes);
+            return YamlSerializer.Deserialize<YamlFile>(bytes, YamlOptions.Instance);
         }
         catch (Exception exception)
         {

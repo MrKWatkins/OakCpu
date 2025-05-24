@@ -17,6 +17,8 @@ public sealed partial class RegisterYaml
 
     public bool Flags { get; private set; }
 
+    public bool ProgramCounter { get; private set; }
+
     public string? Category { get; private set; }
 
     public IReadOnlyList<string> Combines

@@ -1,0 +1,3 @@
+instructions:
+  - name: NOP
+    opcode: 0x00

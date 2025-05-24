@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
+[SuppressMessage("ReSharper", "InconsistentNaming")]
 public abstract class ClassGenerator
 {
     protected const string EmulatorClassName = "Z80Emulator";
@@ -11,11 +12,27 @@ public abstract class ClassGenerator
     protected const string RegistersClassName = "Z80Registers";
     protected const string EmulatorFieldName = "emulator";
 
+    protected static class ActionRequired
+    {
+        public const string EnumName = "ActionRequired";
+        public const string None = "None";
+        public const string MemoryRead = "MemoryRead";
+        public const string MemoryWrite = "MemoryWrite";
+        public const string IORead = "IORead";
+        public const string IOWrite = "IOWrite";
+        public static readonly IReadOnlyList<string> Members = [None, MemoryRead, MemoryWrite, IORead, IOWrite];
+    }
+
     private protected ClassGenerator()
     {
     }
 
-    public static readonly IReadOnlyList<ClassGenerator> AllGenerators = [EmulatorFieldsPropertiesAndConstructorGenerator.Instance, FlagsClassGenerator.Instance, RegistersClassesGenerator.Instance];
+    public static readonly IReadOnlyList<ClassGenerator> AllGenerators = [
+        ActionRequiredGenerator.Instance,
+        EmulatorFieldsPropertiesAndConstructorGenerator.Instance,
+        EmulatorStepGenerator.Instance,
+        FlagsClassGenerator.Instance,
+        RegistersClassesGenerator.Instance];
 
     public string FileName => GetType().Name.Substring(0, GetType().Name.Length - "Generator".Length);
 
@@ -24,7 +41,7 @@ public abstract class ClassGenerator
     {
         var requiredUsings = new HashSet<string>();
 
-        var classDeclarations = CreateClasses(requiredUsings, input).ToArray<MemberDeclarationSyntax>();
+        var classDeclarations = CreateTypes(requiredUsings, input).ToArray<MemberDeclarationSyntax>();
 
         return SyntaxFactory
             .CompilationUnit()
@@ -37,28 +54,36 @@ public abstract class ClassGenerator
     }
 
     [MustUseReturnValue]
-    protected virtual IEnumerable<ClassDeclarationSyntax> CreateClasses(HashSet<string> requiredUsings, GeneratorInput input)
+    protected virtual IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(HashSet<string> requiredUsings, GeneratorInput input)
     {
-        yield return CreateClass(requiredUsings, input);
+        yield return CreateType(requiredUsings, input);
     }
 
     [MustUseReturnValue]
-    protected virtual ClassDeclarationSyntax CreateClass(HashSet<string> requiredUsings, GeneratorInput input)
+    protected virtual BaseTypeDeclarationSyntax CreateType(HashSet<string> requiredUsings, GeneratorInput input)
     {
-        throw new NotImplementedException($"{nameof(CreateClass)} is not implemented and {nameof(CreateClasses)} has not been overridden.");
+        throw new NotImplementedException($"{nameof(CreateType)} is not implemented and {nameof(CreateTypes)} has not been overridden.");
     }
 
     [Pure]
-    protected static PropertyDeclarationSyntax CreateGetOnlyProperty(string typeName, string propertyName) => CreateGetOnlyProperty(SyntaxFactory.IdentifierName(typeName), propertyName);
+    protected static PropertyDeclarationSyntax CreateGetOnlyProperty(string typeName, string propertyName) =>
+        SyntaxFactory
+            .PropertyDeclaration(SyntaxFactory.IdentifierName(typeName), SyntaxFactory.Identifier(propertyName))
+            .WithModifiers(SyntaxFactory.TokenList(Public))
+            .WithAccessorList(
+                SyntaxFactory.AccessorList(
+                    SyntaxFactory.SingletonList(SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Semicolon))));
 
     [Pure]
-    protected static PropertyDeclarationSyntax CreateGetOnlyProperty(TypeSyntax type, string propertyName) =>
+    protected static PropertyDeclarationSyntax CreateGetSetProperty(TypeSyntax type, string propertyName) =>
         SyntaxFactory
             .PropertyDeclaration(type, SyntaxFactory.Identifier(propertyName))
             .WithModifiers(SyntaxFactory.TokenList(Public))
             .WithAccessorList(
-                SyntaxFactory.AccessorList(SyntaxFactory.SingletonList(SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Semicolon))));
-
+                SyntaxFactory.AccessorList(SyntaxFactory.List([
+                    SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Semicolon),
+                    SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(Semicolon)
+                ])));
 
     [Pure]
     protected static PropertyDeclarationSyntax CreateGetSetProperty(TypeSyntax type, string propertyName, ExpressionSyntax getExpression, ExpressionSyntax setExpression) =>
@@ -115,6 +140,12 @@ public abstract class ClassGenerator
     protected static PredefinedTypeSyntax Bool => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword));
 
     [Pure]
+    protected static PredefinedTypeSyntax Byte => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.ByteKeyword));
+
+    [Pure]
+    protected static PredefinedTypeSyntax UShort => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.UShortKeyword));
+
+    [Pure]
     protected static SyntaxToken Field => SyntaxFactory.Token(SyntaxKind.FieldKeyword);
 
     [Pure]
@@ -145,7 +176,7 @@ public abstract class ClassGenerator
     protected static LiteralExpressionSyntax GetBinaryLiteralExpression(byte value) => SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, GetBinaryLiteral(value));
 
     [Pure]
-    protected static LiteralExpressionSyntax GetNumericLiteralExpression(byte value) => SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
+    protected static LiteralExpressionSyntax GetNumericLiteralExpression(int value) => SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
 
     [Pure]
     protected static string GetRegistersClassName(string? category = null) => $"Z80{category}Registers";

@@ -12,7 +12,7 @@ public sealed class FlagsClassGenerator : ClassGenerator
     {
     }
 
-    protected override ClassDeclarationSyntax CreateClass(HashSet<string> requiredUsings, GeneratorInput input)
+    protected override BaseTypeDeclarationSyntax CreateType(HashSet<string> requiredUsings, GeneratorInput input)
     {
         var members = new List<MemberDeclarationSyntax>
         {
@@ -29,12 +29,7 @@ public sealed class FlagsClassGenerator : ClassGenerator
     }
 
     [Pure]
-    private static IEnumerable<PropertyDeclarationSyntax> CreateFlagProperties(GeneratorInput input)
-    {
-        var flagsRegister = input.Registers.Single(r => r.Flags);
-
-        return input.Flags.Select(f => CreateFlagProperty(flagsRegister, f));
-    }
+    private static IEnumerable<PropertyDeclarationSyntax> CreateFlagProperties(GeneratorInput input) => input.Flags.Select(f => CreateFlagProperty(input.FlagsRegister, f));
 
     [Pure]
     private static PropertyDeclarationSyntax CreateFlagProperty(Register flagsRegister, Flag flag)

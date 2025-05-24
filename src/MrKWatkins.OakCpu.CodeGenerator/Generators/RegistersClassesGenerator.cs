@@ -12,7 +12,7 @@ public sealed class RegistersClassesGenerator : ClassGenerator
     {
     }
 
-    protected override IEnumerable<ClassDeclarationSyntax> CreateClasses(HashSet<string> requiredUsings, GeneratorInput input)
+    protected override IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(HashSet<string> requiredUsings, GeneratorInput input)
     {
         yield return CreateClass(input, null);
 

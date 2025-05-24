@@ -1,6 +1,6 @@
 namespace MrKWatkins.OakCpu.CodeGenerator.Tests.Yaml;
 
-public class RegisterYamlTests : TextFixture
+public class RegisterYamlTests : TestFixture
 {
     [Test]
     public async Task Load()

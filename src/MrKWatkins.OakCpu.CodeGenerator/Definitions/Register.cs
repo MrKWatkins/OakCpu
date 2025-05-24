@@ -4,11 +4,12 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Register
 {
-    private Register(string name, DataType type, bool flags, string? category, int fieldOffset)
+    private Register(string name, DataType type, bool flags, bool programCounter, string? category, int fieldOffset)
     {
         Name = name;
         Type = type;
         Flags = flags;
+        ProgramCounter = programCounter;
         Category = category;
         FieldOffset = fieldOffset;
     }
@@ -22,6 +23,8 @@ public sealed class Register
     public DataType Type { get; }
 
     public bool Flags { get; }
+
+    public bool ProgramCounter { get; }
 
     public string? Category { get; }
 
@@ -39,17 +42,17 @@ public sealed class Register
         var fieldOffset = 0;
         foreach (var yaml in Order(yamls.Where(y => y.Combines.Count > 0)))
         {
-            registers.Add(yaml.Name, new Register(yaml.Name, yaml.Type, yaml.Flags, yaml.Category, fieldOffset));
+            registers.Add(yaml.Name, new Register(yaml.Name, yaml.Type, yaml.Flags, yaml.ProgramCounter, yaml.Category, fieldOffset));
             foreach (var componentYaml in yaml.Combines.Reverse().Select(c => yamlsByName[c]))
             {
-                registers.Add(componentYaml.Name, new Register(componentYaml.Name, componentYaml.Type, componentYaml.Flags, componentYaml.Category, fieldOffset));
+                registers.Add(componentYaml.Name, new Register(componentYaml.Name, componentYaml.Type, componentYaml.Flags, componentYaml.ProgramCounter, componentYaml.Category, fieldOffset));
                 fieldOffset += componentYaml.Type.Size();
             }
         }
 
         foreach (var yaml in Order(yamls.Where(y => y.Combines.Count == 0 && !registers.ContainsKey(y.Name))))
         {
-            registers.Add(yaml.Name, new Register(yaml.Name, yaml.Type, yaml.Flags, yaml.Category, fieldOffset));
+            registers.Add(yaml.Name, new Register(yaml.Name, yaml.Type, yaml.Flags, yaml.ProgramCounter, yaml.Category, fieldOffset));
             fieldOffset += yaml.Type.Size();
         }
 

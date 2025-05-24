@@ -24,11 +24,23 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
 
         members.Add(CreateConstructor());
 
-        var objectPropertiesFieldOffset = GetObjectPropertiesFieldOffset(input);
-        members.Add(CreateGetOnlyProperty(requiredUsings, RegistersClassName, RegistersPropertyName, objectPropertiesFieldOffset));
+        var fieldOffset = GetObjectPropertiesFieldOffset(input);
+        members.Add(CreateGetOnlyProperty(requiredUsings, RegistersClassName, RegistersPropertyName, fieldOffset));
 
-        objectPropertiesFieldOffset += 8;
-        members.Add(CreateGetOnlyProperty(requiredUsings, FlagsClassName, FlagsPropertyName, objectPropertiesFieldOffset));
+        fieldOffset += 8;
+        members.Add(CreateGetOnlyProperty(requiredUsings, FlagsClassName, FlagsPropertyName, fieldOffset));
+
+        fieldOffset += 8;
+        members.Add(CreateGetSetProperty(requiredUsings, UShort, AddressPropertyName, fieldOffset));
+
+        fieldOffset += 2;
+        members.Add(CreateGetSetProperty(requiredUsings, Byte, DataPropertyName, fieldOffset));
+
+        fieldOffset += 1;
+        members.Add(CreateField(requiredUsings, Byte, LastOpcodeFieldName, fieldOffset, Private));
+
+        fieldOffset += 1;
+        members.Add(CreateField(requiredUsings, UShort, StepIndexFieldName, fieldOffset, Private));
 
         return classDeclaration
             .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(structLayout)))
@@ -64,6 +76,16 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     }
 
     [Pure]
+    private static PropertyDeclarationSyntax CreateGetSetProperty(HashSet<string> requiredUsings, TypeSyntax type, string propertyName, int fieldOffset)
+    {
+        var attributeList = SyntaxFactory
+            .AttributeList(SyntaxFactory.SingletonSeparatedList(CreateFieldOffsetAttribute(requiredUsings, fieldOffset)))
+            .WithTarget(SyntaxFactory.AttributeTargetSpecifier(Field));
+
+        return CreateGetSetProperty(type, propertyName).AddAttributeLists(attributeList);
+    }
+
+    [Pure]
     private static int GetObjectPropertiesFieldOffset(GeneratorInput input)
     {
         var lastRegister = input.Registers.OrderByDescending(r => r.FieldOffset).First();
@@ -75,10 +97,10 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
 
     [MustUseReturnValue]
     private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, Register register) =>
-        CreateField(requiredUsings, register.FieldName, register.Type.PredefinedType(), register.FieldOffset, Internal);
+        CreateField(requiredUsings, register.Type.PredefinedType(), register.FieldName, register.FieldOffset, Internal);
 
     [MustUseReturnValue]
-    private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, string name, PredefinedTypeSyntax type, int fieldOffset, SyntaxToken visibility)
+    private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, PredefinedTypeSyntax type, string name, int fieldOffset, SyntaxToken visibility)
     {
         var attribute = CreateFieldOffsetAttribute(requiredUsings, fieldOffset);
 
