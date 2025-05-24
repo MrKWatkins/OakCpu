@@ -32,6 +32,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrKWatkins.OakCpu.CodeGener
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrKWatkins.OakCpu.CodeGenerator.Tests", "MrKWatkins.OakCpu.CodeGenerator.Tests\MrKWatkins.OakCpu.CodeGenerator.Tests.csproj", "{EBCAA82A-3581-42CB-A6F2-4A1E5842D9EE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{FA51A712-6207-480C-8868-AA0D66A6A601}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{448255F6-03C3-498E-800B-1CB149319459}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\workflows\build.yml = ..\.github\workflows\build.yml
+		..\.github\workflows\release.yml = ..\.github\workflows\release.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,5 +69,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{4C2E5424-BCEA-47D9-82A3-D9894FDFAC41} = {C18D2C0D-B892-41EF-AA43-20F981CA5A56}
+		{FA51A712-6207-480C-8868-AA0D66A6A601} = {CF6CC39D-85D3-443F-B491-4552DB6C50FD}
+		{448255F6-03C3-498E-800B-1CB149319459} = {FA51A712-6207-480C-8868-AA0D66A6A601}
 	EndGlobalSection
 EndGlobal
