@@ -7,12 +7,15 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public abstract class ClassGenerator
 {
     protected const string EmulatorClassName = "Z80Emulator";
+    protected const string FlagsClassName = "Z80Flags";
+    protected const string RegistersClassName = "Z80Registers";
+    protected const string EmulatorFieldName = "emulator";
 
     private protected ClassGenerator()
     {
     }
 
-    public static readonly IReadOnlyList<ClassGenerator> AllGenerators = [EmulatorFieldsPropertiesAndConstructorGenerator.Instance, RegistersClassesGenerator.Instance];
+    public static readonly IReadOnlyList<ClassGenerator> AllGenerators = [EmulatorFieldsPropertiesAndConstructorGenerator.Instance, FlagsClassGenerator.Instance, RegistersClassesGenerator.Instance];
 
     public string FileName => GetType().Name.Substring(0, GetType().Name.Length - "Generator".Length);
 
@@ -58,6 +61,60 @@ public abstract class ClassGenerator
 
 
     [Pure]
+    protected static PropertyDeclarationSyntax CreateGetSetProperty(TypeSyntax type, string propertyName, ExpressionSyntax getExpression, ExpressionSyntax setExpression) =>
+        SyntaxFactory
+            .PropertyDeclaration(type, SyntaxFactory.Identifier(propertyName))
+            .WithModifiers(SyntaxFactory.TokenList(Public))
+            .WithAccessorList(
+                SyntaxFactory.AccessorList(SyntaxFactory.List(
+                [
+                    SyntaxFactory
+                        .AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                        .WithExpressionBody(SyntaxFactory.ArrowExpressionClause(getExpression))
+                        .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+
+                    SyntaxFactory
+                        .AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                        .WithExpressionBody(SyntaxFactory.ArrowExpressionClause(setExpression))
+                        .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+                ])));
+    [Pure]
+    protected static FieldDeclarationSyntax CreateEmulatorField() =>
+        SyntaxFactory
+            .FieldDeclaration(
+                SyntaxFactory
+                    .VariableDeclaration(SyntaxFactory.IdentifierName(EmulatorClassName))
+                    .WithVariables(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.VariableDeclarator(SyntaxFactory.Identifier(EmulatorFieldName)))))
+            .WithModifiers(SyntaxFactory.TokenList(Private, ReadOnly));
+
+    [Pure]
+    protected static ExpressionStatementSyntax CreateNewObjectAndAssignToProperty(string propertyName, string classToCreateName, params ExpressionSyntax[] constructorArguments) =>
+        SyntaxFactory.ExpressionStatement(
+            SyntaxFactory.AssignmentExpression(
+                SyntaxKind.SimpleAssignmentExpression,
+                SyntaxFactory.IdentifierName(propertyName),
+                SyntaxFactory
+                    .ObjectCreationExpression(SyntaxFactory.IdentifierName(classToCreateName))
+                    .WithArgumentList(
+                        SyntaxFactory.ArgumentList(
+                            SyntaxFactory.SeparatedList(constructorArguments.Select(SyntaxFactory.Argument).ToArray())))));
+
+    [Pure]
+    protected static ExpressionStatementSyntax CreateAssignEmulatorFieldExpression() =>
+        // this.emulator = emulator;
+        SyntaxFactory.ExpressionStatement(
+            SyntaxFactory.AssignmentExpression(
+                SyntaxKind.SimpleAssignmentExpression,
+                SyntaxFactory.MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    SyntaxFactory.ThisExpression(),
+                    SyntaxFactory.IdentifierName(EmulatorFieldName)),
+                SyntaxFactory.IdentifierName(EmulatorFieldName)));
+
+    [Pure]
+    protected static PredefinedTypeSyntax Bool => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword));
+
+    [Pure]
     protected static SyntaxToken Field => SyntaxFactory.Token(SyntaxKind.FieldKeyword);
 
     [Pure]
@@ -80,6 +137,15 @@ public abstract class ClassGenerator
 
     [Pure]
     protected static SyntaxToken Semicolon => SyntaxFactory.Token(SyntaxKind.SemicolonToken);
+
+    [Pure]
+    protected static SyntaxToken GetBinaryLiteral(byte value) => SyntaxFactory.Literal($"0b{Convert.ToString(value, 2).PadLeft(8, '0')}", value);
+
+    [Pure]
+    protected static LiteralExpressionSyntax GetBinaryLiteralExpression(byte value) => SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, GetBinaryLiteral(value));
+
+    [Pure]
+    protected static LiteralExpressionSyntax GetNumericLiteralExpression(byte value) => SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
 
     [Pure]
     protected static string GetRegistersClassName(string? category = null) => $"Z80{category}Registers";

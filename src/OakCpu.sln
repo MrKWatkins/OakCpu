@@ -14,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "z80", "z80", "{4C2E5424-BCEA-47D9-82A3-D9894FDFAC41}"
 	ProjectSection(SolutionItems) = preProject
 		..\definitions\z80\registers.yaml = ..\definitions\z80\registers.yaml
+		..\definitions\z80\flags.yaml = ..\definitions\z80\flags.yaml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{70301D17-1802-49A0-A12A-40E03D316AF5}"

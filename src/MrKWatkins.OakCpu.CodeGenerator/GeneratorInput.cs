@@ -11,15 +11,18 @@ namespace MrKWatkins.OakCpu.CodeGenerator;
 
 public sealed class GeneratorInput
 {
-    private GeneratorInput(string rootNamespace, IReadOnlyList<Register> registers)
+    private GeneratorInput(string rootNamespace, IReadOnlyList<Register> registers, IReadOnlyList<Flag> flags)
     {
         RootNamespace = rootNamespace;
         Registers = registers;
+        Flags = flags;
     }
 
     public string RootNamespace { get; }
 
     public IReadOnlyList<Register> Registers { get; }
+
+    public IReadOnlyList<Flag> Flags { get; }
 
     [Pure]
     public NamespaceDeclarationSyntax CreateRootNamespaceDeclaration() => SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(RootNamespace));
@@ -36,7 +39,7 @@ public sealed class GeneratorInput
             throw new ArgumentNullException(nameof(rootNamespace));
         }
 
-        return new GeneratorInput(rootNamespace, Register.Create(yaml.Registers));
+        return new GeneratorInput(rootNamespace, Register.Create(yaml.Registers), Flag.Create(yaml.Flags));
     }
 
     [Pure]

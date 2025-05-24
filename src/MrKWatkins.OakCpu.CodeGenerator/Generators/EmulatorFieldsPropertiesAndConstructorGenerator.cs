@@ -8,6 +8,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorClassGenerator
 {
     private const string RegistersPropertyName = "Registers";
+    private const string FlagsPropertyName = "Flags";
     public static readonly EmulatorFieldsPropertiesAndConstructorGenerator Instance = new();
 
     private EmulatorFieldsPropertiesAndConstructorGenerator()
@@ -24,7 +25,10 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
         members.Add(CreateConstructor());
 
         var objectPropertiesFieldOffset = GetObjectPropertiesFieldOffset(input);
-        members.Add(CreateGetOnlyProperty(requiredUsings, GetRegistersClassName(), RegistersPropertyName, objectPropertiesFieldOffset));
+        members.Add(CreateGetOnlyProperty(requiredUsings, RegistersClassName, RegistersPropertyName, objectPropertiesFieldOffset));
+
+        objectPropertiesFieldOffset += 8;
+        members.Add(CreateGetOnlyProperty(requiredUsings, FlagsClassName, FlagsPropertyName, objectPropertiesFieldOffset));
 
         return classDeclaration
             .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(structLayout)))
@@ -36,23 +40,17 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     {
         var statements = new List<StatementSyntax>
         {
-            // Registers = new Z80Register(this);
-            SyntaxFactory.ExpressionStatement(
-                SyntaxFactory.AssignmentExpression(
-                    SyntaxKind.SimpleAssignmentExpression,
-                    SyntaxFactory.IdentifierName(RegistersPropertyName),
-                    SyntaxFactory
-                        .ObjectCreationExpression(SyntaxFactory.IdentifierName(GetRegistersClassName()))
-                        .WithArgumentList(
-                            SyntaxFactory.ArgumentList(
-                                SyntaxFactory.SingletonSeparatedList(
-                                    SyntaxFactory.Argument(SyntaxFactory.ThisExpression()))))))
+            // Registers = new Z80Registers(this);
+            CreateNewObjectAndAssignToProperty(RegistersPropertyName, RegistersClassName, SyntaxFactory.ThisExpression()),
+
+            // Flags = new Z80Flags(this);
+            CreateNewObjectAndAssignToProperty(FlagsPropertyName, FlagsClassName, SyntaxFactory.ThisExpression())
         };
 
         return SyntaxFactory
             .ConstructorDeclaration(EmulatorClassName)
             .WithModifiers(SyntaxFactory.TokenList(Public))
-            .WithBody(SyntaxFactory.Block(statements.ToArray()));
+            .WithBody(SyntaxFactory.Block(statements));
     }
 
     [Pure]

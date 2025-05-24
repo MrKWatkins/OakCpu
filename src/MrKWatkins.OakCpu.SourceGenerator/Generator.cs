@@ -38,6 +38,7 @@ public sealed class Generator() : IncrementalGenerator(nameof(Generator))
             catch (Exception exception)
             {
                 Logger.Error(exception, $"Error generating {generator.FileName}.");
+                context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("CS8032", "Exception", $"Exception during {nameof(ClassGenerator)} {generator.GetType().Name}: {exception}", "Build", DiagnosticSeverity.Error, true), Location.None));
             }
         }
     }

@@ -5,7 +5,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Yaml;
 [YamlObject]
 public sealed partial class RegisterYaml
 {
-    private IReadOnlyList<string> combines = [];
+    private IReadOnlyList<string>? combines;
 
     private RegisterYaml()
     {
@@ -21,8 +21,8 @@ public sealed partial class RegisterYaml
 
     public IReadOnlyList<string> Combines
     {
-        get => combines;
-        private set => combines = value ?? [];
+        get => combines ?? [];
+        private set => combines = value;
     }
 
     public override string ToString() => $"{Name}: {Type}";

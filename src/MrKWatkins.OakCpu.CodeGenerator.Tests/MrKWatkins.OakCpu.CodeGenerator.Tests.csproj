@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-        <EmbeddedResource Include="TestData\registers.yaml" />
         <EmbeddedResource Include="Yaml\TestData\*.yaml" />
     </ItemGroup>
 
