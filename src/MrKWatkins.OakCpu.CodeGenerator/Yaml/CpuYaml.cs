@@ -13,5 +13,7 @@ public sealed partial class CpuYaml
 
     public IReadOnlyList<string> Actions { get; private set; } = [];
 
+    public IReadOnlyList<IReadOnlyList<string>> OpcodeRead { get; private set; } = [];
+
     public override string ToString() => Name;
 }

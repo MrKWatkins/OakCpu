@@ -7,6 +7,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Build.props = Directory.Build.props
 		Directory.Packages.props = Directory.Packages.props
 		.editorconfig = .editorconfig
+		..\.gitignore = ..\.gitignore
+		..\Icon.png = ..\Icon.png
+		..\License.md = ..\License.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "definitions", "definitions", "{C18D2C0D-B892-41EF-AA43-20F981CA5A56}"
@@ -17,14 +20,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "z80", "z80", "{4C2E5424-BCE
 		..\definitions\z80\flags.yaml = ..\definitions\z80\flags.yaml
 		..\definitions\z80\general.yaml = ..\definitions\z80\general.yaml
 		..\definitions\z80\cpu.yaml = ..\definitions\z80\cpu.yaml
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{70301D17-1802-49A0-A12A-40E03D316AF5}"
-	ProjectSection(SolutionItems) = preProject
-		..\Icon.png = ..\Icon.png
-		..\License.md = ..\License.md
-		..\ReadMe.md = ..\ReadMe.md
-		..\.gitignore = ..\.gitignore
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrKWatkins.OakCpu.Z80.Tests", "MrKWatkins.OakCpu.Z80.Tests\MrKWatkins.OakCpu.Z80.Tests.csproj", "{C0E307B6-B1E3-421A-99C7-62804DAE1A39}"

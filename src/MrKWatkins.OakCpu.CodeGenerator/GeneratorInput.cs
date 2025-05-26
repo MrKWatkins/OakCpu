@@ -51,7 +51,15 @@ public sealed class GeneratorInput
             throw new ArgumentNullException(nameof(rootNamespace));
         }
 
-        return new GeneratorInput(rootNamespace, Cpu.Create(yaml.Cpu), Register.Create(yaml.Registers), Flag.Create(yaml.Flags), Instruction.Create(yaml.Instructions));
+        var registers = Register.Create(yaml.Registers);
+        var registersByName = registers.ToDictionary(r => r.Name);
+
+        var flags = Flag.Create(yaml.Flags);
+        var flagsByName = flags.ToDictionary(r => r.Name);
+
+        var cpu = Cpu.Create(yaml.Cpu, registersByName, flagsByName);
+
+        return new GeneratorInput(rootNamespace, cpu, registers, flags, Instruction.Create(yaml.Instructions));
     }
 
     [Pure]

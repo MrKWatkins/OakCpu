@@ -4,7 +4,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Register
 {
-    private Register(string name, DataType type, bool flags, bool programCounter, string? category, int fieldOffset)
+    internal Register(string name, DataType type, bool flags, bool programCounter, string? category, int fieldOffset)
     {
         Name = name;
         Type = type;

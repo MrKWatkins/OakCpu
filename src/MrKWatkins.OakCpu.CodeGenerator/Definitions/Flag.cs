@@ -5,7 +5,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Flag
 {
-    private Flag(string name, int index)
+    internal Flag(string name, int index)
     {
         Name = name;
         Index = index;

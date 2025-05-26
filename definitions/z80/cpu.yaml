@@ -3,6 +3,10 @@ cpu:
   actions:
     - MemoryRead
     - MemoryWrite
-    - MemoryRefresh
     - IORead
     - IOWrite
+  opcode_read:
+    - [Address = PC, MemoryRead]
+    - [lastOpcode = Data]
+    - [Address = IR, R = (R & 0x80) | (R + 1) & 0x7F)]
+    - []
