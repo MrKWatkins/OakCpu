@@ -3,6 +3,16 @@ namespace MrKWatkins.OakCpu.Z80.Tests;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public sealed class Z80EmulatorTests
 {
+    static Z80EmulatorTests()
+    {
+        if (!BitConverter.IsLittleEndian)
+        {
+#pragma warning disable CA1065
+            throw new NotSupportedException("Only little endian systems are supported.");
+#pragma warning restore CA1065
+        }
+    }
+
     [Test]
     public void AF()
     {

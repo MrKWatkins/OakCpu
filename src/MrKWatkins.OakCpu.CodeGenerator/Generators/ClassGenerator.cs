@@ -158,6 +158,9 @@ public abstract class ClassGenerator
     protected static SyntaxToken Semicolon => SyntaxFactory.Token(SyntaxKind.SemicolonToken);
 
     [Pure]
+    protected static SyntaxToken Static => SyntaxFactory.Token(SyntaxKind.StaticKeyword);
+
+    [Pure]
     protected static SyntaxToken GetBinaryLiteral(byte value) => SyntaxFactory.Literal($"0b{Convert.ToString(value, 2).PadLeft(8, '0')}", value);
 
     [Pure]

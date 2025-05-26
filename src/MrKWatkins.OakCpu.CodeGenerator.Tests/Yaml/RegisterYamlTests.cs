@@ -6,6 +6,6 @@ public class RegisterYamlTests : TestFixture
     public async Task Load()
     {
         var registersYaml = await LoadZ80DefinitionFileAsync("registers.yaml");
-        registersYaml.Registers.Should().ContainSingle(r => r.Flags);
+        registersYaml.Registers.Should().HaveCount(15);
     }
 }

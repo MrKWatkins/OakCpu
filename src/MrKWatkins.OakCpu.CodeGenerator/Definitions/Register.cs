@@ -35,28 +35,28 @@ public sealed class Register
     [Pure]
     public static IReadOnlyList<Register> Create(IReadOnlyList<RegisterYaml> yamls)
     {
-        var yamlsByName = yamls.ToDictionary(y => y.Name);
-
-        var registers = new Dictionary<string, Register>();
+        var registers = new List<Register>();
 
         var fieldOffset = 0;
-        foreach (var yaml in Order(yamls.Where(y => y.Combines.Count > 0)))
+        foreach (var yaml in Order(yamls.Where(y => y.High != null)))
         {
-            registers.Add(yaml.Name, new Register(yaml.Name, yaml.Type, yaml.Flags, yaml.ProgramCounter, yaml.Category, fieldOffset));
-            foreach (var componentYaml in yaml.Combines.Reverse().Select(c => yamlsByName[c]))
-            {
-                registers.Add(componentYaml.Name, new Register(componentYaml.Name, componentYaml.Type, componentYaml.Flags, componentYaml.ProgramCounter, componentYaml.Category, fieldOffset));
-                fieldOffset += componentYaml.Type.Size();
-            }
+            registers.Add(new Register(yaml.Name, yaml.Type, yaml.Flags, yaml.ProgramCounter, yaml.Category, fieldOffset));
+
+            // Little endian; low byte is at the lowest address.
+            registers.Add(new Register(yaml.Low!.Name, yaml.Low.Type, yaml.Low.Flags, yaml.Low.ProgramCounter, yaml.Low.Category, fieldOffset));
+            fieldOffset += yaml.Low.Type.Size();
+
+            registers.Add(new Register(yaml.High!.Name, yaml.High.Type, yaml.High.Flags, yaml.High.ProgramCounter, yaml.High.Category, fieldOffset));
+            fieldOffset += yaml.High.Type.Size();
         }
 
-        foreach (var yaml in Order(yamls.Where(y => y.Combines.Count == 0 && !registers.ContainsKey(y.Name))))
+        foreach (var yaml in Order(yamls.Where(y => y.High == null)))
         {
-            registers.Add(yaml.Name, new Register(yaml.Name, yaml.Type, yaml.Flags, yaml.ProgramCounter, yaml.Category, fieldOffset));
+            registers.Add(new Register(yaml.Name, yaml.Type, yaml.Flags, yaml.ProgramCounter, yaml.Category, fieldOffset));
             fieldOffset += yaml.Type.Size();
         }
 
-        return registers.Values.OrderBy(r => r.FieldOffset).ToList();
+        return registers.OrderBy(r => r.FieldOffset).ToList();
     }
 
     [Pure]

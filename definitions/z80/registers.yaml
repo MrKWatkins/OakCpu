@@ -1,74 +1,67 @@
 registers:
-  - name: A
-    type: u8
-
-  - name: F
-    type: u8
-    flags: true
-
   - name: AF
     type: u16
-    combines: [A, F]
-
-  - name: B
-    type: u8
-
-  - name: C
-    type: u8
+    high:
+      name: A
+      type: u8
+    low:
+      name: F
+      type: u8
+      flags: true
 
   - name: BC
     type: u16
-    combines: [B, C]
-
-  - name: D
-    type: u8
-
-  - name: E
-    type: u8
+    high:
+      name: B
+      type: u8
+    low:
+      name: C
+      type: u8
 
   - name: DE
     type: u16
-    combines: [D, E]
-
-  - name: H
-    type: u8
-
-  - name: L
-    type: u8
+    high:
+      name: D
+      type: u8
+    low:
+      name: E
+      type: u8
 
   - name: HL
     type: u16
-    combines: [H, L]
-
-  - name: IXL
-    type: u8
-
-  - name: IXH
-    type: u8
+    high:
+      name: H
+      type: u8
+    low:
+      name: L
+      type: u8
 
   - name: IX
     type: u16
-    combines: [IXH, IXL]
-
-  - name: IYL
-    type: u8
-
-  - name: IYH
-    type: u8
+    high:
+      name: IXH
+      type: u8
+    low:
+      name: IXL
+      type: u8
 
   - name: IY
     type: u16
-    combines: [IYH, IYL]
-
-  - name: I
-    type: u8
-
-  - name: R
-    type: u8
+    high:
+      name: IYH
+      type: u8
+    low:
+      name: IYL
+      type: u8
 
   - name: IR
     type: u16
-    combines: [I, R]
+    high:
+      name: I
+      type: u8
+    low:
+      name: R
+      type: u8
 
   - name: PC
     type: u16
@@ -77,8 +70,14 @@ registers:
   - name: SP
     type: u16
 
-  - name: MEMPTR
+  - name: WZ
     type: u16
+    high:
+      name: W
+      type: u8
+    low:
+      name: Z
+      type: u8
 
   - name: Q
     type: u8

@@ -19,7 +19,11 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     {
         var structLayout = CreateStructLayoutAttribute(requiredUsings);
 
-        var members = new List<MemberDeclarationSyntax>();
+        var members = new List<MemberDeclarationSyntax>
+        {
+            CreateStaticConstructor(requiredUsings, input)
+        };
+
         members.AddRange(input.Registers.Select(r => CreateField(requiredUsings, r)));
 
         members.Add(CreateConstructor(input));
@@ -126,6 +130,7 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
                             SyntaxFactory.IdentifierName("LayoutKind"),
                             SyntaxFactory.IdentifierName("Explicit"))))));
     }
+
     [MustUseReturnValue]
     private static AttributeSyntax CreateFieldOffsetAttribute(HashSet<string> requiredUsings, int fieldOffset)
     {
@@ -139,5 +144,70 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
                         SyntaxFactory.LiteralExpression(
                             SyntaxKind.NumericLiteralExpression,
                             SyntaxFactory.Literal(fieldOffset))))));
+    }
+
+    [MustUseReturnValue]
+    private static ConstructorDeclarationSyntax CreateStaticConstructor(HashSet<string> requiredUsings, GeneratorInput input)
+    {
+        requiredUsings.Add(typeof(BitConverter).Namespace);
+        requiredUsings.Add(typeof(NotSupportedException).Namespace);
+
+        // throw new NotSupportedException("Only little endian systems are supported.");
+        var throwStatement = SyntaxFactory
+            .ThrowStatement(
+                SyntaxFactory.ObjectCreationExpression(SyntaxFactory.IdentifierName(nameof(NotSupportedException)))
+                    .WithArgumentList(
+                        SyntaxFactory.ArgumentList(
+                            SyntaxFactory.SingletonSeparatedList(
+                                SyntaxFactory.Argument(
+                                    SyntaxFactory.LiteralExpression(
+                                        SyntaxKind.StringLiteralExpression,
+                                        SyntaxFactory.Literal("Only little endian systems are supported.")))))));
+
+        // #pragma warning disable CA1065
+        var pragmaDisable = SyntaxFactory
+            .PragmaWarningDirectiveTrivia(
+                SyntaxFactory.Token(SyntaxKind.DisableKeyword),
+                SyntaxFactory.SeparatedList<ExpressionSyntax>()
+                    .Add(SyntaxFactory.IdentifierName("CA1065")),
+                true);
+
+        // #pragma warning enable CA1065
+        var pragmaRestore = SyntaxFactory
+            .PragmaWarningDirectiveTrivia(
+                SyntaxFactory.Token(SyntaxKind.RestoreKeyword),
+                SyntaxFactory.SeparatedList<ExpressionSyntax>()
+                    .Add(SyntaxFactory.IdentifierName("CA1065")),
+                true);
+
+        // !BitConverter.IsLittleEndian
+        var condition = SyntaxFactory
+            .PrefixUnaryExpression(
+                SyntaxKind.LogicalNotExpression,
+                SyntaxFactory.MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    SyntaxFactory.IdentifierName(nameof(BitConverter)),
+                    SyntaxFactory.IdentifierName(nameof(BitConverter.IsLittleEndian))));
+
+        // if (!BitConverter.IsLittleEndian)
+        // {
+        // #pragma warning disable CA1065
+        //  throw new NotSupportedException("Only little endian systems are supported.");
+        // #pragma warning restore CA1065
+        // }
+        var ifStatement = SyntaxFactory
+            .IfStatement(
+                condition,
+                SyntaxFactory.Block(
+                    SyntaxFactory.List<StatementSyntax>()
+                        .Add(throwStatement
+                            .WithLeadingTrivia(SyntaxFactory.Trivia(pragmaDisable))
+                            .WithTrailingTrivia(SyntaxFactory.Trivia(pragmaRestore)))));
+
+        // Static constructor
+        return SyntaxFactory
+            .ConstructorDeclaration(GetEmulatorClassName(input))
+            .WithModifiers(SyntaxFactory.TokenList(Static))
+            .WithBody(SyntaxFactory.Block(SyntaxFactory.SingletonList(ifStatement)));
     }
 }
