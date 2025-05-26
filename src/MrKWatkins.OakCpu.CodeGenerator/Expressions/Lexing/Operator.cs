@@ -5,7 +5,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Lexing;
 /// </summary>
 internal sealed record Operator : Token
 {
-    internal static readonly HashSet<char> Operators = new("+-&|^~=");
+    internal static readonly HashSet<char> Operators = new("+-&|^=");
 
     internal Operator(int index, char symbol)
         : base(index, 1)

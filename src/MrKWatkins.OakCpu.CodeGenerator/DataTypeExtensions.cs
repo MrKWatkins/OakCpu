@@ -15,7 +15,16 @@ public static class DataTypeExtensions
         };
 
     [Pure]
-    public static PredefinedTypeSyntax PredefinedType(this DataType type) =>
+    public static Type Type(this DataType type) =>
+        type switch
+        {
+            DataType.U8 => typeof(byte),
+            DataType.U16 => typeof(ushort),
+            _ => throw new NotSupportedException($"The {nameof(DataType)} {type} is not supported.")
+        };
+
+    [Pure]
+    public static PredefinedTypeSyntax TypeSyntax(this DataType type) =>
         type switch
         {
             DataType.U8 => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.ByteKeyword)),

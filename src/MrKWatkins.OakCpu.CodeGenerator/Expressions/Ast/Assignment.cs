@@ -6,9 +6,9 @@ public sealed class Assignment : Expression
 {
     internal Assignment(Expression target, Expression value)
     {
-        if (target is not MemberAccess && target is not RegisterAccess)
+        if (target is not DataMemberAccess && target is not RegisterAccess)
         {
-            throw new ArgumentException($"Target must be a {nameof(MemberAccess)} or {nameof(RegisterAccess)}, not a {target.GetType().Name}.", nameof(target));
+            throw new ArgumentException($"Target must be a {nameof(DataMemberAccess)} or {nameof(RegisterAccess)}, not a {target.GetType().Name}.", nameof(target));
         }
         Target = target;
         Value = value;

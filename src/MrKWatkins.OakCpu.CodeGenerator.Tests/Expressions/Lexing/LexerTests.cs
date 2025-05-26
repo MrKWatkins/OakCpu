@@ -92,7 +92,6 @@ public sealed class LexerTests
         yield return Create("&", new Operator(0, '&'), new EndOfExpression(1));
         yield return Create("|", new Operator(0, '|'), new EndOfExpression(1));
         yield return Create("^", new Operator(0, '^'), new EndOfExpression(1));
-        yield return Create("~", new Operator(0, '~'), new EndOfExpression(1));
         yield return Create("=", new Operator(0, '='), new EndOfExpression(1));
 
         yield return Create("(", new OpenBracket(0), new EndOfExpression(1));

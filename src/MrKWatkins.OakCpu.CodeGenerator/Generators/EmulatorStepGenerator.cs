@@ -1,12 +1,12 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public sealed class EmulatorStepGenerator : EmulatorClassGenerator
 {
     private const string StepMethodName = "Step";
-    private const string ActionVariableName = "action";
     public static readonly EmulatorStepGenerator Instance = new();
 
     private EmulatorStepGenerator()
@@ -31,46 +31,22 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
     [Pure]
     private static SwitchStatementSyntax CreateSwitch(GeneratorInput input)
     {
-        var sections = new[]
-        {
-            CreateOpcodeReadRequest(input, 0),
-            CreateHandleOpcodeReadRequest(1),
-        };
+        var sections = input.Cpu.OpcodeRead.Select((step, index) => CreateSwitchSection(index, step)).ToArray();
 
         return SyntaxFactory
-            .SwitchStatement(CreatePostIncrementExpression(StepIndexFieldName))
+            .SwitchStatement(CreatePostIncrementExpression(KnownDataMember.Step.Name))
             .AddSections(sections);
     }
 
     [Pure]
-    private static SwitchSectionSyntax CreateHandleOpcodeReadRequest(int index) => CreateSwitchSection(index, true, CreateSetMember(LastOpcodeFieldName, DataPropertyName));
-
-    [Pure]
-    private static SwitchSectionSyntax CreateOpcodeReadRequest(GeneratorInput input, int index) => CreateMemoryReadRequest(index, input.ProgramCounter.FieldName);
-
-    [Pure]
-    private static SwitchSectionSyntax CreateMemoryReadRequest(int index, string addressField) => CreateMemoryReadRequest(index, SyntaxFactory.IdentifierName(addressField));
-
-    [Pure]
-    private static SwitchSectionSyntax CreateMemoryReadRequest(int index, ExpressionSyntax addressExpression) =>
-        CreateSwitchSection(index, true, CreateSetMember(AddressPropertyName, addressExpression), CreateSetAction("MemoryRead"));
-
-    [Pure]
-    private static SwitchSectionSyntax CreateSwitchSection(int index, params StatementSyntax[] statements) => CreateSwitchSection(index, true, statements);
-
-    [Pure]
-    private static SwitchSectionSyntax CreateSwitchSection(int index, bool needsBreak, params StatementSyntax[] statements)
+    private static SwitchSectionSyntax CreateSwitchSection(int index, Step step)
     {
-        var section = SyntaxFactory.SwitchSection()
+        var statements = step.Expressions.Select(StatementGenerator.GenerateStatement).ToArray();
+
+        return SyntaxFactory.SwitchSection()
             .AddLabels(SyntaxFactory.CaseSwitchLabel(GetNumericLiteralExpression(index)))
-            .AddStatements(statements);
-
-        if (needsBreak)
-        {
-            section = section.AddStatements(SyntaxFactory.BreakStatement());
-        }
-
-        return section;
+            .AddStatements(statements)
+            .AddStatements(SyntaxFactory.BreakStatement());
     }
 
     [Pure]
@@ -86,18 +62,6 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
                                     SyntaxKind.SimpleMemberAccessExpression,
                                     SyntaxFactory.IdentifierName(ActionRequiredEnumName),
                                     SyntaxFactory.IdentifierName(ActionRequiredNone)))))));
-
-
-    [Pure]
-    private static StatementSyntax CreateSetAction(string name) =>
-        SyntaxFactory.ExpressionStatement(
-            SyntaxFactory.AssignmentExpression(
-                SyntaxKind.SimpleAssignmentExpression,
-                SyntaxFactory.IdentifierName(ActionVariableName),
-                SyntaxFactory.MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.IdentifierName(ActionRequiredEnumName),
-                    SyntaxFactory.IdentifierName(name))));
 
     [Pure]
     private static ExpressionSyntax CreatePostIncrementExpression(string field) =>

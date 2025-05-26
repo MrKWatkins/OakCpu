@@ -7,6 +7,6 @@ cpu:
     - IOWrite
   opcode_read:
     - [Address = PC, MemoryRead]
-    - [lastOpcode = Data]
+    - [Opcode = Data]
     - [Address = IR, R = (R & 0x80) | (R + 1) & 0x7F)]
     - []

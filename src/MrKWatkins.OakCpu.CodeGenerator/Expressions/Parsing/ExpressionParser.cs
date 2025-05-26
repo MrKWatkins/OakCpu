@@ -86,9 +86,9 @@ public static class ExpressionParser
             return new RegisterAccess(register);
         }
 
-        if (MemberAccess.KnownFields.Contains(identifier))
+        if (KnownDataMember.All.TryGetValue(identifier, out var dataMember))
         {
-            return new MemberAccess(identifier);
+            return new DataMemberAccess(dataMember);
         }
 
         throw new NotSupportedException($"Unsupported identifier {identifier}.");

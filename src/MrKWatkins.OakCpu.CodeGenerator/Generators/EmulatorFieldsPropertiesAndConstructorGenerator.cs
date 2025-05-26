@@ -30,21 +30,21 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
 
         var fieldOffset = GetObjectPropertiesFieldOffset(input);
         members.Add(CreateGetOnlyProperty(requiredUsings, GetRegistersClassName(input), RegistersPropertyName, fieldOffset));
-
         fieldOffset += 8;
+
         members.Add(CreateGetOnlyProperty(requiredUsings, GetFlagsClassName(input), FlagsPropertyName, fieldOffset));
-
         fieldOffset += 8;
-        members.Add(CreateGetSetProperty(requiredUsings, UShort, AddressPropertyName, fieldOffset));
 
-        fieldOffset += 2;
-        members.Add(CreateGetSetProperty(requiredUsings, Byte, DataPropertyName, fieldOffset));
+        members.Add(CreateGetSetProperty(requiredUsings, KnownDataMember.Address, fieldOffset));
+        fieldOffset += KnownDataMember.Address.Size;
 
-        fieldOffset += 1;
-        members.Add(CreateField(requiredUsings, Byte, LastOpcodeFieldName, fieldOffset, Private));
+        members.Add(CreateGetSetProperty(requiredUsings, KnownDataMember.Data, fieldOffset));
+        fieldOffset += KnownDataMember.Data.Size;
 
-        fieldOffset += 1;
-        members.Add(CreateField(requiredUsings, UShort, StepIndexFieldName, fieldOffset, Private));
+        members.Add(CreateField(requiredUsings, KnownDataMember.Opcode, fieldOffset, Private));
+        fieldOffset += KnownDataMember.Opcode.Size;
+
+        members.Add(CreateField(requiredUsings, KnownDataMember.Step, fieldOffset, Private));
 
         return classDeclaration
             .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(structLayout)))
@@ -80,6 +80,10 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     }
 
     [Pure]
+    private static PropertyDeclarationSyntax CreateGetSetProperty(HashSet<string> requiredUsings, KnownDataMember member, int fieldOffset) =>
+        CreateGetSetProperty(requiredUsings, member.TypeSyntax, member.Name, fieldOffset);
+
+    [Pure]
     private static PropertyDeclarationSyntax CreateGetSetProperty(HashSet<string> requiredUsings, TypeSyntax type, string propertyName, int fieldOffset)
     {
         var attributeList = SyntaxFactory
@@ -93,7 +97,7 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     private static int GetObjectPropertiesFieldOffset(GeneratorInput input)
     {
         var lastRegister = input.Registers.OrderByDescending(r => r.FieldOffset).First();
-        var nextFieldOffset = lastRegister.FieldOffset + lastRegister.Type.Size();
+        var nextFieldOffset = lastRegister.FieldOffset + lastRegister.DataType.Size();
 
         // Round up to the next multiple of 64 bits, i.e. 8 bytes.
         return (nextFieldOffset + 7) & ~7;
@@ -101,7 +105,11 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
 
     [MustUseReturnValue]
     private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, Register register) =>
-        CreateField(requiredUsings, register.Type.PredefinedType(), register.FieldName, register.FieldOffset, Internal);
+        CreateField(requiredUsings, register.DataType.TypeSyntax(), register.FieldName, register.FieldOffset, Internal);
+
+    [MustUseReturnValue]
+    private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, KnownDataMember member, int fieldOffset, SyntaxToken visibility) =>
+        CreateField(requiredUsings, member.TypeSyntax, member.Name, fieldOffset, visibility);
 
     [MustUseReturnValue]
     private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, PredefinedTypeSyntax type, string name, int fieldOffset, SyntaxToken visibility)

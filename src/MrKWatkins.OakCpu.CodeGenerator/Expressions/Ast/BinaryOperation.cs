@@ -1,4 +1,6 @@
 using System.Text;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 
@@ -20,6 +22,32 @@ public sealed class BinaryOperation : Expression
     public char Operator { get; }
 
     /// <summary>
+    /// The <see cref="SyntaxKind" /> for an expression using the operator.
+    /// </summary>
+    public SyntaxKind ExpressionSyntaxKind => Operator switch
+    {
+        '+' => SyntaxKind.AddExpression,
+        '-' => SyntaxKind.SubtractExpression,
+        '&' => SyntaxKind.BitwiseAndExpression,
+        '|' => SyntaxKind.BitwiseOrExpression,
+        '^' => SyntaxKind.ExclusiveOrExpression,
+        _ => throw new NotSupportedException($"The operator {Operator} is not supported.")
+    };
+
+    /// <summary>
+    /// The relative precedence of the operator.
+    /// </summary>
+    public int OperatorPrecedence => Operator switch
+    {
+        '+' => 0,
+        '-' => 0,
+        '|' => 1,
+        '^' => 2,
+        '&' => 3,
+        _ => throw new NotSupportedException($"The operator {Operator} is not supported.")
+    };
+
+    /// <summary>
     /// The left side of the operation.
     /// </summary>
     public Expression Left { get; }
@@ -28,6 +56,10 @@ public sealed class BinaryOperation : Expression
     /// The right side of the operation.
     /// </summary>
     public Expression Right { get; }
+
+    public override Type Type => typeof(int);
+
+    public override TypeSyntax TypeSyntax => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword));
 
     public override IEnumerable<Expression> Children
     {

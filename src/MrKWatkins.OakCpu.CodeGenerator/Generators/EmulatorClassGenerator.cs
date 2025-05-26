@@ -5,11 +5,6 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public abstract class EmulatorClassGenerator : ClassGenerator
 {
-    protected const string AddressPropertyName = "Address";
-    protected const string DataPropertyName = "Data";
-    protected const string StepIndexFieldName = "stepIndex";
-    protected const string LastOpcodeFieldName = "lastOpcode";
-
     private protected EmulatorClassGenerator()
     {
     }

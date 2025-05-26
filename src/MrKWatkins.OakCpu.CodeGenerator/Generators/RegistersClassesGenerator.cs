@@ -62,7 +62,7 @@ public sealed class RegistersClassesGenerator : ClassGenerator
             memberAccessExpression,
             SyntaxFactory.IdentifierName("value"));
 
-        return CreateGetSetProperty(register.Type.PredefinedType(), register.PropertyName, getExpression, setExpression);
+        return CreateGetSetProperty(register.DataType.TypeSyntax(), register.PropertyName, getExpression, setExpression);
     }
 
     [Pure]

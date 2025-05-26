@@ -1,17 +1,20 @@
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Register
 {
-    internal Register(string name, DataType type, bool flags, bool programCounter, string? category, int fieldOffset)
+    internal Register(string name, DataType dataType, bool flags, bool programCounter, string? category, int fieldOffset)
     {
         Name = name;
-        Type = type;
+        DataType = dataType;
         Flags = flags;
         ProgramCounter = programCounter;
         Category = category;
         FieldOffset = fieldOffset;
+        Type = DataType.Type();
+        TypeSyntax = DataType.TypeSyntax();
     }
 
     public string Name { get; }
@@ -20,7 +23,11 @@ public sealed class Register
 
     public string PropertyName => Name.Replace("'", "");
 
-    public DataType Type { get; }
+    public DataType DataType { get; }
+
+    public Type Type { get; }
+
+    public TypeSyntax TypeSyntax { get; }
 
     public bool Flags { get; }
 
@@ -30,7 +37,7 @@ public sealed class Register
 
     public int FieldOffset { get; }
 
-    public override string ToString() => $"{Name}: {Type}";
+    public override string ToString() => $"{Name}: {DataType}";
 
     [Pure]
     public static IReadOnlyList<Register> Create(IReadOnlyList<RegisterYaml> yamls)
