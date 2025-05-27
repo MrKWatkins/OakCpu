@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
+using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -24,14 +25,14 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
                 SyntaxFactory.Identifier(StepMethodName))
             .AddModifiers(Public)
             .WithBody(SyntaxFactory.Block(
-                CreateActionVariable(),
                 CreateSwitch(input),
-                SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName(ActionVariableName))));
+                // TODO: Throw UnreachableException instead.
+                StatementGenerator.GenerateStatements(RequestAction.None).Single()));
 
     [Pure]
     private static SwitchStatementSyntax CreateSwitch(GeneratorInput input)
     {
-        var sections = input.Cpu.OpcodeRead.Select((step, index) => CreateSwitchSection(index, step)).ToArray();
+        var sections = input.AllSteps.Select(CreateSwitchSection).ToArray();
 
         return SyntaxFactory
             .SwitchStatement(CreatePostIncrementExpression(KnownDataMember.Step.Name))
@@ -39,29 +40,14 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
     }
 
     [Pure]
-    private static SwitchSectionSyntax CreateSwitchSection(int index, Step step)
+    private static SwitchSectionSyntax CreateSwitchSection(Step step)
     {
-        var statements = step.Expressions.Select(StatementGenerator.GenerateStatement).ToArray();
+        var statements = step.Expressions.SelectMany(StatementGenerator.GenerateStatements).ToArray();
 
         return SyntaxFactory.SwitchSection()
-            .AddLabels(SyntaxFactory.CaseSwitchLabel(GetNumericLiteralExpression(index)))
-            .AddStatements(statements)
-            .AddStatements(SyntaxFactory.BreakStatement());
+            .AddLabels(SyntaxFactory.CaseSwitchLabel(GetNumericLiteralExpression(step.Index)))
+            .AddStatements(statements);
     }
-
-    [Pure]
-    private static StatementSyntax CreateActionVariable() =>
-        SyntaxFactory.LocalDeclarationStatement(
-            SyntaxFactory.VariableDeclaration(
-                SyntaxFactory.IdentifierName(ActionRequiredEnumName),
-                SyntaxFactory.SingletonSeparatedList(
-                    SyntaxFactory.VariableDeclarator(SyntaxFactory.Identifier(ActionVariableName))
-                        .WithInitializer(
-                            SyntaxFactory.EqualsValueClause(
-                                SyntaxFactory.MemberAccessExpression(
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    SyntaxFactory.IdentifierName(ActionRequiredEnumName),
-                                    SyntaxFactory.IdentifierName(ActionRequiredNone)))))));
 
     [Pure]
     private static ExpressionSyntax CreatePostIncrementExpression(string field) =>

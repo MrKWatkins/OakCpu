@@ -20,6 +20,7 @@ public sealed class GeneratorInput
         Instructions = instructions;
         FlagsRegister = Registers.Single(r => r.Flags);
         ProgramCounter = Registers.Single(r => r.ProgramCounter);
+        Step.AssignIndexes(AllSteps);
     }
 
     public string RootNamespace { get; }
@@ -35,6 +36,8 @@ public sealed class GeneratorInput
     public Register FlagsRegister { get; }
 
     public Register ProgramCounter { get; }
+
+    public IEnumerable<Step> AllSteps => Cpu.OpcodeRead.Concat(Instructions.SelectMany(i => i.Steps));
 
     [Pure]
     public NamespaceDeclarationSyntax CreateRootNamespaceDeclaration() => SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(RootNamespace));
@@ -55,11 +58,10 @@ public sealed class GeneratorInput
         var registersByName = registers.ToDictionary(r => r.Name);
 
         var flags = Flag.Create(yaml.Flags);
-        var flagsByName = flags.ToDictionary(r => r.Name);
 
-        var cpu = Cpu.Create(yaml.Cpu, registersByName, flagsByName);
+        var cpu = Cpu.Create(registersByName, yaml.Cpu);
 
-        return new GeneratorInput(rootNamespace, cpu, registers, flags, Instruction.Create(yaml.Instructions));
+        return new GeneratorInput(rootNamespace, cpu, registers, flags, Instruction.Create(cpu.Actions, registersByName, yaml.Instructions));
     }
 
     [Pure]

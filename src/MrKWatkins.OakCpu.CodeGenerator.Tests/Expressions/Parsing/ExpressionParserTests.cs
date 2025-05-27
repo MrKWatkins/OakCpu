@@ -18,11 +18,6 @@ public sealed class ExpressionParserTests
             {
                 ["R"] = new("R", DataType.U8, false, false, null, 0),
                 ["RP"] = new("RP", DataType.U16, false, false, null, 0)
-            },
-            new Dictionary<string, Flag>
-            {
-                ["X"] = new("X", 0),
-                ["Y"] = new("Y", 1)
             });
 
         var expression = ExpressionParser.Parse(parseContext, expressionText);

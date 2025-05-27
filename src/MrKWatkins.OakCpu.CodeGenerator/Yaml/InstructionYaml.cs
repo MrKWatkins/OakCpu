@@ -5,13 +5,28 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Yaml;
 [YamlObject]
 public sealed partial class InstructionYaml
 {
+    private IReadOnlyList<OpcodeYaml>? opcodes;
+    private IReadOnlyList<IReadOnlyList<string>>? steps;
+
     private InstructionYaml()
     {
     }
 
-    public string Name { get; private set; } = null!;
+    public string Group { get; private set; } = null!;
 
-    public byte Opcode { get; private set; }
+    public string Mnemonic { get; private set; } = null!;
 
-    public override string ToString() => $"0x{Opcode:X2}: {Name}";
+    public IReadOnlyList<OpcodeYaml> Opcodes
+    {
+        get => opcodes ?? [];
+        private set => opcodes = value;
+    }
+
+    public IReadOnlyList<IReadOnlyList<string>> Steps
+    {
+        get => steps ?? [];
+        private set => steps = value;
+    }
+
+    public override string ToString() => Mnemonic;
 }

@@ -1,3 +1,7 @@
 instructions:
-  - name: NOP
-    opcode: 0x00
+  - group: General
+    mnemonic: NOP
+    opcodes:
+      - opcode: 0x00
+    steps:
+      - [OpcodeReadOverlap]

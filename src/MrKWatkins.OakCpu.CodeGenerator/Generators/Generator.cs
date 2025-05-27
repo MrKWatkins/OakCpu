@@ -10,6 +10,7 @@ public abstract class Generator
     protected const string ActionRequiredEnumName = "ActionRequired";
     protected const string ActionRequiredNone = "None";
     protected const string ActionVariableName = "action";
+    protected const string StepVariableName = "step";
 
     private protected Generator()
     {

@@ -1,0 +1,12 @@
+instructions:
+  - group: 8-bit load from register
+    mnemonic: LD R0, R1
+    opcodes:
+      - opcode: 0x40
+        R0: B
+        R1: B
+      - opcode: 0x41
+        R0: B
+        R1: C
+    steps:
+      - [R0 = R1, OpcodeReadOverlap]

@@ -91,6 +91,11 @@ public static class ExpressionParser
             return new DataMemberAccess(dataMember);
         }
 
+        if (identifier == nameof(OpcodeReadOverlap))
+        {
+            return OpcodeReadOverlap.Instance;
+        }
+
         throw new NotSupportedException($"Unsupported identifier {identifier}.");
     }
 

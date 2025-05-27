@@ -4,10 +4,18 @@ using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
+// TODO: Comments.
+// TODO: Remove assignment to self.
 public abstract class StatementGenerator : Generator
 {
     [Pure]
-    public static StatementSyntax GenerateStatement(Expression expression) => SyntaxFactory.ExpressionStatement(Generate(expression));
+    public static IEnumerable<StatementSyntax> GenerateStatements(Expression expression) =>
+        expression switch
+        {
+            OpcodeReadOverlap => GenerateOpcodeReadOverlap(),
+            RequestAction requestAction => [GenerateRequestAction(requestAction)],
+            _ => [SyntaxFactory.ExpressionStatement(Generate(expression))]
+        };
 
     [Pure]
     private static ExpressionSyntax Generate(Expression expression) => expression switch
@@ -17,7 +25,6 @@ public abstract class StatementGenerator : Generator
         DataMemberAccess dataMemberAccess => Generate(dataMemberAccess),
         Number number => Generate(number),
         RegisterAccess registerAccess => Generate(registerAccess),
-        RequestAction requestAction => Generate(requestAction),
         _ => throw new NotSupportedException($"The expression type {expression.GetType().Name} is not supported.")
     };
 
@@ -60,19 +67,30 @@ public abstract class StatementGenerator : Generator
     [Pure]
     private static ExpressionSyntax Generate(DataMemberAccess dataMemberAccess) => dataMemberAccess.IdentifierName;
 
-    [Pure]
     private static ExpressionSyntax Generate(Number number) => SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(number.NumberString, number.Value));
 
     [Pure]
     private static ExpressionSyntax Generate(RegisterAccess registerAccess) => registerAccess.IdentifierName;
 
     [Pure]
-    private static ExpressionSyntax Generate(RequestAction requestAction) =>
-        SyntaxFactory.AssignmentExpression(
-            SyntaxKind.SimpleAssignmentExpression,
-            SyntaxFactory.IdentifierName(ActionVariableName),
+    private static StatementSyntax GenerateRequestAction(RequestAction requestAction) =>
+        SyntaxFactory.ReturnStatement(
             SyntaxFactory.MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
                 SyntaxFactory.IdentifierName(ActionRequiredEnumName),
                 SyntaxFactory.IdentifierName(requestAction.Name)));
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateOpcodeReadOverlap()
+    {
+        // Set step = 1 so the counter is after case 0.
+        yield return SyntaxFactory.ExpressionStatement(
+            SyntaxFactory.AssignmentExpression(
+                SyntaxKind.SimpleAssignmentExpression,
+                SyntaxFactory.IdentifierName(StepVariableName),
+                GetNumericLiteralExpression(1)));
+
+        // goto case 0.
+        yield return SyntaxFactory.GotoStatement(SyntaxKind.GotoCaseStatement, SyntaxFactory.Token(SyntaxKind.CaseKeyword), GetNumericLiteralExpression(0));
+    }
 }

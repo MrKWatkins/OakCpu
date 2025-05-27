@@ -20,11 +20,11 @@ public sealed class Cpu
 
     public override string ToString() => Name;
 
-    public static Cpu Create(CpuYaml yaml, Dictionary<string, Register> registersByName, Dictionary<string, Flag> flagsByName)
+    public static Cpu Create(IReadOnlyDictionary<string, Register> registersByName, CpuYaml yaml)
     {
-        var context = new ParserContext(new HashSet<string>(yaml.Actions), registersByName, flagsByName);
+        var context = new ParserContext(new HashSet<string>(yaml.Actions), registersByName);
 
-        var opcodeRead = yaml.OpcodeRead.Select(s => Step.Parse(context, s)).ToList();
+        var opcodeRead = Step.Parse(context, yaml.OpcodeRead);
 
         return new Cpu(yaml.Name, yaml.Actions, opcodeRead);
     }
