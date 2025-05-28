@@ -15,12 +15,14 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     {
     }
 
+    // TODO: An automatic layout algorithm taking into account padding would be nice.
     protected override ClassDeclarationSyntax PopulateClass(HashSet<string> requiredUsings, GeneratorInput input, ClassDeclarationSyntax classDeclaration)
     {
         var structLayout = CreateStructLayoutAttribute(requiredUsings);
 
         var members = new List<MemberDeclarationSyntax>
         {
+            CreateOpcodeStepTableField(input),
             CreateStaticConstructor(requiredUsings, input)
         };
 
@@ -108,19 +110,50 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
         CreateField(requiredUsings, register.DataType.TypeSyntax(), register.FieldName, register.FieldOffset, Internal);
 
     [MustUseReturnValue]
-    private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, KnownDataMember member, int fieldOffset, SyntaxToken visibility) =>
-        CreateField(requiredUsings, member.TypeSyntax, member.Name, fieldOffset, visibility);
+    private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, KnownDataMember member, int fieldOffset, SyntaxToken visibility, bool readOnly = false, ExpressionSyntax? initializer = null) =>
+        CreateField(requiredUsings, member.TypeSyntax, member.Name, fieldOffset, visibility, readOnly, initializer);
 
     [MustUseReturnValue]
-    private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, PredefinedTypeSyntax type, string name, int fieldOffset, SyntaxToken visibility)
+    private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, TypeSyntax type, string name, int fieldOffset, SyntaxToken visibility, bool readOnly = false, ExpressionSyntax? initializer = null)
     {
         var attribute = CreateFieldOffsetAttribute(requiredUsings, fieldOffset);
 
-        return SyntaxFactory.FieldDeclaration(
-            SyntaxFactory.VariableDeclaration(type)
-                .WithVariables(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.VariableDeclarator(SyntaxFactory.Identifier(name)))))
-            .WithModifiers(SyntaxFactory.TokenList(visibility))
-            .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(attribute)));
+        var modifiers = new List<SyntaxToken> { visibility };
+        if (readOnly)
+        {
+            modifiers.Add(ReadOnly);
+        }
+
+        var variableDeclarator = SyntaxFactory.VariableDeclarator(SyntaxFactory.Identifier(name));
+
+
+        if (initializer != null)
+        {
+            variableDeclarator = variableDeclarator.WithInitializer(SyntaxFactory.EqualsValueClause(initializer));
+        }
+
+        var variable = SyntaxFactory.VariableDeclaration(type).WithVariables(SyntaxFactory.SingletonSeparatedList(variableDeclarator));
+
+        return SyntaxFactory
+            .FieldDeclaration(variable)
+            .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(attribute)))
+            .AddModifiers(modifiers.ToArray());
+    }
+
+    [Pure]
+    private static FieldDeclarationSyntax CreateOpcodeStepTableField(GeneratorInput input)
+    {
+        var variableDeclarator = SyntaxFactory
+            .VariableDeclarator(SyntaxFactory.Identifier(KnownDataMember.OpcodeStepTable.Name))
+            .WithInitializer(SyntaxFactory.EqualsValueClause(CreateOpcodeStepTableInitializer(input)));
+
+        var variable = SyntaxFactory
+            .VariableDeclaration(KnownDataMember.OpcodeStepTable.TypeSyntax)
+            .WithVariables(SyntaxFactory.SingletonSeparatedList(variableDeclarator));
+
+        return SyntaxFactory
+            .FieldDeclaration(variable)
+            .AddModifiers(Private, Static, ReadOnly);
     }
 
     [MustUseReturnValue]
@@ -152,6 +185,20 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
                         SyntaxFactory.LiteralExpression(
                             SyntaxKind.NumericLiteralExpression,
                             SyntaxFactory.Literal(fieldOffset))))));
+    }
+
+    [Pure]
+    private static ExpressionSyntax CreateOpcodeStepTableInitializer(GeneratorInput input)
+    {
+        var stepIndices = new ushort[256];
+        foreach (var instruction in input.Instructions)
+        {
+            stepIndices[instruction.Opcode] = instruction.Steps.First().Index;
+        }
+
+        var literals = stepIndices.Select(index => SyntaxFactory.ExpressionElement(SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(index))));
+
+        return SyntaxFactory.CollectionExpression(SyntaxFactory.SeparatedList<CollectionElementSyntax>(literals));
     }
 
     [MustUseReturnValue]

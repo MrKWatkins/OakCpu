@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Expressions.Parsing;
 
@@ -5,7 +6,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Step(IReadOnlyList<Expression> expressions)
 {
-    public int Index { get; private set; }
+    public ushort Index { get; private set; }
 
     public IReadOnlyList<Expression> Expressions { get; } = expressions;
 
@@ -14,7 +15,11 @@ public sealed class Step(IReadOnlyList<Expression> expressions)
         var index = 0;
         foreach (var step in steps)
         {
-            step.Index = index++;
+            if (index > ushort.MaxValue)
+            {
+                throw new InvalidAsynchronousStateException("Too many steps; will need to change to int.");
+            }
+            step.Index = (ushort)index++;
         }
     }
 

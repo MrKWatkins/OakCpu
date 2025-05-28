@@ -7,6 +7,10 @@ public sealed class Instruction
 {
     private Instruction(string group, string mnemonic, byte opcode, byte? prefix, IReadOnlyList<Step> steps)
     {
+        if (steps.Count == 0)
+        {
+            throw new ArgumentException("Value cannot be empty.", nameof(steps));
+        }
         Group = group;
         Mnemonic = mnemonic;
         Opcode = opcode;
