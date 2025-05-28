@@ -2,7 +2,7 @@ using System.Text;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 
-public sealed class RequestAction(string name) : Expression
+public sealed class RequestAction(string name) : TerminalStatement
 {
     public static readonly RequestAction None = new("None");
 

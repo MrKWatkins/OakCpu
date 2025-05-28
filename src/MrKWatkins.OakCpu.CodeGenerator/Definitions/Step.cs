@@ -4,13 +4,28 @@ using MrKWatkins.OakCpu.CodeGenerator.Expressions.Parsing;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
-public sealed class Step(string name, IReadOnlyList<Expression> expressions)
+public sealed class Step
 {
-    public string Name { get; } = name;
+    public Step(string name, IReadOnlyList<Statement> statements)
+    {
+        if (statements.Count == 0)
+        {
+            throw new ArgumentException("Value cannot be empty.", nameof(statements));
+        }
+
+        if (statements.Last() is not TerminalStatement)
+        {
+            throw new ArgumentException("The last statement must be a terminal statement.", nameof(statements));
+        }
+        Name = name;
+        Statements = statements;
+    }
+
+    public string Name { get; }
 
     public ushort Index { get; private set; }
 
-    public IReadOnlyList<Expression> Expressions { get; } = expressions;
+    public IReadOnlyList<Statement> Statements { get; }
 
     public static void AssignIndexes([InstantHandle] IEnumerable<Step> steps)
     {
@@ -26,28 +41,23 @@ public sealed class Step(string name, IReadOnlyList<Expression> expressions)
     }
 
     [Pure]
-    public static IReadOnlyList<Step> Parse(string baseName, ParserContext context, IReadOnlyList<IReadOnlyList<string>> steps) =>
-        steps.Select((s, i) => Parse($"{baseName} [{i}]", context, s)).ToList();
+    public static IReadOnlyList<Step> Parse(string baseName, ParserContext context, IReadOnlyList<IReadOnlyList<string>> steps, Statement? finalStepStatement = null) =>
+        steps.Select((s, i) => Parse($"{baseName} [{i}]", context, s, i == steps.Count - 1 ? finalStepStatement : null)).ToList();
 
     [Pure]
-    public static Step Parse(string name, ParserContext context, [InstantHandle] IEnumerable<string> expressions)
+    public static Step Parse(string name, ParserContext context, [InstantHandle] IEnumerable<string> expressions, Statement? finalStatement = null)
     {
-        var steps = expressions.Select(x =>
+        var statements = expressions.Select(x => ExpressionParser.Parse(context, x)).ToList();
+        if (finalStatement != null)
         {
-            var expression = ExpressionParser.Parse(context, x);
-            if (expression is not Assignment && expression is not RequestAction && expression is not OpcodeReadOverlap)
-            {
-                throw new InvalidOperationException($"Steps cannot be expressions of type {expression.GetType().Name}: {expression}");
-            }
-
-            return expression;
-        }).ToList();
-
-        var lastStep = steps.LastOrDefault();
-        if (lastStep is not RequestAction && lastStep is not OpcodeReadOverlap)
-        {
-            steps.Add(RequestAction.None);
+            statements.Add(finalStatement);
         }
-        return new Step(name, steps);
+
+        var lastStep = statements.LastOrDefault();
+        if (lastStep is not TerminalStatement)
+        {
+            statements.Add(RequestAction.None);
+        }
+        return new Step(name, statements);
     }
 }

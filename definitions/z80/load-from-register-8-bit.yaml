@@ -9,4 +9,5 @@ instructions:
         R0: B
         R1: C
     steps:
-      - [R0 = R1, OpcodeReadOverlap]
+      - [R0 = R1]
+    next_opcode: overlapped

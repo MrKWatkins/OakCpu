@@ -10,12 +10,16 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Parsing;
 public static class ExpressionParser
 {
     [Pure]
-    public static Expression Parse(ParserContext context, string expression)
+    public static Statement Parse(ParserContext context, string expression)
     {
         using var reader = new StringReader(expression);
         var lexer = new Lexer(reader);
         var parsed = ParseExpression(context, lexer, 0);
-        return parsed;
+        if (parsed is Statement statement)
+        {
+            return statement;
+        }
+        throw new InvalidOperationException("Expression did not parse to a statement.");
     }
 
     [MustUseReturnValue]
@@ -89,11 +93,6 @@ public static class ExpressionParser
         if (KnownDataMember.All.TryGetValue(identifier, out var dataMember))
         {
             return new DataMemberAccess(dataMember);
-        }
-
-        if (identifier == nameof(OpcodeReadOverlap))
-        {
-            return OpcodeReadOverlap.Instance;
         }
 
         throw new NotSupportedException($"Unsupported identifier {identifier}.");

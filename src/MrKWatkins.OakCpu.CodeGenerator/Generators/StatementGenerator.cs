@@ -5,17 +5,15 @@ using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-// TODO: Comments.
-// TODO: Remove assignment to self.
 public abstract class StatementGenerator : Generator
 {
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateStatements(IEnumerable<Expression> expressions)
+    public static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(IEnumerable<Statement> expressions)
     {
         var commentsAheadOfNextStatement = new List<string>();
         foreach (var expression in expressions)
         {
-            foreach (var statement in GenerateStatements(expression, commentsAheadOfNextStatement))
+            foreach (var statement in GenerateStatementSyntaxes(expression, commentsAheadOfNextStatement))
             {
                 if (commentsAheadOfNextStatement.Any())
                 {
@@ -31,35 +29,37 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateStatements(Expression expression, List<string> commentsAheadOfNextStatement) =>
-        expression switch
+    public static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(Statement statement, List<string> commentsAheadOfNextStatement) =>
+        statement switch
         {
-            Assignment assignment => GenerateStatements(assignment, commentsAheadOfNextStatement),
-            OpcodeReadOverlap overlap => GenerateStatements(overlap, commentsAheadOfNextStatement),
-            RequestAction requestAction => GenerateStatements(requestAction),
-            _ => [SyntaxFactory.ExpressionStatement(GenerateExpression(expression))]
+            Assignment assignment => GenerateStatementSyntaxes(assignment, commentsAheadOfNextStatement),
+            MoveToOpcodeRead => GenerateMoveToOpcodeReadStatementSyntaxes(),
+            OpcodeJump => GenerateOpcodeJump(),
+            OverlappedOpcodeRead => GenerateOverlappedOpcodeReadStatementSyntaxes(commentsAheadOfNextStatement),
+            RequestAction requestAction => GenerateStatementSyntaxes(requestAction),
+            _ => [SyntaxFactory.ExpressionStatement(GenerateExpressionSyntax(statement))]
         };
 
     [Pure]
-    private static ExpressionSyntax GenerateExpression(Expression expression) => expression switch
+    private static ExpressionSyntax GenerateExpressionSyntax(Expression expression) => expression switch
     {
-        BinaryOperation binaryOperation => GenerateExpression(binaryOperation),
-        DataMemberAccess dataMemberAccess => GenerateExpression(dataMemberAccess),
-        Number number => GenerateExpression(number),
-        RegisterAccess registerAccess => GenerateExpression(registerAccess),
+        BinaryOperation binaryOperation => GenerateExpressionSyntax(binaryOperation),
+        DataMemberAccess dataMemberAccess => GenerateExpressionSyntax(dataMemberAccess),
+        Number number => GenerateExpressionSyntax(number),
+        RegisterAccess registerAccess => GenerateExpressionSyntax(registerAccess),
         _ => throw new NotSupportedException($"The expression type {expression.GetType().Name} is not supported.")
     };
 
     [Pure]
-    private static ExpressionSyntax GenerateExpression(BinaryOperation binaryOperation)
+    private static ExpressionSyntax GenerateExpressionSyntax(BinaryOperation binaryOperation)
     {
-        var left = GenerateExpression(binaryOperation.Left);
+        var left = GenerateExpressionSyntax(binaryOperation.Left);
         if (binaryOperation.Left is BinaryOperation leftBinary && leftBinary.OperatorPrecedence < binaryOperation.OperatorPrecedence)
         {
             left = SyntaxFactory.ParenthesizedExpression(left);
         }
 
-        var right = GenerateExpression(binaryOperation.Right);
+        var right = GenerateExpressionSyntax(binaryOperation.Right);
         if (binaryOperation.Right is BinaryOperation rightBinary && rightBinary.OperatorPrecedence < binaryOperation.OperatorPrecedence)
         {
             right = SyntaxFactory.ParenthesizedExpression(right);
@@ -69,18 +69,18 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateExpression(DataMemberAccess dataMemberAccess) => dataMemberAccess.IdentifierName;
+    private static ExpressionSyntax GenerateExpressionSyntax(DataMemberAccess dataMemberAccess) => dataMemberAccess.IdentifierName;
 
-    private static ExpressionSyntax GenerateExpression(Number number) => SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(number.NumberString, number.Value));
-
-    [Pure]
-    private static ExpressionSyntax GenerateExpression(RegisterAccess registerAccess) => registerAccess.IdentifierName;
+    private static ExpressionSyntax GenerateExpressionSyntax(Number number) => SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(number.NumberString, number.Value));
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateStatements(Assignment assignment, List<string> commentsAheadOfNextStatement)
+    private static ExpressionSyntax GenerateExpressionSyntax(RegisterAccess registerAccess) => registerAccess.IdentifierName;
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(Assignment assignment, List<string> commentsAheadOfNextStatement)
     {
-        var target = GenerateExpression(assignment.Target);
-        var value = GenerateExpression(assignment.Value);
+        var target = GenerateExpressionSyntax(assignment.Target);
+        var value = GenerateExpressionSyntax(assignment.Value);
 
         if (target.ToString() == value.ToString())
         {
@@ -102,7 +102,7 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateStatements(RequestAction requestAction)
+    private static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(RequestAction requestAction)
     {
         yield return
             SyntaxFactory.ReturnStatement(
@@ -113,18 +113,46 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateStatements(OpcodeReadOverlap _, List<string> commentsAheadOfNextStatement)
+    private static IEnumerable<StatementSyntax> GenerateMoveToOpcodeReadStatementSyntaxes()
     {
-        commentsAheadOfNextStatement.Add("Opcode read overlap.");
+        yield return CreateSetStep(0);
+    }
 
-        // Set step = 1 so the counter is after case 0.
-        yield return SyntaxFactory.ExpressionStatement(
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateOpcodeJump()
+    {
+        // TODO: Version without bounds checks, don't rely on the JIT. Maybe wait until prefixes are added.
+        var getOpcode = SyntaxFactory
+            .ElementAccessExpression(
+                SyntaxFactory.IdentifierName(KnownDataMember.OpcodeStepTable.Name),
+                SyntaxFactory.BracketedArgumentList(
+                    SyntaxFactory.SingletonSeparatedList(
+                        SyntaxFactory.Argument(
+                            SyntaxFactory.IdentifierName(KnownDataMember.Opcode.Name)))));
+
+        yield return CreateSetStep(getOpcode);
+    }
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateOverlappedOpcodeReadStatementSyntaxes(List<string> commentsAheadOfNextStatement)
+    {
+        commentsAheadOfNextStatement.Add("Overlapped opcode read.");
+
+        // Set step = 1 so we start on step 1 after the next Step() call.
+        yield return CreateSetStep(1);
+
+        // goto case 0 to perform step 0.
+        yield return SyntaxFactory.GotoStatement(SyntaxKind.GotoCaseStatement, SyntaxFactory.Token(SyntaxKind.CaseKeyword), GetNumericLiteralExpression(0));
+    }
+
+    [Pure]
+    private static StatementSyntax CreateSetStep(int step) => CreateSetStep(GetNumericLiteralExpression(step));
+
+    [Pure]
+    private static StatementSyntax CreateSetStep(ExpressionSyntax value) =>
+        SyntaxFactory.ExpressionStatement(
             SyntaxFactory.AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
                 SyntaxFactory.IdentifierName(StepVariableName),
-                GetNumericLiteralExpression(1)));
-
-        // goto case 0.
-        yield return SyntaxFactory.GotoStatement(SyntaxKind.GotoCaseStatement, SyntaxFactory.Token(SyntaxKind.CaseKeyword), GetNumericLiteralExpression(0));
-    }
+                value));
 }

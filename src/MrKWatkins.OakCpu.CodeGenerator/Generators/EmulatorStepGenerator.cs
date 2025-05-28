@@ -28,7 +28,7 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
             .WithBody(SyntaxFactory.Block(
                 CreateSwitch(input),
                 // TODO: Throw UnreachableException instead.
-                StatementGenerator.GenerateStatements([RequestAction.None]).Single()));
+                StatementGenerator.GenerateStatementSyntaxes([RequestAction.None]).Single()));
 
     [Pure]
     private static SwitchStatementSyntax CreateSwitch(GeneratorInput input)
@@ -43,7 +43,7 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
     [Pure]
     private static SwitchSectionSyntax CreateSwitchSection(Step step)
     {
-        var statements = StatementGenerator.GenerateStatements(step.Expressions).ToArray();
+        var statements = StatementGenerator.GenerateStatementSyntaxes(step.Statements).ToArray();
 
         return SyntaxFactory.SwitchSection()
             .AddLabels(SyntaxFactory.CaseSwitchLabel(GetNumericLiteralExpression(step.Index)))

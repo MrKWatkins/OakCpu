@@ -1,3 +1,4 @@
+using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Expressions.Parsing;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 
@@ -5,7 +6,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Instruction
 {
-    private Instruction(string group, string mnemonic, byte opcode, byte? prefix, IReadOnlyList<Step> steps)
+    private Instruction(string group, string mnemonic, byte opcode, byte? prefix, IReadOnlyList<Step> steps, bool nextOpcodeOverlapped)
     {
         if (steps.Count == 0)
         {
@@ -16,6 +17,7 @@ public sealed class Instruction
         Opcode = opcode;
         Prefix = prefix;
         Steps = steps;
+        NextOpcodeOverlapped = nextOpcodeOverlapped;
     }
 
     public string Group { get; }
@@ -27,6 +29,8 @@ public sealed class Instruction
     public byte? Prefix { get; }
 
     public IReadOnlyList<Step> Steps { get; }
+
+    public bool NextOpcodeOverlapped { get; }
 
     public override string ToString() => $"0x{Opcode:X2}: {Mnemonic}";
 
@@ -45,9 +49,18 @@ public sealed class Instruction
         {
             var mnemonic = Substitute(opcodeYaml, yaml.Mnemonic);
 
-            var steps = yaml.Steps.Select((expressions, index) => Step.Parse($"{mnemonic} [{index}]", context, Substitute(opcodeYaml, expressions))).ToList();
+            Statement lastStepFinalStatement = yaml.NextOpcode switch
+            {
+                NextOpcodeMode.Normal => MoveToOpcodeRead.Instance,
+                NextOpcodeMode.Overlapped => OverlappedOpcodeRead.Instance,
+                _ => throw new NotSupportedException($"The {nameof(NextOpcodeMode)} {yaml.NextOpcode} is not supported.")
+            };
 
-            yield return new Instruction(yaml.Group, mnemonic, opcodeYaml.Opcode, opcodeYaml.Prefix, steps);
+            var steps = yaml.Steps
+                .Select((expressions, index) => Step.Parse($"{mnemonic} [{index}]", context, Substitute(opcodeYaml, expressions), index == yaml.Steps.Count - 1 ? lastStepFinalStatement : null))
+                .ToList();
+
+            yield return new Instruction(yaml.Group, mnemonic, opcodeYaml.Opcode, opcodeYaml.Prefix, steps, yaml.NextOpcode == NextOpcodeMode.Overlapped);
         }
     }
 

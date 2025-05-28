@@ -28,5 +28,7 @@ public sealed partial class InstructionYaml
         private set => steps = value;
     }
 
+    public NextOpcodeMode NextOpcode { get; private set; }
+
     public override string ToString() => Mnemonic;
 }

@@ -2,7 +2,7 @@ using System.Text;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 
-public sealed class Assignment : Expression
+public sealed class Assignment : Statement
 {
     internal Assignment(Expression target, Expression value)
     {
