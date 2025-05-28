@@ -15,9 +15,5 @@ public sealed class RegisterAccess(Register register) : Expression
 
     public IdentifierNameSyntax IdentifierName => SyntaxFactory.IdentifierName(Register.Name);
 
-    public override void WriteExpression(StringBuilder expression)
-    {
-        expression.Append("Register.");
-        expression.Append(Register.Name);
-    }
+    public override void WriteExpression(StringBuilder expression) => expression.Append(Register.Name);
 }

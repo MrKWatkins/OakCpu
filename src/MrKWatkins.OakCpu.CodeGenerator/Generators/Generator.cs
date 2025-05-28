@@ -9,12 +9,16 @@ public abstract class Generator
 {
     protected const string ActionRequiredEnumName = "ActionRequired";
     protected const string ActionRequiredNone = "None";
-    protected const string ActionVariableName = "action";
     protected const string StepVariableName = "step";
 
     private protected Generator()
     {
     }
+
+    [Pure]
+    protected static StatementSyntax CreateCommentStatement(string comment) =>
+        SyntaxFactory.ParseStatement("")
+            .WithLeadingTrivia(SyntaxFactory.Comment($"// {comment}"));
 
     [Pure]
     protected static PredefinedTypeSyntax Bool => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword));

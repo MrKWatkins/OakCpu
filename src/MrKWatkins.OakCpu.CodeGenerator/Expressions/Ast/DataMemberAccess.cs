@@ -14,9 +14,5 @@ public sealed class DataMemberAccess(KnownDataMember dataMember) : Expression
 
     public IdentifierNameSyntax IdentifierName => SyntaxFactory.IdentifierName(DataMember.Name);
 
-    public override void WriteExpression(StringBuilder expression)
-    {
-        expression.Append("Member.");
-        expression.Append(DataMember.Name);
-    }
+    public override void WriteExpression(StringBuilder expression) => expression.Append(DataMember.Name);
 }
