@@ -46,7 +46,8 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
         members.Add(CreateField(requiredUsings, KnownDataMember.Opcode, fieldOffset, Private));
         fieldOffset += KnownDataMember.Opcode.Size;
 
-        members.Add(CreateField(requiredUsings, KnownDataMember.Step, fieldOffset, Private));
+        // TODO: Make private, think of a nice and quick way to indicate the end (or start!) of an instruction.
+        members.Add(CreateField(requiredUsings, KnownDataMember.Step, fieldOffset, Internal));
 
         return classDeclaration
             .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(structLayout)))
@@ -190,7 +191,7 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     [Pure]
     private static ExpressionSyntax CreateOpcodeStepTableInitializer(GeneratorInput input)
     {
-        var stepIndices = new ushort[256];
+        var stepIndices = Enumerable.Repeat(65535, 256).ToArray();
         foreach (var instruction in input.Instructions)
         {
             stepIndices[instruction.Opcode] = instruction.Steps.First().Index;

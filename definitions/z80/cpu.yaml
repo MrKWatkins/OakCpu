@@ -6,7 +6,7 @@ cpu:
     - IORead
     - IOWrite
   opcode_read:
-    - [Address = PC, MemoryRead]
+    - [Address = PC, PC = PC + 1, MemoryRead]
     - [Opcode = Data]
     - [Address = IR, R = (R & 0x80) | (R + 1) & 0x7F)]
     - []

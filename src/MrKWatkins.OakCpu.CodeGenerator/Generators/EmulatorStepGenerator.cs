@@ -27,8 +27,7 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
             .AddModifiers(Public)
             .WithBody(SyntaxFactory.Block(
                 CreateSwitch(input),
-                // TODO: Throw UnreachableException instead.
-                StatementGenerator.GenerateStatementSyntaxes([RequestAction.None]).Single()));
+                CreateThrowNotSupportedException()));
 
     [Pure]
     private static SwitchStatementSyntax CreateSwitch(GeneratorInput input)
@@ -56,4 +55,16 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
         SyntaxFactory.PostfixUnaryExpression(
             SyntaxKind.PostIncrementExpression,
             SyntaxFactory.IdentifierName(field));
+
+    [Pure]
+    private static StatementSyntax CreateThrowNotSupportedException() =>
+        SyntaxFactory.ThrowStatement(
+                SyntaxFactory.ObjectCreationExpression(SyntaxFactory.IdentifierName("System.NotSupportedException"))
+                    .WithArgumentList(
+                        SyntaxFactory.ArgumentList(
+                            SyntaxFactory.SingletonSeparatedList(
+                                SyntaxFactory.Argument(
+                                    SyntaxFactory.LiteralExpression(
+                                        SyntaxKind.StringLiteralExpression,
+                                        SyntaxFactory.Literal($"The opcode 0x{{{KnownDataMember.Opcode.Name}:X2}} is not supported.")))))));
 }
