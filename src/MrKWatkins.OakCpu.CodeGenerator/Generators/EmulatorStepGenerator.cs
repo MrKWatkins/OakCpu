@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -46,7 +47,8 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
 
         return SyntaxFactory.SwitchSection()
             .AddLabels(SyntaxFactory.CaseSwitchLabel(GetNumericLiteralExpression(step.Index)))
-            .AddStatements(statements);
+            .AddStatements(statements)
+            .WithLeadingTrivia(SyntaxFactory.Comment($"// {step.Name}"));
     }
 
     [Pure]

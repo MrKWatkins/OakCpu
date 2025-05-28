@@ -45,7 +45,7 @@ public sealed class Instruction
         {
             var mnemonic = Substitute(opcodeYaml, yaml.Mnemonic);
 
-            var steps = yaml.Steps.Select(expressions => Step.Parse(context, Substitute(opcodeYaml, expressions))).ToList();
+            var steps = yaml.Steps.Select((expressions, index) => Step.Parse($"{mnemonic} [{index}]", context, Substitute(opcodeYaml, expressions))).ToList();
 
             yield return new Instruction(yaml.Group, mnemonic, opcodeYaml.Opcode, opcodeYaml.Prefix, steps);
         }

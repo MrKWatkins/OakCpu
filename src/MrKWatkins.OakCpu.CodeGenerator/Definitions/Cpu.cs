@@ -24,7 +24,7 @@ public sealed class Cpu
     {
         var context = new ParserContext(new HashSet<string>(yaml.Actions), registersByName);
 
-        var opcodeRead = Step.Parse(context, yaml.OpcodeRead);
+        var opcodeRead = Step.Parse("Opcode read", context, yaml.OpcodeRead);
 
         return new Cpu(yaml.Name, yaml.Actions, opcodeRead);
     }

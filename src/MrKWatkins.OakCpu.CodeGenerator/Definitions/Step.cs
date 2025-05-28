@@ -4,8 +4,10 @@ using MrKWatkins.OakCpu.CodeGenerator.Expressions.Parsing;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
-public sealed class Step(IReadOnlyList<Expression> expressions)
+public sealed class Step(string name, IReadOnlyList<Expression> expressions)
 {
+    public string Name { get; } = name;
+
     public ushort Index { get; private set; }
 
     public IReadOnlyList<Expression> Expressions { get; } = expressions;
@@ -24,11 +26,11 @@ public sealed class Step(IReadOnlyList<Expression> expressions)
     }
 
     [Pure]
-    public static IReadOnlyList<Step> Parse(ParserContext context, IReadOnlyList<IReadOnlyList<string>> steps) =>
-        steps.Select(s => Parse(context, s)).ToList();
+    public static IReadOnlyList<Step> Parse(string baseName, ParserContext context, IReadOnlyList<IReadOnlyList<string>> steps) =>
+        steps.Select((s, i) => Parse($"{baseName} [{i}]", context, s)).ToList();
 
     [Pure]
-    public static Step Parse(ParserContext context, [InstantHandle] IEnumerable<string> expressions)
+    public static Step Parse(string name, ParserContext context, [InstantHandle] IEnumerable<string> expressions)
     {
         var steps = expressions.Select(x =>
         {
@@ -46,6 +48,6 @@ public sealed class Step(IReadOnlyList<Expression> expressions)
         {
             steps.Add(RequestAction.None);
         }
-        return new Step(steps);
+        return new Step(name, steps);
     }
 }
