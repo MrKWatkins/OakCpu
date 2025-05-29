@@ -8,6 +8,131 @@ instructions:
       - opcode: 0x41
         R0: B
         R1: C
+      - opcode: 0x42
+        R0: B
+        R1: D
+      - opcode: 0x43
+        R0: B
+        R1: E
+      - opcode: 0x44
+        R0: B
+        R1: H
+      - opcode: 0x45
+        R0: B
+        R1: L
+      - opcode: 0x47
+        R0: B
+        R1: A
+        
+      - opcode: 0x48
+        R0: C
+        R1: B
+      - opcode: 0x49
+        R0: C
+        R1: C
+      - opcode: 0x4A
+        R0: C
+        R1: D
+      - opcode: 0x4B
+        R0: C
+        R1: E
+      - opcode: 0x4C
+        R0: C
+        R1: H
+      - opcode: 0x4D
+        R0: C
+        R1: L
+      - opcode: 0x4F
+        R0: C
+        R1: A
+        
+      - opcode: 0x50
+        R0: D
+        R1: B
+      - opcode: 0x51
+        R0: D
+        R1: C
+      - opcode: 0x52
+        R0: D
+        R1: D
+      - opcode: 0x53
+        R0: D
+        R1: E
+      - opcode: 0x54
+        R0: D
+        R1: H
+      - opcode: 0x55
+        R0: D
+        R1: L
+      - opcode: 0x57
+        R0: D
+        R1: A
+        
+      - opcode: 0x58
+        R0: E
+        R1: B
+      - opcode: 0x59
+        R0: E
+        R1: C
+      - opcode: 0x5A
+        R0: E
+        R1: D
+      - opcode: 0x5B
+        R0: E
+        R1: E
+      - opcode: 0x5C
+        R0: E
+        R1: H
+      - opcode: 0x5D
+        R0: E
+        R1: L
+      - opcode: 0x5F
+        R0: E
+        R1: A
+        
+      - opcode: 0x60
+        R0: H
+        R1: B
+      - opcode: 0x61
+        R0: H
+        R1: C
+      - opcode: 0x62
+        R0: H
+        R1: D
+      - opcode: 0x63
+        R0: H
+        R1: E
+      - opcode: 0x64
+        R0: H
+        R1: H
+      - opcode: 0x65
+        R0: H
+        R1: L
+      - opcode: 0x67
+        R0: H
+        R1: A
+        
+      - opcode: 0x68
+        R0: L
+        R1: B
+      - opcode: 0x69
+        R0: L
+        R1: C
+      - opcode: 0x6A
+        R0: L
+        R1: D
+      - opcode: 0x6B
+        R0: L
+        R1: E
+      - opcode: 0x6C
+        R0: L
+        R1: H
+      - opcode: 0x6D
+        R0: L
+        R1: L
+      - opcode: 0x6F
+        R0: L
+        R1: A
     steps:
       - [R0 = R1]
     next_opcode: overlapped
