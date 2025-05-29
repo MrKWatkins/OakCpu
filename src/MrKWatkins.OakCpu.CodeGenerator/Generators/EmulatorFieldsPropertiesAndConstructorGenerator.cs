@@ -2,6 +2,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -50,7 +51,7 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
         members.Add(CreateField(requiredUsings, KnownDataMember.Step, fieldOffset, Internal));
 
         return classDeclaration
-            .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(structLayout)))
+            .AddAttributeLists(AttributeList(SingletonSeparatedList(structLayout)))
             .AddMembers(members.ToArray<MemberDeclarationSyntax>());
     }
 
@@ -60,24 +61,22 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
         var statements = new List<StatementSyntax>
         {
             // Registers = new Z80Registers(this);
-            CreateNewObjectAndAssignToProperty(RegistersPropertyName, GetRegistersClassName(input), SyntaxFactory.ThisExpression()),
+            CreateNewObjectAndAssignToProperty(RegistersPropertyName, GetRegistersClassName(input), ThisExpression()),
 
             // Flags = new Z80Flags(this);
-            CreateNewObjectAndAssignToProperty(FlagsPropertyName, GetFlagsClassName(input), SyntaxFactory.ThisExpression())
+            CreateNewObjectAndAssignToProperty(FlagsPropertyName, GetFlagsClassName(input), ThisExpression())
         };
 
-        return SyntaxFactory
-            .ConstructorDeclaration(GetEmulatorClassName(input))
-            .WithModifiers(SyntaxFactory.TokenList(Public))
-            .WithBody(SyntaxFactory.Block(statements));
+        return ConstructorDeclaration(GetEmulatorClassName(input))
+            .WithModifiers(TokenList(Public))
+            .WithBody(Block(statements));
     }
 
     [Pure]
     private static PropertyDeclarationSyntax CreateGetOnlyProperty(HashSet<string> requiredUsings, string typeName, string propertyName, int fieldOffset)
     {
-        var attributeList = SyntaxFactory
-            .AttributeList(SyntaxFactory.SingletonSeparatedList(CreateFieldOffsetAttribute(requiredUsings, fieldOffset)))
-            .WithTarget(SyntaxFactory.AttributeTargetSpecifier(Field));
+        var attributeList = AttributeList(SingletonSeparatedList(CreateFieldOffsetAttribute(requiredUsings, fieldOffset)))
+            .WithTarget(AttributeTargetSpecifier(Field));
 
         return CreateGetOnlyProperty(typeName, propertyName).AddAttributeLists(attributeList);
     }
@@ -89,9 +88,8 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     [Pure]
     private static PropertyDeclarationSyntax CreateGetSetProperty(HashSet<string> requiredUsings, TypeSyntax type, string propertyName, int fieldOffset)
     {
-        var attributeList = SyntaxFactory
-            .AttributeList(SyntaxFactory.SingletonSeparatedList(CreateFieldOffsetAttribute(requiredUsings, fieldOffset)))
-            .WithTarget(SyntaxFactory.AttributeTargetSpecifier(Field));
+        var attributeList = AttributeList(SingletonSeparatedList(CreateFieldOffsetAttribute(requiredUsings, fieldOffset)))
+            .WithTarget(AttributeTargetSpecifier(Field));
 
         return CreateGetSetProperty(type, propertyName).AddAttributeLists(attributeList);
     }
@@ -125,35 +123,31 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
             modifiers.Add(ReadOnly);
         }
 
-        var variableDeclarator = SyntaxFactory.VariableDeclarator(SyntaxFactory.Identifier(name));
+        var variableDeclarator = VariableDeclarator(Identifier(name));
 
 
         if (initializer != null)
         {
-            variableDeclarator = variableDeclarator.WithInitializer(SyntaxFactory.EqualsValueClause(initializer));
+            variableDeclarator = variableDeclarator.WithInitializer(EqualsValueClause(initializer));
         }
 
-        var variable = SyntaxFactory.VariableDeclaration(type).WithVariables(SyntaxFactory.SingletonSeparatedList(variableDeclarator));
+        var variable = VariableDeclaration(type).WithVariables(SingletonSeparatedList(variableDeclarator));
 
-        return SyntaxFactory
-            .FieldDeclaration(variable)
-            .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(attribute)))
+        return FieldDeclaration(variable)
+            .AddAttributeLists(AttributeList(SingletonSeparatedList(attribute)))
             .AddModifiers(modifiers.ToArray());
     }
 
     [Pure]
     private static FieldDeclarationSyntax CreateOpcodeStepTableField(GeneratorInput input)
     {
-        var variableDeclarator = SyntaxFactory
-            .VariableDeclarator(SyntaxFactory.Identifier(KnownDataMember.OpcodeStepTable.Name))
-            .WithInitializer(SyntaxFactory.EqualsValueClause(CreateOpcodeStepTableInitializer(input)));
+        var variableDeclarator = VariableDeclarator(Identifier(KnownDataMember.OpcodeStepTable.Name))
+            .WithInitializer(EqualsValueClause(CreateOpcodeStepTableInitializer(input)));
 
-        var variable = SyntaxFactory
-            .VariableDeclaration(KnownDataMember.OpcodeStepTable.TypeSyntax)
-            .WithVariables(SyntaxFactory.SingletonSeparatedList(variableDeclarator));
+        var variable = VariableDeclaration(KnownDataMember.OpcodeStepTable.TypeSyntax)
+            .WithVariables(SingletonSeparatedList(variableDeclarator));
 
-        return SyntaxFactory
-            .FieldDeclaration(variable)
+        return FieldDeclaration(variable)
             .AddModifiers(Private, Static, ReadOnly);
     }
 
@@ -162,15 +156,15 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     {
         requiredUsings.Add("System.Runtime.InteropServices");
 
-        return SyntaxFactory.Attribute(
-            SyntaxFactory.IdentifierName("StructLayout"),
-            SyntaxFactory.AttributeArgumentList(
-                SyntaxFactory.SingletonSeparatedList(
-                    SyntaxFactory.AttributeArgument(
-                        SyntaxFactory.MemberAccessExpression(
+        return Attribute(
+            IdentifierName("StructLayout"),
+            AttributeArgumentList(
+                SingletonSeparatedList(
+                    AttributeArgument(
+                        MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            SyntaxFactory.IdentifierName("LayoutKind"),
-                            SyntaxFactory.IdentifierName("Explicit"))))));
+                            IdentifierName("LayoutKind"),
+                            IdentifierName("Explicit"))))));
     }
 
     [MustUseReturnValue]
@@ -178,14 +172,14 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     {
         requiredUsings.Add("System.Runtime.InteropServices");
 
-        return SyntaxFactory.Attribute(
-            SyntaxFactory.IdentifierName("FieldOffset"),
-            SyntaxFactory.AttributeArgumentList(
-                SyntaxFactory.SingletonSeparatedList(
-                    SyntaxFactory.AttributeArgument(
-                        SyntaxFactory.LiteralExpression(
+        return Attribute(
+            IdentifierName("FieldOffset"),
+            AttributeArgumentList(
+                SingletonSeparatedList(
+                    AttributeArgument(
+                        LiteralExpression(
                             SyntaxKind.NumericLiteralExpression,
-                            SyntaxFactory.Literal(fieldOffset))))));
+                            Literal(fieldOffset))))));
     }
 
     [Pure]
@@ -197,9 +191,9 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
             stepIndices[instruction.Opcode] = instruction.Steps.First().Index;
         }
 
-        var literals = stepIndices.Select(index => SyntaxFactory.ExpressionElement(SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(index))));
+        var literals = stepIndices.Select(index => ExpressionElement(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(index))));
 
-        return SyntaxFactory.CollectionExpression(SyntaxFactory.SeparatedList<CollectionElementSyntax>(literals));
+        return CollectionExpression(SeparatedList<CollectionElementSyntax>(literals));
     }
 
     [MustUseReturnValue]
@@ -209,41 +203,37 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
         requiredUsings.Add(typeof(NotSupportedException).Namespace);
 
         // throw new NotSupportedException("Only little endian systems are supported.");
-        var throwStatement = SyntaxFactory
-            .ThrowStatement(
-                SyntaxFactory.ObjectCreationExpression(SyntaxFactory.IdentifierName(nameof(NotSupportedException)))
+        var throwStatement = ThrowStatement(
+                ObjectCreationExpression(IdentifierName(nameof(NotSupportedException)))
                     .WithArgumentList(
-                        SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SingletonSeparatedList(
-                                SyntaxFactory.Argument(
-                                    SyntaxFactory.LiteralExpression(
+                        ArgumentList(
+                            SingletonSeparatedList(
+                                Argument(
+                                    LiteralExpression(
                                         SyntaxKind.StringLiteralExpression,
-                                        SyntaxFactory.Literal("Only little endian systems are supported.")))))));
+                                        Literal("Only little endian systems are supported.")))))));
 
         // #pragma warning disable CA1065
-        var pragmaDisable = SyntaxFactory
-            .PragmaWarningDirectiveTrivia(
-                SyntaxFactory.Token(SyntaxKind.DisableKeyword),
-                SyntaxFactory.SeparatedList<ExpressionSyntax>()
-                    .Add(SyntaxFactory.IdentifierName("CA1065")),
+        var pragmaDisable = PragmaWarningDirectiveTrivia(
+                Token(SyntaxKind.DisableKeyword),
+                SeparatedList<ExpressionSyntax>()
+                    .Add(IdentifierName("CA1065")),
                 true);
 
         // #pragma warning enable CA1065
-        var pragmaRestore = SyntaxFactory
-            .PragmaWarningDirectiveTrivia(
-                SyntaxFactory.Token(SyntaxKind.RestoreKeyword),
-                SyntaxFactory.SeparatedList<ExpressionSyntax>()
-                    .Add(SyntaxFactory.IdentifierName("CA1065")),
+        var pragmaRestore = PragmaWarningDirectiveTrivia(
+                Token(SyntaxKind.RestoreKeyword),
+                SeparatedList<ExpressionSyntax>()
+                    .Add(IdentifierName("CA1065")),
                 true);
 
         // !BitConverter.IsLittleEndian
-        var condition = SyntaxFactory
-            .PrefixUnaryExpression(
+        var condition = PrefixUnaryExpression(
                 SyntaxKind.LogicalNotExpression,
-                SyntaxFactory.MemberAccessExpression(
+                MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.IdentifierName(nameof(BitConverter)),
-                    SyntaxFactory.IdentifierName(nameof(BitConverter.IsLittleEndian))));
+                    IdentifierName(nameof(BitConverter)),
+                    IdentifierName(nameof(BitConverter.IsLittleEndian))));
 
         // if (!BitConverter.IsLittleEndian)
         // {
@@ -251,19 +241,17 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
         //  throw new NotSupportedException("Only little endian systems are supported.");
         // #pragma warning restore CA1065
         // }
-        var ifStatement = SyntaxFactory
-            .IfStatement(
+        var ifStatement = IfStatement(
                 condition,
-                SyntaxFactory.Block(
-                    SyntaxFactory.List<StatementSyntax>()
+                Block(
+                    List<StatementSyntax>()
                         .Add(throwStatement
-                            .WithLeadingTrivia(SyntaxFactory.Trivia(pragmaDisable))
-                            .WithTrailingTrivia(SyntaxFactory.Trivia(pragmaRestore)))));
+                            .WithLeadingTrivia(Trivia(pragmaDisable))
+                            .WithTrailingTrivia(Trivia(pragmaRestore)))));
 
         // Static constructor
-        return SyntaxFactory
-            .ConstructorDeclaration(GetEmulatorClassName(input))
-            .WithModifiers(SyntaxFactory.TokenList(Static))
-            .WithBody(SyntaxFactory.Block(SyntaxFactory.SingletonList(ifStatement)));
+        return ConstructorDeclaration(GetEmulatorClassName(input))
+            .WithModifiers(TokenList(Static))
+            .WithBody(Block(SingletonList(ifStatement)));
     }
 }

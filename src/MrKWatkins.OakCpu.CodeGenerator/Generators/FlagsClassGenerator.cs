@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -22,8 +23,7 @@ public sealed class FlagsClassGenerator : ClassGenerator
 
         members.AddRange(CreateFlagProperties(input));
 
-        return SyntaxFactory
-            .ClassDeclaration(GetFlagsClassName(input))
+        return ClassDeclaration(GetFlagsClassName(input))
             .AddModifiers(Public, Sealed)
             .AddMembers(members.ToArray());
     }
@@ -38,33 +38,33 @@ public sealed class FlagsClassGenerator : ClassGenerator
         var setMask = (byte)(1 << flag.Index);
         var resetMask = (byte)~(1 << flag.Index);
 
-        var flagsMemberAccess = SyntaxFactory.MemberAccessExpression(
+        var flagsMemberAccess = MemberAccessExpression(
             SyntaxKind.SimpleMemberAccessExpression,
-            SyntaxFactory.IdentifierName(EmulatorFieldName),
-            SyntaxFactory.IdentifierName(flagsRegister.FieldName));
+            IdentifierName(EmulatorFieldName),
+            IdentifierName(flagsRegister.FieldName));
 
-        var getExpression = SyntaxFactory.BinaryExpression(
+        var getExpression = BinaryExpression(
             SyntaxKind.NotEqualsExpression,
-            SyntaxFactory.ParenthesizedExpression(
-                SyntaxFactory.BinaryExpression(
+            ParenthesizedExpression(
+                BinaryExpression(
                     SyntaxKind.BitwiseAndExpression,
                     flagsMemberAccess,
                     GetBinaryLiteralExpression(getMask))),
             GetNumericLiteralExpression(0));
 
-        var setExpression = SyntaxFactory.AssignmentExpression(
+        var setExpression = AssignmentExpression(
             SyntaxKind.SimpleAssignmentExpression,
             flagsMemberAccess,
-            SyntaxFactory.CastExpression(
+            CastExpression(
                 flagsRegister.DataType.TypeSyntax(),
-                SyntaxFactory.ParenthesizedExpression(
-                    SyntaxFactory.ConditionalExpression(
-                        SyntaxFactory.IdentifierName("value"),
-                        SyntaxFactory.BinaryExpression(
+                ParenthesizedExpression(
+                    ConditionalExpression(
+                        IdentifierName("value"),
+                        BinaryExpression(
                             SyntaxKind.BitwiseOrExpression,
                             flagsMemberAccess,
                             GetBinaryLiteralExpression(setMask)),
-                        SyntaxFactory.BinaryExpression(
+                        BinaryExpression(
                             SyntaxKind.BitwiseAndExpression,
                             flagsMemberAccess,
                             GetBinaryLiteralExpression(resetMask))))));
@@ -80,15 +80,13 @@ public sealed class FlagsClassGenerator : ClassGenerator
             CreateAssignEmulatorFieldExpression()
         };
 
-        return SyntaxFactory
-            .ConstructorDeclaration(GetFlagsClassName(input))
-            .WithModifiers(SyntaxFactory.TokenList(Internal))
+        return ConstructorDeclaration(GetFlagsClassName(input))
+            .WithModifiers(TokenList(Internal))
             .WithParameterList(
-                SyntaxFactory.ParameterList(
-                    SyntaxFactory.SingletonSeparatedList(
-                        SyntaxFactory
-                            .Parameter(SyntaxFactory.Identifier(EmulatorFieldName))
+                ParameterList(
+                    SingletonSeparatedList(
+                        Parameter(Identifier(EmulatorFieldName))
                             .WithType(GetEmulatorClassIdentifier(input)))))
-            .WithBody(SyntaxFactory.Block(statements));
+            .WithBody(Block(statements));
     }
 }

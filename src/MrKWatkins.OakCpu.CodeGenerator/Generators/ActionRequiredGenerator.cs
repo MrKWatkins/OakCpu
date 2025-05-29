@@ -1,5 +1,5 @@
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -13,9 +13,9 @@ public sealed class ActionRequiredGenerator : ClassGenerator
 
     protected override BaseTypeDeclarationSyntax CreateType(HashSet<string> requiredUsings, GeneratorInput input)
     {
-        var members = input.Cpu.Actions.Prepend(ActionRequiredNone).Select(name => SyntaxFactory.EnumMemberDeclaration(SyntaxFactory.Identifier(name))).ToArray();
+        var members = input.Cpu.Actions.Prepend(ActionRequiredNone).Select(name => EnumMemberDeclaration(Identifier(name))).ToArray();
 
-        return SyntaxFactory.EnumDeclaration(ActionRequiredEnumName)
+        return EnumDeclaration(ActionRequiredEnumName)
             .AddModifiers(Public)
             .AddMembers(members);
     }

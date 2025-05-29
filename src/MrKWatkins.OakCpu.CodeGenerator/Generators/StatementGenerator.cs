@@ -2,6 +2,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -17,7 +18,7 @@ public abstract class StatementGenerator : Generator
             {
                 if (commentsAheadOfNextStatement.Any())
                 {
-                    yield return statement.WithLeadingTrivia(commentsAheadOfNextStatement.Select(comment => SyntaxFactory.Comment($"// {comment}")));
+                    yield return statement.WithLeadingTrivia(commentsAheadOfNextStatement.Select(comment => Comment($"// {comment}")));
                     commentsAheadOfNextStatement.Clear();
                 }
                 else
@@ -37,7 +38,7 @@ public abstract class StatementGenerator : Generator
             OpcodeJump => GenerateOpcodeJump(),
             OverlappedOpcodeRead => GenerateOverlappedOpcodeReadStatementSyntaxes(commentsAheadOfNextStatement),
             RequestAction requestAction => GenerateStatementSyntaxes(requestAction),
-            _ => [SyntaxFactory.ExpressionStatement(GenerateExpressionSyntax(statement))]
+            _ => [ExpressionStatement(GenerateExpressionSyntax(statement))]
         };
 
     [Pure]
@@ -56,22 +57,22 @@ public abstract class StatementGenerator : Generator
         var left = GenerateExpressionSyntax(binaryOperation.Left);
         if (binaryOperation.Left is BinaryOperation leftBinary && leftBinary.OperatorPrecedence < binaryOperation.OperatorPrecedence)
         {
-            left = SyntaxFactory.ParenthesizedExpression(left);
+            left = ParenthesizedExpression(left);
         }
 
         var right = GenerateExpressionSyntax(binaryOperation.Right);
         if (binaryOperation.Right is BinaryOperation rightBinary && rightBinary.OperatorPrecedence < binaryOperation.OperatorPrecedence)
         {
-            right = SyntaxFactory.ParenthesizedExpression(right);
+            right = ParenthesizedExpression(right);
         }
 
-        return SyntaxFactory.BinaryExpression(binaryOperation.ExpressionSyntaxKind, left, right);
+        return BinaryExpression(binaryOperation.ExpressionSyntaxKind, left, right);
     }
 
     [Pure]
     private static ExpressionSyntax GenerateExpressionSyntax(DataMemberAccess dataMemberAccess) => dataMemberAccess.IdentifierName;
 
-    private static ExpressionSyntax GenerateExpressionSyntax(Number number) => SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(number.NumberString, number.Value));
+    private static ExpressionSyntax GenerateExpressionSyntax(Number number) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(number.NumberString, number.Value));
 
     [Pure]
     private static ExpressionSyntax GenerateExpressionSyntax(RegisterAccess registerAccess) => registerAccess.IdentifierName;
@@ -92,24 +93,24 @@ public abstract class StatementGenerator : Generator
         {
             if (assignment.Value is BinaryOperation)
             {
-                value = SyntaxFactory.ParenthesizedExpression(value);
+                value = ParenthesizedExpression(value);
             }
 
-            value = SyntaxFactory.CastExpression(assignment.Target.TypeSyntax, value);
+            value = CastExpression(assignment.Target.TypeSyntax, value);
         }
 
-        yield return SyntaxFactory.ExpressionStatement(SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, target, value));
+        yield return ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, target, value));
     }
 
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(RequestAction requestAction)
     {
         yield return
-            SyntaxFactory.ReturnStatement(
-                SyntaxFactory.MemberAccessExpression(
+            ReturnStatement(
+                MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.IdentifierName(ActionRequiredEnumName),
-                    SyntaxFactory.IdentifierName(requestAction.Name)));
+                    IdentifierName(ActionRequiredEnumName),
+                    IdentifierName(requestAction.Name)));
     }
 
     [Pure]
@@ -122,13 +123,12 @@ public abstract class StatementGenerator : Generator
     private static IEnumerable<StatementSyntax> GenerateOpcodeJump()
     {
         // TODO: Version without bounds checks, don't rely on the JIT. Maybe wait until prefixes are added.
-        var getOpcode = SyntaxFactory
-            .ElementAccessExpression(
-                SyntaxFactory.IdentifierName(KnownDataMember.OpcodeStepTable.Name),
-                SyntaxFactory.BracketedArgumentList(
-                    SyntaxFactory.SingletonSeparatedList(
-                        SyntaxFactory.Argument(
-                            SyntaxFactory.IdentifierName(KnownDataMember.Opcode.Name)))));
+        var getOpcode = ElementAccessExpression(
+                IdentifierName(KnownDataMember.OpcodeStepTable.Name),
+                BracketedArgumentList(
+                    SingletonSeparatedList(
+                        Argument(
+                            IdentifierName(KnownDataMember.Opcode.Name)))));
 
         yield return CreateSetStep(getOpcode);
     }
@@ -142,7 +142,7 @@ public abstract class StatementGenerator : Generator
         yield return CreateSetStep(1);
 
         // goto case 0 to perform step 0.
-        yield return SyntaxFactory.GotoStatement(SyntaxKind.GotoCaseStatement, SyntaxFactory.Token(SyntaxKind.CaseKeyword), GetNumericLiteralExpression(0));
+        yield return GotoStatement(SyntaxKind.GotoCaseStatement, Token(SyntaxKind.CaseKeyword), GetNumericLiteralExpression(0));
     }
 
     [Pure]
@@ -150,9 +150,9 @@ public abstract class StatementGenerator : Generator
 
     [Pure]
     private static StatementSyntax CreateSetStep(ExpressionSyntax value) =>
-        SyntaxFactory.ExpressionStatement(
-            SyntaxFactory.AssignmentExpression(
+        ExpressionStatement(
+            AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
-                SyntaxFactory.IdentifierName(StepVariableName),
+                IdentifierName(StepVariableName),
                 value));
 }

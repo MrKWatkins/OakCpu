@@ -2,7 +2,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
-using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -20,12 +20,11 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
 
     [Pure]
     private static MethodDeclarationSyntax CreateStepMethod(GeneratorInput input) =>
-        SyntaxFactory
-            .MethodDeclaration(
-                SyntaxFactory.IdentifierName(ActionRequiredEnumName),
-                SyntaxFactory.Identifier(StepMethodName))
+        MethodDeclaration(
+                IdentifierName(ActionRequiredEnumName),
+                Identifier(StepMethodName))
             .AddModifiers(Public)
-            .WithBody(SyntaxFactory.Block(
+            .WithBody(Block(
                 CreateSwitch(input),
                 CreateThrowNotSupportedException()));
 
@@ -34,8 +33,7 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
     {
         var sections = input.AllSteps.Select(CreateSwitchSection).ToArray();
 
-        return SyntaxFactory
-            .SwitchStatement(CreatePostIncrementExpression(KnownDataMember.Step.Name))
+        return SwitchStatement(CreatePostIncrementExpression(KnownDataMember.Step.Name))
             .AddSections(sections);
     }
 
@@ -44,27 +42,27 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
     {
         var statements = StatementGenerator.GenerateStatementSyntaxes(step.Statements).ToArray();
 
-        return SyntaxFactory.SwitchSection()
-            .AddLabels(SyntaxFactory.CaseSwitchLabel(GetNumericLiteralExpression(step.Index)))
+        return SwitchSection()
+            .AddLabels(CaseSwitchLabel(GetNumericLiteralExpression(step.Index)))
             .AddStatements(statements)
-            .WithLeadingTrivia(SyntaxFactory.Comment($"// {step.Name}"));
+            .WithLeadingTrivia(Comment($"// {step.Name}"));
     }
 
     [Pure]
     private static ExpressionSyntax CreatePostIncrementExpression(string field) =>
-        SyntaxFactory.PostfixUnaryExpression(
+        PostfixUnaryExpression(
             SyntaxKind.PostIncrementExpression,
-            SyntaxFactory.IdentifierName(field));
+            IdentifierName(field));
 
     [Pure]
     private static StatementSyntax CreateThrowNotSupportedException() =>
-        SyntaxFactory.ThrowStatement(
-                SyntaxFactory.ObjectCreationExpression(SyntaxFactory.IdentifierName("System.NotSupportedException"))
+        ThrowStatement(
+                ObjectCreationExpression(IdentifierName("System.NotSupportedException"))
                     .WithArgumentList(
-                        SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SingletonSeparatedList(
-                                SyntaxFactory.Argument(
-                                    SyntaxFactory.LiteralExpression(
+                        ArgumentList(
+                            SingletonSeparatedList(
+                                Argument(
+                                    LiteralExpression(
                                         SyntaxKind.StringLiteralExpression,
-                                        SyntaxFactory.Literal($"The opcode 0x{{{KnownDataMember.Opcode.Name}:X2}} is not supported.")))))));
+                                        Literal($"The opcode 0x{{{KnownDataMember.Opcode.Name}:X2}} is not supported.")))))));
 }

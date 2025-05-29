@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -35,8 +36,7 @@ public sealed class RegistersClassesGenerator : ClassGenerator
         }
         members.AddRange(CreateRegisterProperties(input, category));
 
-        return SyntaxFactory
-            .ClassDeclaration(GetRegistersClassName(input, category))
+        return ClassDeclaration(GetRegistersClassName(input, category))
             .AddModifiers(Public, Sealed)
             .AddMembers(members.ToArray());
     }
@@ -50,17 +50,17 @@ public sealed class RegistersClassesGenerator : ClassGenerator
     [Pure]
     private static PropertyDeclarationSyntax CreateRegisterProperty(Register register)
     {
-        var memberAccessExpression = SyntaxFactory.MemberAccessExpression(
+        var memberAccessExpression = MemberAccessExpression(
             SyntaxKind.SimpleMemberAccessExpression,
-            SyntaxFactory.IdentifierName(EmulatorFieldName),
-            SyntaxFactory.IdentifierName(register.FieldName));
+            IdentifierName(EmulatorFieldName),
+            IdentifierName(register.FieldName));
 
         var getExpression = memberAccessExpression;
 
-        var setExpression = SyntaxFactory.AssignmentExpression(
+        var setExpression = AssignmentExpression(
             SyntaxKind.SimpleAssignmentExpression,
             memberAccessExpression,
-            SyntaxFactory.IdentifierName("value"));
+            IdentifierName("value"));
 
         return CreateGetSetProperty(register.DataType.TypeSyntax(), register.PropertyName, getExpression, setExpression);
     }
@@ -78,20 +78,18 @@ public sealed class RegistersClassesGenerator : ClassGenerator
             foreach (var c in GetCategories(input))
             {
                 // Category = new Z80CategoryRegisters(emulator);
-                statements.Add(CreateNewObjectAndAssignToProperty(c, GetRegistersClassName(input, c), SyntaxFactory.IdentifierName(EmulatorFieldName)));
+                statements.Add(CreateNewObjectAndAssignToProperty(c, GetRegistersClassName(input, c), IdentifierName(EmulatorFieldName)));
             }
         }
 
-        return SyntaxFactory
-            .ConstructorDeclaration(GetRegistersClassName(input, category))
-            .WithModifiers(SyntaxFactory.TokenList(Internal))
+        return ConstructorDeclaration(GetRegistersClassName(input, category))
+            .WithModifiers(TokenList(Internal))
             .WithParameterList(
-                SyntaxFactory.ParameterList(
-                    SyntaxFactory.SingletonSeparatedList(
-                        SyntaxFactory
-                            .Parameter(SyntaxFactory.Identifier(EmulatorFieldName))
+                ParameterList(
+                    SingletonSeparatedList(
+                        Parameter(Identifier(EmulatorFieldName))
                             .WithType(GetEmulatorClassIdentifier(input)))))
-            .WithBody(SyntaxFactory.Block(statements.ToArray()));
+            .WithBody(Block(statements.ToArray()));
     }
 
     [Pure]

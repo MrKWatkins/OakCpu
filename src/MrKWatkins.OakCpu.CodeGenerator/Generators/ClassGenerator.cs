@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -29,8 +30,7 @@ public abstract class ClassGenerator : Generator
 
         var classDeclarations = CreateTypes(requiredUsings, input).ToArray<MemberDeclarationSyntax>();
 
-        return SyntaxFactory
-            .CompilationUnit()
+        return CompilationUnit()
             .AddUsings(requiredUsings.OrderBy(n => n).Select(CreateUsingStatement).ToArray())
             .AddMembers(
                 input
@@ -53,93 +53,85 @@ public abstract class ClassGenerator : Generator
 
     [Pure]
     protected static PropertyDeclarationSyntax CreateGetOnlyProperty(string typeName, string propertyName) =>
-        SyntaxFactory
-            .PropertyDeclaration(SyntaxFactory.IdentifierName(typeName), SyntaxFactory.Identifier(propertyName))
-            .WithModifiers(SyntaxFactory.TokenList(Public))
+        PropertyDeclaration(IdentifierName(typeName), Identifier(propertyName))
+            .WithModifiers(TokenList(Public))
             .WithAccessorList(
-                SyntaxFactory.AccessorList(
-                    SyntaxFactory.SingletonList(SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Semicolon))));
+                AccessorList(
+                    SingletonList(AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Semicolon))));
 
     [Pure]
     protected static PropertyDeclarationSyntax CreateGetSetProperty(TypeSyntax type, string propertyName) =>
-        SyntaxFactory
-            .PropertyDeclaration(type, SyntaxFactory.Identifier(propertyName))
-            .WithModifiers(SyntaxFactory.TokenList(Public))
+        PropertyDeclaration(type, Identifier(propertyName))
+            .WithModifiers(TokenList(Public))
             .WithAccessorList(
-                SyntaxFactory.AccessorList(SyntaxFactory.List([
-                    SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Semicolon),
-                    SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(Semicolon)
+                AccessorList(List([
+                    AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Semicolon),
+                    AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(Semicolon)
                 ])));
 
     [Pure]
     protected static PropertyDeclarationSyntax CreateGetSetProperty(TypeSyntax type, string propertyName, ExpressionSyntax getExpression, ExpressionSyntax setExpression) =>
-        SyntaxFactory
-            .PropertyDeclaration(type, SyntaxFactory.Identifier(propertyName))
-            .WithModifiers(SyntaxFactory.TokenList(Public))
+        PropertyDeclaration(type, Identifier(propertyName))
+            .WithModifiers(TokenList(Public))
             .WithAccessorList(
-                SyntaxFactory.AccessorList(SyntaxFactory.List(
+                AccessorList(List(
                 [
-                    SyntaxFactory
-                        .AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                        .WithExpressionBody(SyntaxFactory.ArrowExpressionClause(getExpression))
-                        .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+                    AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                        .WithExpressionBody(ArrowExpressionClause(getExpression))
+                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
 
-                    SyntaxFactory
-                        .AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-                        .WithExpressionBody(SyntaxFactory.ArrowExpressionClause(setExpression))
-                        .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+                    AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                        .WithExpressionBody(ArrowExpressionClause(setExpression))
+                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
                 ])));
     [Pure]
     protected static FieldDeclarationSyntax CreateEmulatorField(GeneratorInput input) =>
-        SyntaxFactory
-            .FieldDeclaration(
-                SyntaxFactory
-                    .VariableDeclaration(GetEmulatorClassIdentifier(input))
-                    .WithVariables(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.VariableDeclarator(SyntaxFactory.Identifier(EmulatorFieldName)))))
-            .WithModifiers(SyntaxFactory.TokenList(Private, ReadOnly));
+        FieldDeclaration(
+                VariableDeclaration(GetEmulatorClassIdentifier(input))
+                    .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(EmulatorFieldName)))))
+            .WithModifiers(TokenList(Private, ReadOnly));
 
     [Pure]
     protected static ExpressionStatementSyntax CreateNewObjectAndAssignToProperty(string propertyName, string classToCreateName, params ExpressionSyntax[] constructorArguments) =>
-        SyntaxFactory.ExpressionStatement(
-            SyntaxFactory.AssignmentExpression(
+        ExpressionStatement(
+            AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
-                SyntaxFactory.IdentifierName(propertyName),
-                SyntaxFactory
-                    .ObjectCreationExpression(SyntaxFactory.IdentifierName(classToCreateName))
+                IdentifierName(propertyName),
+                ObjectCreationExpression(IdentifierName(classToCreateName))
                     .WithArgumentList(
-                        SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SeparatedList(constructorArguments.Select(SyntaxFactory.Argument).ToArray())))));
+                        ArgumentList(
+                            SeparatedList(constructorArguments.Select(Argument).ToArray())))));
 
     [Pure]
     protected static ExpressionStatementSyntax CreateAssignEmulatorFieldExpression() =>
         // this.emulator = emulator;
-        SyntaxFactory.ExpressionStatement(
-            SyntaxFactory.AssignmentExpression(
+        ExpressionStatement(
+            AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
-                SyntaxFactory.MemberAccessExpression(
+                MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.ThisExpression(),
-                    SyntaxFactory.IdentifierName(EmulatorFieldName)),
-                SyntaxFactory.IdentifierName(EmulatorFieldName)));
+                    ThisExpression(),
+                    IdentifierName(EmulatorFieldName)),
+                IdentifierName(EmulatorFieldName)));
 
     [Pure]
     protected static string GetEmulatorClassName(GeneratorInput input) => $"{input.Cpu.Name}Emulator";
 
     [Pure]
-    protected static IdentifierNameSyntax GetEmulatorClassIdentifier(GeneratorInput input) => SyntaxFactory.IdentifierName(GetEmulatorClassName(input));
+    protected static IdentifierNameSyntax GetEmulatorClassIdentifier(GeneratorInput input) => IdentifierName(GetEmulatorClassName(input));
 
     [Pure]
     protected static string GetRegistersClassName(GeneratorInput input, string? category = null) => $"{input.Cpu.Name}{category}Registers";
 
     [Pure]
-    protected static IdentifierNameSyntax GetRegistersClassIdentifier(GeneratorInput input, string? category = null) => SyntaxFactory.IdentifierName(GetRegistersClassName(input, category));
+    protected static IdentifierNameSyntax GetRegistersClassIdentifier(GeneratorInput input, string? category = null) => IdentifierName(GetRegistersClassName(input, category));
 
     [Pure]
     protected static string GetFlagsClassName(GeneratorInput input) => $"{input.Cpu.Name}Flags";
 
     [Pure]
-    protected static IdentifierNameSyntax GetFlagsClassIdentifier(GeneratorInput input) => SyntaxFactory.IdentifierName(GetFlagsClassName(input));
+    protected static IdentifierNameSyntax GetFlagsClassIdentifier(GeneratorInput input) => IdentifierName(GetFlagsClassName(input));
 
     [Pure]
-    private static UsingDirectiveSyntax CreateUsingStatement(string @namespace) => SyntaxFactory.UsingDirective(SyntaxFactory.IdentifierName(@namespace));
+    private static UsingDirectiveSyntax CreateUsingStatement(string @namespace) => UsingDirective(IdentifierName(@namespace));
 }

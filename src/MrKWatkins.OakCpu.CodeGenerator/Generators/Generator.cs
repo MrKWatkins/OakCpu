@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -17,45 +18,45 @@ public abstract class Generator
 
     [Pure]
     protected static StatementSyntax CreateCommentStatement(string comment) =>
-        SyntaxFactory.ParseStatement("")
-            .WithLeadingTrivia(SyntaxFactory.Comment($"// {comment}"));
+        ParseStatement("")
+            .WithLeadingTrivia(Comment($"// {comment}"));
 
     [Pure]
-    protected static PredefinedTypeSyntax Bool => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword));
+    protected static PredefinedTypeSyntax Bool => PredefinedType(Token(SyntaxKind.BoolKeyword));
 
     [Pure]
-    protected static SyntaxToken Field => SyntaxFactory.Token(SyntaxKind.FieldKeyword);
+    protected static SyntaxToken Field => Token(SyntaxKind.FieldKeyword);
 
     [Pure]
-    protected static SyntaxToken Internal => SyntaxFactory.Token(SyntaxKind.InternalKeyword);
+    protected static SyntaxToken Internal => Token(SyntaxKind.InternalKeyword);
 
     [Pure]
-    protected static SyntaxToken Partial => SyntaxFactory.Token(SyntaxKind.PartialKeyword);
+    protected static SyntaxToken Partial => Token(SyntaxKind.PartialKeyword);
 
     [Pure]
-    protected static SyntaxToken Private => SyntaxFactory.Token(SyntaxKind.PrivateKeyword);
+    protected static SyntaxToken Private => Token(SyntaxKind.PrivateKeyword);
 
     [Pure]
-    protected static SyntaxToken Public => SyntaxFactory.Token(SyntaxKind.PublicKeyword);
+    protected static SyntaxToken Public => Token(SyntaxKind.PublicKeyword);
 
     [Pure]
-    protected static SyntaxToken ReadOnly => SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword);
+    protected static SyntaxToken ReadOnly => Token(SyntaxKind.ReadOnlyKeyword);
 
     [Pure]
-    protected static SyntaxToken Sealed => SyntaxFactory.Token(SyntaxKind.SealedKeyword);
+    protected static SyntaxToken Sealed => Token(SyntaxKind.SealedKeyword);
 
     [Pure]
-    protected static SyntaxToken Semicolon => SyntaxFactory.Token(SyntaxKind.SemicolonToken);
+    protected static SyntaxToken Semicolon => Token(SyntaxKind.SemicolonToken);
 
     [Pure]
-    protected static SyntaxToken Static => SyntaxFactory.Token(SyntaxKind.StaticKeyword);
+    protected static SyntaxToken Static => Token(SyntaxKind.StaticKeyword);
 
     [Pure]
-    protected static SyntaxToken GetBinaryLiteral(byte value) => SyntaxFactory.Literal($"0b{Convert.ToString(value, 2).PadLeft(8, '0')}", value);
+    protected static SyntaxToken GetBinaryLiteral(byte value) => Literal($"0b{Convert.ToString(value, 2).PadLeft(8, '0')}", value);
 
     [Pure]
-    protected static LiteralExpressionSyntax GetBinaryLiteralExpression(byte value) => SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, GetBinaryLiteral(value));
+    protected static LiteralExpressionSyntax GetBinaryLiteralExpression(byte value) => LiteralExpression(SyntaxKind.NumericLiteralExpression, GetBinaryLiteral(value));
 
     [Pure]
-    protected static LiteralExpressionSyntax GetNumericLiteralExpression(int value) => SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
+    protected static LiteralExpressionSyntax GetNumericLiteralExpression(int value) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(value));
 }
