@@ -69,6 +69,12 @@ registers:
 
   - name: SP
     type: u16
+    high:
+      name: SPH
+      type: u8
+    low:
+      name: SPL
+      type: u8
 
   - name: WZ
     type: u16

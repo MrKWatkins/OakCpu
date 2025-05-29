@@ -37,6 +37,10 @@ public sealed class Register
 
     public int FieldOffset { get; }
 
+    public Register? HighRegister { get; internal set; }
+
+    public Register? LowRegister { get; internal set; }
+
     public override string ToString() => $"{Name}: {DataType}";
 
     [Pure]
@@ -47,13 +51,16 @@ public sealed class Register
         var fieldOffset = 0;
         foreach (var yaml in Order(yamls.Where(y => y.High != null)))
         {
-            registers.Add(new Register(yaml.Name, yaml.Type, yaml.Flags, yaml.ProgramCounter, yaml.Category, fieldOffset));
+            var registerPair = new Register(yaml.Name, yaml.Type, yaml.Flags, yaml.ProgramCounter, yaml.Category, fieldOffset);
+            registers.Add(registerPair);
 
             // Little endian; low byte is at the lowest address.
-            registers.Add(new Register(yaml.Low!.Name, yaml.Low.Type, yaml.Low.Flags, yaml.Low.ProgramCounter, yaml.Low.Category, fieldOffset));
+            registerPair.LowRegister = new Register(yaml.Low!.Name, yaml.Low.Type, yaml.Low.Flags, yaml.Low.ProgramCounter, yaml.Low.Category, fieldOffset);
+            registers.Add(registerPair.LowRegister);
             fieldOffset += yaml.Low.Type.Size();
 
-            registers.Add(new Register(yaml.High!.Name, yaml.High.Type, yaml.High.Flags, yaml.High.ProgramCounter, yaml.High.Category, fieldOffset));
+            registerPair.HighRegister = new Register(yaml.High!.Name, yaml.High.Type, yaml.High.Flags, yaml.High.ProgramCounter, yaml.High.Category, fieldOffset);
+            registers.Add(registerPair.HighRegister);
             fieldOffset += yaml.High.Type.Size();
         }
 

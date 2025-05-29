@@ -1,0 +1,19 @@
+instructions:
+  - group: 16-bit load immediate
+    mnemonic: LD RP0, nnnn
+    opcodes:
+      - opcode: 0x01
+        RP0: BC
+      - opcode: 0x11
+        RP0: DE
+      - opcode: 0x21
+        RP0: HL
+      - opcode: 0x31
+        RP0: SP
+    steps:
+      - [Address = PC, PC = PC + 1, MemoryRead]
+      - [RP0L = Data]
+      - []
+      - [Address = PC, PC = PC + 1, MemoryRead]
+      - [RP0H = Data]
+      - []

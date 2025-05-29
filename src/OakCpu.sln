@@ -20,7 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "z80", "z80", "{4C2E5424-BCE
 		..\definitions\z80\flags.yaml = ..\definitions\z80\flags.yaml
 		..\definitions\z80\general.yaml = ..\definitions\z80\general.yaml
 		..\definitions\z80\cpu.yaml = ..\definitions\z80\cpu.yaml
-		..\definitions\z80\load-from-register-8-bit.yaml = ..\definitions\z80\load-from-register-8-bit.yaml
+		..\definitions\z80\16-bit-load-immediate.yaml = ..\definitions\z80\16-bit-load-immediate.yaml
+		..\definitions\z80\8-bit-load-from-register.yaml = ..\definitions\z80\8-bit-load-from-register.yaml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrKWatkins.OakCpu.Z80.Tests", "MrKWatkins.OakCpu.Z80.Tests\MrKWatkins.OakCpu.Z80.Tests.csproj", "{C0E307B6-B1E3-421A-99C7-62804DAE1A39}"

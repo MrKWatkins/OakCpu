@@ -47,7 +47,7 @@ public sealed class Instruction
     {
         foreach (var opcodeYaml in yaml.Opcodes)
         {
-            var mnemonic = Substitute(opcodeYaml, yaml.Mnemonic);
+            var mnemonic = Substitute(context, opcodeYaml, yaml.Mnemonic);
 
             Statement lastStepFinalStatement = yaml.NextOpcode switch
             {
@@ -57,7 +57,7 @@ public sealed class Instruction
             };
 
             var steps = yaml.Steps
-                .Select((expressions, index) => Step.Parse($"{mnemonic} [{index}]", context, Substitute(opcodeYaml, expressions), index == yaml.Steps.Count - 1 ? lastStepFinalStatement : null))
+                .Select((expressions, index) => Step.Parse($"{mnemonic} [{index}]", context, Substitute(context, opcodeYaml, expressions), index == yaml.Steps.Count - 1 ? lastStepFinalStatement : null))
                 .ToList();
 
             yield return new Instruction(yaml.Group, mnemonic, opcodeYaml.Opcode, opcodeYaml.Prefix, steps, yaml.NextOpcode == NextOpcodeMode.Overlapped);
@@ -65,19 +65,37 @@ public sealed class Instruction
     }
 
     [Pure]
-    private static IEnumerable<string> Substitute(OpcodeYaml opcodeYaml, IEnumerable<string> values) => values.Select(v => Substitute(opcodeYaml, v));
+    private static IEnumerable<string> Substitute(ParserContext context, OpcodeYaml opcodeYaml, IEnumerable<string> values) => values.Select(v => Substitute(context, opcodeYaml, v));
 
     [Pure]
-    private static string Substitute(OpcodeYaml opcodeYaml, string value)
+    private static string Substitute(ParserContext context, OpcodeYaml opcodeYaml, string value)
     {
-        if (opcodeYaml.R0 != null)
+        value = ReplaceRegister(context, value, "R0", opcodeYaml.R0);
+        value = ReplaceRegister(context, value, "R1", opcodeYaml.R1);
+        value = ReplaceRegister(context, value, "RP0", opcodeYaml.RP0);
+        value = ReplaceRegister(context, value, "RP1", opcodeYaml.RP1);
+        return value;
+    }
+
+    [Pure]
+    private static string ReplaceRegister(ParserContext context, string value, string registerVariable, string? replacement)
+    {
+        if (replacement != null)
         {
-            value = value.Replace("R0", opcodeYaml.R0);
+            var register = context.Registers[replacement];
+
+            if (register.HighRegister != null)
+            {
+                value = value.Replace($"{registerVariable}H", register.HighRegister.Name);
+            }
+            if (register.LowRegister != null)
+            {
+                value = value.Replace($"{registerVariable}L", register.LowRegister.Name);
+            }
+
+            value = value.Replace(registerVariable, register.Name);
         }
-        if (opcodeYaml.R1 != null)
-        {
-            value = value.Replace("R1", opcodeYaml.R1);
-        }
+
         return value;
     }
 }

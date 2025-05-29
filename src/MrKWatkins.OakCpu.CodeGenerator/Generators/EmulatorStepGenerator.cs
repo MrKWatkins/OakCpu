@@ -55,14 +55,25 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
             IdentifierName(field));
 
     [Pure]
-    private static StatementSyntax CreateThrowNotSupportedException() =>
-        ThrowStatement(
-                ObjectCreationExpression(IdentifierName("System.NotSupportedException"))
-                    .WithArgumentList(
-                        ArgumentList(
-                            SingletonSeparatedList(
-                                Argument(
-                                    LiteralExpression(
-                                        SyntaxKind.StringLiteralExpression,
-                                        Literal($"The opcode 0x{{{KnownDataMember.Opcode.Name}:X2}} is not supported.")))))));
+    private static StatementSyntax CreateThrowNotSupportedException()
+    {
+        // $"The opcode 0x{opcode:X2} is not supported."
+        var start = InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, "The opcode 0x", "The opcode 0x", TriviaList()));
+
+
+        var colonToken = Token(SyntaxKind.ColonToken);
+        var formatToken = Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, "X2", "X2", TriviaList());
+        var formatClause = InterpolationFormatClause(colonToken, formatToken);
+
+        var interpolation = Interpolation(IdentifierName(KnownDataMember.Opcode.Name)).WithFormatClause(formatClause);
+
+        var end = InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, " is not supported.", " is not supported.", TriviaList()));
+
+        var interpolatedString = InterpolatedStringExpression(Token(SyntaxKind.InterpolatedStringStartToken))
+            .WithContents(List<InterpolatedStringContentSyntax>([start, interpolation, end]))
+            .WithStringEndToken(Token(SyntaxKind.InterpolatedStringEndToken));
+
+        return ThrowStatement(ObjectCreationExpression(IdentifierName("System.NotSupportedException"))
+            .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(interpolatedString)))));
+    }
 }
