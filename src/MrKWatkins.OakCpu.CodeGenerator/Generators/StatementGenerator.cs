@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -9,12 +10,12 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public abstract class StatementGenerator : Generator
 {
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(IEnumerable<Statement> expressions)
+    public static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(GeneratorInput input, Step step)
     {
         var commentsAheadOfNextStatement = new List<string>();
-        foreach (var expression in expressions)
+        foreach (var stepStatement in step.Statements)
         {
-            foreach (var statement in GenerateStatementSyntaxes(expression, commentsAheadOfNextStatement))
+            foreach (var statement in GenerateStatementSyntaxes(input, step, stepStatement, commentsAheadOfNextStatement))
             {
                 if (commentsAheadOfNextStatement.Any())
                 {
@@ -30,7 +31,7 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(Statement statement, List<string> commentsAheadOfNextStatement) =>
+    public static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(GeneratorInput input, Step step, Statement statement, List<string> commentsAheadOfNextStatement) =>
         statement switch
         {
             Assignment assignment => GenerateStatementSyntaxes(assignment, commentsAheadOfNextStatement),
@@ -38,50 +39,27 @@ public abstract class StatementGenerator : Generator
             OpcodeJump => GenerateOpcodeJump(),
             OverlappedOpcodeRead => GenerateOverlappedOpcodeReadStatementSyntaxes(commentsAheadOfNextStatement),
             RequestAction requestAction => GenerateStatementSyntaxes(requestAction),
-            _ => [ExpressionStatement(GenerateExpressionSyntax(statement))]
+            ExpressionStatement { Expression: Call call } => GenerateCallStatementSyntax(input, step, call),
+            _ => throw new NotSupportedException($"The statement type {statement.GetType().Name} is not supported.")
         };
 
     [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(Expression expression) => expression switch
+    private static IEnumerable<StatementSyntax> GenerateCallStatementSyntax(GeneratorInput input, Step step, Call call)
     {
-        BinaryOperation binaryOperation => GenerateExpressionSyntax(binaryOperation),
-        DataMemberAccess dataMemberAccess => GenerateExpressionSyntax(dataMemberAccess),
-        Number number => GenerateExpressionSyntax(number),
-        RegisterAccess registerAccess => GenerateExpressionSyntax(registerAccess),
-        _ => throw new NotSupportedException($"The expression type {expression.GetType().Name} is not supported.")
-    };
-
-    [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(BinaryOperation binaryOperation)
-    {
-        var left = GenerateExpressionSyntax(binaryOperation.Left);
-        if (binaryOperation.Left is BinaryOperation leftBinary && leftBinary.OperatorPrecedence < binaryOperation.OperatorPrecedence)
+        if (call.Function == PreDefinedFunction.Flags)
         {
-            left = ParenthesizedExpression(left);
+            return FlagsGenerator.GenerateFlagsStatements(input, step);
         }
 
-        var right = GenerateExpressionSyntax(binaryOperation.Right);
-        if (binaryOperation.Right is BinaryOperation rightBinary && rightBinary.OperatorPrecedence < binaryOperation.OperatorPrecedence)
-        {
-            right = ParenthesizedExpression(right);
-        }
-
-        return BinaryExpression(binaryOperation.ExpressionSyntaxKind, left, right);
+        return [];
     }
-
-    [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(DataMemberAccess dataMemberAccess) => dataMemberAccess.IdentifierName;
-
-    private static ExpressionSyntax GenerateExpressionSyntax(Number number) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(number.NumberString, number.Value));
-
-    [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(RegisterAccess registerAccess) => registerAccess.IdentifierName;
 
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(Assignment assignment, List<string> commentsAheadOfNextStatement)
     {
-        var target = GenerateExpressionSyntax(assignment.Target);
-        var value = GenerateExpressionSyntax(assignment.Value);
+        // TODO: AssignmentEqual if possible, i.e. A |= D rather than A = (byte)(A | D). Probably generates the same code though...
+        var target = ExpressionGenerator.GenerateExpressionSyntax(assignment.Target);
+        var value = ExpressionGenerator.GenerateExpressionSyntax(assignment.Value);
 
         if (target.ToString() == value.ToString())
         {
@@ -124,11 +102,11 @@ public abstract class StatementGenerator : Generator
     {
         // TODO: Version without bounds checks, don't rely on the JIT. Maybe wait until prefixes are added.
         var getOpcode = ElementAccessExpression(
-                IdentifierName(KnownDataMember.OpcodeStepTable.Name),
+                IdentifierName(DataMember.OpcodeStepTable.Name),
                 BracketedArgumentList(
                     SingletonSeparatedList(
                         Argument(
-                            IdentifierName(KnownDataMember.Opcode.Name)))));
+                            IdentifierName(DataMember.Opcode.Name)))));
 
         yield return CreateSetStep(getOpcode);
     }
@@ -142,11 +120,11 @@ public abstract class StatementGenerator : Generator
         yield return CreateSetStep(1);
 
         // goto case 0 to perform step 0.
-        yield return GotoStatement(SyntaxKind.GotoCaseStatement, Token(SyntaxKind.CaseKeyword), GetNumericLiteralExpression(0));
+        yield return GotoStatement(SyntaxKind.GotoCaseStatement, Token(SyntaxKind.CaseKeyword), GenerateNumericLiteralExpression(0));
     }
 
     [Pure]
-    private static StatementSyntax CreateSetStep(int step) => CreateSetStep(GetNumericLiteralExpression(step));
+    private static StatementSyntax CreateSetStep(int step) => CreateSetStep(GenerateNumericLiteralExpression(step));
 
     [Pure]
     private static StatementSyntax CreateSetStep(ExpressionSyntax value) =>

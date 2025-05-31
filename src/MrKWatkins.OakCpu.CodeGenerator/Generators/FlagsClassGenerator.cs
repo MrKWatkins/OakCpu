@@ -29,7 +29,7 @@ public sealed class FlagsClassGenerator : ClassGenerator
     }
 
     [Pure]
-    private static IEnumerable<PropertyDeclarationSyntax> CreateFlagProperties(GeneratorInput input) => input.Flags.Select(f => CreateFlagProperty(input.FlagsRegister, f));
+    private static IEnumerable<PropertyDeclarationSyntax> CreateFlagProperties(GeneratorInput input) => input.Flags.Values.Select(f => CreateFlagProperty(input.FlagsRegister, f));
 
     [Pure]
     private static PropertyDeclarationSyntax CreateFlagProperty(Register flagsRegister, Flag flag)
@@ -49,8 +49,8 @@ public sealed class FlagsClassGenerator : ClassGenerator
                 BinaryExpression(
                     SyntaxKind.BitwiseAndExpression,
                     flagsMemberAccess,
-                    GetBinaryLiteralExpression(getMask))),
-            GetNumericLiteralExpression(0));
+                    GenerateBinaryLiteralExpression(getMask))),
+            GenerateNumericLiteralExpression(0));
 
         var setExpression = AssignmentExpression(
             SyntaxKind.SimpleAssignmentExpression,
@@ -63,11 +63,11 @@ public sealed class FlagsClassGenerator : ClassGenerator
                         BinaryExpression(
                             SyntaxKind.BitwiseOrExpression,
                             flagsMemberAccess,
-                            GetBinaryLiteralExpression(setMask)),
+                            GenerateBinaryLiteralExpression(setMask)),
                         BinaryExpression(
                             SyntaxKind.BitwiseAndExpression,
                             flagsMemberAccess,
-                            GetBinaryLiteralExpression(resetMask))))));
+                            GenerateBinaryLiteralExpression(resetMask))))));
 
         return CreateGetSetProperty(Bool, flag.Name, getExpression, setExpression);
     }

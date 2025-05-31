@@ -1,0 +1,6 @@
+functions:
+  - name: even_parity
+    type: int_bool
+    parameters:
+      - name: value
+    expression: ~pop_count(value) & 1

@@ -89,15 +89,20 @@ internal sealed class Lexer(TextReader input) : IEnumerable<Token>
             }
 
             input.Read();
-            if (Operator.Operators.Contains(character))
+            if (BinaryOperator.Operators.Contains(character))
             {
-                return new Operator(startIndex, character);
+                return new BinaryOperator(startIndex, character);
+            }
+            if (UnaryOperator.Operators.Contains(character))
+            {
+                return new UnaryOperator(startIndex, character);
             }
 
             return character switch
             {
                 '(' => new OpenBracket(startIndex),
                 ')' => new CloseBracket(startIndex),
+                ',' => new Comma(startIndex),
                 _ => throw new InvalidOperationException($"Unexpected character '{character}'.")
             };
         }

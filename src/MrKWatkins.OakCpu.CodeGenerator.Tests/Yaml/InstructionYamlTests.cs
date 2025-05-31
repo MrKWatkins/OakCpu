@@ -17,9 +17,9 @@ public sealed class InstructionYamlTests : TestFixture
     }
 
     [Test]
-    public async Task Load_LD_RP0_nnnn()
+    public async Task Load_LD_RP0_nn()
     {
         var instructionsYaml = await LoadZ80DefinitionFileAsync("16-bit-load-immediate.yaml");
-        instructionsYaml.Instructions.Should().ContainSingle(i => i.Mnemonic == "LD RP0, nnnn");
+        instructionsYaml.Instructions.Should().ContainSingle(i => i.Mnemonic == "LD RP0, nn");
     }
 }

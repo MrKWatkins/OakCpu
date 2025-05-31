@@ -16,21 +16,21 @@ public sealed class Input : Z80State
 
     internal void Setup(Z80TestHarness testHarness)
     {
-        testHarness.AF = AF;
-        testHarness.BC = BC;
-        testHarness.DE = DE;
-        testHarness.HL = HL;
-        testHarness.I = I;
-        testHarness.R = R;
-        testHarness.PC = PC;
-        testHarness.SP = SP;
-        testHarness.IX = IX;
-        testHarness.IY = IY;
-        testHarness.WZ = WZ;
-        testHarness.ShadowAF = ShadowAF;
-        testHarness.ShadowBC = ShadowBC;
-        testHarness.ShadowDE = ShadowDE;
-        testHarness.ShadowHL = ShadowHL;
+        testHarness.RegisterAF = RegisterAF;
+        testHarness.RegisterBC = RegisterBC;
+        testHarness.RegisterDE = RegisterDE;
+        testHarness.RegisterHL = RegisterHL;
+        testHarness.RegisterI = RegisterI;
+        testHarness.RegisterR = RegisterR;
+        testHarness.RegisterPC = RegisterPC;
+        testHarness.RegisterSP = RegisterSP;
+        testHarness.RegisterIX = RegisterIX;
+        testHarness.RegisterIY = RegisterIY;
+        testHarness.RegisterWZ = RegisterWZ;
+        testHarness.ShadowRegisterAF = ShadowRegisterAF;
+        testHarness.ShadowRegisterBC = ShadowRegisterBC;
+        testHarness.ShadowRegisterDE = ShadowRegisterDE;
+        testHarness.ShadowRegisterHL = ShadowRegisterHL;
         testHarness.IM = IM;
         testHarness.IFF1 = IFF1;
         testHarness.IFF2 = IFF2;

@@ -6,7 +6,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Instruction
 {
-    private Instruction(string group, string mnemonic, byte opcode, byte? prefix, IReadOnlyList<Step> steps, bool nextOpcodeOverlapped)
+    private Instruction(string group, string mnemonic, byte opcode, byte? prefix, bool nextOpcodeOverlapped, IReadOnlyList<Step> steps, IReadOnlyDictionary<string, Expression> flags)
     {
         if (steps.Count == 0)
         {
@@ -16,8 +16,14 @@ public sealed class Instruction
         Mnemonic = mnemonic;
         Opcode = opcode;
         Prefix = prefix;
-        Steps = steps;
         NextOpcodeOverlapped = nextOpcodeOverlapped;
+        Steps = steps;
+        Flags = flags;
+
+        foreach (var step in steps)
+        {
+            step.Instruction = this;
+        }
     }
 
     public string Group { get; }
@@ -28,19 +34,17 @@ public sealed class Instruction
 
     public byte? Prefix { get; }
 
+    public bool NextOpcodeOverlapped { get; }
+
     public IReadOnlyList<Step> Steps { get; }
 
-    public bool NextOpcodeOverlapped { get; }
+    public IReadOnlyDictionary<string, Expression> Flags { get; }
 
     public override string ToString() => $"0x{Opcode:X2}: {Mnemonic}";
 
     [Pure]
-    public static IReadOnlyList<Instruction> Create(IReadOnlyList<string> actions, IReadOnlyDictionary<string, Register> registersByName, IReadOnlyList<InstructionYaml> yamls)
-    {
-        var context = new ParserContext(new HashSet<string>(actions), registersByName);
-
-        return yamls.SelectMany(y => Create(context, y)).OrderBy(f => f.Prefix).ThenBy(f => f.Opcode).ToList();
-    }
+    public static IReadOnlyList<Instruction> Create(ParserContext context, IReadOnlyList<InstructionYaml> yamls) =>
+        yamls.SelectMany(y => Create(context, y)).OrderBy(f => f.Prefix).ThenBy(f => f.Opcode).ToList();
 
     [Pure]
     private static IEnumerable<Instruction> Create(ParserContext context, InstructionYaml yaml)
@@ -60,7 +64,9 @@ public sealed class Instruction
                 .Select((expressions, index) => Step.Parse($"{mnemonic} [{index}]", context, Substitute(context, opcodeYaml, expressions), index == yaml.Steps.Count - 1 ? lastStepFinalStatement : null))
                 .ToList();
 
-            yield return new Instruction(yaml.Group, mnemonic, opcodeYaml.Opcode, opcodeYaml.Prefix, steps, yaml.NextOpcode == NextOpcodeMode.Overlapped);
+            var flags = yaml.Flags.ToDictionary(kvp => kvp.Key, kvp => ExpressionParser.ParseExpression(context, kvp.Value));
+
+            yield return new Instruction(yaml.Group, mnemonic, opcodeYaml.Opcode, opcodeYaml.Prefix, yaml.NextOpcode == NextOpcodeMode.Overlapped, steps, flags);
         }
     }
 

@@ -2,6 +2,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
+using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -31,19 +32,19 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
     [Pure]
     private static SwitchStatementSyntax CreateSwitch(GeneratorInput input)
     {
-        var sections = input.AllSteps.Select(CreateSwitchSection).ToArray();
+        var sections = input.AllSteps.Select(step => CreateSwitchSection(input, step)).ToArray();
 
-        return SwitchStatement(CreatePostIncrementExpression(KnownDataMember.Step.Name))
+        return SwitchStatement(CreatePostIncrementExpression(DataMember.Step.Name))
             .AddSections(sections);
     }
 
     [Pure]
-    private static SwitchSectionSyntax CreateSwitchSection(Step step)
+    private static SwitchSectionSyntax CreateSwitchSection(GeneratorInput input, Step step)
     {
-        var statements = StatementGenerator.GenerateStatementSyntaxes(step.Statements).ToArray();
+        var statements = StatementGenerator.GenerateStatementSyntaxes(input, step).ToArray();
 
         return SwitchSection()
-            .AddLabels(CaseSwitchLabel(GetNumericLiteralExpression(step.Index)))
+            .AddLabels(CaseSwitchLabel(GenerateNumericLiteralExpression(step.Index)))
             .AddStatements(statements)
             .WithLeadingTrivia(Comment($"// {step.Name}"));
     }
@@ -65,7 +66,7 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
         var formatToken = Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, "X2", "X2", TriviaList());
         var formatClause = InterpolationFormatClause(colonToken, formatToken);
 
-        var interpolation = Interpolation(IdentifierName(KnownDataMember.Opcode.Name)).WithFormatClause(formatClause);
+        var interpolation = Interpolation(IdentifierName(DataMember.Opcode.Name)).WithFormatClause(formatClause);
 
         var end = InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, " is not supported.", " is not supported.", TriviaList()));
 

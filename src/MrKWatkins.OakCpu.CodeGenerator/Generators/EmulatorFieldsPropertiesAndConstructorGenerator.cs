@@ -2,6 +2,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
+using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -38,17 +39,17 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
         members.Add(CreateGetOnlyProperty(requiredUsings, GetFlagsClassName(input), FlagsPropertyName, fieldOffset));
         fieldOffset += 8;
 
-        members.Add(CreateGetSetProperty(requiredUsings, KnownDataMember.Address, fieldOffset));
-        fieldOffset += KnownDataMember.Address.Size;
+        members.Add(CreateGetSetProperty(requiredUsings, DataMember.Address, fieldOffset));
+        fieldOffset += DataMember.Address.Size;
 
-        members.Add(CreateGetSetProperty(requiredUsings, KnownDataMember.Data, fieldOffset));
-        fieldOffset += KnownDataMember.Data.Size;
+        members.Add(CreateGetSetProperty(requiredUsings, DataMember.Data, fieldOffset));
+        fieldOffset += DataMember.Data.Size;
 
-        members.Add(CreateField(requiredUsings, KnownDataMember.Opcode, fieldOffset, Private));
-        fieldOffset += KnownDataMember.Opcode.Size;
+        members.Add(CreateField(requiredUsings, DataMember.Opcode, fieldOffset, Private));
+        fieldOffset += DataMember.Opcode.Size;
 
         // TODO: Make private, think of a nice and quick way to indicate the end (or start!) of an instruction.
-        members.Add(CreateField(requiredUsings, KnownDataMember.Step, fieldOffset, Internal));
+        members.Add(CreateField(requiredUsings, DataMember.Step, fieldOffset, Internal));
 
         return classDeclaration
             .AddAttributeLists(AttributeList(SingletonSeparatedList(structLayout)))
@@ -82,7 +83,7 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     }
 
     [Pure]
-    private static PropertyDeclarationSyntax CreateGetSetProperty(HashSet<string> requiredUsings, KnownDataMember member, int fieldOffset) =>
+    private static PropertyDeclarationSyntax CreateGetSetProperty(HashSet<string> requiredUsings, DataMember member, int fieldOffset) =>
         CreateGetSetProperty(requiredUsings, member.TypeSyntax, member.Name, fieldOffset);
 
     [Pure]
@@ -109,7 +110,7 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
         CreateField(requiredUsings, register.DataType.TypeSyntax(), register.FieldName, register.FieldOffset, Internal);
 
     [MustUseReturnValue]
-    private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, KnownDataMember member, int fieldOffset, SyntaxToken visibility, bool readOnly = false, ExpressionSyntax? initializer = null) =>
+    private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, DataMember member, int fieldOffset, SyntaxToken visibility, bool readOnly = false, ExpressionSyntax? initializer = null) =>
         CreateField(requiredUsings, member.TypeSyntax, member.Name, fieldOffset, visibility, readOnly, initializer);
 
     [MustUseReturnValue]
@@ -141,10 +142,10 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     [Pure]
     private static FieldDeclarationSyntax CreateOpcodeStepTableField(GeneratorInput input)
     {
-        var variableDeclarator = VariableDeclarator(Identifier(KnownDataMember.OpcodeStepTable.Name))
+        var variableDeclarator = VariableDeclarator(Identifier(DataMember.OpcodeStepTable.Name))
             .WithInitializer(EqualsValueClause(CreateOpcodeStepTableInitializer(input)));
 
-        var variable = VariableDeclaration(KnownDataMember.OpcodeStepTable.TypeSyntax)
+        var variable = VariableDeclaration(DataMember.OpcodeStepTable.TypeSyntax)
             .WithVariables(SingletonSeparatedList(variableDeclarator));
 
         return FieldDeclaration(variable)

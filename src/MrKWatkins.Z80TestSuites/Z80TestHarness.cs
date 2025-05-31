@@ -3,35 +3,51 @@ namespace MrKWatkins.Z80TestSuites;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public abstract class Z80TestHarness
 {
-    public abstract ushort AF { get; set; }
+    public abstract ushort RegisterAF { get; set; }
 
-    public abstract ushort BC { get; set; }
+    public abstract ushort RegisterBC { get; set; }
 
-    public abstract ushort DE { get; set; }
+    public abstract ushort RegisterDE { get; set; }
 
-    public abstract ushort HL { get; set; }
+    public abstract ushort RegisterHL { get; set; }
 
-    public abstract ushort IX { get; set; }
+    public abstract ushort RegisterIX { get; set; }
 
-    public abstract ushort IY { get; set; }
+    public abstract ushort RegisterIY { get; set; }
 
-    public abstract ushort SP { get; set; }
+    public abstract ushort RegisterSP { get; set; }
 
-    public abstract ushort PC { get; set; }
+    public abstract ushort RegisterPC { get; set; }
 
-    public abstract ushort WZ { get; set; }
+    public abstract ushort RegisterWZ { get; set; }
 
-    public abstract byte I { get; set; }
+    public abstract byte RegisterI { get; set; }
 
-    public abstract byte R { get; set; }
+    public abstract byte RegisterR { get; set; }
 
-    public abstract ushort ShadowAF { get; set; }
+    public abstract ushort ShadowRegisterAF { get; set; }
 
-    public abstract ushort ShadowBC { get; set; }
+    public abstract ushort ShadowRegisterBC { get; set; }
 
-    public abstract ushort ShadowDE { get; set; }
+    public abstract ushort ShadowRegisterDE { get; set; }
 
-    public abstract ushort ShadowHL { get; set; }
+    public abstract ushort ShadowRegisterHL { get; set; }
+
+    public abstract bool FlagC { get; set; }
+
+    public abstract bool FlagN { get; set; }
+
+    public abstract bool FlagPV { get; set; }
+
+    public abstract bool FlagX { get; set; }
+
+    public abstract bool FlagH { get; set; }
+
+    public abstract bool FlagY { get; set; }
+
+    public abstract bool FlagZ { get; set; }
+
+    public abstract bool FlagS { get; set; }
 
     public abstract bool IFF1 { get; set; }
 

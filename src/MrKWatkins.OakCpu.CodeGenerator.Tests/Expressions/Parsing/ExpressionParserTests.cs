@@ -20,7 +20,7 @@ public sealed class ExpressionParserTests
                 ["RP"] = new("RP", DataType.U16, false, false, null, 0)
             });
 
-        var expression = ExpressionParser.Parse(parseContext, expressionText);
+        var expression = ExpressionParser.ParseStatement(parseContext, expressionText);
         expression.ToString().Should().BeEquivalentTo(expectedParsedExpression);
     }
 }

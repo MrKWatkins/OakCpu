@@ -4,14 +4,14 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 
 public sealed class Assignment : Statement
 {
-    internal Assignment(Expression target, Expression value)
+    internal Assignment(AstNode target, AstNode value)
     {
         if (target is not DataMemberAccess && target is not RegisterAccess)
         {
             throw new ArgumentException($"Target must be a {nameof(DataMemberAccess)} or {nameof(RegisterAccess)}, not a {target.GetType().Name}.", nameof(target));
         }
-        Target = target;
-        Value = value;
+        Target = target as Expression ?? throw new ArgumentException($"Value must be a {nameof(Expression)}, not a {target.GetType().Name}.", nameof(target));
+        Value = value as Expression ?? throw new ArgumentException($"Value must be a {nameof(Expression)}, not a {value.GetType().Name}.", nameof(value));
     }
 
     /// <summary>
@@ -23,15 +23,6 @@ public sealed class Assignment : Statement
     /// The value to assign.
     /// </summary>
     public Expression Value { get; }
-
-    public override IEnumerable<Expression> Children
-    {
-        get
-        {
-            yield return Target;
-            yield return Value;
-        }
-    }
 
     public override void WriteExpression(StringBuilder expression)
     {

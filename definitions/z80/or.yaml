@@ -1,0 +1,28 @@
+instructions:
+  - group: OR
+    mnemonic: OR R0
+    opcodes:
+      - opcode: 0xB0
+        R0: B
+      - opcode: 0xB1
+        R0: C
+      - opcode: 0xB2
+        R0: D
+      - opcode: 0xB3
+        R0: E
+      - opcode: 0xB4
+        R0: H
+      - opcode: 0xB5
+        R0: L
+      - opcode: 0xB7
+        R0: A
+    steps:
+      - [A = A | R0, flags()]
+    flags:
+      PV: even_parity(A)
+      Z: is_zero(A)
+      S: copy_from(A)
+      X: copy_from(A)
+      Y: copy_from(A)
+      
+    next_opcode: overlapped

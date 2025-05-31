@@ -1,13 +1,13 @@
 namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Lexing;
 
 /// <summary>
-/// Lexer token representing an operator, '+', '-', '&', '|', '^', or '='.
+/// Lexer token representing an operator, '+', '-', '&', '|', '^' or '='.
 /// </summary>
-internal sealed record Operator : Token
+internal sealed record BinaryOperator : Token
 {
     internal static readonly HashSet<char> Operators = new("+-&|^=");
 
-    internal Operator(int index, char symbol)
+    internal BinaryOperator(int index, char symbol)
         : base(index, 1)
     {
         Symbol = symbol;

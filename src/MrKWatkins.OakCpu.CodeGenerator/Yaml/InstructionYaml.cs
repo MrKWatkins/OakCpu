@@ -5,8 +5,10 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Yaml;
 [YamlObject]
 public sealed partial class InstructionYaml
 {
+    private static readonly IReadOnlyDictionary<string, string> EmptyFlags = new Dictionary<string, string>();
     private IReadOnlyList<OpcodeYaml>? opcodes;
     private IReadOnlyList<IReadOnlyList<string>>? steps;
+    private IReadOnlyDictionary<string, string>? flags;
 
     private InstructionYaml()
     {
@@ -26,6 +28,12 @@ public sealed partial class InstructionYaml
     {
         get => steps ?? [];
         private set => steps = value;
+    }
+
+    public IReadOnlyDictionary<string, string> Flags
+    {
+        get => flags ?? EmptyFlags;
+        private set => flags = value;
     }
 
     public NextOpcodeMode NextOpcode { get; private set; }

@@ -4,35 +4,51 @@ namespace MrKWatkins.Z80TestSuites.Fuse;
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public abstract class Z80State
 {
-    public ushort AF { get; private set; }
+    public ushort RegisterAF { get; private set; }
 
-    public ushort BC { get; private set; }
+    public ushort RegisterBC { get; private set; }
 
-    public ushort DE { get; private set; }
+    public ushort RegisterDE { get; private set; }
 
-    public ushort HL { get; private set; }
+    public ushort RegisterHL { get; private set; }
 
-    public ushort ShadowAF { get; private set; }
+    public ushort ShadowRegisterAF { get; private set; }
 
-    public ushort ShadowBC { get; private set; }
+    public ushort ShadowRegisterBC { get; private set; }
 
-    public ushort ShadowDE { get; private set; }
+    public ushort ShadowRegisterDE { get; private set; }
 
-    public ushort ShadowHL { get; private set; }
+    public ushort ShadowRegisterHL { get; private set; }
 
-    public ushort IX { get; private set; }
+    public ushort RegisterIX { get; private set; }
 
-    public ushort IY { get; private set; }
+    public ushort RegisterIY { get; private set; }
 
-    public ushort SP { get; private set; }
+    public ushort RegisterSP { get; private set; }
 
-    public ushort PC { get; private set; }
+    public ushort RegisterPC { get; private set; }
 
-    public ushort WZ { get; private set; }
+    public ushort RegisterWZ { get; private set; }
 
-    public byte I { get; private set; }
+    public bool FlagC => (RegisterAF & 0b00000001) != 0;
 
-    public byte R { get; private set; }
+    public bool FlagN => (RegisterAF & 0b00000010) != 0;
+
+    public bool FlagPV => (RegisterAF & 0b00000100) != 0;
+
+    public bool FlagX => (RegisterAF & 0b00001000) != 0;
+
+    public bool FlagH => (RegisterAF & 0b00010000) != 0;
+
+    public bool FlagY => (RegisterAF & 0b00100000) != 0;
+
+    public bool FlagZ => (RegisterAF & 0b01000000) != 0;
+
+    public bool FlagS => (RegisterAF & 0b10000000) != 0;
+
+    public byte RegisterI { get; private set; }
+
+    public byte RegisterR { get; private set; }
 
     public bool IFF1 { get; private set; }
 
@@ -68,26 +84,26 @@ public abstract class Z80State
     private static void ParseRegisters(string line, Z80State state)
     {
         var registers = line.Split(' ');
-        state.AF = registers[0].ToWord();
-        state.BC = registers[1].ToWord();
-        state.DE = registers[2].ToWord();
-        state.HL = registers[3].ToWord();
-        state.ShadowAF = registers[4].ToWord();
-        state.ShadowBC = registers[5].ToWord();
-        state.ShadowDE = registers[6].ToWord();
-        state.ShadowHL = registers[7].ToWord();
-        state.IX = registers[8].ToWord();
-        state.IY = registers[9].ToWord();
-        state.SP = registers[10].ToWord();
-        state.PC = registers[11].ToWord();
-        state.WZ = registers[12].ToWord();
+        state.RegisterAF = registers[0].ToWord();
+        state.RegisterBC = registers[1].ToWord();
+        state.RegisterDE = registers[2].ToWord();
+        state.RegisterHL = registers[3].ToWord();
+        state.ShadowRegisterAF = registers[4].ToWord();
+        state.ShadowRegisterBC = registers[5].ToWord();
+        state.ShadowRegisterDE = registers[6].ToWord();
+        state.ShadowRegisterHL = registers[7].ToWord();
+        state.RegisterIX = registers[8].ToWord();
+        state.RegisterIY = registers[9].ToWord();
+        state.RegisterSP = registers[10].ToWord();
+        state.RegisterPC = registers[11].ToWord();
+        state.RegisterWZ = registers[12].ToWord();
     }
 
     private static void ParseInterrupts(string line, Z80State state)
     {
         var interrupts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        state.I = interrupts[0].ToByte();
-        state.R = interrupts[1].ToByte();
+        state.RegisterI = interrupts[0].ToByte();
+        state.RegisterR = interrupts[1].ToByte();
         state.IFF1 = interrupts[2].ToBool();
         state.IFF2 = interrupts[3].ToBool();
         state.IM = interrupts[4].ToByte();

@@ -52,11 +52,11 @@ public abstract class Generator
     protected static SyntaxToken Static => Token(SyntaxKind.StaticKeyword);
 
     [Pure]
-    protected static SyntaxToken GetBinaryLiteral(byte value) => Literal($"0b{Convert.ToString(value, 2).PadLeft(8, '0')}", value);
+    protected static SyntaxToken GenerateBinaryLiteral(byte value) => Literal($"0b{Convert.ToString(value, 2).PadLeft(8, '0')}", value);
 
     [Pure]
-    protected static LiteralExpressionSyntax GetBinaryLiteralExpression(byte value) => LiteralExpression(SyntaxKind.NumericLiteralExpression, GetBinaryLiteral(value));
+    protected static LiteralExpressionSyntax GenerateBinaryLiteralExpression(byte value) => LiteralExpression(SyntaxKind.NumericLiteralExpression, GenerateBinaryLiteral(value));
 
     [Pure]
-    protected static LiteralExpressionSyntax GetNumericLiteralExpression(int value) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(value));
+    protected static LiteralExpressionSyntax GenerateNumericLiteralExpression(int value) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(value));
 }

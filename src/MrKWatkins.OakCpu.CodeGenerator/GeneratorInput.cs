@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
+using MrKWatkins.OakCpu.CodeGenerator.Expressions.Parsing;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 using VYaml.Serialization;
 
@@ -11,13 +12,14 @@ namespace MrKWatkins.OakCpu.CodeGenerator;
 
 public sealed class GeneratorInput
 {
-    private GeneratorInput(string rootNamespace, Cpu cpu, IReadOnlyList<Register> registers, IReadOnlyList<Flag> flags, IReadOnlyList<Instruction> instructions)
+    private GeneratorInput(string rootNamespace, Cpu cpu, IReadOnlyList<Register> registers, Dictionary<string, Flag> flags, IReadOnlyList<Instruction> instructions, Dictionary<string, UserDefinedFunction> userDefinedFunctions)
     {
         RootNamespace = rootNamespace;
         Cpu = cpu;
         Registers = registers;
         Flags = flags;
         Instructions = instructions;
+        UserDefinedFunctions = userDefinedFunctions;
         FlagsRegister = Registers.Single(r => r.Flags);
         ProgramCounter = Registers.Single(r => r.ProgramCounter);
         Step.AssignIndexes(AllSteps);
@@ -29,9 +31,11 @@ public sealed class GeneratorInput
 
     public IReadOnlyList<Register> Registers { get; }
 
-    public IReadOnlyList<Flag> Flags { get; }
+    public IReadOnlyDictionary<string, Flag> Flags { get; }
 
     public IReadOnlyList<Instruction> Instructions { get; }
+
+    public IReadOnlyDictionary<string, UserDefinedFunction> UserDefinedFunctions { get; }
 
     public Register FlagsRegister { get; }
 
@@ -57,11 +61,16 @@ public sealed class GeneratorInput
         var registers = Register.Create(yaml.Registers);
         var registersByName = registers.ToDictionary(r => r.Name);
 
-        var flags = Flag.Create(yaml.Flags);
+        var flags = Flag.Create(yaml.Flags).ToDictionary(f => f.Name);
 
         var cpu = Cpu.Create(registersByName, yaml.Cpu);
 
-        return new GeneratorInput(rootNamespace, cpu, registers, flags, Instruction.Create(cpu.Actions, registersByName, yaml.Instructions));
+        var context = new ParserContext(new HashSet<string>(cpu.Actions), registersByName);
+        var userDefinedFunctions = UserDefinedFunction.Create(context, yaml.Functions).ToDictionary(f => f.Name);
+
+        context = context.WithFunctions(userDefinedFunctions);
+
+        return new GeneratorInput(rootNamespace, cpu, registers, flags, Instruction.Create(context, yaml.Instructions), userDefinedFunctions);
     }
 
     [Pure]

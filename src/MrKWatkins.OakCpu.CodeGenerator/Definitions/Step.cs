@@ -6,7 +6,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Step
 {
-    public Step(string name, IReadOnlyList<Statement> statements)
+    private Step(string name, IReadOnlyList<Statement> statements)
     {
         if (statements.Count == 0)
         {
@@ -22,6 +22,8 @@ public sealed class Step
     }
 
     public string Name { get; }
+
+    public Instruction? Instruction { get; internal set; }
 
     public ushort Index { get; private set; }
 
@@ -47,7 +49,7 @@ public sealed class Step
     [Pure]
     public static Step Parse(string name, ParserContext context, [InstantHandle] IEnumerable<string> expressions, Statement? finalStatement = null)
     {
-        var statements = expressions.Select(x => ExpressionParser.Parse(context, x)).ToList();
+        var statements = expressions.Select(x => ExpressionParser.ParseStatement(context, x)).ToList();
         if (finalStatement != null)
         {
             statements.Add(finalStatement);

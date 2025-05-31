@@ -9,11 +9,11 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 /// </summary>
 public sealed class BinaryOperation : Expression
 {
-    internal BinaryOperation(char @operator, Expression left, Expression right)
+    internal BinaryOperation(char @operator, AstNode left, AstNode right)
     {
         Operator = @operator;
-        Left = left;
-        Right = right;
+        Left = left as Expression ?? throw new ArgumentException($"Value must be a {nameof(Expression)}, not a {left.GetType().Name}.", nameof(left));
+        Right = right as Expression ?? throw new ArgumentException($"Value must be a {nameof(Expression)}, not a {right.GetType().Name}.", nameof(right));
     }
 
     /// <summary>
@@ -22,9 +22,9 @@ public sealed class BinaryOperation : Expression
     public char Operator { get; }
 
     /// <summary>
-    /// The <see cref="SyntaxKind" /> for an expression using the operator.
+    /// The <see cref="SyntaxKind" /> for the operator.
     /// </summary>
-    public SyntaxKind ExpressionSyntaxKind => Operator switch
+    public SyntaxKind OperatorSyntaxKind => Operator switch
     {
         '+' => SyntaxKind.AddExpression,
         '-' => SyntaxKind.SubtractExpression,
@@ -60,15 +60,6 @@ public sealed class BinaryOperation : Expression
     public override Type Type => typeof(int);
 
     public override TypeSyntax TypeSyntax => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword));
-
-    public override IEnumerable<Expression> Children
-    {
-        get
-        {
-            yield return Left;
-            yield return Right;
-        }
-    }
 
     public override void WriteExpression(StringBuilder expression)
     {

@@ -1,6 +1,6 @@
 instructions:
   - group: 16-bit load immediate
-    mnemonic: LD RP0, nnnn
+    mnemonic: LD RP0, nn
     opcodes:
       - opcode: 0x01
         RP0: BC

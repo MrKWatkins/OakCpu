@@ -13,21 +13,29 @@ public sealed class Expected : Z80State
     {
         using (testHarness.CreateAssertionScope())
         {
-            testHarness.AssertEqual(testHarness.AF, AF, "register AF should match");
-            testHarness.AssertEqual(testHarness.BC, BC, "register BC should match");
-            testHarness.AssertEqual(testHarness.DE, DE, "register DE should match");
-            testHarness.AssertEqual(testHarness.HL, HL, "register HL should match");
-            testHarness.AssertEqual(testHarness.I, I, "register I should match");
-            testHarness.AssertEqual(testHarness.R, R, "register R should match");
-            testHarness.AssertEqual(testHarness.PC, PC, "register PC should match");
-            testHarness.AssertEqual(testHarness.SP, SP, "register SP should match");
-            testHarness.AssertEqual(testHarness.IX, IX, "register IX should match");
-            testHarness.AssertEqual(testHarness.IY, IY, "register IY should match");
-            testHarness.AssertEqual(testHarness.WZ, WZ, "register WZ should match");
-            testHarness.AssertEqual(testHarness.ShadowAF, ShadowAF, "register AF' should match");
-            testHarness.AssertEqual(testHarness.ShadowBC, ShadowBC, "register BC' should match");
-            testHarness.AssertEqual(testHarness.ShadowDE, ShadowDE, "register DE' should match");
-            testHarness.AssertEqual(testHarness.ShadowHL, ShadowHL, "register HL' should match");
+            testHarness.AssertEqual(testHarness.RegisterAF, RegisterAF, "register AF should match");
+            testHarness.AssertEqual(testHarness.RegisterBC, RegisterBC, "register BC should match");
+            testHarness.AssertEqual(testHarness.RegisterDE, RegisterDE, "register DE should match");
+            testHarness.AssertEqual(testHarness.RegisterHL, RegisterHL, "register HL should match");
+            testHarness.AssertEqual(testHarness.RegisterI, RegisterI, "register I should match");
+            testHarness.AssertEqual(testHarness.RegisterR, RegisterR, "register R should match");
+            testHarness.AssertEqual(testHarness.RegisterPC, RegisterPC, "register PC should match");
+            testHarness.AssertEqual(testHarness.RegisterSP, RegisterSP, "register SP should match");
+            testHarness.AssertEqual(testHarness.RegisterIX, RegisterIX, "register IX should match");
+            testHarness.AssertEqual(testHarness.RegisterIY, RegisterIY, "register IY should match");
+            testHarness.AssertEqual(testHarness.RegisterWZ, RegisterWZ, "register WZ should match");
+            testHarness.AssertEqual(testHarness.ShadowRegisterAF, ShadowRegisterAF, "register AF' should match");
+            testHarness.AssertEqual(testHarness.ShadowRegisterBC, ShadowRegisterBC, "register BC' should match");
+            testHarness.AssertEqual(testHarness.ShadowRegisterDE, ShadowRegisterDE, "register DE' should match");
+            testHarness.AssertEqual(testHarness.ShadowRegisterHL, ShadowRegisterHL, "register HL' should match");
+            testHarness.AssertEqual(testHarness.FlagC, FlagC, "flag C should match");
+            testHarness.AssertEqual(testHarness.FlagN, FlagN, "flag N should match");
+            testHarness.AssertEqual(testHarness.FlagPV, FlagPV, "flag PV should match");
+            testHarness.AssertEqual(testHarness.FlagX, FlagX, "flag X should match");
+            testHarness.AssertEqual(testHarness.FlagH, FlagH, "flag H should match");
+            testHarness.AssertEqual(testHarness.FlagY, FlagY, "flag Y should match");
+            testHarness.AssertEqual(testHarness.FlagZ, FlagZ, "flag Z should match");
+            testHarness.AssertEqual(testHarness.FlagS, FlagS, "flag S should match");
             testHarness.AssertEqual(testHarness.IM, IM, "interrupt IM should match");
             testHarness.AssertEqual(testHarness.IFF1, IFF1, "interrupt IFF should match");
             testHarness.AssertEqual(testHarness.IFF2, IFF2, "interrupt IFF should match");

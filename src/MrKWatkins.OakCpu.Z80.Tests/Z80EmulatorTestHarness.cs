@@ -8,94 +8,141 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
     private readonly Z80Emulator emulator = new();
     private readonly byte[] memory = new byte[65536];
 
-    public override ushort AF
+    public override ushort RegisterAF
     {
         get => emulator.Registers.AF;
         set => emulator.Registers.AF = value;
     }
 
-    public override ushort BC
+    public override ushort RegisterBC
     {
         get => emulator.Registers.BC;
         set => emulator.Registers.BC = value;
     }
 
-    public override ushort DE
+    public override ushort RegisterDE
     {
         get => emulator.Registers.DE;
         set => emulator.Registers.DE = value;
     }
 
-    public override ushort HL
+    public override ushort RegisterHL
     {
         get => emulator.Registers.HL;
         set => emulator.Registers.HL = value;
     }
 
-    public override ushort IX
+    public override ushort RegisterIX
     {
         get => emulator.Registers.IX;
         set => emulator.Registers.IX = value;
     }
 
-    public override ushort IY
+    public override ushort RegisterIY
     {
         get => emulator.Registers.IY;
         set => emulator.Registers.IY = value;
     }
 
-    public override ushort SP
+    public override ushort RegisterSP
     {
         get => emulator.Registers.SP;
         set => emulator.Registers.SP = value;
     }
 
-    public override ushort PC
+    public override ushort RegisterPC
     {
         get => emulator.Registers.PC;
         set => emulator.Registers.PC = value;
     }
 
-    public override ushort WZ
+    public override ushort RegisterWZ
     {
         get => emulator.Registers.WZ;
         set => emulator.Registers.WZ = value;
     }
 
-    public override byte I
+    public override byte RegisterI
     {
         get => emulator.Registers.I;
         set => emulator.Registers.I = value;
     }
 
-    public override byte R
+    public override byte RegisterR
     {
         get => emulator.Registers.R;
         set => emulator.Registers.R = value;
     }
 
-    public override ushort ShadowAF
+    public override ushort ShadowRegisterAF
     {
         get => emulator.Registers.Shadow.AF;
         set => emulator.Registers.Shadow.AF = value;
     }
 
-    public override ushort ShadowBC
+    public override ushort ShadowRegisterBC
     {
         get => emulator.Registers.Shadow.BC;
         set => emulator.Registers.Shadow.BC = value;
     }
 
-    public override ushort ShadowDE
+    public override ushort ShadowRegisterDE
     {
         get => emulator.Registers.Shadow.DE;
         set => emulator.Registers.Shadow.DE = value;
     }
 
-    public override ushort ShadowHL
+    public override ushort ShadowRegisterHL
     {
         get => emulator.Registers.Shadow.HL;
         set => emulator.Registers.Shadow.HL = value;
+    }
+
+    public override bool FlagC
+    {
+        get => emulator.Flags.C;
+        set => emulator.Flags.C = value;
+    }
+
+    public override bool FlagN
+    {
+        get => emulator.Flags.N;
+        set => emulator.Flags.N = value;
+    }
+    public override bool FlagPV
+    {
+        get => emulator.Flags.PV;
+        set => emulator.Flags.PV = value;
+    }
+
+    public override bool FlagX
+    {
+        get => emulator.Flags.X;
+        set => emulator.Flags.X = value;
+    }
+
+    public override bool FlagH
+    {
+        get => emulator.Flags.H;
+        set => emulator.Flags.H = value;
+    }
+
+    public override bool FlagY
+    {
+        get => emulator.Flags.Y;
+        set => emulator.Flags.Y = value;
+    }
+
+    public override bool FlagZ
+    {
+        get => emulator.Flags.Z;
+        set => emulator.Flags.Z = value;
+    }
+
+    public override bool FlagS
+    {
+        get => emulator.Flags.S;
+        set => emulator.Flags.S = value;
     }
 
     public override bool IFF1 { get; set; }

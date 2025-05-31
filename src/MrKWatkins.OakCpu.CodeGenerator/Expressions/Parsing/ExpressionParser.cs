@@ -1,3 +1,4 @@
+using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Expressions.Lexing;
 
@@ -9,23 +10,48 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Parsing;
 /// <remarks>Based on https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html.</remarks>
 public static class ExpressionParser
 {
+    private const int UnaryBindingPower = 7;
+
     [Pure]
-    public static Statement Parse(ParserContext context, string expression)
+    public static Statement ParseStatement(ParserContext context, string input)
     {
-        using var reader = new StringReader(expression);
-        var lexer = new Lexer(reader);
-        var parsed = ParseExpression(context, lexer, 0);
+        var parsed = Parse<AstNode>(context, input);
         if (parsed is Statement statement)
         {
             return statement;
         }
-        throw new InvalidOperationException("Expression did not parse to a statement.");
+
+        return new ExpressionStatement((Expression) parsed);
     }
 
     [MustUseReturnValue]
-    private static Expression ParseExpression(ParserContext context, Lexer lexer, int minimumBindingPower)
+    public static Expression ParseExpression(ParserContext context, string input) => Parse<Expression>(context, input);
+
+    [MustUseReturnValue]
+    private static TNode Parse<TNode>(ParserContext context, string input)
+        where TNode : AstNode
     {
-        Expression left;
+        using var reader = new StringReader(input);
+        var lexer = new Lexer(reader);
+        return Parse<TNode>(context, lexer, 0);
+    }
+
+    [MustUseReturnValue]
+    private static TNode Parse<TNode>(ParserContext context, Lexer lexer, int minimumBindingPower)
+        where TNode : AstNode
+    {
+        var parsed = Parse(context, lexer, minimumBindingPower);
+        if (parsed is TNode node)
+        {
+            return node;
+        }
+        throw new InvalidOperationException($"Expression \"{parsed}\" did not parse to a {typeof(TNode).Name}.");
+    }
+
+    [MustUseReturnValue]
+    private static AstNode Parse(ParserContext context, Lexer lexer, int minimumBindingPower)
+    {
+        AstNode left;
         switch (lexer.Read())
         {
             case Lexing.Number number:
@@ -33,7 +59,7 @@ public static class ExpressionParser
                 break;
 
             case OpenBracket:
-                left = ParseExpression(context, lexer, 0);
+                left = Parse(context, lexer, 0);
                 var next = lexer.Read();
                 if (next is not CloseBracket)
                 {
@@ -42,7 +68,11 @@ public static class ExpressionParser
                 break;
 
             case Identifier identifier:
-                left = ParseIdentifier(context, identifier.Name);
+                left = lexer.Peek() is OpenBracket ? ParseCall(context, lexer, identifier.Name) : ParseIdentifier(context, identifier.Name);
+                break;
+
+            case UnaryOperator unaryOperator:
+                left = new UnaryOperation(unaryOperator.Symbol, Parse(context, lexer, UnaryBindingPower));
                 break;
 
             case var token:
@@ -57,7 +87,7 @@ public static class ExpressionParser
                 break;
             }
 
-            if (token is not Operator @operator)
+            if (token is not BinaryOperator @operator)
             {
                 throw CreateUnexpectedTokenException(token);
             }
@@ -70,7 +100,7 @@ public static class ExpressionParser
 
             lexer.Read();
 
-            var right = ParseExpression(context, lexer, rightBindingPower);
+            var right = Parse(context, lexer, rightBindingPower);
             left = @operator.Symbol == '=' ? new Assignment(left, right) : new BinaryOperation(@operator.Symbol, left, right);
         }
 
@@ -78,8 +108,13 @@ public static class ExpressionParser
     }
 
     [Pure]
-    private static Expression ParseIdentifier(ParserContext context, string identifier)
+    private static AstNode ParseIdentifier(ParserContext context, string identifier)
     {
+        if (context.Parameters.Contains(identifier))
+        {
+            return new ArgumentAccess(identifier);
+        }
+
         if (context.Actions.Contains(identifier))
         {
             return new RequestAction(identifier);
@@ -90,7 +125,7 @@ public static class ExpressionParser
             return new RegisterAccess(register);
         }
 
-        if (KnownDataMember.All.TryGetValue(identifier, out var dataMember))
+        if (DataMember.All.TryGetValue(identifier, out var dataMember))
         {
             return new DataMemberAccess(dataMember);
         }
@@ -99,8 +134,52 @@ public static class ExpressionParser
     }
 
     [Pure]
-    private static (int Left, int Right) GetBindingPower(Operator @operator) =>
-        @operator.Symbol switch
+    private static Call ParseCall(ParserContext context, Lexer lexer, string identifier)
+    {
+        var function = ResolveFunction(context, identifier);
+
+        // Open bracket.
+        lexer.Read();
+
+        var arguments = new List<Expression>();
+        while (true)
+        {
+            switch (lexer.Peek())
+            {
+                case CloseBracket:
+                    lexer.Read();
+                    return new Call(function, arguments);
+
+                case Comma:
+                    lexer.Read();
+                    break;
+
+                default:
+                    arguments.Add(Parse<Expression>(context, lexer, 0));
+                    break;
+            }
+        }
+    }
+
+    [Pure]
+    private static Function ResolveFunction(ParserContext context, string identifier)
+    {
+        if (PreDefinedFunction.All.TryGetValue(identifier, out var preDefinedFunction))
+        {
+            return preDefinedFunction;
+        }
+
+        if (context.UserDefinedFunctions.TryGetValue(identifier, out var function))
+        {
+            return function;
+        }
+
+        throw new NotSupportedException($"Unsupported function {identifier}.");
+    }
+
+    [Pure]
+    private static (int Left, int Right) GetBindingPower(BinaryOperator binaryOperator) =>
+        binaryOperator.Symbol switch
         {
             '=' => (1, 2),
             '+' => (3, 4),
@@ -108,7 +187,7 @@ public static class ExpressionParser
             '&' => (5, 6),
             '|' => (5, 6),
             '^' => (5, 6),
-            _ => throw new NotSupportedException($"Unsupported operator '{@operator.Symbol}'.")
+            _ => throw new NotSupportedException($"Unsupported operator '{binaryOperator.Symbol}'.")
         };
 
     [Pure]
