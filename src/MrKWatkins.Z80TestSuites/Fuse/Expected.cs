@@ -41,15 +41,53 @@ public sealed class Expected : Z80State
             testHarness.AssertEqual(testHarness.IFF2, IFF2, "interrupt IFF should match");
             testHarness.AssertEqual(testHarness.IsHalted, IsHalted, "IsHalted should match");
 
-            foreach (var memory in Memory)
+            AssertMemory(testHarness);
+
+            AssertEvents(testHarness);
+        }
+    }
+
+    private void AssertMemory(Z80TestHarness testHarness)
+    {
+        foreach (var memory in Memory)
+        {
+            var address = memory.Address;
+            foreach (var expected in memory.Data)
             {
-                var address = memory.Address;
-                foreach (var expected in memory.Data)
+                var actual = testHarness.GetMemory(address);
+                testHarness.AssertEqual(actual, expected, $"memory at 0x{address:X4} should match");
+                address++;
+            }
+        }
+    }
+
+    private void AssertEvents(Z80TestHarness testHarness)
+    {
+        var actualEvents = Events.Where(e => e.Type is FuseEventType.MemoryRead or FuseEventType.MemoryWrite).ToList();
+        testHarness.AssertEqual(actualEvents.Count, testHarness.Events.Count, "number of events should match");
+
+        if (actualEvents.Count == testHarness.Events.Count)
+        {
+            for (var f = 0; f < actualEvents.Count; f++)
+            {
+                var actual = actualEvents[f];
+                var expected = testHarness.Events[f];
+                var actualType = actual.Type switch
                 {
-                    var actual = testHarness.GetMemory(address);
-                    testHarness.AssertEqual(actual, expected, $"memory at 0x{address:X4} should match");
-                    address++;
-                }
+                    FuseEventType.MemoryRead => TestEventType.MemoryRead,
+                    FuseEventType.MemoryWrite => TestEventType.MemoryWrite,
+                    _ => throw new NotSupportedException($"The {nameof(FuseEventType)} {actual.Type} is not supported.")
+                };
+
+                testHarness.AssertEqual(actualType, expected.Type, $"the type of event {f} should match");
+
+
+                // All Fuse memory events have a contended event before, use that to get the start time.
+                var actualTStates = Events[actual.Index - 1].Time;
+
+                testHarness.AssertEqual(actualTStates, expected.TStates, $"the time for event {f} should match");
+                testHarness.AssertEqual(actual.Address, expected.Address, $"the address of event {f} should match");
+                testHarness.AssertEqual(actual.Data, expected.Data, $"the data of event {f} should match");
             }
         }
     }
@@ -63,7 +101,7 @@ public sealed class Expected : Z80State
             var line = reader.ReadLine()!;
             if (char.IsWhiteSpace(line[0]))
             {
-                events.Add(Event.Parse(line));
+                events.Add(Event.Parse(events.Count, line));
                 continue;
             }
 

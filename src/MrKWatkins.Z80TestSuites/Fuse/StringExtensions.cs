@@ -14,14 +14,14 @@ internal static class StringExtensions
     internal static ushort ToWord(this string value) => ushort.Parse(value, NumberStyles.AllowHexSpecifier);
 
     [Pure]
-    internal static EventType ToEventType(this string value) => value switch
+    internal static FuseEventType ToEventType(this string value) => value switch
     {
-        "MR" => EventType.MemoryRead,
-        "MW" => EventType.MemoryWrite,
-        "MC" => EventType.MemoryContend,
-        "PR" => EventType.PortRead,
-        "PW" => EventType.PortWrite,
-        "PC" => EventType.PortContend,
+        "MR" => FuseEventType.MemoryRead,
+        "MW" => FuseEventType.MemoryWrite,
+        "MC" => FuseEventType.MemoryContend,
+        "PR" => FuseEventType.PortRead,
+        "PW" => FuseEventType.PortWrite,
+        "PC" => FuseEventType.PortContend,
         _ => throw new InvalidOperationException($"Unknown event type \"{value}\".")
     };
 }

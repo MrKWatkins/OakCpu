@@ -1,6 +1,6 @@
 namespace MrKWatkins.Z80TestSuites.Fuse;
 
-public enum EventType
+public enum FuseEventType
 {
     MemoryRead,
     MemoryWrite,

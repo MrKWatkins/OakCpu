@@ -34,10 +34,10 @@ instructions:
       - opcode: 0x34
     steps:
       - [Address = HL, MemoryRead]
+      - []
+      - []
       - [Data = Data + 1, flags()]
-      - []
-      - []
-      - [MemoryWrite] # Skipping Address = HL as it should still contain HL. Data should still contain Data + 1.
+      - [MemoryWrite] # Skipping setting Address = HL as it should still contain HL. Skipping setting Data as it should still contain Data + 1.
       - []
       - []
     flags:

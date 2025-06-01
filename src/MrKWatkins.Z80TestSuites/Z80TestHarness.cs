@@ -3,6 +3,8 @@ namespace MrKWatkins.Z80TestSuites;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public abstract class Z80TestHarness
 {
+    private readonly List<TestEvent> events = new();
+
     public abstract ushort RegisterAF { get; set; }
 
     public abstract ushort RegisterBC { get; set; }
@@ -58,6 +60,12 @@ public abstract class Z80TestHarness
     public abstract bool IsHalted { get; set; }
 
     public int TStates { get; protected set; }
+
+    public IReadOnlyList<TestEvent> Events => events;
+
+    protected void AddEvent(TestEvent @event) => events.Add(@event);
+
+    protected void RemoveLastEvent() => events.RemoveAt(events.Count - 1);
 
     [Pure]
     public abstract byte GetMemory(ushort address);

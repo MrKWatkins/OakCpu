@@ -172,16 +172,16 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
             }
             else if (instructionInProgress)
             {
-                // If we're at step 1, then we've had an overlapped read. Adjust PC down by 1 as instruction level tests won't take that into account.
+                // If we're at step 1, then we've had an overlapped read. Adjust PC down by 1 and remove the event as instruction level tests won't take that into account.
                 if (emulator.step == 1)
                 {
                     emulator.Registers.PC--;
+                    RemoveLastEvent();
                 }
                 break;
             }
 
             var actionRequired = emulator.Step();
-            TStates++;
 
             switch (actionRequired)
             {
@@ -190,15 +190,18 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
 
                 case ActionRequired.MemoryRead:
                     emulator.Data = memory[emulator.Address];
+                    AddEvent(new TestEvent(TestEventType.MemoryRead, TStates, emulator.Address, emulator.Data));
                     break;
 
                 case ActionRequired.MemoryWrite:
                     memory[emulator.Address] = emulator.Data;
+                    AddEvent(new TestEvent(TestEventType.MemoryWrite, TStates, emulator.Address, emulator.Data));
                     break;
 
                 default:
                     throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");
             }
+            TStates++;
         }
     }
 }
