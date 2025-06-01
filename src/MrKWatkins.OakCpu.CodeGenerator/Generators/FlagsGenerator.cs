@@ -14,8 +14,20 @@ public abstract class FlagsGenerator : Generator
     {
         var instruction = step.Instruction ?? throw new InvalidOperationException("Cannot use flags() outside of an instruction.");
         var flagsVariableName = $"flags{step.Index}";
-        // TODO: Constants.
-        foreach (var statement in GenerateInitializeStatements(input, instruction, flagsVariableName))
+
+        bool initialized;
+        var constants = GenerateConstantStatement(input, instruction, flagsVariableName);
+        if (constants != null)
+        {
+            yield return constants;
+            initialized = true;
+        }
+        else
+        {
+            initialized = false;
+        }
+
+        foreach (var statement in GenerateCopyFromStatements(input, instruction, flagsVariableName, initialized))
         {
             yield return statement;
         }
@@ -73,14 +85,46 @@ public abstract class FlagsGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateInitializeStatements(GeneratorInput input, Instruction instruction, string flagsVariableName)
+    private static StatementSyntax? GenerateConstantStatement(GeneratorInput input, Instruction instruction, string flagsVariableName)
+    {
+        var constants = GetConstantExpressions(input, instruction);
+        if (constants.Count == 0)
+        {
+            return null;
+        }
+
+        string comment;
+        if (constants.TryGetValue(0, out var resetFlags))
+        {
+            comment = $"// Reset {string.Join("", resetFlags)}.";
+        }
+        else
+        {
+            comment = "//";
+        }
+
+        byte bitMask;
+        if (constants.TryGetValue(1, out var setFlags))
+        {
+            bitMask = BuildBitMask(setFlags);
+            comment += $" Set {string.Join("", setFlags)}.";
+        }
+        else
+        {
+            bitMask = 0;
+        }
+
+        return CreateInitialize(flagsVariableName, Comment(comment), GenerateBinaryLiteralExpression(bitMask));
+    }
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateCopyFromStatements(GeneratorInput input, Instruction instruction, string flagsVariableName, bool initialized)
     {
         var copyFroms = GetCopyFromExpressions(input, instruction);
 
-        var initialized = false;
         foreach (var kvp in copyFroms.OrderBy(kvp => kvp.Key == input.FlagsRegister.FieldName ? 0 : 1).ThenBy(kvp => kvp.Key))
         {
-            var comment = Comment($"// Copy {string.Join("", kvp.Value.OrderByDescending(f => f.Index))} from {kvp.Key}.");
+            var comment = Comment($"// Copy {string.Join("", kvp.Value)} from {kvp.Key}.");
             var copyFromExpression = BinaryExpression(SyntaxKind.BitwiseAndExpression, IdentifierName(kvp.Key), GenerateBinaryLiteralExpression(BuildBitMask(kvp.Value)));
 
             if (initialized)
@@ -89,16 +133,19 @@ public abstract class FlagsGenerator : Generator
             }
             else
             {
-                yield return LocalDeclarationStatement(VariableDeclaration(IdentifierName("var"))
-                    .WithVariables(SingletonSeparatedList(
-                        VariableDeclarator(Identifier(flagsVariableName))
-                            .WithInitializer(EqualsValueClause(copyFromExpression)))))
-                    .WithLeadingTrivia(Comment("// Flags."))
-                    .WithTrailingTrivia(comment);
+                yield return CreateInitialize(flagsVariableName, comment, copyFromExpression);
                 initialized = true;
             }
         }
     }
+
+    private static StatementSyntax CreateInitialize(string flagsVariableName, SyntaxTrivia comment, ExpressionSyntax expression) =>
+        LocalDeclarationStatement(VariableDeclaration(IdentifierName("var"))
+                .WithVariables(SingletonSeparatedList(
+                    VariableDeclarator(Identifier(flagsVariableName))
+                        .WithInitializer(EqualsValueClause(expression)))))
+            .WithLeadingTrivia(Comment("// Flags."))
+            .WithTrailingTrivia(comment);
 
     [Pure]
     private static StatementSyntax CreateFlagsOrAssignment(string flagsVariableName, string comment, ExpressionSyntax expression) =>
@@ -114,7 +161,7 @@ public abstract class FlagsGenerator : Generator
     private static IReadOnlyDictionary<string, List<Flag>> GetCopyFromExpressions(GeneratorInput input, Instruction instruction)
     {
         var copyFroms = new Dictionary<string, List<Flag>>();
-        foreach (var flag in input.Flags.Values)
+        foreach (var flag in input.Flags.Values.OrderByDescending(f => f.Index))
         {
             if (instruction.Flags.TryGetValue(flag.Name, out var expression))
             {
@@ -131,6 +178,20 @@ public abstract class FlagsGenerator : Generator
         }
 
         return copyFroms;
+    }
+    [Pure]
+    private static IReadOnlyDictionary<int, List<Flag>> GetConstantExpressions(GeneratorInput input, Instruction instruction)
+    {
+        var constants = new Dictionary<int, List<Flag>>();
+        foreach (var flag in input.Flags.Values.OrderByDescending(f => f.Index))
+        {
+            if (instruction.Flags.TryGetValue(flag.Name, out var expression) && expression is Number number)
+            {
+                Add(constants, number.Value, flag);
+            }
+        }
+
+        return constants;
     }
 
     [Pure]
