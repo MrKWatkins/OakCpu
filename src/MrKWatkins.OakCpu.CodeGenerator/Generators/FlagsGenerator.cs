@@ -208,8 +208,8 @@ public abstract class FlagsGenerator : Generator
             {
                 if (expression is Call call && call.Function == PreDefinedFunction.CopyFrom)
                 {
-                    var registerAccess = call.Arguments[0] as RegisterAccess ?? throw new InvalidOperationException("Can only copy_from registers.");
-                    Add(copyFroms, registerAccess.Register.Name, flag);
+                    var access = call.Arguments[0] as Access ?? throw new InvalidOperationException("Can only copy_from registers.");
+                    Add(copyFroms, access.Name, flag);
                 }
             }
             else

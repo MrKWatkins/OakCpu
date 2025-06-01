@@ -27,3 +27,25 @@ instructions:
       Z: is_zero(R0)
       S: is_negative(R0)
     next_opcode: overlapped
+    
+  - group: INC
+    mnemonic: INC (HL)
+    opcodes:
+      - opcode: 0x34
+    steps:
+      - [Address = HL, MemoryRead]
+      - [Data = Data + 1, flags()]
+      - []
+      - []
+      - [MemoryWrite] # Skipping Address = HL as it should still contain HL. Data should still contain Data + 1.
+      - []
+      - []
+    flags:
+      N: 0
+      PV: Data == 0x80
+      X: copy_from(Data)
+      H: (Data & 0x0F) == 0x00
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: is_negative(Data)
+    next_opcode: overlapped
