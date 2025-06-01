@@ -7,7 +7,7 @@ instructions:
       - opcode: 0x12
         RP0: DE
     steps:
-      - [Address = RP0, Data = A, WZ = RP0 + 1, W = A, MemoryWrite]
+      - [Address = RP0, Data = A, Z = RP0L + 1, W = A, MemoryWrite]
       - []
       - []
     next_opcode: overlapped

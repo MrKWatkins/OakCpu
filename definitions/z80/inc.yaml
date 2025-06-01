@@ -49,3 +49,18 @@ instructions:
       Z: is_zero(Data)
       S: is_negative(Data)
     next_opcode: overlapped
+    
+  - group: INC
+    mnemonic: INC RP0
+    opcodes:
+      - opcode: 0x03
+        RP0: BC
+      - opcode: 0x13
+        RP0: DE
+      - opcode: 0x23
+        RP0: HL
+      - opcode: 0x33
+        RP0: SP
+    steps:
+      - [RP0 = RP0 + 1]
+      - []
