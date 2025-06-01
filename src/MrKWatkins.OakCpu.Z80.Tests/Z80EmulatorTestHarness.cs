@@ -172,7 +172,7 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
             }
             else if (instructionInProgress)
             {
-                // If we're at step 1 then we've had an overlapped read. Adjust PC down by 1 as instruction level tests won't take that into account.
+                // If we're at step 1, then we've had an overlapped read. Adjust PC down by 1 as instruction level tests won't take that into account.
                 if (emulator.step == 1)
                 {
                     emulator.Registers.PC--;

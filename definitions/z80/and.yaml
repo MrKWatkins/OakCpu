@@ -25,5 +25,22 @@ instructions:
       Y: copy_from(A)
       Z: is_zero(A)
       S: copy_from(A)
-      
+    next_opcode: overlapped
+
+  - group: AND
+    mnemonic: AND (HL)
+    opcodes:
+      - opcode: 0xA6
+    steps:
+      - [Address = HL, MemoryRead]
+      - []
+      - []
+      - [A = A & Data, flags()]
+    flags:
+      PV: even_parity(A)
+      X: copy_from(A)
+      H: 1
+      Y: copy_from(A)
+      Z: is_zero(A)
+      S: copy_from(A)
     next_opcode: overlapped
