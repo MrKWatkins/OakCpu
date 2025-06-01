@@ -6,10 +6,10 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Tests.Expressions.Parsing;
 public sealed class ExpressionParserTests
 {
     [TestCase("TestAction", "Action.TestAction")]
-    [TestCase("R = R + 1", "R = (R + 0x01)")]
-    [TestCase("R = R & 1", "R = (R & 0x01)")]
-    [TestCase("R = R + R & 1", "R = (R + (R & 0x01))")]
-    [TestCase("R = (R + R) & 1", "R = ((R + R) & 0x01)")]
+    [TestCase("R = R + 1", "R = R + 0x01")]
+    [TestCase("R = R & 1", "R = R & 0x01")]
+    [TestCase("R = R + R & 1", "R = R + R & 0x01")]
+    [TestCase("R = R + (R & 1)", "R = R + (R & 0x01)")]
     public void Parse(string expressionText, string expectedParsedExpression)
     {
         var parseContext = new ParserContext(

@@ -4,6 +4,7 @@ public sealed class PreDefinedFunction : Function
 {
     public static readonly PreDefinedFunction CopyFrom = new("copy_from", typeof(byte), ["value"]);
     public static readonly PreDefinedFunction Flags = new("flags", typeof(byte), []);
+    public static readonly PreDefinedFunction IsNegative = new("is_negative", typeof(byte), ["value"]);
     public static readonly PreDefinedFunction IsZero = new("is_zero", typeof(byte), ["value"]);
     public static readonly PreDefinedFunction PopCount = new("pop_count", typeof(byte), ["value"]);
     public static readonly PreDefinedFunction Request = new("request", typeof(void), ["action"]);
@@ -12,6 +13,7 @@ public sealed class PreDefinedFunction : Function
     {
         { CopyFrom.Name, CopyFrom },
         { Flags.Name, Flags },
+        { IsNegative.Name, IsNegative },
         { IsZero.Name, IsZero },
         { PopCount.Name, PopCount },
         { Request.Name, Request }

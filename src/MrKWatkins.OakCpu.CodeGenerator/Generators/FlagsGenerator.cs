@@ -12,6 +12,7 @@ public abstract class FlagsGenerator : Generator
     [Pure]
     public static IEnumerable<StatementSyntax> GenerateFlagsStatements(GeneratorInput input, Step step)
     {
+        // TODO: Copy fields used in statements to a local variable first for a performance optimisation.
         var instruction = step.Instruction ?? throw new InvalidOperationException("Cannot use flags() outside of an instruction.");
         var flagsVariableName = $"flags{step.Index}";
 
@@ -37,6 +38,11 @@ public abstract class FlagsGenerator : Generator
             yield return statement;
         }
 
+        foreach (var statement in GenerateAssignmentFromEqualityStatements(input, instruction, flagsVariableName))
+        {
+            yield return statement;
+        }
+
         yield return ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
@@ -50,6 +56,10 @@ public abstract class FlagsGenerator : Generator
     {
         foreach (var (flag, call) in EnumerateCallExpressions(input, instruction))
         {
+            if (call.Function == PreDefinedFunction.IsNegative)
+            {
+                yield return GenerateIsNegativeStatement(flagsVariableName, flag, call);
+            }
             if (call.Function == PreDefinedFunction.IsZero)
             {
                 yield return GenerateIsZeroStatement(flagsVariableName, flag, call);
@@ -62,6 +72,7 @@ public abstract class FlagsGenerator : Generator
     }
 
     [Pure]
+    // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
     private static StatementSyntax GenerateUserDefinedFunctionStatement(string flagsVariableName, Flag flag, Call call, UserDefinedFunction userDefinedFunction)
     {
         if (!userDefinedFunction.IsBooleanLike)
@@ -72,6 +83,19 @@ public abstract class FlagsGenerator : Generator
         var value = BinaryExpression(SyntaxKind.LeftShiftExpression, ExpressionGenerator.GenerateExpressionSyntax(call), GenerateNumericLiteralExpression(flag.Index));
 
         return CreateFlagsOrAssignment(flagsVariableName, $"// Set {flag} from {call}.", value);
+    }
+
+    [Pure]
+    private static StatementSyntax GenerateIsNegativeStatement(string flagsVariableName, Flag flag, Call call)
+    {
+        var oneAtBit7IfNegative = BinaryExpression(SyntaxKind.BitwiseAndExpression, ExpressionGenerator.GenerateExpressionSyntax(call.Arguments[0]), GenerateBinaryLiteralExpression(0b10000000));
+
+        var shift = 7 - flag.Index;
+        var expression = shift > 0
+            ? BinaryExpression(SyntaxKind.RightShiftExpression, ParenthesizedExpression(oneAtBit7IfNegative), GenerateNumericLiteralExpression(shift))
+            : oneAtBit7IfNegative;
+
+        return CreateFlagsOrAssignment(flagsVariableName, $"// Set {flag} when {call.Arguments[0]} is negative.", expression);
     }
 
     [Pure]
@@ -93,21 +117,13 @@ public abstract class FlagsGenerator : Generator
             return null;
         }
 
-        string comment;
-        if (constants.TryGetValue(0, out var resetFlags))
-        {
-            comment = $"// Reset {string.Join("", resetFlags)}.";
-        }
-        else
-        {
-            comment = "//";
-        }
+        var comment = constants.TryGetValue(0, out var resetFlags) ? $"// Reset {FlagsNames(resetFlags)}." : "//";
 
         byte bitMask;
         if (constants.TryGetValue(1, out var setFlags))
         {
             bitMask = BuildBitMask(setFlags);
-            comment += $" Set {string.Join("", setFlags)}.";
+            comment += $" Set {FlagsNames(setFlags)}.";
         }
         else
         {
@@ -124,7 +140,7 @@ public abstract class FlagsGenerator : Generator
 
         foreach (var kvp in copyFroms.OrderBy(kvp => kvp.Key == input.FlagsRegister.FieldName ? 0 : 1).ThenBy(kvp => kvp.Key))
         {
-            var comment = Comment($"// Copy {string.Join("", kvp.Value)} from {kvp.Key}.");
+            var comment = Comment($"// Copy {FlagsNames(kvp.Value)} from {kvp.Key}.");
             var copyFromExpression = BinaryExpression(SyntaxKind.BitwiseAndExpression, IdentifierName(kvp.Key), GenerateBinaryLiteralExpression(BuildBitMask(kvp.Value)));
 
             if (initialized)
@@ -137,6 +153,31 @@ public abstract class FlagsGenerator : Generator
                 initialized = true;
             }
         }
+    }
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateAssignmentFromEqualityStatements(GeneratorInput input, Instruction instruction, string flagsVariableName)
+    {
+        foreach (var flag in input.Flags.Values.OrderByDescending(f => f.Index))
+        {
+            if (instruction.Flags.TryGetValue(flag.Name, out var expression) && expression is BinaryOperation { Operator: "==" } binaryOperation)
+            {
+                yield return GenerateAssignmentFromEqualityStatement(flagsVariableName, flag, binaryOperation);
+            }
+        }
+    }
+
+    [Pure]
+    private static StatementSyntax GenerateAssignmentFromEqualityStatement(string flagsVariableName, Flag flag, BinaryOperation equality)
+    {
+        var bitMask = BuildBitMask(flag);
+
+        var ternary = ConditionalExpression(
+            ExpressionGenerator.GenerateExpressionSyntax(equality),
+            GenerateBinaryLiteralExpression(bitMask),
+            GenerateNumericLiteralExpression(0));
+
+        return CreateFlagsOrAssignment(flagsVariableName, $"// Set {flag} when {equality}.", ternary);
     }
 
     private static StatementSyntax CreateInitialize(string flagsVariableName, SyntaxTrivia comment, ExpressionSyntax expression) =>
@@ -179,6 +220,7 @@ public abstract class FlagsGenerator : Generator
 
         return copyFroms;
     }
+
     [Pure]
     private static IReadOnlyDictionary<int, List<Flag>> GetConstantExpressions(GeneratorInput input, Instruction instruction)
     {
@@ -220,5 +262,18 @@ public abstract class FlagsGenerator : Generator
             dictionary.Add(key, values);
         }
         values.Add(value);
+    }
+
+    [Pure]
+    private static string FlagsNames([InstantHandle] IEnumerable<Flag> flags)
+    {
+        var flagsList = flags.ToList();
+
+        return flagsList.Count switch
+        {
+            1 => flagsList[0].Name,
+            2 => $"{flagsList[0].Name} and {flagsList[1].Name}",
+            _ => $"{string.Join(", ", flagsList.Take(flagsList.Count - 2))} and {flagsList.Last().Name}"
+        };
     }
 }

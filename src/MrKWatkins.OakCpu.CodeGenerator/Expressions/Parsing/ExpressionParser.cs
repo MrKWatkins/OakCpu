@@ -10,7 +10,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Parsing;
 /// <remarks>Based on https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html.</remarks>
 public static class ExpressionParser
 {
-    private const int UnaryBindingPower = 7;
+    private const int UnaryBindingPower = int.MaxValue;
 
     [Pure]
     public static Statement ParseStatement(ParserContext context, string input)
@@ -101,7 +101,7 @@ public static class ExpressionParser
             lexer.Read();
 
             var right = Parse(context, lexer, rightBindingPower);
-            left = @operator.Symbol == '=' ? new Assignment(left, right) : new BinaryOperation(@operator.Symbol, left, right);
+            left = @operator.Symbol == "=" ? new Assignment(left, right) : new BinaryOperation(@operator.Symbol, left, right);
         }
 
         return left;
@@ -181,12 +181,13 @@ public static class ExpressionParser
     private static (int Left, int Right) GetBindingPower(BinaryOperator binaryOperator) =>
         binaryOperator.Symbol switch
         {
-            '=' => (1, 2),
-            '+' => (3, 4),
-            '-' => (3, 4),
-            '&' => (5, 6),
-            '|' => (5, 6),
-            '^' => (5, 6),
+            "=" => (1, 2),
+            "|" => (3, 4),
+            "^" => (5, 6),
+            "&" => (7, 8),
+            "==" => (9, 10),
+            "+" => (11, 12),
+            "-" => (11, 12),
             _ => throw new NotSupportedException($"Unsupported operator '{binaryOperator.Symbol}'.")
         };
 

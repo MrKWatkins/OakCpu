@@ -9,7 +9,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 /// </summary>
 public sealed class BinaryOperation : Expression
 {
-    internal BinaryOperation(char @operator, AstNode left, AstNode right)
+    internal BinaryOperation(string @operator, AstNode left, AstNode right)
     {
         Operator = @operator;
         Left = left as Expression ?? throw new ArgumentException($"Value must be a {nameof(Expression)}, not a {left.GetType().Name}.", nameof(left));
@@ -19,18 +19,19 @@ public sealed class BinaryOperation : Expression
     /// <summary>
     /// The operator.
     /// </summary>
-    public char Operator { get; }
+    public string Operator { get; }
 
     /// <summary>
     /// The <see cref="SyntaxKind" /> for the operator.
     /// </summary>
     public SyntaxKind OperatorSyntaxKind => Operator switch
     {
-        '+' => SyntaxKind.AddExpression,
-        '-' => SyntaxKind.SubtractExpression,
-        '&' => SyntaxKind.BitwiseAndExpression,
-        '|' => SyntaxKind.BitwiseOrExpression,
-        '^' => SyntaxKind.ExclusiveOrExpression,
+        "+" => SyntaxKind.AddExpression,
+        "-" => SyntaxKind.SubtractExpression,
+        "&" => SyntaxKind.BitwiseAndExpression,
+        "|" => SyntaxKind.BitwiseOrExpression,
+        "^" => SyntaxKind.ExclusiveOrExpression,
+        "==" => SyntaxKind.EqualsExpression,
         _ => throw new NotSupportedException($"The operator {Operator} is not supported.")
     };
 
@@ -39,11 +40,12 @@ public sealed class BinaryOperation : Expression
     /// </summary>
     public int OperatorPrecedence => Operator switch
     {
-        '+' => 0,
-        '-' => 0,
-        '|' => 1,
-        '^' => 2,
-        '&' => 3,
+        "|" => 0,
+        "^" => 1,
+        "&" => 2,
+        "==" => 3,
+        "+" => 4,
+        "-" => 4,
         _ => throw new NotSupportedException($"The operator {Operator} is not supported.")
     };
 
@@ -63,12 +65,28 @@ public sealed class BinaryOperation : Expression
 
     public override void WriteExpression(StringBuilder expression)
     {
-        expression.Append('(');
-        Left.WriteExpression(expression);
+        if (Left is BinaryOperation leftBinary && leftBinary.OperatorPrecedence < OperatorPrecedence)
+        {
+            expression.Append('(');
+            Left.WriteExpression(expression);
+            expression.Append(')');
+        }
+        else
+        {
+            Left.WriteExpression(expression);
+        }
         expression.Append(' ');
         expression.Append(Operator);
         expression.Append(' ');
-        Right.WriteExpression(expression);
-        expression.Append(')');
+        if (Right is BinaryOperation rightBinary && rightBinary.OperatorPrecedence < OperatorPrecedence)
+        {
+            expression.Append('(');
+            Right.WriteExpression(expression);
+            expression.Append(')');
+        }
+        else
+        {
+            Right.WriteExpression(expression);
+        }
     }
 }

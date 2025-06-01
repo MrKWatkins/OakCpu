@@ -61,10 +61,10 @@ public sealed class Instruction
             };
 
             var steps = yaml.Steps
-                .Select((expressions, index) => Step.Parse($"{mnemonic} [{index}]", context, Substitute(context, opcodeYaml, expressions), index == yaml.Steps.Count - 1 ? lastStepFinalStatement : null))
+                .Select((expressions, index) => Step.Parse($"0x{opcodeYaml.Opcode:X2}: {mnemonic} [{index}]", context, Substitute(context, opcodeYaml, expressions), index == yaml.Steps.Count - 1 ? lastStepFinalStatement : null))
                 .ToList();
 
-            var flags = yaml.Flags.ToDictionary(kvp => kvp.Key, kvp => ExpressionParser.ParseExpression(context, kvp.Value));
+            var flags = yaml.Flags.ToDictionary(kvp => kvp.Key, kvp => ExpressionParser.ParseExpression(context, Substitute(context, opcodeYaml, kvp.Value)));
 
             yield return new Instruction(yaml.Group, mnemonic, opcodeYaml.Opcode, opcodeYaml.Prefix, yaml.NextOpcode == NextOpcodeMode.Overlapped, steps, flags);
         }

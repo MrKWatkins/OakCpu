@@ -89,10 +89,23 @@ internal sealed class Lexer(TextReader input) : IEnumerable<Token>
             }
 
             input.Read();
-            if (BinaryOperator.Operators.Contains(character))
+
+            // Make more generic if we have multiple two character operators.
+            if (character == '=')
             {
-                return new BinaryOperator(startIndex, character);
+                if (input.Peek() == '=')
+                {
+                    input.Read();
+                    return new BinaryOperator(startIndex, "==");
+                }
             }
+
+            var operatorString = new string(character, 1);
+            if (BinaryOperator.Operators.Contains(operatorString))
+            {
+                return new BinaryOperator(startIndex, operatorString);
+            }
+
             if (UnaryOperator.Operators.Contains(character))
             {
                 return new UnaryOperator(startIndex, character);

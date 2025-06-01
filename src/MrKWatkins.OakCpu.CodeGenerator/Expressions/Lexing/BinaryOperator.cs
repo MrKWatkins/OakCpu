@@ -1,19 +1,19 @@
 namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Lexing;
 
 /// <summary>
-/// Lexer token representing an operator, '+', '-', '&', '|', '^' or '='.
+/// Lexer token representing an operator, '+', '-', '&', '|', '^', '=' or '=='.
 /// </summary>
 internal sealed record BinaryOperator : Token
 {
-    internal static readonly HashSet<char> Operators = new("+-&|^=");
+    internal static readonly HashSet<string> Operators = ["+", "-", "&", "|", "^", "=", "=="];
 
-    internal BinaryOperator(int index, char symbol)
-        : base(index, 1)
+    internal BinaryOperator(int index, string symbol)
+        : base(index, symbol.Length)
     {
         Symbol = symbol;
     }
 
-    internal char Symbol { get; }
+    internal string Symbol { get; }
 
-    public override string ToString() => new(Symbol, 1);
+    public override string ToString() => Symbol;
 }
