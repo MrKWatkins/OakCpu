@@ -1,0 +1,13 @@
+instructions:
+  - group: 8-bit indirect store from register
+    mnemonic: LD (RP0), A
+    opcodes:
+      - opcode: 0x02
+        RP0: BC
+      - opcode: 0x12
+        RP0: DE
+    steps:
+      - [Address = RP0, Data = A, WZ = RP0 + 1, W = A, MemoryWrite]
+      - []
+      - []
+    next_opcode: overlapped
