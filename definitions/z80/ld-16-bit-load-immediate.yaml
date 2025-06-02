@@ -1,5 +1,5 @@
 instructions:
-  - group: 16-bit load immediate
+  - group: LD
     mnemonic: LD RP0, nn
     opcodes:
       - opcode: 0x01

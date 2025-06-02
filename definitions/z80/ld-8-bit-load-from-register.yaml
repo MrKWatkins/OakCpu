@@ -1,5 +1,5 @@
 instructions:
-  - group: 8-bit load from register
+  - group: LD
     mnemonic: LD R0, R1
     opcodes:
       - opcode: 0x40

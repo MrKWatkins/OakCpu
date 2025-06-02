@@ -1,5 +1,5 @@
 instructions:
-  - group: 8-bit indirect store from register
+  - group: LD
     mnemonic: LD (RP0), A
     opcodes:
       - opcode: 0x02

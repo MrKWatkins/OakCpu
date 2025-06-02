@@ -1,0 +1,23 @@
+instructions:
+  - group: 8-bit load immediate
+    mnemonic: LD R0, n
+    opcodes:
+      - opcode: 0x06
+        R0: B
+      - opcode: 0x0E
+        R0: C
+      - opcode: 0x16
+        R0: D
+      - opcode: 0x1E
+        R0: E
+      - opcode: 0x26
+        R0: H
+      - opcode: 0x2E
+        R0: L
+      - opcode: 0x3E
+        R0: A
+    steps:
+      - [Address = PC, PC = PC + 1, MemoryRead]
+      - [R0 = Data]
+      - []
+    next_opcode: overlapped
