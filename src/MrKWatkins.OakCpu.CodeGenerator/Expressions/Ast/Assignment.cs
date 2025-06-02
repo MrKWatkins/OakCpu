@@ -6,9 +6,9 @@ public sealed class Assignment : Statement
 {
     internal Assignment(AstNode target, AstNode value)
     {
-        if (target is not DataMemberAccess && target is not RegisterAccess)
+        if (target is not Access)
         {
-            throw new ArgumentException($"Target must be a {nameof(DataMemberAccess)} or {nameof(RegisterAccess)}, not a {target.GetType().Name}.", nameof(target));
+            throw new ArgumentException($"Target must be an {nameof(Access)}, not a {target.GetType().Name}.", nameof(target));
         }
         Target = target as Expression ?? throw new ArgumentException($"Value must be a {nameof(Expression)}, not a {target.GetType().Name}.", nameof(target));
         Value = value as Expression ?? throw new ArgumentException($"Value must be a {nameof(Expression)}, not a {value.GetType().Name}.", nameof(value));

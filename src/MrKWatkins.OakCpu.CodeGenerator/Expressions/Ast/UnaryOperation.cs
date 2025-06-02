@@ -9,7 +9,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 /// </summary>
 public sealed class UnaryOperation : Expression
 {
-    internal UnaryOperation(char @operator, AstNode expression)
+    internal UnaryOperation(Operator @operator, AstNode expression)
     {
         Operator = @operator;
         Expression = expression as Expression ?? throw new ArgumentException($"Value must be a {nameof(Expression)}, not a {expression.GetType().Name}.", nameof(expression));
@@ -18,18 +18,9 @@ public sealed class UnaryOperation : Expression
     /// <summary>
     /// The operator.
     /// </summary>
-    public char Operator { get; }
+    public Operator Operator { get; }
 
     public Expression Expression { get; }
-
-    /// <summary>
-    /// The <see cref="SyntaxKind" /> for the operator.
-    /// </summary>
-    public SyntaxKind OperatorSyntaxKind => Operator switch
-    {
-        '~' => SyntaxKind.BitwiseNotExpression,
-        _ => throw new NotSupportedException($"The operator {Operator} is not supported.")
-    };
 
     public override Type Type => typeof(int);
 

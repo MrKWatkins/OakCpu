@@ -1,6 +1,8 @@
 using System.Collections;
+using System.Collections.Frozen;
 using System.Globalization;
 using System.Text;
+using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Lexing;
 
@@ -9,8 +11,9 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Lexing;
 /// </summary>
 internal sealed class Lexer(TextReader input) : IEnumerable<Token>
 {
-    private static readonly HashSet<char> NumberCharacters = new("x01234567890ABCDEF");
-    private static readonly HashSet<char> IdentifierCharacters = new("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+    private static readonly FrozenSet<char> NumberCharacters = new List<char>("x01234567890ABCDEF").ToFrozenSet();
+    private static readonly FrozenSet<char> IdentifierCharacters = new List<char>("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789").ToFrozenSet();
+    private static readonly FrozenSet<char> OperatorChars = new HashSet<char>(Operator.UnaryOperators.Keys.Concat(Operator.BinaryOperators.Keys).SelectMany(o => o)).ToFrozenSet();
     private int currentIndex;
     private Token? peeked;
 
@@ -88,28 +91,13 @@ internal sealed class Lexer(TextReader input) : IEnumerable<Token>
                 return ReadIdentifier(startIndex);
             }
 
-            input.Read();
-
             // Make more generic if we have multiple two character operators.
-            if (character == '=')
+            if (OperatorChars.Contains(character))
             {
-                if (input.Peek() == '=')
-                {
-                    input.Read();
-                    return new BinaryOperator(startIndex, "==");
-                }
+                return ReadOperator(startIndex);
             }
 
-            var operatorString = new string(character, 1);
-            if (BinaryOperator.Operators.Contains(operatorString))
-            {
-                return new BinaryOperator(startIndex, operatorString);
-            }
-
-            if (UnaryOperator.Operators.Contains(character))
-            {
-                return new UnaryOperator(startIndex, character);
-            }
+            input.Read();
 
             return character switch
             {
@@ -132,6 +120,24 @@ internal sealed class Lexer(TextReader input) : IEnumerable<Token>
     }
 
     [MustUseReturnValue]
+    private Token ReadOperator(int startIndex)
+    {
+        var value = ReadString(OperatorChars);
+
+        if (Operator.BinaryOperators.TryGetValue(value, out var binaryOperator))
+        {
+            return new BinaryOperator(startIndex, binaryOperator);
+        }
+
+        if (Operator.UnaryOperators.TryGetValue(value, out var unaryOperator))
+        {
+            return new UnaryOperator(startIndex, unaryOperator);
+        }
+
+        throw new NotSupportedException($"The operator {value} is not supported.");
+    }
+
+    [MustUseReturnValue]
     private Identifier ReadIdentifier(int startIndex)
     {
         var value = ReadString(IdentifierCharacters);
@@ -140,10 +146,10 @@ internal sealed class Lexer(TextReader input) : IEnumerable<Token>
     }
 
     [MustUseReturnValue]
-    private string ReadString(HashSet<char> searchValues)
+    private string ReadString(FrozenSet<char> possibleCharacters)
     {
         var value = new StringBuilder();
-        while (searchValues.Contains((char)input.Peek()))
+        while (possibleCharacters.Contains((char)input.Peek()))
         {
             value.Append((char)input.Read());
         }

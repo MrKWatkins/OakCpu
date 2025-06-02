@@ -72,7 +72,7 @@ public static class ExpressionParser
                 break;
 
             case UnaryOperator unaryOperator:
-                left = new UnaryOperation(unaryOperator.Symbol, Parse(context, lexer, UnaryBindingPower));
+                left = new UnaryOperation(unaryOperator.Operator, Parse(context, lexer, UnaryBindingPower));
                 break;
 
             case var token:
@@ -92,7 +92,7 @@ public static class ExpressionParser
                 throw CreateUnexpectedTokenException(token);
             }
 
-            var (leftBindingPower, rightBindingPower) = GetBindingPower(@operator);
+            var (leftBindingPower, rightBindingPower) = @operator.Operator.BindingPower;
             if (leftBindingPower < minimumBindingPower)
             {
                 break;
@@ -101,7 +101,7 @@ public static class ExpressionParser
             lexer.Read();
 
             var right = Parse(context, lexer, rightBindingPower);
-            left = @operator.Symbol == "=" ? new Assignment(left, right) : new BinaryOperation(@operator.Symbol, left, right);
+            left = @operator.Operator == Operator.Assignment ? new Assignment(left, right) : new BinaryOperation(@operator.Operator, left, right);
         }
 
         return left;
@@ -128,6 +128,11 @@ public static class ExpressionParser
         if (DataMember.All.TryGetValue(identifier, out var dataMember))
         {
             return new DataMemberAccess(dataMember);
+        }
+
+        if (TemporaryVariable.All.TryGetValue(identifier, out var temporaryVariable))
+        {
+            return new TemporaryVariableAccess(temporaryVariable);
         }
 
         throw new NotSupportedException($"Unsupported identifier {identifier}.");
@@ -176,20 +181,6 @@ public static class ExpressionParser
 
         throw new NotSupportedException($"Unsupported function {identifier}.");
     }
-
-    [Pure]
-    private static (int Left, int Right) GetBindingPower(BinaryOperator binaryOperator) =>
-        binaryOperator.Symbol switch
-        {
-            "=" => (1, 2),
-            "|" => (3, 4),
-            "^" => (5, 6),
-            "&" => (7, 8),
-            "==" => (9, 10),
-            "+" => (11, 12),
-            "-" => (11, 12),
-            _ => throw new NotSupportedException($"Unsupported operator '{binaryOperator.Symbol}'.")
-        };
 
     [Pure]
     private static FormatException CreateUnexpectedTokenException(Token token) => new($"Unexpected token {token.GetType().Name} {token} at index {token.StartIndex}.");

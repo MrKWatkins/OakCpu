@@ -12,15 +12,15 @@ public abstract class StatementGenerator : Generator
     [Pure]
     public static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(GeneratorInput input, Step step)
     {
-        var commentsAheadOfNextStatement = new List<string>();
+        var context = new StepContext(input, step);
         foreach (var stepStatement in step.Statements)
         {
-            foreach (var statement in GenerateStatementSyntaxes(input, step, stepStatement, commentsAheadOfNextStatement))
+            foreach (var statement in GenerateStatementSyntaxes(context, stepStatement))
             {
-                if (commentsAheadOfNextStatement.Any())
+                if (context.CommentsAheadOfNextStatement.Any())
                 {
-                    yield return statement.WithLeadingTrivia(commentsAheadOfNextStatement.Select(comment => Comment($"// {comment}")));
-                    commentsAheadOfNextStatement.Clear();
+                    yield return statement.WithLeadingTrivia(context.CommentsAheadOfNextStatement.Select(comment => Comment($"// {comment}")));
+                    context.CommentsAheadOfNextStatement.Clear();
                 }
                 else
                 {
@@ -31,41 +31,35 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(GeneratorInput input, Step step, Statement statement, List<string> commentsAheadOfNextStatement) =>
+    private static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(StepContext context, Statement statement) =>
         statement switch
         {
-            Assignment assignment => GenerateStatementSyntaxes(assignment, commentsAheadOfNextStatement),
+            Assignment assignment => GenerateStatementSyntaxes(context, assignment),
             MoveToOpcodeRead => GenerateMoveToOpcodeReadStatementSyntaxes(),
             OpcodeJump => GenerateOpcodeJump(),
-            OverlappedOpcodeRead => GenerateOverlappedOpcodeReadStatementSyntaxes(commentsAheadOfNextStatement),
+            OverlappedOpcodeRead => GenerateOverlappedOpcodeReadStatementSyntaxes(context),
             RequestAction requestAction => GenerateStatementSyntaxes(requestAction),
-            ExpressionStatement { Expression: Call call } => GenerateCallStatementSyntax(input, step, call),
+            ExpressionStatement { Expression: Call call } => GenerateCallStatementSyntax(context, call),
             _ => throw new NotSupportedException($"The statement type {statement.GetType().Name} is not supported.")
         };
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateCallStatementSyntax(GeneratorInput input, Step step, Call call)
+    private static IEnumerable<StatementSyntax> GenerateCallStatementSyntax(StepContext context, Call call)
     {
         if (call.Function == PreDefinedFunction.Flags)
         {
-            return FlagsGenerator.GenerateFlagsStatements(input, step);
+            return FlagsGenerator.GenerateFlagsStatements(context);
         }
 
         return [];
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(Assignment assignment, List<string> commentsAheadOfNextStatement)
+    private static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(StepContext context, Assignment assignment)
     {
         // TODO: AssignmentEqual if possible, i.e. A |= D rather than A = (byte)(A | D). Probably generates the same code though...
-        var target = ExpressionGenerator.GenerateExpressionSyntax(assignment.Target);
-        var value = ExpressionGenerator.GenerateExpressionSyntax(assignment.Value);
 
-        if (target.ToString() == value.ToString())
-        {
-            commentsAheadOfNextStatement.Add($"Skipping {assignment}.");
-            yield break;
-        }
+        var value = ExpressionGenerator.GenerateExpressionSyntax(context, assignment.Value);
 
         if (assignment.Value.Type != assignment.Target.Type)
         {
@@ -77,6 +71,31 @@ public abstract class StatementGenerator : Generator
             value = CastExpression(assignment.Target.TypeSyntax, value);
         }
 
+
+        // If we're assigning to a temporary variable, initialize if necessary.
+        ExpressionSyntax target;
+        if (assignment.Target is TemporaryVariableAccess temporaryVariableAccess)
+        {
+            if (!context.TemporaryVariableIdentifiers.TryGetValue(temporaryVariableAccess.TemporaryVariable, out var temporaryVariableIdentifier))
+            {
+                var temporaryName = context.Step.ScopedVariableName(temporaryVariableAccess.TemporaryVariable.Name);
+                context.TemporaryVariableIdentifiers[temporaryVariableAccess.TemporaryVariable] = IdentifierName(temporaryName);
+                yield return InitializeVariableStatement(temporaryName, value);
+                yield break;
+            }
+
+            target = temporaryVariableIdentifier;
+        }
+        else
+        {
+            target = ExpressionGenerator.GenerateExpressionSyntax(context, assignment.Target);
+        }
+
+        if (target.ToString() == value.ToString())
+        {
+            context.CommentsAheadOfNextStatement.Add($"Skipping {assignment}.");
+            yield break;
+        }
         yield return ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, target, value));
     }
 
@@ -112,9 +131,9 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateOverlappedOpcodeReadStatementSyntaxes(List<string> commentsAheadOfNextStatement)
+    private static IEnumerable<StatementSyntax> GenerateOverlappedOpcodeReadStatementSyntaxes(StepContext context)
     {
-        commentsAheadOfNextStatement.Add("Overlapped opcode read.");
+        context.CommentsAheadOfNextStatement.Add("Overlapped opcode read.");
 
         // Set step = 1 so we start on step 1 after the next Step() call.
         yield return CreateSetStep(1);

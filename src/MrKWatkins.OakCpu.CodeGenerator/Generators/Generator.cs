@@ -17,9 +17,11 @@ public abstract class Generator
     }
 
     [Pure]
-    protected static StatementSyntax CreateCommentStatement(string comment) =>
-        ParseStatement("")
-            .WithLeadingTrivia(Comment($"// {comment}"));
+    protected static StatementSyntax InitializeVariableStatement(string variable, ExpressionSyntax value) =>
+        LocalDeclarationStatement(VariableDeclaration(IdentifierName("var"))
+            .WithVariables(SingletonSeparatedList(
+                VariableDeclarator(Identifier(variable))
+                    .WithInitializer(EqualsValueClause(value)))));
 
     [Pure]
     protected static PredefinedTypeSyntax Bool => PredefinedType(Token(SyntaxKind.BoolKeyword));

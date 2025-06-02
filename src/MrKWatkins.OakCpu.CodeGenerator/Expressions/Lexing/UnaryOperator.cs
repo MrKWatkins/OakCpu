@@ -1,19 +1,19 @@
+using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
+
 namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Lexing;
 
 /// <summary>
-/// Lexer token representing an operator, '~'.
+/// Lexer token representing a unary operator.
 /// </summary>
 internal sealed record UnaryOperator : Token
 {
-    internal static readonly HashSet<char> Operators = new("~");
-
-    internal UnaryOperator(int index, char symbol)
-        : base(index, 1)
+    internal UnaryOperator(int index, Operator @operator)
+        : base(index, @operator.Symbol.Length)
     {
-        Symbol = symbol;
+        Operator = @operator;
     }
 
-    internal char Symbol { get; }
+    internal Operator Operator { get; }
 
-    public override string ToString() => new(Symbol, 1);
+    public override string ToString() => Operator.Symbol;
 }

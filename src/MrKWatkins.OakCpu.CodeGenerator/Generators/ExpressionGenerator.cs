@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -10,73 +9,71 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public abstract class ExpressionGenerator : Generator
 {
     [Pure]
-    public static ExpressionSyntax GenerateExpressionSyntax(Expression expression) => GenerateExpressionSyntax(expression, ImmutableDictionary<string, Expression>.Empty);
-
-    [Pure]
-    public static ExpressionSyntax GenerateExpressionSyntax(Expression expression, ImmutableDictionary<string, Expression> scope) => expression switch
+    public static ExpressionSyntax GenerateExpressionSyntax(StepContext context, Expression expression) => expression switch
     {
-        ArgumentAccess argumentAccess => GenerateExpressionSyntax(argumentAccess, scope),
-        BinaryOperation binaryOperation => GenerateExpressionSyntax(binaryOperation, scope),
-        Call call => GenerateExpressionSyntax(call, scope),
+        ArgumentAccess argumentAccess => GenerateExpressionSyntax(context, argumentAccess),
+        BinaryOperation binaryOperation => GenerateExpressionSyntax(context, binaryOperation),
+        Call call => GenerateExpressionSyntax(context, call),
         DataMemberAccess dataMemberAccess => GenerateExpressionSyntax(dataMemberAccess),
         Number number => GenerateExpressionSyntax(number),
         RegisterAccess registerAccess => GenerateExpressionSyntax(registerAccess),
-        UnaryOperation unaryOperation => GenerateExpressionSyntax(unaryOperation, scope),
+        TemporaryVariableAccess temporaryVariableAccess => GenerateExpressionSyntax(context, temporaryVariableAccess),
+        UnaryOperation unaryOperation => GenerateExpressionSyntax(context, unaryOperation),
         _ => throw new NotSupportedException($"The expression type {expression.GetType().Name} is not supported.")
     };
 
     [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(BinaryOperation binaryOperation, ImmutableDictionary<string, Expression> scope)
+    private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, BinaryOperation binaryOperation)
     {
-        var left = GenerateExpressionSyntax(binaryOperation.Left, scope);
-        if (binaryOperation.Left is BinaryOperation leftBinary && leftBinary.OperatorPrecedence < binaryOperation.OperatorPrecedence)
+        var left = GenerateExpressionSyntax(context, binaryOperation.Left);
+        if (binaryOperation.Left is BinaryOperation leftBinary && leftBinary.Operator.Precedence < binaryOperation.Operator.Precedence)
         {
             left = ParenthesizedExpression(left);
         }
 
-        var right = GenerateExpressionSyntax(binaryOperation.Right, scope);
-        if (binaryOperation.Right is BinaryOperation rightBinary && rightBinary.OperatorPrecedence < binaryOperation.OperatorPrecedence)
+        var right = GenerateExpressionSyntax(context, binaryOperation.Right);
+        if (binaryOperation.Right is BinaryOperation rightBinary && rightBinary.Operator.Precedence < binaryOperation.Operator.Precedence)
         {
             right = ParenthesizedExpression(right);
         }
 
-        return BinaryExpression(binaryOperation.OperatorSyntaxKind, left, right);
+        return BinaryExpression(binaryOperation.Operator.SyntaxKind, left, right);
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(Call call, ImmutableDictionary<string, Expression> scope)
+    private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, Call call)
     {
         if (call.Function is PreDefinedFunction)
         {
-            return GeneratePreDefinedFunctionCallExpressionSyntax(call, scope);
+            return GeneratePreDefinedFunctionCallExpressionSyntax(context, call);
         }
 
-        return GenerateUserDefinedFunctionCallExpressionSyntax(call, scope);
+        return GenerateUserDefinedFunctionCallExpressionSyntax(context, call);
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateUserDefinedFunctionCallExpressionSyntax(Call call, ImmutableDictionary<string, Expression> scope)
+    private static ExpressionSyntax GenerateUserDefinedFunctionCallExpressionSyntax(StepContext context, Call call)
     {
         var function = (UserDefinedFunction)call.Function;
 
-        scope = scope.AddRange(call.Function.Parameters.Zip(call.Arguments, (p, a) => new KeyValuePair<string, Expression>(p, a)));
+        var childContext = context.WithArguments(function.Parameters, call.Arguments);
 
-        return ParenthesizedExpression(GenerateExpressionSyntax(function.Expression, scope));
+        return ParenthesizedExpression(GenerateExpressionSyntax(childContext, function.Expression));
     }
 
     [Pure]
-    private static ExpressionSyntax GeneratePreDefinedFunctionCallExpressionSyntax(Call call, ImmutableDictionary<string, Expression> scope)
+    private static ExpressionSyntax GeneratePreDefinedFunctionCallExpressionSyntax(StepContext context, Call call)
     {
         if (call.Function == PreDefinedFunction.PopCount)
         {
-            return GeneratePopCountExpressionSyntax(call.Arguments[0], scope);
+            return GeneratePopCountExpressionSyntax(context, call.Arguments[0]);
         }
 
         throw new NotSupportedException($"The function {call.Function} is not supported.");
     }
 
     [Pure]
-    private static ExpressionSyntax GeneratePopCountExpressionSyntax(Expression argument, ImmutableDictionary<string, Expression> scope) =>
+    private static ExpressionSyntax GeneratePopCountExpressionSyntax(StepContext context, Expression argument) =>
             InvocationExpression(
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
@@ -85,17 +82,17 @@ public abstract class ExpressionGenerator : Generator
                 .WithArgumentList(
                     ArgumentList(
                         SingletonSeparatedList(
-                            Argument(GenerateExpressionSyntax(argument, scope)))));
+                            Argument(GenerateExpressionSyntax(context, argument)))));
 
     [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(ArgumentAccess argumentAccess, ImmutableDictionary<string, Expression> scope)
+    private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, ArgumentAccess argumentAccess)
     {
-        if (!scope.TryGetValue(argumentAccess.Name, out var expression))
+        if (!context.ArgumentScope.TryGetValue(argumentAccess.Name, out var expression))
         {
             throw new InvalidOperationException($"No value for argument {argumentAccess.Name} found in scope.");
         }
 
-        return GenerateExpressionSyntax(expression);
+        return GenerateExpressionSyntax(context, expression);
     }
 
     [Pure]
@@ -108,14 +105,24 @@ public abstract class ExpressionGenerator : Generator
     private static ExpressionSyntax GenerateExpressionSyntax(RegisterAccess registerAccess) => registerAccess.IdentifierName;
 
     [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(UnaryOperation unaryOperation, ImmutableDictionary<string, Expression> scope)
+    private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, TemporaryVariableAccess temporaryVariableAccess)
     {
-        var expression = GenerateExpressionSyntax(unaryOperation.Expression, scope);
+        if (!context.TemporaryVariableIdentifiers.TryGetValue(temporaryVariableAccess.TemporaryVariable, out var identifier))
+        {
+            throw new InvalidOperationException($"The temporary variable {temporaryVariableAccess.TemporaryVariable} has not been initialized.");
+        }
+        return identifier;
+    }
+
+    [Pure]
+    private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, UnaryOperation unaryOperation)
+    {
+        var expression = GenerateExpressionSyntax(context, unaryOperation.Expression);
         if (unaryOperation.Expression is BinaryOperation)
         {
             expression = ParenthesizedExpression(expression);
         }
 
-        return PrefixUnaryExpression(unaryOperation.OperatorSyntaxKind, expression);
+        return PrefixUnaryExpression(unaryOperation.Operator.SyntaxKind, expression);
     }
 }

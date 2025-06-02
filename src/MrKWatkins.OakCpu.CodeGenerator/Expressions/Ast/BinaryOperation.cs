@@ -9,7 +9,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 /// </summary>
 public sealed class BinaryOperation : Expression
 {
-    internal BinaryOperation(string @operator, AstNode left, AstNode right)
+    internal BinaryOperation(Operator @operator, AstNode left, AstNode right)
     {
         Operator = @operator;
         Left = left as Expression ?? throw new ArgumentException($"Value must be a {nameof(Expression)}, not a {left.GetType().Name}.", nameof(left));
@@ -19,35 +19,7 @@ public sealed class BinaryOperation : Expression
     /// <summary>
     /// The operator.
     /// </summary>
-    public string Operator { get; }
-
-    /// <summary>
-    /// The <see cref="SyntaxKind" /> for the operator.
-    /// </summary>
-    public SyntaxKind OperatorSyntaxKind => Operator switch
-    {
-        "+" => SyntaxKind.AddExpression,
-        "-" => SyntaxKind.SubtractExpression,
-        "&" => SyntaxKind.BitwiseAndExpression,
-        "|" => SyntaxKind.BitwiseOrExpression,
-        "^" => SyntaxKind.ExclusiveOrExpression,
-        "==" => SyntaxKind.EqualsExpression,
-        _ => throw new NotSupportedException($"The operator {Operator} is not supported.")
-    };
-
-    /// <summary>
-    /// The relative precedence of the operator.
-    /// </summary>
-    public int OperatorPrecedence => Operator switch
-    {
-        "|" => 0,
-        "^" => 1,
-        "&" => 2,
-        "==" => 3,
-        "+" => 4,
-        "-" => 4,
-        _ => throw new NotSupportedException($"The operator {Operator} is not supported.")
-    };
+    public Operator Operator { get; }
 
     /// <summary>
     /// The left side of the operation.
@@ -65,7 +37,7 @@ public sealed class BinaryOperation : Expression
 
     public override void WriteExpression(StringBuilder expression)
     {
-        if (Left is BinaryOperation leftBinary && leftBinary.OperatorPrecedence < OperatorPrecedence)
+        if (Left is BinaryOperation leftBinary && leftBinary.Operator.Precedence < Operator.Precedence)
         {
             expression.Append('(');
             Left.WriteExpression(expression);
@@ -78,7 +50,7 @@ public sealed class BinaryOperation : Expression
         expression.Append(' ');
         expression.Append(Operator);
         expression.Append(' ');
-        if (Right is BinaryOperation rightBinary && rightBinary.OperatorPrecedence < OperatorPrecedence)
+        if (Right is BinaryOperation rightBinary && rightBinary.Operator.Precedence < Operator.Precedence)
         {
             expression.Append('(');
             Right.WriteExpression(expression);

@@ -1,6 +1,8 @@
 using System.Collections;
 using FluentAssertions.Equivalency;
+using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Expressions.Lexing;
+using Number = MrKWatkins.OakCpu.CodeGenerator.Expressions.Lexing.Number;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Tests.Expressions.Lexing;
 
@@ -87,18 +89,18 @@ public sealed class LexerTests
         yield return Create("identifier", new Identifier(0, "identifier"), new EndOfExpression(10));
         yield return Create("ident_ifier", new Identifier(0, "ident_ifier"), new EndOfExpression(11));
 
-        yield return Create("+", new BinaryOperator(0, "+"), new EndOfExpression(1));
-        yield return Create("-", new BinaryOperator(0, "-"), new EndOfExpression(1));
-        yield return Create("&", new BinaryOperator(0, "&"), new EndOfExpression(1));
-        yield return Create("|", new BinaryOperator(0, "|"), new EndOfExpression(1));
-        yield return Create("^", new BinaryOperator(0, "^"), new EndOfExpression(1));
-        yield return Create("=", new BinaryOperator(0, "="), new EndOfExpression(1));
-        yield return Create("==", new BinaryOperator(0, "=="), new EndOfExpression(2));
+        yield return Create("+", new BinaryOperator(0, Operator.Add), new EndOfExpression(1));
+        yield return Create("-", new BinaryOperator(0, Operator.Subtract), new EndOfExpression(1));
+        yield return Create("&", new BinaryOperator(0, Operator.And), new EndOfExpression(1));
+        yield return Create("|", new BinaryOperator(0, Operator.Or), new EndOfExpression(1));
+        yield return Create("^", new BinaryOperator(0, Operator.Xor), new EndOfExpression(1));
+        yield return Create("=", new BinaryOperator(0, Operator.Assignment), new EndOfExpression(1));
+        yield return Create("==", new BinaryOperator(0, Operator.Equality), new EndOfExpression(2));
 
         yield return Create("(", new OpenBracket(0), new EndOfExpression(1));
         yield return Create(")", new CloseBracket(0), new EndOfExpression(1));
 
-        yield return Create("(x + 4)", new OpenBracket(0), new Identifier(1, "x"), new BinaryOperator(3, "+"), new Number(5, 1, 4), new CloseBracket(6), new EndOfExpression(7));
+        yield return Create("(x + 4)", new OpenBracket(0), new Identifier(1, "x"), new BinaryOperator(3, Operator.Add), new Number(5, 1, 4), new CloseBracket(6), new EndOfExpression(7));
     }
 
     [Pure]
