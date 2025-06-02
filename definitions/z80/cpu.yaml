@@ -1,12 +1,13 @@
 cpu:
   name: Z80
   actions:
+    - OpcodeRead
     - MemoryRead
     - MemoryWrite
     - IORead
     - IOWrite
   opcode_read:
-    - [Address = PC, PC = PC + 1, MemoryRead]
+    - [Address = PC, PC = PC + 1, OpcodeRead]
     - [Opcode = Data]
     - [Address = IR, R = (R & 0x80) | (R + 1) & 0x7F)]
     - []

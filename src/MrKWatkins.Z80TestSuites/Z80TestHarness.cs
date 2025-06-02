@@ -63,7 +63,7 @@ public abstract class Z80TestHarness
 
     public IReadOnlyList<TestEvent> Events => events;
 
-    protected void AddEvent(TestEvent @event) => events.Add(@event);
+    protected void AddEvent(TestEvent fuseEvent) => events.Add(fuseEvent);
 
     protected void RemoveLastEvent() => events.RemoveAt(events.Count - 1);
 

@@ -2,12 +2,12 @@ namespace MrKWatkins.Z80TestSuites.Fuse;
 
 public sealed class Expected : Z80State
 {
-    private Expected(IReadOnlyList<Event> events)
+    private Expected(IReadOnlyList<FuseEvent> events)
     {
         Events = events;
     }
 
-    public IReadOnlyList<Event> Events { get; }
+    public IReadOnlyList<FuseEvent> Events { get; }
 
     public void Assert(Z80TestHarness testHarness)
     {
@@ -63,45 +63,29 @@ public sealed class Expected : Z80State
 
     private void AssertEvents(Z80TestHarness testHarness)
     {
-        var actualEvents = Events.Where(e => e.Type is FuseEventType.MemoryRead or FuseEventType.MemoryWrite).ToList();
-        testHarness.AssertEqual(actualEvents.Count, testHarness.Events.Count, "number of events should match");
+        var actualEvents = Events;
+        var expectedEvents = testHarness.Events.Select(e => e.ToFuse()).ToList();
+        testHarness.AssertEqual(actualEvents.Count, expectedEvents.Count, "number of events should match");
 
-        if (actualEvents.Count == testHarness.Events.Count)
+        for (var f = 0; f < Math.Min(actualEvents.Count, expectedEvents.Count); f++)
         {
-            for (var f = 0; f < actualEvents.Count; f++)
-            {
-                var actual = actualEvents[f];
-                var expected = testHarness.Events[f];
-                var actualType = actual.Type switch
-                {
-                    FuseEventType.MemoryRead => TestEventType.MemoryRead,
-                    FuseEventType.MemoryWrite => TestEventType.MemoryWrite,
-                    _ => throw new NotSupportedException($"The {nameof(FuseEventType)} {actual.Type} is not supported.")
-                };
+            var actual = actualEvents[f];
+            var expected = expectedEvents[f];
 
-                testHarness.AssertEqual(actualType, expected.Type, $"the type of event {f} should match");
-
-
-                // All Fuse memory events have a contended event before, use that to get the start time.
-                var actualTStates = Events[actual.Index - 1].Time;
-
-                testHarness.AssertEqual(actualTStates, expected.TStates, $"the time for event {f} should match");
-                testHarness.AssertEqual(actual.Address, expected.Address, $"the address of event {f} should match");
-                testHarness.AssertEqual(actual.Data, expected.Data, $"the data of event {f} should match");
-            }
+            testHarness.AssertEqual(actual, expected, $"event {f} should match");
         }
     }
 
     [Pure]
     internal static Expected Parse(StreamReader reader)
     {
-        var events = new List<Event>();
+        var events = new List<FuseEvent>();
         while (true)
         {
             var line = reader.ReadLine()!;
             if (char.IsWhiteSpace(line[0]))
             {
-                events.Add(Event.Parse(events.Count, line));
+                events.Add(FuseEvent.Parse(line));
                 continue;
             }
 

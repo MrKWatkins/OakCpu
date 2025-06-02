@@ -1,38 +1,36 @@
 namespace MrKWatkins.Z80TestSuites.Fuse;
 
-public sealed class Event
+[SuppressMessage("ReSharper", "InconsistentNaming")]
+public sealed record FuseEvent
 {
-    private Event(int index, int time, FuseEventType type, ushort address, byte? data)
+    internal FuseEvent(FuseEventType type, int tStatesAfter, ushort address, byte? data)
     {
-        Index = index;
-        Time = time;
         Type = type;
+        TStatesAfter = tStatesAfter;
         Address = address;
         Data = data;
     }
 
-    public int Index { get; }
-
-    public int Time { get; }
-
     public FuseEventType Type { get; }
+
+    public int TStatesAfter { get; }
 
     public ushort Address { get; }
 
     public byte? Data { get; }
 
-    public override string ToString() => $"{Type}: {Time} T-States After, 0x{Address:X4} {Data?.ToString("X2") ?? ""}";
+    public override string ToString() => $"{Type}: T-States After = {TStatesAfter}, 0x{Address:X4} {Data?.ToString("X2") ?? ""}";
 
     [Pure]
-    internal static Event Parse(int index, string line)
+    internal static FuseEvent Parse(string line)
     {
         var components = line.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-        var time = int.Parse(components[0]);
         var type = components[1].ToEventType();
+        var time = int.Parse(components[0]);
         var address = components[2].ToWord();
         byte? data = components.Length == 4 ? components[3].ToByte() : null;
 
-        return new Event(index, time, type, address, data);
+        return new FuseEvent(type, time, address, data);
     }
 }

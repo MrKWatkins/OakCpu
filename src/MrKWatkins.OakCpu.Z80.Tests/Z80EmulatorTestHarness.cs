@@ -164,6 +164,7 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
     public override void ExecuteInstruction()
     {
         var instructionInProgress = false;
+        var hadMemoryEvent = false;
         while (true)
         {
             if (emulator.step > 1)
@@ -172,11 +173,15 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
             }
             else if (instructionInProgress)
             {
-                // If we're at step 1, then we've had an overlapped read. Adjust PC down by 1 and remove the event as instruction level tests won't take that into account.
+                // If we're at step 1, then we've had an overlapped read. Instruction level tests won't include this,
+                // so we need to restore the PC to before the opcode read and remove any events associated with it.
                 if (emulator.step == 1)
                 {
                     emulator.Registers.PC--;
-                    RemoveLastEvent();
+                    while (Events.Last().TState == TStates - 1)
+                    {
+                        RemoveLastEvent();
+                    }
                 }
                 break;
             }
@@ -186,16 +191,33 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
             switch (actionRequired)
             {
                 case ActionRequired.None:
+                    var previousEvent = Events.LastOrDefault();
+                    var previousEventFinished = previousEvent != null && TStates >= previousEvent.TStateAfter;
+                    if (previousEventFinished)
+                    {
+                        // If we've had a memory event during the instruction, take the address from the address bus. Otherwise, use IR.
+                        AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, hadMemoryEvent ? emulator.Address : emulator.Registers.IR, emulator.Data));
+                    }
+                    break;
+
+                case ActionRequired.OpcodeRead:
+                    emulator.Data = memory[emulator.Address];
+                    AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
+                    AddEvent(new TestEvent(TestEventType.OpcodeRead, TStates, emulator.Address, emulator.Data));
                     break;
 
                 case ActionRequired.MemoryRead:
                     emulator.Data = memory[emulator.Address];
+                    AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
                     AddEvent(new TestEvent(TestEventType.MemoryRead, TStates, emulator.Address, emulator.Data));
+                    hadMemoryEvent = true;
                     break;
 
                 case ActionRequired.MemoryWrite:
                     memory[emulator.Address] = emulator.Data;
+                    AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
                     AddEvent(new TestEvent(TestEventType.MemoryWrite, TStates, emulator.Address, emulator.Data));
+                    hadMemoryEvent = true;
                     break;
 
                 default:
