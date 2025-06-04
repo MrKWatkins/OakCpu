@@ -164,7 +164,6 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
     public override void ExecuteInstruction()
     {
         var instructionInProgress = false;
-        var hadMemoryEvent = false;
         while (true)
         {
             if (emulator.step > 1)
@@ -195,8 +194,7 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
                     var previousEventFinished = previousEvent != null && TStates >= previousEvent.TStateAfter;
                     if (previousEventFinished)
                     {
-                        // If we've had a memory event during the instruction, take the address from the address bus. Otherwise, use IR.
-                        AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, hadMemoryEvent ? emulator.Address : emulator.Registers.IR, emulator.Data));
+                        AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
                     }
                     break;
 
@@ -210,14 +208,12 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
                     emulator.Data = memory[emulator.Address];
                     AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
                     AddEvent(new TestEvent(TestEventType.MemoryRead, TStates, emulator.Address, emulator.Data));
-                    hadMemoryEvent = true;
                     break;
 
                 case ActionRequired.MemoryWrite:
                     memory[emulator.Address] = emulator.Data;
                     AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
                     AddEvent(new TestEvent(TestEventType.MemoryWrite, TStates, emulator.Address, emulator.Data));
-                    hadMemoryEvent = true;
                     break;
 
                 default:

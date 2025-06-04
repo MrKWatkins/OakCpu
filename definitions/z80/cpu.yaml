@@ -9,5 +9,5 @@ cpu:
   opcode_read:
     - [Address = PC, PC = PC + 1, OpcodeRead]
     - [Opcode = Data]
-    - [Address = IR, R = (R & 0x80) | (R + 1) & 0x7F)]
+    - [R = (R & 0x80) | (R + 1) & 0x7F), Address = IR]  # TODO: Visual Z80 remix implies IR goes on the bus before increment, but Fuse contention tests imply after.
     - []
