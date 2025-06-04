@@ -1,4 +1,11 @@
 functions:
+  - name: does_addition_half_carry
+    type: int_bool
+    parameters:
+      - name: left
+      - name: right
+    expression: ((left ^ right ^ (left + right)) & 0x1000) >> 12 # TODO: Collapse >> shift with << shift into one shift.
+    
   - name: even_parity
     type: int_bool
     parameters:

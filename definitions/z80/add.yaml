@@ -1,0 +1,30 @@
+instructions:
+  - group: ADD
+    mnemonic: ADD RP0, RP1
+    opcodes:
+      - opcode: 0x09
+        RP0: HL
+        RP1: BC
+      - opcode: 0x19
+        RP0: HL
+        RP1: DE
+      - opcode: 0x29
+        RP0: HL
+        RP1: HL
+      - opcode: 0x39
+        RP0: HL
+        RP1: SP
+    steps:
+      - [temp16 = RP0, temp32 = RP0 + RP1, RP0 = temp32, WZ = temp16 + 1, flags()]
+      - []
+      - []
+      - []
+      - []
+      - []
+      - []
+    flags:
+      C: (temp32 & 0x10000) == 0x10000
+      N: 0
+      X: copy_from(RP0H)
+      H: does_addition_half_carry(temp16, RP1)
+      Y: copy_from(RP0H)

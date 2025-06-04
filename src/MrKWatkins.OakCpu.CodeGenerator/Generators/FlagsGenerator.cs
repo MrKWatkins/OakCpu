@@ -12,6 +12,11 @@ public abstract class FlagsGenerator : Generator
     [Pure]
     public static IEnumerable<StatementSyntax> GenerateFlagsStatements(StepContext context)
     {
+        if (context.Step.Index == 53)
+        {
+
+        }
+
         // TODO: Copy fields used in statements to a local variable first for a performance optimisation.
         var instruction = context.Step.Instruction ?? throw new InvalidOperationException("Cannot use flags() outside of an instruction.");
         var flagsVariableName = context.Step.ScopedVariableName("flags");
@@ -270,7 +275,7 @@ public abstract class FlagsGenerator : Generator
         {
             1 => flagsList[0].Name,
             2 => $"{flagsList[0].Name} and {flagsList[1].Name}",
-            _ => $"{string.Join(", ", flagsList.Take(flagsList.Count - 2))} and {flagsList.Last().Name}"
+            _ => $"{string.Join(", ", flagsList.Take(flagsList.Count - 1))} and {flagsList.Last().Name}"
         };
     }
 }

@@ -63,8 +63,8 @@ public sealed class Expected : Z80State
 
     private void AssertEvents(Z80TestHarness testHarness)
     {
-        var actualEvents = Events;
-        var expectedEvents = testHarness.Events.Select(e => e.ToFuse()).ToList();
+        var expectedEvents = Events;
+        var actualEvents = testHarness.Events.Select(e => e.ToFuse()).ToList();
         testHarness.AssertEqual(actualEvents.Count, expectedEvents.Count, "number of events should match");
 
         for (var f = 0; f < Math.Min(actualEvents.Count, expectedEvents.Count); f++)

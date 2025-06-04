@@ -82,7 +82,7 @@ public static class ExpressionParser
         while (true)
         {
             var token = lexer.Peek();
-            if (token is EndOfExpression or CloseBracket)
+            if (token is EndOfExpression or CloseBracket or Comma)
             {
                 break;
             }

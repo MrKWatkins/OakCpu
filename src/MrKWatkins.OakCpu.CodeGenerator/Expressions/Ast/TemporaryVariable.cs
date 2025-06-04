@@ -8,10 +8,12 @@ public sealed class TemporaryVariable
 {
     public static readonly TemporaryVariable Byte = new("temp8", typeof(byte));
     public static readonly TemporaryVariable Word = new("temp16", typeof(ushort));
+    public static readonly TemporaryVariable Int = new("temp32", typeof(int));
 
     public static readonly IReadOnlyDictionary<string, TemporaryVariable> All = new Dictionary<string, TemporaryVariable>(StringComparer.OrdinalIgnoreCase)
     {
         { Byte.Name, Byte },
+        { Int.Name, Int },
         { Word.Name, Word }
     };
 
@@ -27,6 +29,10 @@ public sealed class TemporaryVariable
         else if (Type == typeof(ushort))
         {
             TypeSyntax = PredefinedType(Token(SyntaxKind.UShortKeyword));
+        }
+        else if (Type == typeof(int))
+        {
+            TypeSyntax = PredefinedType(Token(SyntaxKind.IntKeyword));
         }
         else
         {
