@@ -43,9 +43,6 @@ public sealed class Step
     }
 
     [Pure]
-    public string ScopedVariableName(string name) => $"{name}_{Index}";
-
-    [Pure]
     public static IReadOnlyList<Step> Parse(string baseName, ParserContext context, IReadOnlyList<IReadOnlyList<string>> steps, Statement? finalStepStatement = null) =>
         steps.Select((s, i) => Parse($"{baseName} [{i}]", context, s, i == steps.Count - 1 ? finalStepStatement : null)).ToList();
 

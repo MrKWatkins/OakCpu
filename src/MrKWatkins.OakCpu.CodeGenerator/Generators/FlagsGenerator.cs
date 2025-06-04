@@ -9,15 +9,16 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public abstract class FlagsGenerator : Generator
 {
+    private const string FlagsVariableName = "flags";
+
     [Pure]
     public static IEnumerable<StatementSyntax> GenerateFlagsStatements(StepContext context)
     {
         // TODO: Copy fields used in statements to a local variable first for a performance optimisation.
         var instruction = context.Step.Instruction ?? throw new InvalidOperationException("Cannot use flags() outside of an instruction.");
-        var flagsVariableName = context.Step.ScopedVariableName("flags");
 
         bool initialized;
-        var constants = GenerateConstantStatement(context, instruction, flagsVariableName);
+        var constants = GenerateConstantStatement(context, instruction, FlagsVariableName);
         if (constants != null)
         {
             yield return constants;
@@ -28,17 +29,17 @@ public abstract class FlagsGenerator : Generator
             initialized = false;
         }
 
-        foreach (var statement in GenerateCopyFromStatements(context, instruction, flagsVariableName, initialized))
+        foreach (var statement in GenerateCopyFromStatements(context, instruction, FlagsVariableName, initialized))
         {
             yield return statement;
         }
 
-        foreach (var statement in GenerateCallExpressionStatements(context, instruction, flagsVariableName))
+        foreach (var statement in GenerateCallExpressionStatements(context, instruction, FlagsVariableName))
         {
             yield return statement;
         }
 
-        foreach (var statement in GenerateAssignmentFromEqualityStatements(context, instruction, flagsVariableName))
+        foreach (var statement in GenerateAssignmentFromEqualityStatements(context, instruction, FlagsVariableName))
         {
             yield return statement;
         }
@@ -48,7 +49,7 @@ public abstract class FlagsGenerator : Generator
                 SyntaxKind.SimpleAssignmentExpression,
                 IdentifierName(context.Input.FlagsRegister.FieldName),
                 CastExpression(
-                    context.Input.FlagsRegister.TypeSyntax, IdentifierName(flagsVariableName))));
+                    context.Input.FlagsRegister.TypeSyntax, IdentifierName(FlagsVariableName))));
     }
 
     [Pure]
@@ -207,11 +208,7 @@ public abstract class FlagsGenerator : Generator
                 {
                     var access = call.Arguments[0] as Access ?? throw new InvalidOperationException("Can only copy_from registers.");
 
-                    var name = access is TemporaryVariableAccess temporaryVariableAccess
-                        ? context.TemporaryVariableNames[temporaryVariableAccess.TemporaryVariable]
-                        : access.Name;
-
-                    Add(copyFroms, name, flag);
+                    Add(copyFroms, access.Name, flag);
                 }
             }
             else

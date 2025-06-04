@@ -45,7 +45,7 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
 
         return SwitchSection()
             .AddLabels(CaseSwitchLabel(GenerateNumericLiteralExpression(step.Index)))
-            .AddStatements(statements)
+            .AddStatements(Block(statements))
             .WithLeadingTrivia(Comment($"// {step.Name}"));
     }
 

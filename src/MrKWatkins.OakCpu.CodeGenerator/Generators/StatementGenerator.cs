@@ -93,15 +93,14 @@ public abstract class StatementGenerator : Generator
         ExpressionSyntax target;
         if (assignment.Target is TemporaryVariableAccess temporaryVariableAccess)
         {
-            if (!context.TemporaryVariableNames.TryGetValue(temporaryVariableAccess.TemporaryVariable, out var temporaryName))
+            if (!context.InitializedTemporaryVariables.Contains(temporaryVariableAccess.TemporaryVariable))
             {
-                temporaryName = context.Step.ScopedVariableName(temporaryVariableAccess.TemporaryVariable.Name);
-                context.TemporaryVariableNames[temporaryVariableAccess.TemporaryVariable] = temporaryName;
-                yield return InitializeVariableStatement(temporaryName, value);
+                context.InitializedTemporaryVariables.Add(temporaryVariableAccess.TemporaryVariable);
+                yield return InitializeVariableStatement(temporaryVariableAccess.Name, value);
                 yield break;
             }
 
-            target = IdentifierName(temporaryName);
+            target = temporaryVariableAccess.Identifier;
         }
         else
         {

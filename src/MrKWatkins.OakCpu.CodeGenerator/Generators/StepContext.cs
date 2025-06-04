@@ -7,15 +7,15 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public sealed class StepContext
 {
     public StepContext(GeneratorInput input, Step step)
-        : this(input, step, new Dictionary<TemporaryVariable, string>(), ImmutableDictionary<string, Expression>.Empty, new List<string>())
+        : this(input, step, new HashSet<TemporaryVariable>(), ImmutableDictionary<string, Expression>.Empty, new List<string>())
     {
     }
 
-    private StepContext(GeneratorInput input, Step step, Dictionary<TemporaryVariable, string> temporaryVariableNames, ImmutableDictionary<string, Expression> argumentScope, List<string> commentsAheadOfNextStatement)
+    private StepContext(GeneratorInput input, Step step, HashSet<TemporaryVariable> initializedTemporaryVariables, ImmutableDictionary<string, Expression> argumentScope, List<string> commentsAheadOfNextStatement)
     {
         Input = input;
         Step = step;
-        TemporaryVariableNames = temporaryVariableNames;
+        InitializedTemporaryVariables = initializedTemporaryVariables;
         ArgumentScope = argumentScope;
         CommentsAheadOfNextStatement = commentsAheadOfNextStatement;
     }
@@ -24,7 +24,7 @@ public sealed class StepContext
 
     public Step Step { get; }
 
-    public Dictionary<TemporaryVariable, string> TemporaryVariableNames { get; }
+    public HashSet<TemporaryVariable> InitializedTemporaryVariables { get; }
 
     public ImmutableDictionary<string, Expression> ArgumentScope { get; }
 
@@ -35,6 +35,6 @@ public sealed class StepContext
     {
         var newScope = ArgumentScope.AddRange(parameters.Zip(arguments, (p, a) => new KeyValuePair<string, Expression>(p, a)));
 
-        return new StepContext(Input, Step, TemporaryVariableNames, newScope, CommentsAheadOfNextStatement);
+        return new StepContext(Input, Step, InitializedTemporaryVariables, newScope, CommentsAheadOfNextStatement);
     }
 }
