@@ -64,9 +64,9 @@ public sealed class GeneratorInput
 
         var flags = Flag.Create(yaml.Flags).ToDictionary(f => f.Name);
 
-        var cpu = Cpu.Create(registersByName, yaml.Cpu);
+        var cpu = Cpu.Create(registersByName, flags, yaml.Cpu);
 
-        var context = new ParserContext(new HashSet<string>(cpu.Actions), registersByName);
+        var context = new ParserContext(new HashSet<string>(cpu.Actions), registersByName, flags);
         var userDefinedFunctions = UserDefinedFunction.Create(context, yaml.Functions).ToDictionary(f => f.Name);
 
         context = context.WithFunctions(userDefinedFunctions);

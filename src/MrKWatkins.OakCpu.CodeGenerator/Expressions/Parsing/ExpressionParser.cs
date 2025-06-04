@@ -135,6 +135,11 @@ public static class ExpressionParser
             return new TemporaryVariableAccess(temporaryVariable);
         }
 
+        if (identifier.StartsWith("flag.") && context.Flags.TryGetValue(identifier.Substring(5), out var flag))
+        {
+            return new FlagAccess(flag);
+        }
+
         throw new NotSupportedException($"Unsupported identifier {identifier}.");
     }
 

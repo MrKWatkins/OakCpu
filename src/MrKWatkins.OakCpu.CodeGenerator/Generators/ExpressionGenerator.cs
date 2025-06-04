@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -15,6 +16,7 @@ public abstract class ExpressionGenerator : Generator
         BinaryOperation binaryOperation => GenerateExpressionSyntax(context, binaryOperation),
         Call call => GenerateExpressionSyntax(context, call),
         DataMemberAccess dataMemberAccess => GenerateExpressionSyntax(dataMemberAccess),
+        FlagAccess flagAccess => GenerateExpressionSyntax(context, flagAccess),
         Number number => GenerateExpressionSyntax(number),
         RegisterAccess registerAccess => GenerateExpressionSyntax(registerAccess),
         TemporaryVariableAccess temporaryVariableAccess => GenerateExpressionSyntax(context, temporaryVariableAccess),
@@ -103,6 +105,23 @@ public abstract class ExpressionGenerator : Generator
 
     [Pure]
     private static ExpressionSyntax GenerateExpressionSyntax(RegisterAccess registerAccess) => registerAccess.Identifier;
+
+    [Pure]
+    private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, FlagAccess flagAccess)
+    {
+        var bitMask = (byte)(1 << flagAccess.Flag.Index);
+
+        // Isolate the flag bit.
+        var expression = BinaryExpression(SyntaxKind.BitwiseAndExpression, IdentifierName(context.Input.FlagsRegister.FieldName), GenerateBinaryLiteralExpression(bitMask));
+
+        // If the index is not 0, shift the bit to the rightmost position.
+        if (flagAccess.Flag.Index != 0)
+        {
+            expression = BinaryExpression(SyntaxKind.RightShiftExpression, expression, GenerateNumericLiteralExpression(flagAccess.Flag.Index));
+        }
+
+        return ParenthesizedExpression(expression.WithTrailingTrivia(Comment($"/* flag.{flagAccess.Flag.Name} */")));
+    }
 
     [Pure]
     private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, TemporaryVariableAccess temporaryVariableAccess)

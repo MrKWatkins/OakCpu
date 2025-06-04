@@ -13,6 +13,20 @@ instructions:
       Y: copy_from(A)
     next_opcode: overlapped
     
+  - group: RLA
+    mnemonic: RLA
+    opcodes:
+      - opcode: 0x17
+    steps:
+      - [temp8 = A, A = (A << 1) | flag.C, flags()]
+    flags:
+      C: (temp8 & 0x80) == 0x80
+      N: 0
+      X: copy_from(A)
+      H: 0
+      Y: copy_from(A)
+    next_opcode: overlapped
+    
   - group: RRCA
     mnemonic: RRCA
     opcodes:
@@ -21,6 +35,20 @@ instructions:
       - [temp8 = A, A = (A >> 1) | (A << 7), flags()]
     flags:
       C: copy_from(temp8)
+      N: 0
+      X: copy_from(A)
+      H: 0
+      Y: copy_from(A)
+    next_opcode: overlapped
+
+  - group: RRA
+    mnemonic: RRA
+    opcodes:
+      - opcode: 0x1F
+    steps:
+      - [temp8 = A, A = (A >> 1) | (flag.C << 7), flags()]
+    flags:
+      C: (temp8 & 0x01) == 0x01
       N: 0
       X: copy_from(A)
       H: 0
