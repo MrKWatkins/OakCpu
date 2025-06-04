@@ -14,6 +14,7 @@ public sealed class GeneratorInput
 {
     private GeneratorInput(string rootNamespace, Cpu cpu, IReadOnlyList<Register> registers, Dictionary<string, Flag> flags, IReadOnlyList<Instruction> instructions, Dictionary<string, UserDefinedFunction> userDefinedFunctions)
     {
+        VerifyNoDuplicateOpcodes(instructions);
         RootNamespace = rootNamespace;
         Cpu = cpu;
         Registers = registers;
@@ -84,6 +85,16 @@ public sealed class GeneratorInput
         catch (Exception exception)
         {
             throw new IOException($"Could not load YAML file {Path.GetFullPath(text.Path)}.", exception);
+        }
+    }
+
+    private static void VerifyNoDuplicateOpcodes(IReadOnlyList<Instruction> instructions)
+    {
+        var duplicates = instructions.GroupBy(i => i.Opcode).Where(g => g.Count() > 1).ToList();
+        if (duplicates.Count > 0)
+        {
+            throw new InvalidOperationException(
+                $"The following opcodes are defined multiple times: {string.Join("\n", duplicates.Select(g => $"0x{g.Key:X2} [{string.Join(", ", g.Select(i => i.Mnemonic))}]"))}");
         }
     }
 }

@@ -1,0 +1,41 @@
+instructions:
+  - group: LD
+    mnemonic: LD A, (RP0)
+    opcodes:
+      - opcode: 0x0A
+        RP0: BC
+      - opcode: 0x1A
+        RP0: DE
+    steps:
+      - [Address = RP0, MemoryRead]
+      - [A = Data, WZ = RP0 + 1]
+      - []
+
+  - group: LD
+    mnemonic: LD R0, (RP0)
+    opcodes:
+      - opcode: 0x46
+        R0: B
+        RP0: HL
+      - opcode: 0x4E
+        R0: C
+        RP0: HL
+      - opcode: 0x56
+        R0: D
+        RP0: HL
+      - opcode: 0x5E
+        R0: E
+        RP0: HL
+      - opcode: 0x66
+        R0: H
+        RP0: HL
+      - opcode: 0x6E
+        R0: L
+        RP0: HL
+      - opcode: 0x7E
+        R0: A
+        RP0: HL
+    steps:
+      - [Address = RP0, MemoryRead]
+      - [R0 = Data]
+      - []
