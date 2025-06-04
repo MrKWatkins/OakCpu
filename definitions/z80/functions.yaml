@@ -1,10 +1,27 @@
 functions:
-  - name: does_addition_half_carry
+  - name: did_8_bit_addition_overflow
     type: int_bool
     parameters:
       - name: left
       - name: right
-    expression: ((left ^ right ^ (left + right)) & 0x1000) >> 12 # TODO: Collapse >> shift with << shift into one shift.
+      - name: sum
+    expression: ((sum ^ left) & (sum ^ right) & 0x80) >> 7
+    
+  - name: did_8_bit_addition_half_carry
+    type: int_bool
+    parameters:
+      - name: left
+      - name: right
+      - name: sum
+    expression: ((left ^ right ^ sum) & 0x10) >> 4 # TODO: Collapse >> shift with << shift into one shift.
+    
+  - name: did_16_bit_addition_half_carry
+    type: int_bool
+    parameters:
+      - name: left
+      - name: right
+      - name: sum
+    expression: ((left ^ sum ^ right) & 0x1000) >> 12 # TODO: Collapse >> shift with << shift into one shift.
     
   - name: even_parity
     type: int_bool

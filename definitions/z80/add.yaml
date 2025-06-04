@@ -26,5 +26,41 @@ instructions:
       C: (temp32 & 0x10000) == 0x10000
       N: 0
       X: copy_from(RP0H)
-      H: does_addition_half_carry(temp16, RP1)
+      # TODO: Copy right to another temp, cannot reuse RP1 because it's changed for ADD HL, HL.
+      # TODO: Custom temp variable names, e.g. #name.
+      H: did_16_bit_addition_half_carry(temp16, RP1, temp32)
       Y: copy_from(RP0H)
+        
+  - group: ADD
+    mnemonic: ADD R0, R1
+    opcodes:
+      - opcode: 0x80
+        R0: A
+        R1: B
+      - opcode: 0x81
+        R0: A
+        R1: C
+      - opcode: 0x82
+        R0: A
+        R1: D
+      - opcode: 0x83
+        R0: A
+        R1: E
+      - opcode: 0x84
+        R0: A
+        R1: H
+      - opcode: 0x85
+        R0: A
+        R1: L
+    steps:
+      - [temp8 = R0, temp32 = R0 + R1, R0 = temp32, flags()]
+    flags:
+      C: (temp32 & 0x100) == 0x100
+      N: 0
+      PV: did_8_bit_addition_overflow(temp8, R1, temp32)
+      X: copy_from(temp32)
+      H: did_8_bit_addition_half_carry(temp8, R1, temp32)
+      Y: copy_from(temp32)
+      Z: R0 == 0
+      S: copy_from(temp32)
+    next_opcode: overlapped
