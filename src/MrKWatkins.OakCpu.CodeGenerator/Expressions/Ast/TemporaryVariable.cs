@@ -7,10 +7,12 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 public sealed class TemporaryVariable
 {
     public static readonly TemporaryVariable Byte = new("temp8", typeof(byte));
+    public static readonly TemporaryVariable Word = new("temp16", typeof(ushort));
 
     public static readonly IReadOnlyDictionary<string, TemporaryVariable> All = new Dictionary<string, TemporaryVariable>(StringComparer.OrdinalIgnoreCase)
     {
-        { Byte.Name, Byte }
+        { Byte.Name, Byte },
+        { Word.Name, Word }
     };
 
     private TemporaryVariable(string name, Type type)
@@ -21,6 +23,10 @@ public sealed class TemporaryVariable
         if (Type == typeof(byte))
         {
             TypeSyntax = PredefinedType(Token(SyntaxKind.ByteKeyword));
+        }
+        else if (Type == typeof(ushort))
+        {
+            TypeSyntax = PredefinedType(Token(SyntaxKind.UShortKeyword));
         }
         else
         {
