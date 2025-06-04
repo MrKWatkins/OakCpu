@@ -161,6 +161,45 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
 
     public override void AssertEqual<T>(T actual, T expected, string? message = null) => actual.Should().Be(expected, message);
 
+    public override void ExecuteStep()
+    {
+        var actionRequired = emulator.Step();
+
+        switch (actionRequired)
+        {
+            case ActionRequired.None:
+                var previousEvent = Events.LastOrDefault();
+                var previousEventFinished = previousEvent != null && TStates >= previousEvent.TStateAfter;
+                if (previousEventFinished)
+                {
+                    AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
+                }
+                break;
+
+            case ActionRequired.OpcodeRead:
+                emulator.Data = memory[emulator.Address];
+                AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
+                AddEvent(new TestEvent(TestEventType.OpcodeRead, TStates, emulator.Address, emulator.Data));
+                break;
+
+            case ActionRequired.MemoryRead:
+                emulator.Data = memory[emulator.Address];
+                AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
+                AddEvent(new TestEvent(TestEventType.MemoryRead, TStates, emulator.Address, emulator.Data));
+                break;
+
+            case ActionRequired.MemoryWrite:
+                memory[emulator.Address] = emulator.Data;
+                AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
+                AddEvent(new TestEvent(TestEventType.MemoryWrite, TStates, emulator.Address, emulator.Data));
+                break;
+
+            default:
+                throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");
+        }
+        TStates++;
+    }
+
     public override void ExecuteInstruction()
     {
         var instructionInProgress = false;
@@ -181,6 +220,8 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
                     {
                         RemoveLastEvent();
                     }
+
+                    TStates--;
                 }
                 break;
             }

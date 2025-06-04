@@ -65,7 +65,7 @@ public abstract class Z80TestHarness
 
     protected void AddEvent(TestEvent fuseEvent) => events.Add(fuseEvent);
 
-    protected void RemoveLastEvent() => events.RemoveAt(events.Count - 1);
+    public void RemoveLastEvent() => events.RemoveAt(events.Count - 1);
 
     [Pure]
     public abstract byte GetMemory(ushort address);
@@ -76,6 +76,8 @@ public abstract class Z80TestHarness
     public virtual IDisposable CreateAssertionScope() => NullDisposable.Instance;
 
     public abstract void AssertEqual<T>(T actual, T expected, string? message = null);
+
+    public abstract void ExecuteStep();
 
     public abstract void ExecuteInstruction();
 

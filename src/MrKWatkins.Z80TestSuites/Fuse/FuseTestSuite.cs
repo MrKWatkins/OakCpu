@@ -7,6 +7,16 @@ public static class FuseTestSuite
     public static IReadOnlyList<FuseTestCase> TestCases => LazyTestCases.Value;
 
     [Pure]
+    public static IEnumerable<FuseTestCase> TestCasesWithOverriddenAssertions(IReadOnlyDictionary<string, FuseAssertions> overrides)
+    {
+        foreach (var testCase in TestCases)
+        {
+            testCase.AssertionsToRun = overrides.GetValueOrDefault(testCase.Name, FuseAssertions.All);
+            yield return testCase;
+        }
+    }
+
+    [Pure]
     private static IEnumerable<FuseTestCase> BuildTests()
     {
         var inputs = ParseInput();

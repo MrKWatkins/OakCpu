@@ -1,0 +1,15 @@
+instructions:
+  - group: DJNZ
+    mnemonic: DJNZ d
+    opcodes:
+      - opcode: 0x10
+    steps:
+      - []
+      - [Address = PC, PC = PC + 1, MemoryRead]
+      - [B = B - 1, instruction_finished_if(B == 0)]
+      - [PC = PC + Data - 256, WZ = PC]
+      - []
+      - []
+      - []
+      - []
+      - []

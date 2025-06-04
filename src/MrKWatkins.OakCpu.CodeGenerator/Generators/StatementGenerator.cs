@@ -12,6 +12,10 @@ public abstract class StatementGenerator : Generator
     [Pure]
     public static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(GeneratorInput input, Step step)
     {
+        if (step.Index == 44)
+        {
+
+        }
         var context = new StepContext(input, step);
         foreach (var stepStatement in step.Statements)
         {
@@ -50,8 +54,21 @@ public abstract class StatementGenerator : Generator
         {
             return FlagsGenerator.GenerateFlagsStatements(context);
         }
+        if (call.Function == PreDefinedFunction.InstructionFinishedIf)
+        {
+            return GenerateInstructionFinishedIf(context, call);
+        }
 
-        return [];
+        throw new NotSupportedException($"The function {call.Function} is not supported.");
+    }
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateInstructionFinishedIf(StepContext context, Call call)
+    {
+        var condition = ExpressionGenerator.GenerateExpressionSyntax(context, call.Arguments[0]);
+
+        yield return IfStatement(condition, Block(CreateSetStep(0)))
+            .WithLeadingTrivia(Comment($"// The instruction is finished if {call.Arguments[0]}."));
     }
 
     [Pure]
