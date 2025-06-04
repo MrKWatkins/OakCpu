@@ -8,7 +8,7 @@ public abstract class Access(string name) : Expression
 {
     public string Name { get; } = name;
 
-    public virtual IdentifierNameSyntax IdentifierName => SyntaxFactory.IdentifierName(Name);
+    public virtual IdentifierNameSyntax Identifier => SyntaxFactory.IdentifierName(Name);
 
     public sealed override void WriteExpression(StringBuilder expression) => expression.Append(Name);
 }

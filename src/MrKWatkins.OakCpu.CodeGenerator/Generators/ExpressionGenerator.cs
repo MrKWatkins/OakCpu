@@ -96,22 +96,22 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(DataMemberAccess dataMemberAccess) => dataMemberAccess.IdentifierName;
+    private static ExpressionSyntax GenerateExpressionSyntax(DataMemberAccess dataMemberAccess) => dataMemberAccess.Identifier;
 
     [Pure]
     private static ExpressionSyntax GenerateExpressionSyntax(Number number) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(number.NumberString, number.Value));
 
     [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(RegisterAccess registerAccess) => registerAccess.IdentifierName;
+    private static ExpressionSyntax GenerateExpressionSyntax(RegisterAccess registerAccess) => registerAccess.Identifier;
 
     [Pure]
     private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, TemporaryVariableAccess temporaryVariableAccess)
     {
-        if (!context.TemporaryVariableIdentifiers.TryGetValue(temporaryVariableAccess.TemporaryVariable, out var identifier))
+        if (!context.TemporaryVariableNames.TryGetValue(temporaryVariableAccess.TemporaryVariable, out var identifier))
         {
             throw new InvalidOperationException($"The temporary variable {temporaryVariableAccess.TemporaryVariable} has not been initialized.");
         }
-        return identifier;
+        return IdentifierName(identifier);
     }
 
     [Pure]

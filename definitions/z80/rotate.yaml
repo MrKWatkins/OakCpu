@@ -13,3 +13,17 @@ instructions:
       Y: copy_from(A)
     next_opcode: overlapped
     
+  - group: RRCA
+    mnemonic: RRCA
+    opcodes:
+      - opcode: 0x0F
+    steps:
+      - [temp8 = A, A = (A >> 1) | (A << 7), flags()]
+    flags:
+      C: copy_from(temp8)
+      N: 0
+      X: copy_from(A)
+      H: 0
+      Y: copy_from(A)
+    next_opcode: overlapped
+    
