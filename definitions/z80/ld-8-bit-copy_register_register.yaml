@@ -133,6 +133,28 @@ instructions:
       - opcode: 0x6F
         R0: L
         R1: A
+        
+      - opcode: 0x78
+        R0: A
+        R1: B
+      - opcode: 0x79
+        R0: A
+        R1: C
+      - opcode: 0x7A
+        R0: A
+        R1: D
+      - opcode: 0x7B
+        R0: A
+        R1: E
+      - opcode: 0x7C
+        R0: A
+        R1: H
+      - opcode: 0x7D
+        R0: A
+        R1: L
+      - opcode: 0x7F
+        R0: A
+        R1: A
     steps:
       - [R0 = R1]
     next_opcode: overlapped

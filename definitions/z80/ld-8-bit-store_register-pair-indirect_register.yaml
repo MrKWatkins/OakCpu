@@ -11,3 +11,26 @@ instructions:
       - []
       - []
     next_opcode: overlapped
+    
+  - group: LD
+    mnemonic: LD (HL), R0
+    opcodes:
+      - opcode: 0x70
+        R0: B
+      - opcode: 0x71
+        R0: C
+      - opcode: 0x72
+        R0: D
+      - opcode: 0x73
+        R0: E
+      - opcode: 0x74
+        R0: H
+      - opcode: 0x75
+        R0: L
+      - opcode: 0x77
+        R0: A
+    steps:
+      - [Address = HL, Data = R0, MemoryWrite]
+      - []
+      - []
+    next_opcode: overlapped
