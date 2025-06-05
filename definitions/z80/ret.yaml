@@ -1,0 +1,42 @@
+instructions:
+  - group: RET
+    mnemonic: RET
+    opcodes:
+      - opcode: 0xC9
+
+    steps:
+      - [Address = SP, SP = SP + 1, MemoryRead]
+      - [Z = Data]
+      - []
+      - [Address = SP, SP = SP + 1, MemoryRead]
+      - [W = Data, PC = WZ]
+      - []
+
+  - group: RET
+    mnemonic: RET C0
+    opcodes:
+      - opcode: 0xC0
+        C0: NZ
+      - opcode: 0xC8
+        C0: Z
+      - opcode: 0xD0
+        C0: NC
+      - opcode: 0xD8
+        C0: C
+      - opcode: 0xE0
+        C0: PO
+      - opcode: 0xE8
+        C0: PE
+      - opcode: 0xF0
+        C0: P
+      - opcode: 0xF8
+        C0: M
+
+    steps:
+      - [instruction_finished_if(!condition.C0)]
+      - [Address = SP, SP = SP + 1, MemoryRead]
+      - [Z = Data]
+      - []
+      - [Address = SP, SP = SP + 1, MemoryRead]
+      - [W = Data, PC = WZ]
+      - []
