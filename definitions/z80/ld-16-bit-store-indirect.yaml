@@ -1,0 +1,18 @@
+instructions:
+  - group: LD
+    mnemonic: LD (nn), HL
+    opcodes:
+      - opcode: 0x22
+    steps:
+      - [Address = PC, PC = PC + 1, MemoryRead]
+      - [Z = Data]
+      - []
+      - [Address = PC, PC = PC + 1, MemoryRead]
+      - [W = Data]
+      - []
+      - [Address = WZ, Data = L, WZ = WZ + 1, MemoryWrite]
+      - []
+      - []
+      - [Address = WZ, Data = H, MemoryWrite]
+      - []
+      - []
