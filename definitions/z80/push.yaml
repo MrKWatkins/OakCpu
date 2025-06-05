@@ -1,0 +1,21 @@
+instructions:
+  - group: PUSH
+    mnemonic: PUSH RP0
+    opcodes:
+      - opcode: 0xC5
+        RP0: BC
+      - opcode: 0xD5
+        RP0: DE
+      - opcode: 0xE5
+        RP0: HL
+      - opcode: 0xF5
+        RP0: AF
+
+    steps:
+      - []
+      - [SP = SP - 1, Address = SP, Data = RP0H, MemoryWrite]
+      - []
+      - []
+      - [SP = SP - 1, Address = SP, Data = RP0L, MemoryWrite]
+      - []
+      - []

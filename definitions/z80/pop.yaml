@@ -1,0 +1,20 @@
+instructions:
+  - group: POP
+    mnemonic: POP RP0
+    opcodes:
+      - opcode: 0xC1
+        RP0: BC
+      - opcode: 0xD1
+        RP0: DE
+      - opcode: 0xE1
+        RP0: HL
+      - opcode: 0xF1
+        RP0: AF
+
+    steps:
+      - [Address = SP, SP = SP + 1, MemoryRead]
+      - [RP0L = Data]
+      - []
+      - [Address = SP, SP = SP + 1, MemoryRead]
+      - [RP0H = Data]
+      - []
