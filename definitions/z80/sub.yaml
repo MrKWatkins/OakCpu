@@ -1,0 +1,49 @@
+instructions:
+  - group: SUB
+    mnemonic: SUB R0
+    opcodes:
+      - opcode: 0x90
+        R0: B
+      - opcode: 0x91
+        R0: C
+      - opcode: 0x92
+        R0: D
+      - opcode: 0x93
+        R0: E
+      - opcode: 0x94
+        R0: H
+      - opcode: 0x95
+        R0: L
+      - opcode: 0x97
+        R0: A
+    steps:
+      - [$left = A, $right = R0, $result = $left - $right, A = $result, flags()]
+    flags:
+      C: ($result & 0x100) == 0x100
+      N: 1
+      PV: did_8_bit_subtraction_overflow($left, $right, $result)
+      X: copy_from($result)
+      H: did_8_bit_subtraction_half_borrow($left, $right, $result)
+      Y: copy_from($result)
+      Z: is_zero($result)
+      S: copy_from($result)
+    next_opcode: overlapped
+
+  - group: SUB
+    mnemonic: SUB (HL)
+    opcodes:
+      - opcode: 0x96
+    steps:
+      - [Address = HL, MemoryRead]
+      - []
+      - [$left = A, $right = Data, $result = $left - $right, A = $result, flags()]
+    flags:
+      C: ($result & 0x100) == 0x100
+      N: 1
+      PV: did_8_bit_subtraction_overflow($left, $right, $result)
+      X: copy_from($result)
+      H: did_8_bit_subtraction_half_borrow($left, $right, $result)
+      Y: copy_from($result)
+      Z: is_zero($result)
+      S: copy_from($result)
+    next_opcode: overlapped

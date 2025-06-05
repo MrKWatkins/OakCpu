@@ -30,31 +30,24 @@ instructions:
       Y: copy_from(RP0H)
         
   - group: ADD
-    mnemonic: ADD R0, R1
+    mnemonic: ADD A, R0
     opcodes:
       - opcode: 0x80
-        R0: A
-        R1: B
+        R0: B
       - opcode: 0x81
-        R0: A
-        R1: C
+        R0: C
       - opcode: 0x82
-        R0: A
-        R1: D
+        R0: D
       - opcode: 0x83
-        R0: A
-        R1: E
+        R0: E
       - opcode: 0x84
-        R0: A
-        R1: H
+        R0: H
       - opcode: 0x85
-        R0: A
-        R1: L
+        R0: L
       - opcode: 0x87
         R0: A
-        R1: A
     steps:
-      - [$left = R0, $right = R1, $result = $left + $right, R0 = $result, flags()]
+      - [$left = A, $right = R0, $result = $left + $right, A = $result, flags()]
     flags:
       C: ($result & 0x100) == 0x100
       N: 0
