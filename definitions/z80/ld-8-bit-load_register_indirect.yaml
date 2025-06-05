@@ -1,0 +1,16 @@
+instructions:
+  - group: LD
+    mnemonic: LD A, (nn)
+    opcodes:
+      - opcode: 0x3A
+    steps:
+      - [Address = PC, PC = PC + 1, MemoryRead]
+      - [Z = Data]
+      - []
+      - [Address = PC, PC = PC + 1, MemoryRead]
+      - [W = Data]
+      - []
+      - [Address = WZ, WZ = WZ + 1, MemoryRead]
+      - [A = Data]
+      - []
+    next_opcode: overlapped
