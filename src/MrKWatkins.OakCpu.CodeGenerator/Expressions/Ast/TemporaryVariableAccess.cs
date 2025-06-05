@@ -1,12 +1,11 @@
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 
-public sealed class TemporaryVariableAccess(TemporaryVariable temporaryVariable) : Access(temporaryVariable.Name)
+public sealed class TemporaryVariableAccess(string name) : Access(name)
 {
-    public TemporaryVariable TemporaryVariable { get; } = temporaryVariable;
+    public override Type Type => typeof(int);
 
-    public override Type Type => TemporaryVariable.Type;
-
-    public override TypeSyntax TypeSyntax => TemporaryVariable.TypeSyntax;
+    public override TypeSyntax TypeSyntax => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword));
 }

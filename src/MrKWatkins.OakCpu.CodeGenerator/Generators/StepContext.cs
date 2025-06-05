@@ -7,11 +7,11 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public sealed class StepContext
 {
     public StepContext(GeneratorInput input, Step step)
-        : this(input, step, new HashSet<TemporaryVariable>(), ImmutableDictionary<string, Expression>.Empty, new List<string>())
+        : this(input, step, new HashSet<string>(), ImmutableDictionary<string, Expression>.Empty, new List<string>())
     {
     }
 
-    private StepContext(GeneratorInput input, Step step, HashSet<TemporaryVariable> initializedTemporaryVariables, ImmutableDictionary<string, Expression> argumentScope, List<string> commentsAheadOfNextStatement)
+    private StepContext(GeneratorInput input, Step step, HashSet<string> initializedTemporaryVariables, ImmutableDictionary<string, Expression> argumentScope, List<string> commentsAheadOfNextStatement)
     {
         Input = input;
         Step = step;
@@ -24,7 +24,7 @@ public sealed class StepContext
 
     public Step Step { get; }
 
-    public HashSet<TemporaryVariable> InitializedTemporaryVariables { get; }
+    public HashSet<string> InitializedTemporaryVariables { get; }
 
     public ImmutableDictionary<string, Expression> ArgumentScope { get; }
 

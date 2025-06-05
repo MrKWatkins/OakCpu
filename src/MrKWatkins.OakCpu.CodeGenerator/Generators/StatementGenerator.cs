@@ -93,9 +93,8 @@ public abstract class StatementGenerator : Generator
         ExpressionSyntax target;
         if (assignment.Target is TemporaryVariableAccess temporaryVariableAccess)
         {
-            if (!context.InitializedTemporaryVariables.Contains(temporaryVariableAccess.TemporaryVariable))
+            if (context.InitializedTemporaryVariables.Add(temporaryVariableAccess.Name))
             {
-                context.InitializedTemporaryVariables.Add(temporaryVariableAccess.TemporaryVariable);
                 yield return InitializeVariableStatement(temporaryVariableAccess.Name, value);
                 yield break;
             }

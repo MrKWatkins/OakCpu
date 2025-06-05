@@ -130,9 +130,9 @@ public static class ExpressionParser
             return new DataMemberAccess(dataMember);
         }
 
-        if (TemporaryVariable.All.TryGetValue(identifier, out var temporaryVariable))
+        if (identifier.StartsWith("$"))
         {
-            return new TemporaryVariableAccess(temporaryVariable);
+            return new TemporaryVariableAccess(identifier.Substring(1));
         }
 
         if (identifier.StartsWith("flag.") && context.Flags.TryGetValue(identifier.Substring(5), out var flag))

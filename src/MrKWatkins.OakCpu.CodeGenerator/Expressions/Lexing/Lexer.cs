@@ -12,7 +12,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Lexing;
 internal sealed class Lexer(TextReader input) : IEnumerable<Token>
 {
     private static readonly FrozenSet<char> NumberCharacters = new List<char>("x01234567890ABCDEF").ToFrozenSet();
-    private static readonly FrozenSet<char> IdentifierCharacters = new List<char>("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.").ToFrozenSet();
+    private static readonly FrozenSet<char> IdentifierCharacters = new List<char>("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.$").ToFrozenSet();
     private static readonly FrozenSet<char> OperatorChars = new HashSet<char>(Operator.UnaryOperators.Keys.Concat(Operator.BinaryOperators.Keys).SelectMany(o => o)).ToFrozenSet();
     private int currentIndex;
     private Token? peeked;

@@ -127,9 +127,9 @@ public abstract class ExpressionGenerator : Generator
     // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
     private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, TemporaryVariableAccess temporaryVariableAccess)
     {
-        if (!context.InitializedTemporaryVariables.Contains(temporaryVariableAccess.TemporaryVariable))
+        if (!context.InitializedTemporaryVariables.Contains(temporaryVariableAccess.Name))
         {
-            throw new InvalidOperationException($"The temporary variable {temporaryVariableAccess.TemporaryVariable} has not been initialized.");
+            throw new InvalidOperationException($"The temporary variable {temporaryVariableAccess.Name} has not been initialized.");
         }
 
         return temporaryVariableAccess.Identifier;

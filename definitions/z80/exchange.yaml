@@ -4,7 +4,7 @@ instructions:
     opcodes:
       - opcode: 0x08
     steps:
-      - [temp16 = AF', AF' = AF, AF = temp16]
+      - [$temp = AF', AF' = AF, AF = $temp]
     next_opcode: overlapped
     
   - group: EX
@@ -12,7 +12,7 @@ instructions:
     opcodes:
       - opcode: 0xEB
     steps:
-      - [temp16 = DE, DE = HL, HL = temp16]
+      - [$temp = DE, DE = HL, HL = $temp]
     next_opcode: overlapped
     
   - group: EX
