@@ -1,0 +1,56 @@
+instructions:       
+  - group: ADC
+    mnemonic: ADC R0, R1
+    opcodes:
+      - opcode: 0x88
+        R0: A
+        R1: B
+      - opcode: 0x89
+        R0: A
+        R1: C
+      - opcode: 0x8A
+        R0: A
+        R1: D
+      - opcode: 0x8B
+        R0: A
+        R1: E
+      - opcode: 0x8C
+        R0: A
+        R1: H
+      - opcode: 0x8D
+        R0: A
+        R1: L
+      - opcode: 0x8F
+        R0: A
+        R1: A
+    steps:
+      - [$left = R0, $right = R1, $result = $left + $right + flag.C, R0 = $result, flags()]
+    flags:
+      C: ($result & 0x100) == 0x100
+      N: 0
+      PV: did_8_bit_addition_overflow($left, $right, $result)
+      X: copy_from($result)
+      H: did_8_bit_addition_half_carry($left, $right, $result)
+      Y: copy_from($result)
+      Z: is_zero($result)
+      S: copy_from($result)
+    next_opcode: overlapped
+
+  - group: ADC
+    mnemonic: ADC A, (HL)
+    opcodes:
+      - opcode: 0x8E
+    steps:
+      - [Address = HL, MemoryRead]
+      - []
+      - [$left = A, $right = Data, $result = $left + $right + flag.C, A = $result, flags()]
+    flags:
+      C: ($result & 0x100) == 0x100
+      N: 0
+      PV: did_8_bit_addition_overflow($left, $right, $result)
+      X: copy_from($result)
+      H: did_8_bit_addition_half_carry($left, $right, $result)
+      Y: copy_from($result)
+      Z: is_zero($result)
+      S: copy_from($result)
+    next_opcode: overlapped
