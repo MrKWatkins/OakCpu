@@ -12,14 +12,14 @@ public sealed class InstructionYamlTests : TestFixture
     [Test]
     public async Task Load_LD_R0_R1()
     {
-        var instructionsYaml = await LoadZ80DefinitionFileAsync("ld-8-bit-load-from-register.yaml");
+        var instructionsYaml = await LoadZ80DefinitionFileAsync("ld-8-bit-copy_register_register.yaml");
         instructionsYaml.Instructions.Should().ContainSingle(i => i.Mnemonic == "LD R0, R1");
     }
 
     [Test]
     public async Task Load_LD_RP0_nn()
     {
-        var instructionsYaml = await LoadZ80DefinitionFileAsync("ld-16-bit-load-immediate.yaml");
+        var instructionsYaml = await LoadZ80DefinitionFileAsync("ld-16-bit-load_register-pair_immediate.yaml");
         instructionsYaml.Instructions.Should().ContainSingle(i => i.Mnemonic == "LD RP0, nn");
     }
 }
