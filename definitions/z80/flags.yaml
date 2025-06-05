@@ -1,12 +1,16 @@
 flags:
   - name: C
     index: 0
+    condition: C
+    not_condition: NC
     
   - name: N
     index: 1
     
   - name: PV
     index: 2
+    condition: PE
+    not_condition: PO
     
   - name: X
     index: 3
@@ -19,6 +23,10 @@ flags:
     
   - name: Z
     index: 6
+    condition: Z
+    not_condition: NZ
     
   - name: S
     index: 7
+    condition: M
+    not_condition: P

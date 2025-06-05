@@ -23,6 +23,10 @@ public abstract class Function
         {
             TypeSyntax = PredefinedType(Token(SyntaxKind.IntKeyword));
         }
+        else if (type == typeof(sbyte))
+        {
+            TypeSyntax = PredefinedType(Token(SyntaxKind.SByteKeyword));
+        }
         else if (type == typeof(void))
         {
             TypeSyntax = PredefinedType(Token(SyntaxKind.VoidKeyword));

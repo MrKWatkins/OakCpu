@@ -13,6 +13,11 @@ public sealed class ExpressionParserTests
     [TestCase("RP0 ^ RP1 ^ (RP0 + RP1)", "RP0 ^ RP1 ^ RP0 + RP1")]
     public void Parse(string expressionText, string expectedParsedExpression)
     {
+        var flags = new Dictionary<string, Flag>
+        {
+            ["X"] = new("X", 0, "S", "NS")
+        };
+
         var parseContext = new ParserContext(
             new HashSet<string> { "TestAction" },
             new Dictionary<string, Register>
@@ -23,8 +28,9 @@ public sealed class ExpressionParserTests
             },
             new Dictionary<string, Flag>
             {
-                ["X"] = new("X", 0)
-            });
+                ["X"] = new("X", 0, "S", "NS")
+            },
+            Condition.Create(flags.Values));
 
         var expression = ExpressionParser.ParseStatement(parseContext, expressionText);
         expression.ToString().Should().BeEquivalentTo(expectedParsedExpression);

@@ -140,6 +140,11 @@ public static class ExpressionParser
             return new FlagAccess(flag);
         }
 
+        if (identifier.StartsWith("condition.") && context.Conditions.TryGetValue(identifier.Substring(10), out var condition))
+        {
+            return new ConditionAccess(condition);
+        }
+
         throw new NotSupportedException($"Unsupported identifier {identifier}.");
     }
 

@@ -12,13 +12,14 @@ namespace MrKWatkins.OakCpu.CodeGenerator;
 
 public sealed class GeneratorInput
 {
-    private GeneratorInput(string rootNamespace, Cpu cpu, IReadOnlyList<Register> registers, Dictionary<string, Flag> flags, IReadOnlyList<Instruction> instructions, Dictionary<string, UserDefinedFunction> userDefinedFunctions)
+    private GeneratorInput(string rootNamespace, Cpu cpu, IReadOnlyList<Register> registers, IReadOnlyDictionary<string, Flag> flags, IReadOnlyDictionary<string, Condition> conditions, IReadOnlyList<Instruction> instructions, Dictionary<string, UserDefinedFunction> userDefinedFunctions)
     {
         VerifyNoDuplicateOpcodes(instructions);
         RootNamespace = rootNamespace;
         Cpu = cpu;
         Registers = registers;
         Flags = flags;
+        Conditions = conditions;
         Instructions = instructions;
         UserDefinedFunctions = userDefinedFunctions;
         FlagsRegister = Registers.Single(r => r.Flags);
@@ -33,6 +34,8 @@ public sealed class GeneratorInput
     public IReadOnlyList<Register> Registers { get; }
 
     public IReadOnlyDictionary<string, Flag> Flags { get; }
+
+    public IReadOnlyDictionary<string, Condition> Conditions { get; }
 
     public IReadOnlyList<Instruction> Instructions { get; }
 
@@ -64,14 +67,18 @@ public sealed class GeneratorInput
 
         var flags = Flag.Create(yaml.Flags).ToDictionary(f => f.Name);
 
-        var cpu = Cpu.Create(registersByName, flags, yaml.Cpu);
+        var conditions = Condition.Create(flags.Values);
 
-        var context = new ParserContext(new HashSet<string>(cpu.Actions), registersByName, flags);
+        var cpu = Cpu.Create(yaml.Cpu, registersByName, flags, conditions);
+
+        var context = new ParserContext(new HashSet<string>(cpu.Actions), registersByName, flags, conditions);
         var userDefinedFunctions = UserDefinedFunction.Create(context, yaml.Functions).ToDictionary(f => f.Name);
 
         context = context.WithFunctions(userDefinedFunctions);
 
-        return new GeneratorInput(rootNamespace, cpu, registers, flags, Instruction.Create(context, yaml.Instructions), userDefinedFunctions);
+        var instructions = Instruction.Create(context, yaml.Instructions);
+
+        return new GeneratorInput(rootNamespace, cpu, registers, flags, conditions, instructions, userDefinedFunctions);
     }
 
     [Pure]

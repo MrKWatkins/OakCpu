@@ -8,6 +8,7 @@ public sealed class PreDefinedFunction : Function
     public static readonly PreDefinedFunction IsNegative = new("is_negative", typeof(byte), ["value"]);
     public static readonly PreDefinedFunction IsZero = new("is_zero", typeof(byte), ["value"]);
     public static readonly PreDefinedFunction PopCount = new("pop_count", typeof(byte), ["value"]);
+    public static readonly PreDefinedFunction Signed = new("signed", typeof(sbyte), ["value"]);
 
     public static readonly IReadOnlyDictionary<string, PreDefinedFunction> All = new Dictionary<string, PreDefinedFunction>(StringComparer.OrdinalIgnoreCase)
     {
@@ -16,7 +17,8 @@ public sealed class PreDefinedFunction : Function
         { InstructionFinishedIf.Name, InstructionFinishedIf },
         { IsNegative.Name, IsNegative },
         { IsZero.Name, IsZero },
-        { PopCount.Name, PopCount }
+        { PopCount.Name, PopCount },
+        { Signed.Name, Signed }
     };
 
     private PreDefinedFunction(string name, Type type, IReadOnlyList<string> parameters)

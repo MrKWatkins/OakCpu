@@ -1,0 +1,36 @@
+instructions:
+  - group: JR
+    mnemonic: JR d
+    opcodes:
+      - opcode: 0x18
+    steps:
+      - [Address = PC, PC = PC + 1, MemoryRead]
+      - []
+      - []
+      - [PC = PC + signed(Data), WZ = PC]
+      - []
+      - []
+      - []
+      - []
+    
+  - group: JR
+    mnemonic: JR C0, d
+    opcodes:
+      - opcode: 0x20
+        C0: NZ
+      - opcode: 0x28
+        C0: Z
+      - opcode: 0x30
+        C0: NC
+      - opcode: 0x38
+        C0: C
+    steps:
+      - [Address = PC, PC = PC + 1, MemoryRead]
+      - [instruction_finished_if(!condition.C0)]
+      - []
+      - [PC = PC + signed(Data), WZ = PC]
+      - []
+      - []
+      - []
+      - []
+    

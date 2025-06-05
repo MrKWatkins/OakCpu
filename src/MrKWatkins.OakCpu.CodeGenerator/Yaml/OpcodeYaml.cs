@@ -18,5 +18,7 @@ public sealed partial class OpcodeYaml
 
     public string? RP1 { get; private set; }
 
+    public string? C0 { get; private set; }
+
     public override string ToString() => $"0x{Opcode:X2}";
 }

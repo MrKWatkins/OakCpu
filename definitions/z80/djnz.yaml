@@ -7,7 +7,7 @@ instructions:
       - []
       - [Address = PC, PC = PC + 1, MemoryRead]
       - [B = B - 1, instruction_finished_if(B == 0)]
-      - [PC = PC + Data - 256, WZ = PC]
+      - [PC = PC + signed(Data), WZ = PC]
       - []
       - []
       - []

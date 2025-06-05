@@ -16,6 +16,7 @@ public abstract class ExpressionGenerator : Generator
         BinaryOperation binaryOperation => GenerateExpressionSyntax(context, binaryOperation),
         Call call => GenerateExpressionSyntax(context, call),
         DataMemberAccess dataMemberAccess => GenerateExpressionSyntax(dataMemberAccess),
+        ConditionAccess conditionAccess => GenerateExpressionSyntax(context, conditionAccess),
         FlagAccess flagAccess => GenerateExpressionSyntax(context, flagAccess),
         Number number => GenerateExpressionSyntax(number),
         RegisterAccess registerAccess => GenerateExpressionSyntax(registerAccess),
@@ -70,6 +71,10 @@ public abstract class ExpressionGenerator : Generator
         {
             return GeneratePopCountExpressionSyntax(context, call.Arguments[0]);
         }
+        if (call.Function == PreDefinedFunction.Signed)
+        {
+            return GenerateSignedExpressionSyntax(context, call.Arguments[0]);
+        }
 
         throw new NotSupportedException($"The function {call.Function} is not supported.");
     }
@@ -85,6 +90,17 @@ public abstract class ExpressionGenerator : Generator
                     ArgumentList(
                         SingletonSeparatedList(
                             Argument(GenerateExpressionSyntax(context, argument)))));
+
+    [Pure]
+    private static ExpressionSyntax GenerateSignedExpressionSyntax(StepContext context, Expression argument)
+    {
+        var expression = GenerateExpressionSyntax(context, argument);
+        if (argument is not Access)
+        {
+            expression = ParenthesizedExpression(expression);
+        }
+        return CastExpression(PreDefinedFunction.Signed.TypeSyntax, expression);
+    }
 
     [Pure]
     private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, ArgumentAccess argumentAccess)
@@ -105,6 +121,21 @@ public abstract class ExpressionGenerator : Generator
 
     [Pure]
     private static ExpressionSyntax GenerateExpressionSyntax(RegisterAccess registerAccess) => registerAccess.Identifier;
+
+    [Pure]
+    private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, ConditionAccess conditionAccess, bool invert = false)
+    {
+        var bitMask = (byte)(1 << conditionAccess.Condition.Flag.Index);
+
+        // Isolate the flag bit.
+        var isolate = ParenthesizedExpression(BinaryExpression(SyntaxKind.BitwiseAndExpression, IdentifierName(context.Input.FlagsRegister.FieldName), GenerateBinaryLiteralExpression(bitMask)));
+
+        // Comparison.
+        var positive = invert ? conditionAccess.Condition.IsNot : !conditionAccess.Condition.IsNot;
+        var comparison = BinaryExpression(SyntaxKind.EqualsExpression, isolate, GenerateBinaryLiteralExpression(positive ? bitMask : (byte)0));
+
+        return comparison.WithTrailingTrivia(Comment($"/* {(invert ? "!" : "")}condition.{conditionAccess.Condition.Name} */"));
+    }
 
     [Pure]
     private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, FlagAccess flagAccess)
@@ -138,6 +169,12 @@ public abstract class ExpressionGenerator : Generator
     [Pure]
     private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, UnaryOperation unaryOperation)
     {
+        // Special case for !condition.
+        if (unaryOperation.Expression is ConditionAccess conditionAccess)
+        {
+            return GenerateExpressionSyntax(context, conditionAccess, true);
+        }
+
         var expression = GenerateExpressionSyntax(context, unaryOperation.Expression);
         if (unaryOperation.Expression is BinaryOperation)
         {
