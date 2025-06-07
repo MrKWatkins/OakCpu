@@ -4,7 +4,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 
 public abstract class Expression : AstNode
 {
-    public virtual Type Type => throw new NotSupportedException($"Expressions of type {GetType().Name} do not have a type.");
+    public abstract DataType Type { get; }
 
-    public virtual TypeSyntax TypeSyntax => throw new NotSupportedException($"Expressions of type {GetType().Name} do not have a type syntax.");
+    public TypeSyntax TypeSyntax => Type.TypeSyntax();
 }

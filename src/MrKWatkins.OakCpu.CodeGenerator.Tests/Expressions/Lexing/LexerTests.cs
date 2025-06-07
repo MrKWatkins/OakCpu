@@ -21,11 +21,11 @@ public sealed class LexerTests
         lexer.Read().Should().BeEquivalentTo(new Identifier(0, "x"), Options);
         lexer.IsFinished.Should().BeFalse();
 
-        lexer.Peek().Should().BeEquivalentTo(new EndOfExpression(1), Options);
-        lexer.Peek().Should().BeEquivalentTo(new EndOfExpression(1), Options);
+        lexer.Peek().Should().BeEquivalentTo(new EndOfInput(1), Options);
+        lexer.Peek().Should().BeEquivalentTo(new EndOfInput(1), Options);
         lexer.IsFinished.Should().BeFalse();
 
-        lexer.Read().Should().BeEquivalentTo(new EndOfExpression(1), Options);
+        lexer.Read().Should().BeEquivalentTo(new EndOfInput(1), Options);
         lexer.IsFinished.Should().BeTrue();
 
         lexer.Invoking(l => l.Peek()).Should().Throw<InvalidOperationException>().WithMessage("Input has already been consumed.");
@@ -82,25 +82,29 @@ public sealed class LexerTests
     {
         static TestCaseData Create(string input, params Token[] expectedTokens) => new TestCaseData(input, expectedTokens).SetArgDisplayNames($"\"{input}\"");
 
-        yield return Create("1234", new Number(0, 4, 1234), new EndOfExpression(4));
-        yield return Create("0x1234", new Number(0, 6, 0x1234), new EndOfExpression(6));
-        yield return Create("0x9ABC", new Number(0, 6, 0x9ABC), new EndOfExpression(6));
+        yield return Create("1234", new Number(0, 4, 1234), new EndOfInput(4));
+        yield return Create("0x1234", new Number(0, 6, 0x1234), new EndOfInput(6));
+        yield return Create("0x9ABC", new Number(0, 6, 0x9ABC), new EndOfInput(6));
 
-        yield return Create("identifier", new Identifier(0, "identifier"), new EndOfExpression(10));
-        yield return Create("ident_ifier", new Identifier(0, "ident_ifier"), new EndOfExpression(11));
+        yield return Create("identifier", new Identifier(0, "identifier"), new EndOfInput(10));
+        yield return Create("ident_ifier", new Identifier(0, "ident_ifier"), new EndOfInput(11));
+        yield return Create("$temp", new Identifier(0, "$temp"), new EndOfInput(5));
+        yield return Create("AF'", new Identifier(0, "AF'"), new EndOfInput(3));
 
-        yield return Create("+", new BinaryOperator(0, Operator.Add), new EndOfExpression(1));
-        yield return Create("-", new BinaryOperator(0, Operator.Subtract), new EndOfExpression(1));
-        yield return Create("&", new BinaryOperator(0, Operator.And), new EndOfExpression(1));
-        yield return Create("|", new BinaryOperator(0, Operator.Or), new EndOfExpression(1));
-        yield return Create("^", new BinaryOperator(0, Operator.Xor), new EndOfExpression(1));
-        yield return Create("=", new BinaryOperator(0, Operator.Assignment), new EndOfExpression(1));
-        yield return Create("==", new BinaryOperator(0, Operator.Equality), new EndOfExpression(2));
+        yield return Create("+", new BinaryOperator(0, Operator.Add), new EndOfInput(1));
+        yield return Create("-", new BinaryOperator(0, Operator.Subtract), new EndOfInput(1));
+        yield return Create("&", new BinaryOperator(0, Operator.And), new EndOfInput(1));
+        yield return Create("|", new BinaryOperator(0, Operator.Or), new EndOfInput(1));
+        yield return Create("^", new BinaryOperator(0, Operator.Xor), new EndOfInput(1));
+        yield return Create("=", new BinaryOperator(0, Operator.Assignment), new EndOfInput(1));
+        yield return Create("==", new BinaryOperator(0, Operator.Equality), new EndOfInput(2));
 
-        yield return Create("(", new OpenBracket(0), new EndOfExpression(1));
-        yield return Create(")", new CloseBracket(0), new EndOfExpression(1));
+        yield return Create("(", new OpenBracket(0), new EndOfInput(1));
+        yield return Create(")", new CloseBracket(0), new EndOfInput(1));
+        yield return Create(",", new Comma(0), new EndOfInput(1));
+        yield return Create(";", new SemiColon(0), new EndOfInput(1));
 
-        yield return Create("(x + 4)", new OpenBracket(0), new Identifier(1, "x"), new BinaryOperator(3, Operator.Add), new Number(5, 1, 4), new CloseBracket(6), new EndOfExpression(7));
+        yield return Create("(x + 4)", new OpenBracket(0), new Identifier(1, "x"), new BinaryOperator(3, Operator.Add), new Number(5, 1, 4), new CloseBracket(6), new EndOfInput(7));
     }
 
     [Pure]

@@ -7,7 +7,7 @@ public sealed partial class InstructionYaml
 {
     private static readonly IReadOnlyDictionary<string, string> EmptyFlags = new Dictionary<string, string>();
     private IReadOnlyList<OpcodeYaml>? opcodes;
-    private IReadOnlyList<IReadOnlyList<string>>? steps;
+    private IReadOnlyList<string?>? steps;
     private IReadOnlyDictionary<string, string>? flags;
 
     private InstructionYaml()
@@ -24,7 +24,7 @@ public sealed partial class InstructionYaml
         private set => opcodes = value;
     }
 
-    public IReadOnlyList<IReadOnlyList<string>> Steps
+    public IReadOnlyList<string?> Steps
     {
         get => steps ?? [];
         private set => steps = value;

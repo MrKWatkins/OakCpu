@@ -56,7 +56,7 @@ public sealed class FlagsClassGenerator : ClassGenerator
             SyntaxKind.SimpleAssignmentExpression,
             flagsMemberAccess,
             CastExpression(
-                flagsRegister.DataType.TypeSyntax(),
+                flagsRegister.Type.TypeSyntax(),
                 ParenthesizedExpression(
                     ConditionalExpression(
                         IdentifierName("value"),

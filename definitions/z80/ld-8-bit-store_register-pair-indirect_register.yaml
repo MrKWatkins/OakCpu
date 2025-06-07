@@ -7,9 +7,9 @@ instructions:
       - opcode: 0x12
         RP0: DE
     steps:
-      - [Address = RP0, Data = A, Z = RP0L + 1, W = A, MemoryWrite]
-      - []
-      - []
+      - Address = RP0; Data = A; Z = RP0L + 1; W = A; memory_write();
+      - 
+      - 
     next_opcode: overlapped
     
   - group: LD
@@ -30,7 +30,7 @@ instructions:
       - opcode: 0x77
         R0: A
     steps:
-      - [Address = HL, Data = R0, MemoryWrite]
-      - []
-      - []
+      - Address = HL; Data = R0; memory_write();
+      - 
+      - 
     next_opcode: overlapped

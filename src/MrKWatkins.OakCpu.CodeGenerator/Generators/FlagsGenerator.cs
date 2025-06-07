@@ -76,7 +76,11 @@ public abstract class FlagsGenerator : Generator
     // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
     private static StatementSyntax GenerateUserDefinedFunctionStatement(StepContext context, string flagsVariableName, Flag flag, Call call, UserDefinedFunction userDefinedFunction)
     {
-        if (!userDefinedFunction.IsBooleanLike)
+        if (userDefinedFunction.Type == DataType.Bool)
+        {
+            throw new NotImplementedException("Bool user defined functions have not been implemented.");
+        }
+        if (userDefinedFunction.Type != DataType.I32Bool)
         {
             throw new InvalidOperationException("Flags can only be set from Boolean-like functions.");
         }

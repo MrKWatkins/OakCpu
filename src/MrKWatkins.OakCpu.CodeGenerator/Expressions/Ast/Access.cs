@@ -10,5 +10,5 @@ public abstract class Access(string name) : Expression
 
     public virtual IdentifierNameSyntax Identifier => SyntaxFactory.IdentifierName(Name);
 
-    public sealed override void WriteExpression(StringBuilder expression) => expression.Append(Name);
+    public sealed override void WriteStringRepresentation(StringBuilder stringRepresentation) => stringRepresentation.Append(Name);
 }

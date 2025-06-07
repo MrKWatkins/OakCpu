@@ -12,10 +12,10 @@ instructions:
         RP0: AF
 
     steps:
-      - []
-      - [SP = SP - 1, Address = SP, Data = RP0H, MemoryWrite]
-      - []
-      - []
-      - [SP = SP - 1, Address = SP, Data = RP0L, MemoryWrite]
-      - []
-      - []
+      - 
+      - SP = SP - 1; Address = SP; Data = RP0H; memory_write();
+      - 
+      - 
+      - SP = SP - 1; Address = SP; Data = RP0L; memory_write();
+      - 
+      - 

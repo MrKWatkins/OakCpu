@@ -15,25 +15,27 @@ public sealed class Call : Expression
 
     public Function Function { get; }
 
+    public override DataType Type => Function.Type;
+
     public IReadOnlyList<Expression> Arguments => arguments;
 
-    public override void WriteExpression(StringBuilder expression)
+    public override void WriteStringRepresentation(StringBuilder stringRepresentation)
     {
-        expression.Append(Function.Name);
-        expression.Append('(');
+        stringRepresentation.Append(Function.Name);
+        stringRepresentation.Append('(');
         var separatorNeeded = false;
         foreach (var argument in Arguments)
         {
             if (separatorNeeded)
             {
-                expression.Append(", ");
+                stringRepresentation.Append(", ");
             }
             else
             {
                 separatorNeeded = true;
             }
-            argument.WriteExpression(expression);
+            argument.WriteStringRepresentation(stringRepresentation);
         }
-        expression.Append(')');
+        stringRepresentation.Append(')');
     }
 }

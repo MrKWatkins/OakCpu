@@ -17,7 +17,7 @@ instructions:
       - opcode: 0x3C
         R0: A
     steps:
-      - [R0 = R0 + 1, flags()]
+      - R0 = R0 + 1; flags();
     flags:
       N: 0
       PV: R0 == 0x80
@@ -33,13 +33,13 @@ instructions:
     opcodes:
       - opcode: 0x34
     steps:
-      - [Address = HL, MemoryRead]
-      - []
-      - []
-      - [Data = Data + 1, flags()]
-      - [MemoryWrite] # Skipping setting Address = HL as it should still contain HL. Skipping setting Data as it should still contain Data + 1.
-      - []
-      - []
+      - Address = HL; memory_read();
+      - 
+      - 
+      - Data = Data + 1; flags();
+      - memory_write(); # Skipping setting Address = HL as it should still contain HL. Skipping setting Data as it should still contain Data + 1.
+      - 
+      - 
     flags:
       N: 0
       PV: Data == 0x80
@@ -62,5 +62,5 @@ instructions:
       - opcode: 0x33
         RP0: SP
     steps:
-      - [RP0 = RP0 + 1]
-      - []
+      - RP0 = RP0 + 1;
+      - 

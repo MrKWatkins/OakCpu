@@ -10,5 +10,5 @@ public sealed class OverlappedOpcodeRead : TerminalStatement
     {
     }
 
-    public override void WriteExpression(StringBuilder expression) => expression.Append(nameof(OverlappedOpcodeRead));
+    protected override void WriteStatementStringRepresentation(StringBuilder stringRepresentation) => stringRepresentation.Append("overlapped_opcode_read()");
 }

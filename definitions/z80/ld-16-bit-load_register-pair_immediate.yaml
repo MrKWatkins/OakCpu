@@ -11,9 +11,9 @@ instructions:
       - opcode: 0x31
         RP0: SP
     steps:
-      - [Address = PC, PC = PC + 1, MemoryRead]
-      - [RP0L = Data]
-      - []
-      - [Address = PC, PC = PC + 1, MemoryRead]
-      - [RP0H = Data]
-      - []
+      - Address = PC; PC = PC + 1; memory_read();
+      - RP0L = Data;
+      - 
+      - Address = PC; PC = PC + 1; memory_read();
+      - RP0H = Data;
+      - 

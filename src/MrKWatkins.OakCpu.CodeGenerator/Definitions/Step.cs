@@ -29,6 +29,8 @@ public sealed class Step
 
     public IReadOnlyList<Statement> Statements { get; }
 
+    public override string ToString() => $"{Name} => {string.Join("; ", Statements)};";
+
     public static void AssignIndexes([InstantHandle] IEnumerable<Step> steps)
     {
         var index = 0;
@@ -43,13 +45,13 @@ public sealed class Step
     }
 
     [Pure]
-    public static IReadOnlyList<Step> Parse(string baseName, ParserContext context, IReadOnlyList<IReadOnlyList<string>> steps, Statement? finalStepStatement = null) =>
+    public static IReadOnlyList<Step> Parse(string baseName, ParserContext context, IReadOnlyList<string?> steps, Statement? finalStepStatement = null) =>
         steps.Select((s, i) => Parse($"{baseName} [{i}]", context, s, i == steps.Count - 1 ? finalStepStatement : null)).ToList();
 
     [Pure]
-    public static Step Parse(string name, ParserContext context, [InstantHandle] IEnumerable<string> expressions, Statement? finalStatement = null)
+    public static Step Parse(string name, ParserContext context, string? step, Statement? finalStatement = null)
     {
-        var statements = expressions.Select(x => ExpressionParser.ParseStatement(context, x)).ToList();
+        var statements = Parser.ParseStatements(context, step).ToList();
         if (finalStatement != null)
         {
             statements.Add(finalStatement);

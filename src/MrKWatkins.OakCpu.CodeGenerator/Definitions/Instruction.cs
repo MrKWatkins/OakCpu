@@ -64,18 +64,20 @@ public sealed class Instruction
                 .Select((expressions, index) => Step.Parse($"0x{opcodeYaml.Opcode:X2}: {mnemonic} [{index}]", context, Substitute(context, opcodeYaml, expressions), index == yaml.Steps.Count - 1 ? lastStepFinalStatement : null))
                 .ToList();
 
-            var flags = yaml.Flags.ToDictionary(kvp => kvp.Key, kvp => ExpressionParser.ParseExpression(context, Substitute(context, opcodeYaml, kvp.Value)));
+            var flags = yaml.Flags.ToDictionary(kvp => kvp.Key, kvp => Parser.ParseExpression(context, Substitute(context, opcodeYaml, kvp.Value)));
 
             yield return new Instruction(yaml.Group, mnemonic, opcodeYaml.Opcode, opcodeYaml.Prefix, yaml.NextOpcode == NextOpcodeMode.Overlapped, steps, flags);
         }
     }
 
     [Pure]
-    private static IEnumerable<string> Substitute(ParserContext context, OpcodeYaml opcodeYaml, IEnumerable<string> values) => values.Select(v => Substitute(context, opcodeYaml, v));
-
-    [Pure]
-    private static string Substitute(ParserContext context, OpcodeYaml opcodeYaml, string value)
+    private static string Substitute(ParserContext context, OpcodeYaml opcodeYaml, string? value)
     {
+        if (value == null)
+        {
+            return "";
+        }
+
         value = ReplaceRegister(context, value, "R0", opcodeYaml.R0);
         value = ReplaceRegister(context, value, "R1", opcodeYaml.R1);
         value = ReplaceRegister(context, value, "RP0", opcodeYaml.RP0);

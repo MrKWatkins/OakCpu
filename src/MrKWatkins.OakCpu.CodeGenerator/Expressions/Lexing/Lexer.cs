@@ -40,7 +40,7 @@ internal sealed class Lexer(TextReader input) : IEnumerable<Token>
 
         // Update the state from the token.
         currentIndex = token.StartIndex + token.Length;
-        if (token is EndOfExpression)
+        if (token is EndOfInput)
         {
             IsFinished = true;
         }
@@ -70,7 +70,7 @@ internal sealed class Lexer(TextReader input) : IEnumerable<Token>
             var value = input.Peek();
             if (value == -1)
             {
-                return new EndOfExpression(currentIndex);
+                return new EndOfInput(currentIndex);
             }
 
             var character = (char)value;
@@ -104,6 +104,7 @@ internal sealed class Lexer(TextReader input) : IEnumerable<Token>
                 '(' => new OpenBracket(startIndex),
                 ')' => new CloseBracket(startIndex),
                 ',' => new Comma(startIndex),
+                ';' => new SemiColon(startIndex),
                 _ => throw new InvalidOperationException($"Unexpected character '{character}'.")
             };
         }
@@ -164,7 +165,7 @@ internal sealed class Lexer(TextReader input) : IEnumerable<Token>
         {
             token = Read();
             yield return token;
-        } while (token is not EndOfExpression);
+        } while (token is not EndOfInput);
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

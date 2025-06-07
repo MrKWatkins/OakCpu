@@ -4,7 +4,7 @@ instructions:
     opcodes:
       - opcode: 0x07
     steps:
-      - [$temp = A, A = (A << 1) | (A >> 7), flags()]
+      - $temp = A; A = (A << 1) | (A >> 7); flags();
     flags:
       C: ($temp & 0x80) == 0x80
       N: 0
@@ -18,7 +18,7 @@ instructions:
     opcodes:
       - opcode: 0x17
     steps:
-      - [$temp = A, A = (A << 1) | flag.C, flags()]
+      - $temp = A; A = (A << 1) | flag.C; flags();
     flags:
       C: ($temp & 0x80) == 0x80
       N: 0
@@ -32,7 +32,7 @@ instructions:
     opcodes:
       - opcode: 0x0F
     steps:
-      - [$temp = A, A = (A >> 1) | (A << 7), flags()]
+      - $temp = A; A = (A >> 1) | (A << 7); flags();
     flags:
       C: copy_from($temp)
       N: 0
@@ -46,7 +46,7 @@ instructions:
     opcodes:
       - opcode: 0x1F
     steps:
-      - [$temp = A, A = (A >> 1) | (flag.C << 7), flags()]
+      - $temp = A; A = (A >> 1) | (flag.C << 7); flags();
     flags:
       C: ($temp & 0x01) == 0x01
       N: 0

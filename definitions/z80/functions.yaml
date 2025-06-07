@@ -1,46 +1,30 @@
 functions:
   - name: did_8_bit_addition_overflow
-    type: int_bool
-    parameters:
-      - name: left
-      - name: right
-      - name: sum
+    type: i32_bool
+    parameters: [left, right, sum]
     expression: ((sum ^ left) & (sum ^ right) & 0x80) >> 7
     
   - name: did_8_bit_addition_half_carry
-    type: int_bool
-    parameters:
-      - name: left
-      - name: right
-      - name: sum
+    type: i32_bool
+    parameters: [left, right, sum]
     expression: ((left ^ right ^ sum) & 0x10) >> 4 # TODO: Collapse >> shift with << shift into one shift.
     
   - name: did_8_bit_subtraction_overflow
-    type: int_bool
-    parameters:
-      - name: left
-      - name: right
-      - name: difference
+    type: i32_bool
+    parameters: [left, right, difference]
     expression: ((left ^ right) & (difference ^ left) & 0x80) >> 7
     
   - name: did_8_bit_subtraction_half_borrow
-    type: int_bool
-    parameters:
-      - name: left
-      - name: right
-      - name: difference
+    type: i32_bool
+    parameters: [left, right, difference]
     expression: ((left ^ right ^ difference) & 0x10) >> 4
     
   - name: did_16_bit_addition_half_carry
-    type: int_bool
-    parameters:
-      - name: left
-      - name: right
-      - name: sum
+    type: i32_bool
+    parameters: [left, right, sum]
     expression: ((left ^ sum ^ right) & 0x1000) >> 12 # TODO: Collapse >> shift with << shift into one shift.
     
   - name: even_parity
-    type: int_bool
-    parameters:
-      - name: value
+    type: i32_bool
+    parameters: [value]
     expression: ~pop_count(value) & 1

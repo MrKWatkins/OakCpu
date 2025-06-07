@@ -12,7 +12,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator;
 
 public sealed class GeneratorInput
 {
-    private GeneratorInput(string rootNamespace, Cpu cpu, IReadOnlyList<Register> registers, IReadOnlyDictionary<string, Flag> flags, IReadOnlyDictionary<string, Condition> conditions, IReadOnlyList<Instruction> instructions, Dictionary<string, UserDefinedFunction> userDefinedFunctions)
+    private GeneratorInput(string rootNamespace, Cpu cpu, IReadOnlyDictionary<string, Register> registers, IReadOnlyDictionary<string, Flag> flags, IReadOnlyDictionary<string, Condition> conditions, IReadOnlyList<Instruction> instructions, Dictionary<string, UserDefinedFunction> userDefinedFunctions)
     {
         VerifyNoDuplicateOpcodes(instructions);
         RootNamespace = rootNamespace;
@@ -22,8 +22,8 @@ public sealed class GeneratorInput
         Conditions = conditions;
         Instructions = instructions;
         UserDefinedFunctions = userDefinedFunctions;
-        FlagsRegister = Registers.Single(r => r.Flags);
-        ProgramCounter = Registers.Single(r => r.ProgramCounter);
+        FlagsRegister = Registers.Values.Single(r => r.Flags);
+        ProgramCounter = Registers.Values.Single(r => r.ProgramCounter);
         Step.AssignIndexes(AllSteps);
     }
 
@@ -31,7 +31,7 @@ public sealed class GeneratorInput
 
     public Cpu Cpu { get; }
 
-    public IReadOnlyList<Register> Registers { get; }
+    public IReadOnlyDictionary<string, Register> Registers { get; }
 
     public IReadOnlyDictionary<string, Flag> Flags { get; }
 
@@ -62,16 +62,15 @@ public sealed class GeneratorInput
             throw new ArgumentNullException(nameof(rootNamespace));
         }
 
-        var registers = Register.Create(yaml.Registers);
-        var registersByName = registers.ToDictionary(r => r.Name);
+        var registers = Register.Create(yaml.Registers).ToDictionary(r => r.Name);
 
         var flags = Flag.Create(yaml.Flags).ToDictionary(f => f.Name);
 
         var conditions = Condition.Create(flags.Values);
 
-        var cpu = Cpu.Create(yaml.Cpu, registersByName, flags, conditions);
+        var cpu = Cpu.Create(yaml.Cpu, registers, flags, conditions);
 
-        var context = new ParserContext(new HashSet<string>(cpu.Actions), registersByName, flags, conditions);
+        var context = new ParserContext(cpu.Actions, registers, flags, conditions);
         var userDefinedFunctions = UserDefinedFunction.Create(context, yaml.Functions).ToDictionary(f => f.Name);
 
         context = context.WithFunctions(userDefinedFunctions);

@@ -1,38 +1,38 @@
 instructions:
   - group: EX
-    mnemonic: EX AF, AF'
+    mnemonic: EX AF; AF'
     opcodes:
       - opcode: 0x08
     steps:
-      - [$temp = AF', AF' = AF, AF = $temp]
+      - $temp = AF'; AF' = AF; AF = $temp;
     next_opcode: overlapped
     
   - group: EX
-    mnemonic: EX DE, HL
+    mnemonic: EX DE; HL
     opcodes:
       - opcode: 0xEB
     steps:
-      - [$temp = DE, DE = HL, HL = $temp]
+      - $temp = DE; DE = HL; HL = $temp;
     next_opcode: overlapped
     
   - group: EX
-    mnemonic: EX (SP), HL
+    mnemonic: EX (SP); HL
     opcodes:
       - opcode: 0xE3
     steps:
-      - [Address = SP, MemoryRead]
-      - [Z = Data]
-      - []
-      - [Address = SP + 1, MemoryRead]
-      - [W = Data]
-      - []
-      - []
-      - [Data = H, MemoryWrite] # Skipping setting Address as it is already Address = SP + 1.
-      - []
-      - []
-      - [Address = SP, Data = L, MemoryWrite]
-      - []
-      - []
-      - []
-      - [HL = WZ]
+      - Address = SP; memory_read();
+      - Z = Data;
+      - 
+      - Address = SP + 1; memory_read();
+      - W = Data;
+      - 
+      - 
+      - Data = H; memory_write(); # Skipping setting Address as it is already Address = SP + 1.
+      - 
+      - 
+      - Address = SP; Data = L; memory_write();
+      - 
+      - 
+      - 
+      - HL = WZ;
     

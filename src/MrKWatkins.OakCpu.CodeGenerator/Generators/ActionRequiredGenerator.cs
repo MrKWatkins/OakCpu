@@ -13,7 +13,10 @@ public sealed class ActionRequiredGenerator : ClassGenerator
 
     protected override BaseTypeDeclarationSyntax CreateType(HashSet<string> requiredUsings, GeneratorInput input)
     {
-        var members = input.Cpu.Actions.Prepend(ActionRequiredNone).Select(name => EnumMemberDeclaration(Identifier(name))).ToArray();
+        var members = input.Cpu.Actions.Values
+            .OrderBy(a => a.Value)
+            .Select(action => EnumMemberDeclaration([], Identifier(action.EnumName), EqualsValueClause(GenerateNumericLiteralExpression(action.Value))))
+            .ToArray();
 
         return EnumDeclaration(ActionRequiredEnumName)
             .AddModifiers(Public)

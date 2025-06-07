@@ -24,10 +24,10 @@ public sealed class Assignment : Statement
     /// </summary>
     public Expression Value { get; }
 
-    public override void WriteExpression(StringBuilder expression)
+    public override void WriteStringRepresentation(StringBuilder stringRepresentation)
     {
-        Target.WriteExpression(expression);
-        expression.Append(" = ");
-        Value.WriteExpression(expression);
+        Target.WriteStringRepresentation(stringRepresentation);
+        stringRepresentation.Append(" = ");
+        Value.WriteStringRepresentation(stringRepresentation);
     }
 }

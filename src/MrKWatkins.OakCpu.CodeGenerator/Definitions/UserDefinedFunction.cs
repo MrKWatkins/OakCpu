@@ -1,19 +1,18 @@
+using System.Text;
 using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Expressions.Parsing;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
+using VYaml.Serialization;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class UserDefinedFunction : Function
 {
-    private UserDefinedFunction(string name, Type type, IReadOnlyList<string> parameters, bool isBooleanLike, Expression expression)
+    private UserDefinedFunction(string name, DataType type, IReadOnlyList<string> parameters, Expression expression)
         : base(name, type, parameters)
     {
-        IsBooleanLike = isBooleanLike;
         Expression = expression;
     }
-
-    public bool IsBooleanLike { get; }
 
     public Expression Expression { get; }
 
@@ -24,19 +23,13 @@ public sealed class UserDefinedFunction : Function
         yamls.Select(y => Create(context, y)).OrderBy(f => f.Name).ToList();
 
     [Pure]
-    public static UserDefinedFunction Create(ParserContext context, FunctionYaml yaml)
+    private static UserDefinedFunction Create(ParserContext context, FunctionYaml yaml)
     {
-        var parmeters = new HashSet<string>(yaml.Parameters.Select(a => a.Name));
+        var parameters = new HashSet<string>(yaml.Parameters);
 
-        context = context.WithArguments(parmeters);
-        var expression = ExpressionParser.ParseExpression(context, yaml.Expression);
+        context = context.WithArguments(parameters);
+        var expression = Parser.ParseExpression(context, yaml.Expression);
 
-        var (type, isBooleanLike) = yaml.Type switch
-        {
-            "int_bool" => (typeof(int), true),
-            _ => throw new NotSupportedException($"The function type {yaml.Type} is not supported.")
-        };
-
-        return new UserDefinedFunction(yaml.Name, type, parmeters.ToList(), isBooleanLike, expression);
+        return new UserDefinedFunction(yaml.Name, YamlSerializer.Deserialize<DataType>(Encoding.UTF8.GetBytes(yaml.Type)), parameters.ToList(), expression);
     }
 }

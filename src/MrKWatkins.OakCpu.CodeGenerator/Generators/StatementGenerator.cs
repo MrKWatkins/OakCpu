@@ -12,10 +12,6 @@ public abstract class StatementGenerator : Generator
     [Pure]
     public static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(GeneratorInput input, Step step)
     {
-        if (step.Index == 44)
-        {
-
-        }
         var context = new StepContext(input, step);
         foreach (var stepStatement in step.Statements)
         {
@@ -40,30 +36,30 @@ public abstract class StatementGenerator : Generator
         {
             Assignment assignment => GenerateStatementSyntaxes(context, assignment),
             MoveToOpcodeRead => GenerateMoveToOpcodeReadStatementSyntaxes(),
-            OpcodeJump => GenerateOpcodeJump(),
+            MoveToOpcode => GenerateOpcodeJump(),
             OverlappedOpcodeRead => GenerateOverlappedOpcodeReadStatementSyntaxes(context),
-            RequestAction requestAction => GenerateStatementSyntaxes(requestAction),
-            ExpressionStatement { Expression: Call call } => GenerateCallStatementSyntax(context, call),
+            RequestAction requestAction => GenerateRequestAction(requestAction),
+            CallStatement callStatement => GenerateCallStatementSyntax(context, callStatement),
             _ => throw new NotSupportedException($"The statement type {statement.GetType().Name} is not supported.")
         };
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateCallStatementSyntax(StepContext context, Call call)
+    private static IEnumerable<StatementSyntax> GenerateCallStatementSyntax(StepContext context, CallStatement callStatement)
     {
-        if (call.Function == PreDefinedFunction.Flags)
+        if (callStatement.Call.Function == PreDefinedFunction.Flags)
         {
             return FlagsGenerator.GenerateFlagsStatements(context);
         }
-        if (call.Function == PreDefinedFunction.InstructionFinishedIf)
+        if (callStatement.Call.Function == PreDefinedFunction.FinishInstruction)
         {
-            return GenerateInstructionFinishedIf(context, call);
+            return GenerateFinishInstruction(context, callStatement.Call);
         }
 
-        throw new NotSupportedException($"The function {call.Function} is not supported.");
+        throw new NotSupportedException($"The function {callStatement.Call.Function} is not supported.");
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateInstructionFinishedIf(StepContext context, Call call)
+    private static IEnumerable<StatementSyntax> GenerateFinishInstruction(StepContext context, Call call)
     {
         var condition = ExpressionGenerator.GenerateExpressionSyntax(context, call.Arguments[0]);
 
@@ -115,14 +111,14 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(RequestAction requestAction)
+    private static IEnumerable<StatementSyntax> GenerateRequestAction(RequestAction requestAction)
     {
         yield return
             ReturnStatement(
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     IdentifierName(ActionRequiredEnumName),
-                    IdentifierName(requestAction.Name)));
+                    IdentifierName(requestAction.Action.EnumName)));
     }
 
     [Pure]

@@ -45,7 +45,11 @@ public sealed class RegistersClassesGenerator : ClassGenerator
     private static IEnumerable<PropertyDeclarationSyntax> CreateCategoryProperties(GeneratorInput input) => GetCategories(input).Select(c => CreateGetOnlyProperty(GetRegistersClassName(input, c), c));
 
     [Pure]
-    private static IEnumerable<PropertyDeclarationSyntax> CreateRegisterProperties(GeneratorInput input, string? category) => input.Registers.Where(r => r.Category == category).OrderBy(r => r.Name).Select(CreateRegisterProperty);
+    private static IEnumerable<PropertyDeclarationSyntax> CreateRegisterProperties(GeneratorInput input, string? category) =>
+        input.Registers.Values
+            .Where(r => r.Category == category)
+            .OrderBy(r => r.Name)
+            .Select(CreateRegisterProperty);
 
     [Pure]
     private static PropertyDeclarationSyntax CreateRegisterProperty(Register register)
@@ -62,7 +66,7 @@ public sealed class RegistersClassesGenerator : ClassGenerator
             memberAccessExpression,
             IdentifierName("value"));
 
-        return CreateGetSetProperty(register.DataType.TypeSyntax(), register.PropertyName, getExpression, setExpression);
+        return CreateGetSetProperty(register.Type.TypeSyntax(), register.PropertyName, getExpression, setExpression);
     }
 
     [Pure]
@@ -93,5 +97,5 @@ public sealed class RegistersClassesGenerator : ClassGenerator
     }
 
     [Pure]
-    private static IEnumerable<string> GetCategories(GeneratorInput input) => input.Registers.Where(r => r.Category != null).Select(r => r.Category!).Distinct().OrderBy(c => c);
+    private static IEnumerable<string> GetCategories(GeneratorInput input) => input.Registers.Values.Where(r => r.Category != null).Select(r => r.Category!).Distinct().OrderBy(c => c);
 }

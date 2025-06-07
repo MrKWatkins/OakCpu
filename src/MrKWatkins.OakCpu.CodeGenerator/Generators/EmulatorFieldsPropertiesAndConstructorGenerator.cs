@@ -28,7 +28,7 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
             CreateStaticConstructor(requiredUsings, input)
         };
 
-        members.AddRange(input.Registers.Select(r => CreateField(requiredUsings, r)));
+        members.AddRange(input.Registers.Values.Select(r => CreateField(requiredUsings, r)));
 
         members.Add(CreateConstructor(input));
 
@@ -40,13 +40,13 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
         fieldOffset += 8;
 
         members.Add(CreateGetSetProperty(requiredUsings, DataMember.Address, fieldOffset));
-        fieldOffset += DataMember.Address.Size;
+        fieldOffset += DataMember.Address.MemberSize;
 
         members.Add(CreateGetSetProperty(requiredUsings, DataMember.Data, fieldOffset));
-        fieldOffset += DataMember.Data.Size;
+        fieldOffset += DataMember.Data.MemberSize;
 
         members.Add(CreateField(requiredUsings, DataMember.Opcode, fieldOffset, Private));
-        fieldOffset += DataMember.Opcode.Size;
+        fieldOffset += DataMember.Opcode.MemberSize;
 
         // TODO: Make private, think of a nice and quick way to indicate the end (or start!) of an instruction.
         members.Add(CreateField(requiredUsings, DataMember.Step, fieldOffset, Internal));
@@ -84,7 +84,7 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
 
     [Pure]
     private static PropertyDeclarationSyntax CreateGetSetProperty(HashSet<string> requiredUsings, DataMember member, int fieldOffset) =>
-        CreateGetSetProperty(requiredUsings, member.TypeSyntax, member.Name, fieldOffset);
+        CreateGetSetProperty(requiredUsings, member.MemberTypeSyntax, member.Name, fieldOffset);
 
     [Pure]
     private static PropertyDeclarationSyntax CreateGetSetProperty(HashSet<string> requiredUsings, TypeSyntax type, string propertyName, int fieldOffset)
@@ -98,8 +98,8 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     [Pure]
     private static int GetObjectPropertiesFieldOffset(GeneratorInput input)
     {
-        var lastRegister = input.Registers.OrderByDescending(r => r.FieldOffset).First();
-        var nextFieldOffset = lastRegister.FieldOffset + lastRegister.DataType.Size();
+        var lastRegister = input.Registers.Values.OrderByDescending(r => r.FieldOffset).First();
+        var nextFieldOffset = lastRegister.FieldOffset + lastRegister.Type.Size();
 
         // Round up to the next multiple of 64 bits, i.e. 8 bytes.
         return (nextFieldOffset + 7) & ~7;
@@ -107,11 +107,11 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
 
     [MustUseReturnValue]
     private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, Register register) =>
-        CreateField(requiredUsings, register.DataType.TypeSyntax(), register.FieldName, register.FieldOffset, Internal);
+        CreateField(requiredUsings, register.Type.TypeSyntax(), register.FieldName, register.FieldOffset, Internal);
 
     [MustUseReturnValue]
     private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, DataMember member, int fieldOffset, SyntaxToken visibility, bool readOnly = false, ExpressionSyntax? initializer = null) =>
-        CreateField(requiredUsings, member.TypeSyntax, member.Name, fieldOffset, visibility, readOnly, initializer);
+        CreateField(requiredUsings, member.MemberTypeSyntax, member.Name, fieldOffset, visibility, readOnly, initializer);
 
     [MustUseReturnValue]
     private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, TypeSyntax type, string name, int fieldOffset, SyntaxToken visibility, bool readOnly = false, ExpressionSyntax? initializer = null)
@@ -145,7 +145,7 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
         var variableDeclarator = VariableDeclarator(Identifier(DataMember.OpcodeStepTable.Name))
             .WithInitializer(EqualsValueClause(CreateOpcodeStepTableInitializer(input)));
 
-        var variable = VariableDeclaration(DataMember.OpcodeStepTable.TypeSyntax)
+        var variable = VariableDeclaration(DataMember.OpcodeStepTable.MemberTypeSyntax)
             .WithVariables(SingletonSeparatedList(variableDeclarator));
 
         return FieldDeclaration(variable)

@@ -1,6 +1,4 @@
 using System.Text;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 
@@ -22,15 +20,13 @@ public sealed class UnaryOperation : Expression
 
     public Expression Expression { get; }
 
-    public override Type Type => typeof(int);
+    public override DataType Type => DataType.I32;
 
-    public override TypeSyntax TypeSyntax => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword));
-
-    public override void WriteExpression(StringBuilder expression)
+    public override void WriteStringRepresentation(StringBuilder stringRepresentation)
     {
-        expression.Append(Operator);
-        expression.Append('(');
-        Expression.WriteExpression(expression);
-        expression.Append(')');
+        stringRepresentation.Append(Operator);
+        stringRepresentation.Append('(');
+        Expression.WriteStringRepresentation(stringRepresentation);
+        stringRepresentation.Append(')');
     }
 }

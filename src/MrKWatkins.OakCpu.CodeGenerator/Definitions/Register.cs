@@ -5,16 +5,14 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Register
 {
-    internal Register(string name, DataType dataType, bool flags, bool programCounter, string? category, int fieldOffset)
+    internal Register(string name, DataType type, bool flags, bool programCounter, string? category, int fieldOffset)
     {
         Name = name;
-        DataType = dataType;
+        Type = type;
         Flags = flags;
         ProgramCounter = programCounter;
         Category = category;
         FieldOffset = fieldOffset;
-        Type = DataType.Type();
-        TypeSyntax = DataType.TypeSyntax();
     }
 
     public string Name { get; }
@@ -23,11 +21,9 @@ public sealed class Register
 
     public string PropertyName => Name.Replace("'", "");
 
-    public DataType DataType { get; }
+    public DataType Type { get; }
 
-    public Type Type { get; }
-
-    public TypeSyntax TypeSyntax { get; }
+    public PredefinedTypeSyntax TypeSyntax => Type.TypeSyntax();
 
     public bool Flags { get; }
 
@@ -37,11 +33,11 @@ public sealed class Register
 
     public int FieldOffset { get; }
 
-    public Register? HighRegister { get; internal set; }
+    public Register? HighRegister { get; private set; }
 
-    public Register? LowRegister { get; internal set; }
+    public Register? LowRegister { get; private set; }
 
-    public override string ToString() => $"{Name}: {DataType}";
+    public override string ToString() => $"{Name}: {Type}";
 
     [Pure]
     public static IReadOnlyList<Register> Create(IReadOnlyList<RegisterYaml> yamls)

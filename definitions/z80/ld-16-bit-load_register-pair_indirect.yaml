@@ -4,15 +4,15 @@ instructions:
     opcodes:
       - opcode: 0x2A
     steps:
-      - [Address = PC, PC = PC + 1, MemoryRead]
-      - [Z = Data]
-      - []
-      - [Address = PC, PC = PC + 1, MemoryRead]
-      - [W = Data]
-      - []
-      - [Address = WZ, WZ = WZ + 1, MemoryRead]
-      - [L = Data]
-      - []
-      - [Address = WZ, MemoryRead]
-      - [H = Data]
-      - []
+      - Address = PC; PC = PC + 1; memory_read();
+      - Z = Data;
+      - 
+      - Address = PC; PC = PC + 1; memory_read();
+      - W = Data;
+      - 
+      - Address = WZ; WZ = WZ + 1; memory_read();
+      - L = Data;
+      - 
+      - Address = WZ; memory_read();
+      - H = Data;
+      - 

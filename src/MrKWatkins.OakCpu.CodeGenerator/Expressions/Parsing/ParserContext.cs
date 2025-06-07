@@ -1,10 +1,11 @@
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
+using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Parsing;
 
-public sealed class ParserContext(IReadOnlyCollection<string> actions, IReadOnlyDictionary<string, Register> registers, IReadOnlyDictionary<string, Flag> flags, IReadOnlyDictionary<string, Condition> conditions)
+public sealed class ParserContext(IReadOnlyDictionary<string, Action> actions, IReadOnlyDictionary<string, Register> registers, IReadOnlyDictionary<string, Flag> flags, IReadOnlyDictionary<string, Condition> conditions)
 {
-    public IReadOnlyCollection<string> Actions { get; } = actions;
+    public IReadOnlyDictionary<string, Action> Actions { get; } = actions;
 
     public IReadOnlyDictionary<string, Register> Registers { get; } = registers;
 

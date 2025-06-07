@@ -7,9 +7,9 @@ instructions:
       - opcode: 0x1A
         RP0: DE
     steps:
-      - [Address = RP0, MemoryRead]
-      - [A = Data, WZ = RP0 + 1]
-      - []
+      - Address = RP0; memory_read();
+      - A = Data; WZ = RP0 + 1;
+      - 
 
   - group: LD
     mnemonic: LD R0, (RP0)
@@ -36,6 +36,6 @@ instructions:
         R0: A
         RP0: HL
     steps:
-      - [Address = RP0, MemoryRead]
-      - [R0 = Data]
-      - []
+      - Address = RP0; memory_read();
+      - R0 = Data;
+      - 

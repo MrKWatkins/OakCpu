@@ -4,14 +4,14 @@ instructions:
     opcodes:
       - opcode: 0x18
     steps:
-      - [Address = PC, PC = PC + 1, MemoryRead]
-      - []
-      - []
-      - [PC = PC + signed(Data), WZ = PC]
-      - []
-      - []
-      - []
-      - []
+      - Address = PC; PC = PC + 1; memory_read();
+      - 
+      - 
+      - PC = PC + signed(Data); WZ = PC;
+      - 
+      - 
+      - 
+      - 
     
   - group: JR
     mnemonic: JR C0, d
@@ -25,12 +25,12 @@ instructions:
       - opcode: 0x38
         C0: C
     steps:
-      - [Address = PC, PC = PC + 1, MemoryRead]
-      - [instruction_finished_if(!condition.C0)]
-      - []
-      - [PC = PC + signed(Data), WZ = PC]
-      - []
-      - []
-      - []
-      - []
+      - Address = PC; PC = PC + 1; memory_read();
+      - finish_instruction(!condition.C0);
+      - 
+      - PC = PC + signed(Data); WZ = PC;
+      - 
+      - 
+      - 
+      - 
     

@@ -8,9 +8,9 @@ public abstract class AstNode
     public override string ToString()
     {
         var stringBuilder = new StringBuilder();
-        WriteExpression(stringBuilder);
+        WriteStringRepresentation(stringBuilder);
         return stringBuilder.ToString();
     }
 
-    public abstract void WriteExpression(StringBuilder expression);
+    public abstract void WriteStringRepresentation(StringBuilder stringRepresentation);
 }

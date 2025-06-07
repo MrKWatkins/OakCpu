@@ -15,13 +15,13 @@ instructions:
         RP0: HL
         RP1: SP
     steps:
-      - [$left = RP0, $right = RP1, $result = $left + $right, RP0 = $result, WZ = $left + 1, flags()]
-      - []
-      - []
-      - []
-      - []
-      - []
-      - []
+      - $left = RP0; $right = RP1; $result = $left + $right; RP0 = $result; WZ = $left + 1; flags();
+      - 
+      - 
+      - 
+      - 
+      - 
+      - 
     flags:
       C: ($result & 0x10000) == 0x10000
       N: 0
@@ -30,7 +30,7 @@ instructions:
       Y: copy_from(RP0H)
         
   - group: ADD
-    mnemonic: ADD A, R0
+    mnemonic: ADD A; R0
     opcodes:
       - opcode: 0x80
         R0: B
@@ -47,7 +47,7 @@ instructions:
       - opcode: 0x87
         R0: A
     steps:
-      - [$left = A, $right = R0, $result = $left + $right, A = $result, flags()]
+      - $left = A; $right = R0; $result = $left + $right; A = $result; flags();
     flags:
       C: ($result & 0x100) == 0x100
       N: 0
@@ -64,9 +64,9 @@ instructions:
     opcodes:
       - opcode: 0x86
     steps:
-      - [Address = HL, MemoryRead]
-      - []
-      - [$left = A, $right = Data, $result = $left + $right, A = $result, flags()]
+      - Address = HL; memory_read();
+      - 
+      - $left = A; $right = Data; $result = $left + $right; A = $result; flags();
     flags:
       C: ($result & 0x100) == 0x100
       N: 0

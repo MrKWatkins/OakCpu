@@ -1,6 +1,4 @@
 using System.Text;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 
@@ -31,34 +29,32 @@ public sealed class BinaryOperation : Expression
     /// </summary>
     public Expression Right { get; }
 
-    public override Type Type => typeof(int);
+    public override DataType Type => DataType.I32;
 
-    public override TypeSyntax TypeSyntax => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword));
-
-    public override void WriteExpression(StringBuilder expression)
+    public override void WriteStringRepresentation(StringBuilder stringRepresentation)
     {
         if (Left is BinaryOperation leftBinary && leftBinary.Operator.Precedence < Operator.Precedence)
         {
-            expression.Append('(');
-            Left.WriteExpression(expression);
-            expression.Append(')');
+            stringRepresentation.Append('(');
+            Left.WriteStringRepresentation(stringRepresentation);
+            stringRepresentation.Append(')');
         }
         else
         {
-            Left.WriteExpression(expression);
+            Left.WriteStringRepresentation(stringRepresentation);
         }
-        expression.Append(' ');
-        expression.Append(Operator);
-        expression.Append(' ');
+        stringRepresentation.Append(' ');
+        stringRepresentation.Append(Operator);
+        stringRepresentation.Append(' ');
         if (Right is BinaryOperation rightBinary && rightBinary.Operator.Precedence < Operator.Precedence)
         {
-            expression.Append('(');
-            Right.WriteExpression(expression);
-            expression.Append(')');
+            stringRepresentation.Append('(');
+            Right.WriteStringRepresentation(stringRepresentation);
+            stringRepresentation.Append(')');
         }
         else
         {
-            Right.WriteExpression(expression);
+            Right.WriteStringRepresentation(stringRepresentation);
         }
     }
 }

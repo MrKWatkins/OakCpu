@@ -8,32 +8,71 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Parsing;
 /// Parses expressions.
 /// </summary>
 /// <remarks>Based on https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html.</remarks>
-public static class ExpressionParser
+public static class Parser
 {
     private const int UnaryBindingPower = int.MaxValue;
 
     [Pure]
-    public static Statement ParseStatement(ParserContext context, string input)
+    public static IReadOnlyList<Statement> ParseStatements(ParserContext context, string? input)
     {
-        var parsed = Parse<AstNode>(context, input);
-        if (parsed is Statement statement)
+        var statements = new List<Statement>();
+        if (string.IsNullOrWhiteSpace(input))
         {
-            return statement;
+            return statements;
         }
 
-        return new ExpressionStatement((Expression) parsed);
+        try
+        {
+            using var reader = new StringReader(input);
+            var lexer = new Lexer(reader);
+
+            while (!lexer.IsFinished)
+            {
+                if (lexer.Peek() is EndOfInput)
+                {
+                    break;
+                }
+
+                var parsed = Parse<AstNode>(context, lexer, 0);
+                statements.Add(parsed switch
+                {
+                    Statement statement => statement,
+                    Call { Function.Type: DataType.Void } call => new CallStatement(call),
+                    _ => throw new InvalidOperationException($"Expression \"{parsed}\" did not parse to a statement.")
+                });
+
+                if (lexer.Peek() is SemiColon)
+                {
+                    lexer.Read();
+                }
+            }
+        }
+        catch (Exception exception)
+        {
+            throw new FormatException($"Exception parsing \"{input}\": {exception.Message}", exception);
+        }
+
+        return statements;
     }
 
     [MustUseReturnValue]
-    public static Expression ParseExpression(ParserContext context, string input) => Parse<Expression>(context, input);
-
-    [MustUseReturnValue]
-    private static TNode Parse<TNode>(ParserContext context, string input)
-        where TNode : AstNode
+    public static Expression ParseExpression(ParserContext context, string? input)
     {
-        using var reader = new StringReader(input);
-        var lexer = new Lexer(reader);
-        return Parse<TNode>(context, lexer, 0);
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(input));
+        }
+
+        try
+        {
+            using var reader = new StringReader(input);
+            var lexer = new Lexer(reader);
+            return Parse<Expression>(context, lexer, 0);
+        }
+        catch (Exception exception)
+        {
+            throw new FormatException($"Exception parsing \"{input}\": {exception.Message}", exception);
+        }
     }
 
     [MustUseReturnValue]
@@ -82,7 +121,7 @@ public static class ExpressionParser
         while (true)
         {
             var token = lexer.Peek();
-            if (token is EndOfExpression or CloseBracket or Comma)
+            if (token is EndOfInput or CloseBracket or SemiColon or Comma)
             {
                 break;
             }
@@ -115,11 +154,6 @@ public static class ExpressionParser
             return new ArgumentAccess(identifier);
         }
 
-        if (context.Actions.Contains(identifier))
-        {
-            return new RequestAction(identifier);
-        }
-
         if (context.Registers.TryGetValue(identifier, out var register))
         {
             return new RegisterAccess(register);
@@ -149,12 +183,22 @@ public static class ExpressionParser
     }
 
     [Pure]
-    private static Call ParseCall(ParserContext context, Lexer lexer, string identifier)
+    private static AstNode ParseCall(ParserContext context, Lexer lexer, string identifier)
     {
-        var function = ResolveFunction(context, identifier);
-
         // Open bracket.
         lexer.Read();
+
+        if (context.Actions.TryGetValue(identifier, out var action))
+        {
+            if (lexer.Read() is not CloseBracket)
+            {
+                throw new InvalidOperationException("Expected close bracket.");
+            }
+
+            return new RequestAction(action);
+        }
+
+        var function = ResolveFunction(context, identifier);
 
         var arguments = new List<Expression>();
         while (true)

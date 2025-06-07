@@ -17,7 +17,7 @@ public abstract class TestFixture
     {
         var file = Path.Combine(Z80DefinitionsDirectory, name);
         await using var stream = File.OpenRead(file);
-        return await YamlSerializer.DeserializeAsync<YamlFile>(stream, YamlOptions.Instance);
+        return await DeserializeYamlAsync<YamlFile>(file);
     }
 
     [Pure]
@@ -26,14 +26,26 @@ public abstract class TestFixture
         var yamls = new List<YamlFile>();
         foreach (var file in Directory.GetFiles(Z80DefinitionsDirectory, "*.yaml"))
         {
-            await using var stream = File.OpenRead(file);
-            yamls.Add(await YamlSerializer.DeserializeAsync<YamlFile>(stream, YamlOptions.Instance));
+            yamls.Add(await DeserializeYamlAsync<YamlFile>(file));
         }
         return YamlFile.Combine(yamls);
     }
 
+    protected static async Task<TYaml> DeserializeYamlAsync<TYaml>([PathReference] string file)
+    {
+        try
+        {
+            await using var stream = File.OpenRead(file);
+            return await YamlSerializer.DeserializeAsync<TYaml>(stream, YamlOptions.Instance);
+        }
+        catch (Exception exception)
+        {
+            throw new InvalidOperationException($"Could not load YAML file {file}.", exception);
+        }
+    }
+
     [Pure]
-    private static string Z80DefinitionsDirectory
+    protected static string Z80DefinitionsDirectory
     {
         get
         {

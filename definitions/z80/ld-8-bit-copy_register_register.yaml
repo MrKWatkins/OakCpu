@@ -156,5 +156,5 @@ instructions:
         R0: A
         R1: A
     steps:
-      - [R0 = R1]
+      - R0 = R1;
     next_opcode: overlapped

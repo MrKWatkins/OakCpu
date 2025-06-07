@@ -10,5 +10,5 @@ public sealed class MoveToOpcodeRead : Statement
     {
     }
 
-    public override void WriteExpression(StringBuilder expression) => expression.Append(nameof(MoveToOpcodeRead));
+    public override void WriteStringRepresentation(StringBuilder stringRepresentation) => stringRepresentation.Append("move_to_opcode_read()");
 }

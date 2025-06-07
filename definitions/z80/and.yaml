@@ -17,7 +17,7 @@ instructions:
       - opcode: 0xA7
         R0: A
     steps:
-      - [A = A & R0, flags()]
+      - A = A & R0; flags();
     flags:
       PV: even_parity(A)
       X: copy_from(A)
@@ -32,10 +32,10 @@ instructions:
     opcodes:
       - opcode: 0xA6
     steps:
-      - [Address = HL, MemoryRead]
-      - []
-      - []
-      - [A = A & Data, flags()]
+      - Address = HL; memory_read();
+      - 
+      - 
+      - A = A & Data; flags();
     flags:
       PV: even_parity(A)
       X: copy_from(A)

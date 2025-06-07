@@ -1,16 +1,18 @@
 using System.Text;
+using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
 
-public sealed class RequestAction(string name) : TerminalStatement
+public sealed class RequestAction(Action action) : TerminalStatement
 {
-    public static readonly RequestAction None = new("None");
+    public static readonly RequestAction None = new(Action.None);
 
-    public string Name { get; } = name;
+    public Action Action { get; } = action;
 
-    public override void WriteExpression(StringBuilder expression)
+    protected override void WriteStatementStringRepresentation(StringBuilder stringRepresentation)
     {
-        expression.Append("Action.");
-        expression.Append(Name);
+        stringRepresentation.Append("action.");
+        stringRepresentation.Append(Action.Name);
+        stringRepresentation.Append("()");
     }
 }

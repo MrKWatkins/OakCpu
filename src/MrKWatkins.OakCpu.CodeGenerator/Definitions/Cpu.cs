@@ -6,7 +6,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Cpu
 {
-    private Cpu(string name, IReadOnlyList<string> actions, IReadOnlyList<Step> opcodeRead)
+    private Cpu(string name, IReadOnlyDictionary<string, Action> actions, IReadOnlyList<Step> opcodeRead)
     {
         Name = name;
         Actions = actions;
@@ -15,7 +15,7 @@ public sealed class Cpu
 
     public string Name { get; }
 
-    public IReadOnlyList<string> Actions { get; }
+    public IReadOnlyDictionary<string, Action> Actions { get; }
 
     public IReadOnlyList<Step> OpcodeRead { get; }
 
@@ -23,10 +23,12 @@ public sealed class Cpu
 
     public static Cpu Create(CpuYaml yaml, IReadOnlyDictionary<string, Register> registers, IReadOnlyDictionary<string, Flag> flags, IReadOnlyDictionary<string, Condition> conditions)
     {
-        var context = new ParserContext(new HashSet<string>(yaml.Actions), registers, flags, conditions);
+        var actions = yaml.Actions.Select((action, index) => new Action(action, index + 1)).Prepend(Action.None).ToDictionary(a => a.Name, a => a);
 
-        var opcodeRead = Step.Parse("Opcode read", context, yaml.OpcodeRead, OpcodeJump.Instance);
+        var context = new ParserContext(actions, registers, flags, conditions);
 
-        return new Cpu(yaml.Name, yaml.Actions, opcodeRead);
+        var opcodeRead = Step.Parse("Opcode read", context, yaml.OpcodeRead, MoveToOpcode.Instance);
+
+        return new Cpu(yaml.Name, actions, opcodeRead);
     }
 }

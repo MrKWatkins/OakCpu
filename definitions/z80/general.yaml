@@ -4,5 +4,5 @@ instructions:
     opcodes:
       - opcode: 0x00
     steps:
-      - []
+      - 
     next_opcode: overlapped
