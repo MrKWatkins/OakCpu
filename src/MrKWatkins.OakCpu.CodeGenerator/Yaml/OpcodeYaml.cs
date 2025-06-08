@@ -20,5 +20,7 @@ public sealed partial class OpcodeYaml
 
     public string? C0 { get; private set; }
 
+    public byte? N0 { get; private set; }
+
     public override string ToString() => $"0x{Opcode:X2}";
 }

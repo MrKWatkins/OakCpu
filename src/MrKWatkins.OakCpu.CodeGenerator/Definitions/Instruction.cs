@@ -83,6 +83,7 @@ public sealed class Instruction
         value = ReplaceRegister(context, value, "RP0", opcodeYaml.RP0);
         value = ReplaceRegister(context, value, "RP1", opcodeYaml.RP1);
         value = ReplaceCondition(context, value, "C0", opcodeYaml.C0);
+        value = ReplaceNumber(value, "N0", opcodeYaml.N0);
         return value;
     }
 
@@ -116,6 +117,17 @@ public sealed class Instruction
             var condition = context.Conditions[replacement];
 
             value = value.Replace(conditionVariable, condition.Name);
+        }
+
+        return value;
+    }
+
+    [Pure]
+    private static string ReplaceNumber(string value, string conditionVariable, byte? replacement)
+    {
+        if (replacement != null)
+        {
+            value = value.Replace(conditionVariable, $"0x{replacement.Value:X2}");
         }
 
         return value;
