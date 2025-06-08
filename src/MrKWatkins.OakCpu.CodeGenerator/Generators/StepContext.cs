@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
-using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
+using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 

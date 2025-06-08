@@ -1,5 +1,5 @@
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
-using MrKWatkins.OakCpu.CodeGenerator.Expressions.Parsing;
+using MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
 using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Tests.Expressions.Parsing;
@@ -7,10 +7,10 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Tests.Expressions.Parsing;
 public sealed class ParserTests
 {
     [TestCase("")]
-    [TestCase("R = R + 1", "R = R + 0x01")]
-    [TestCase("R = R & 1;R=R^1", "R = R & 0x01", "R = R ^ 0x01")]
-    [TestCase("R = R + R & 1", "R = R + R & 0x01")]
-    [TestCase("R = R + (R & 1)", "R = R + (R & 0x01)")]
+    [TestCase("R = R + 1;", "R = R + 0x01")]
+    [TestCase("R = R & 1;R=R^1;", "R = R & 0x01", "R = R ^ 0x01")]
+    [TestCase("R = R + R & 1;", "R = R + R & 0x01")]
+    [TestCase("R = R + (R & 1);", "R = R + (R & 0x01)")]
     public void ParseStatements(string statementsText, params string[] expectedParsedExpressions)
     {
         var context = CreateContext();

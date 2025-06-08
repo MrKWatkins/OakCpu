@@ -33,7 +33,7 @@ instructions:
         C0: M
 
     steps:
-      - finish_instruction(!condition.C0)
+      - finish_instruction(!condition.C0);
       - Address = SP; SP = SP + 1; memory_read();
       - Z = Data;
       - 

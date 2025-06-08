@@ -2,7 +2,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
-using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
+using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -34,17 +34,18 @@ public abstract class StatementGenerator : Generator
     private static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(StepContext context, Statement statement) =>
         statement switch
         {
-            Assignment assignment => GenerateStatementSyntaxes(context, assignment),
-            MoveToOpcodeRead => GenerateMoveToOpcodeReadStatementSyntaxes(),
+            Assignment assignment => GenerateAssignment(context, assignment),
+            IfStatement ifStatement => GenerateIf(context, ifStatement),
+            MoveToOpcodeRead => GenerateMoveToOpcodeReadStatement(),
             MoveToOpcode => GenerateOpcodeJump(),
-            OverlappedOpcodeRead => GenerateOverlappedOpcodeReadStatementSyntaxes(context),
+            OverlappedOpcodeRead => GenerateOverlappedOpcodeRead(context),
             RequestAction requestAction => GenerateRequestAction(requestAction),
-            CallStatement callStatement => GenerateCallStatementSyntax(context, callStatement),
+            CallStatement callStatement => GenerateCall(context, callStatement),
             _ => throw new NotSupportedException($"The statement type {statement.GetType().Name} is not supported.")
         };
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateCallStatementSyntax(StepContext context, CallStatement callStatement)
+    private static IEnumerable<StatementSyntax> GenerateCall(StepContext context, CallStatement callStatement)
     {
         if (callStatement.Call.Function == PreDefinedFunction.Flags)
         {
@@ -68,7 +69,7 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(StepContext context, Assignment assignment)
+    private static IEnumerable<StatementSyntax> GenerateAssignment(StepContext context, Assignment assignment)
     {
         // TODO: AssignmentEqual if possible, i.e. A |= D rather than A = (byte)(A | D). Probably generates the same code though...
 
@@ -111,6 +112,16 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
+    private static IEnumerable<StatementSyntax> GenerateIf(StepContext context, IfStatement ifStatement)
+    {
+        var condition = ExpressionGenerator.GenerateExpressionSyntax(context, ifStatement.Condition);
+
+        var body = Block(ifStatement.Body.SelectMany(statement => GenerateStatementSyntaxes(context, statement)));
+
+        yield return IfStatement(condition, body);
+    }
+
+    [Pure]
     private static IEnumerable<StatementSyntax> GenerateRequestAction(RequestAction requestAction)
     {
         yield return
@@ -122,7 +133,7 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateMoveToOpcodeReadStatementSyntaxes()
+    private static IEnumerable<StatementSyntax> GenerateMoveToOpcodeReadStatement()
     {
         yield return CreateSetStep(0);
     }
@@ -142,7 +153,7 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateOverlappedOpcodeReadStatementSyntaxes(StepContext context)
+    private static IEnumerable<StatementSyntax> GenerateOverlappedOpcodeRead(StepContext context)
     {
         context.CommentsAheadOfNextStatement.Add("Overlapped opcode read.");
 

@@ -1,8 +1,8 @@
 using System.Collections;
 using FluentAssertions.Equivalency;
-using MrKWatkins.OakCpu.CodeGenerator.Expressions.Ast;
-using MrKWatkins.OakCpu.CodeGenerator.Expressions.Lexing;
-using Number = MrKWatkins.OakCpu.CodeGenerator.Expressions.Lexing.Number;
+using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
+using MrKWatkins.OakCpu.CodeGenerator.Language.Lexing;
+using Number = MrKWatkins.OakCpu.CodeGenerator.Language.Lexing.Number;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Tests.Expressions.Lexing;
 

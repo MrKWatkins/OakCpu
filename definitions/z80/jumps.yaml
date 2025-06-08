@@ -1,4 +1,45 @@
 instructions:
+  - group: JP
+    mnemonic: JP
+    opcodes:
+      - opcode: 0xC3
+
+    steps:
+      - Address = PC; PC = PC + 1; memory_read();
+      - Z = Data;
+      - 
+      - Address = PC; PC = PC + 1; memory_read();
+      - W = Data; PC = WZ;
+      - 
+
+  - group: JP
+    mnemonic: JP C0
+    opcodes:
+      - opcode: 0xC2
+        C0: NZ
+      - opcode: 0xCA
+        C0: Z
+      - opcode: 0xD2
+        C0: NC
+      - opcode: 0xDA
+        C0: C
+      - opcode: 0xE2
+        C0: PO
+      - opcode: 0xEA
+        C0: PE
+      - opcode: 0xF2
+        C0: P
+      - opcode: 0xFA
+        C0: M
+
+    steps:
+      - Address = PC; PC = PC + 1; memory_read();
+      - Z = Data;
+      - 
+      - Address = PC; PC = PC + 1; memory_read();
+      - W = Data;
+      - if condition.C0; PC = WZ; endif;
+    
   - group: JR
     mnemonic: JR d
     opcodes:
