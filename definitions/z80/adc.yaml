@@ -1,6 +1,6 @@
 instructions:       
   - group: ADC
-    mnemonic: ADC A; R0
+    mnemonic: ADC A, R0
     opcodes:
       - opcode: 0x88
         R0: B
@@ -29,6 +29,25 @@ instructions:
       S: copy_from($result)
     next_opcode: overlapped
 
+  - group: ADC
+    mnemonic: ADC A, n
+    opcodes:
+      - opcode: 0xCE
+    steps:
+      - Address = PC; PC = PC + 1; memory_read();
+      -
+      - $left = A; $right = Data; $result = $left + $right + flag.C; A = $result; flags();
+    flags:
+      C: ($result & 0x100) == 0x100
+      N: 0
+      PV: did_8_bit_addition_overflow($left, $right, $result)
+      X: copy_from($result)
+      H: did_8_bit_addition_half_carry($left, $right, $result)
+      Y: copy_from($result)
+      Z: is_zero($result)
+      S: copy_from($result)
+    next_opcode: overlapped
+    
   - group: ADC
     mnemonic: ADC A; (HL)
     opcodes:

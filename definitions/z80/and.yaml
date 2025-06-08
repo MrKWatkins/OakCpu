@@ -28,6 +28,23 @@ instructions:
     next_opcode: overlapped
 
   - group: AND
+    mnemonic: AND n
+    opcodes:
+      - opcode: 0xE6
+    steps:
+      - Address = PC; PC = PC + 1; memory_read();
+      -
+      - A = A & Data; flags();
+    flags:
+      PV: even_parity(A)
+      X: copy_from(A)
+      H: 1
+      Y: copy_from(A)
+      Z: is_zero(A)
+      S: copy_from(A)
+    next_opcode: overlapped
+
+  - group: AND
     mnemonic: AND (HL)
     opcodes:
       - opcode: 0xA6

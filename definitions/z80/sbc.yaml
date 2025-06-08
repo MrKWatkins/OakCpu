@@ -30,6 +30,25 @@ instructions:
     next_opcode: overlapped
 
   - group: SBC
+    mnemonic: SBC n
+    opcodes:
+      - opcode: 0xDE
+    steps:
+      - Address = PC; PC = PC + 1; memory_read();
+      -
+      - $left = A; $right = Data; $result = $left - $right - flag.C; A = $result; flags();
+    flags:
+      C: ($result & 0x100) == 0x100
+      N: 1
+      PV: did_8_bit_subtraction_overflow($left, $right, $result)
+      X: copy_from($result)
+      H: did_8_bit_subtraction_half_borrow($left, $right, $result)
+      Y: copy_from($result)
+      Z: is_zero($result)
+      S: copy_from($result)
+    next_opcode: overlapped
+
+  - group: SBC
     mnemonic: SBC (HL)
     opcodes:
       - opcode: 0x9E

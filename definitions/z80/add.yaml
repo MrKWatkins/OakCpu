@@ -30,7 +30,7 @@ instructions:
       Y: copy_from(RP0H)
         
   - group: ADD
-    mnemonic: ADD A; R0
+    mnemonic: ADD A, R0
     opcodes:
       - opcode: 0x80
         R0: B
@@ -48,6 +48,25 @@ instructions:
         R0: A
     steps:
       - $left = A; $right = R0; $result = $left + $right; A = $result; flags();
+    flags:
+      C: ($result & 0x100) == 0x100
+      N: 0
+      PV: did_8_bit_addition_overflow($left, $right, $result)
+      X: copy_from($result)
+      H: did_8_bit_addition_half_carry($left, $right, $result)
+      Y: copy_from($result)
+      Z: is_zero($result)
+      S: copy_from($result)
+    next_opcode: overlapped
+    
+  - group: ADD
+    mnemonic: ADD A, n
+    opcodes:
+      - opcode: 0xC6
+    steps:
+      - Address = PC; PC = PC + 1; memory_read();
+      -
+      - $left = A; $right = Data; $result = $left + $right; A = $result; flags();
     flags:
       C: ($result & 0x100) == 0x100
       N: 0
