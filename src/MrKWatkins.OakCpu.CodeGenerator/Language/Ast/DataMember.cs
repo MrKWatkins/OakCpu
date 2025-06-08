@@ -6,10 +6,10 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 
 public sealed class DataMember
 {
-    public static readonly DataMember OpcodeStepTable = new("OpcodeStepTable", DataType.U16, typeof(ushort[]));
+    public static readonly DataMember OpcodeStepTable = new("OpcodeStepTable", DataType.U16, typeof(ushort[][]));
     public static readonly DataMember Address = new("Address", DataType.U16, typeof(ushort));
     public static readonly DataMember Data = new("Data", DataType.U8, typeof(byte));
-    public static readonly DataMember Opcode = new("opcode", DataType.U8, typeof(byte));
+    public static readonly DataMember Prefix = new("prefix", DataType.U8, typeof(byte));
     public static readonly DataMember Step = new("step", DataType.U16, typeof(ushort));
 
     public static readonly IReadOnlyDictionary<string, DataMember> All = new Dictionary<string, DataMember>(StringComparer.OrdinalIgnoreCase)
@@ -17,7 +17,7 @@ public sealed class DataMember
         { OpcodeStepTable.Name, OpcodeStepTable },
         { Address.Name, Address },
         { Data.Name, Data },
-        { Opcode.Name, Opcode },
+        { Prefix.Name, Prefix },
         { Step.Name, Step }
     };
 
@@ -37,12 +37,13 @@ public sealed class DataMember
             MemberSize = 2;
             MemberTypeSyntax = PredefinedType(Token(SyntaxKind.UShortKeyword));
         }
-        else if (MemberType == typeof(ushort[]))
+        else if (MemberType == typeof(ushort[][]))
         {
             MemberSize = 8;
-            MemberTypeSyntax = ArrayType(PredefinedType(Token(SyntaxKind.UShortKeyword)))
-                .WithRankSpecifiers(
-                    SingletonList(ArrayRankSpecifier(SingletonSeparatedList<ExpressionSyntax>(OmittedArraySizeExpression()))));
+
+            var ushortType = PredefinedType(Token(SyntaxKind.UShortKeyword));
+            var ushortArrayType = ArrayType(ushortType).WithRankSpecifiers([ArrayRankSpecifier([OmittedArraySizeExpression()])]);
+            MemberTypeSyntax = ArrayType(ushortArrayType).WithRankSpecifiers([ArrayRankSpecifier([OmittedArraySizeExpression()])]);
         }
         else
         {

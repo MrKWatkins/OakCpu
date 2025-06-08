@@ -13,6 +13,12 @@ public abstract class StatementGenerator : Generator
     public static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(GeneratorInput input, Step step)
     {
         var context = new StepContext(input, step);
+
+        if (step.Instruction is { Prefix: not null } && step.Instruction.Steps[0] == step)
+        {
+            yield return GenerateResetPrefix();
+        }
+
         foreach (var stepStatement in step.Statements)
         {
             foreach (var statement in GenerateStatementSyntaxes(context, stepStatement))
@@ -37,7 +43,7 @@ public abstract class StatementGenerator : Generator
             Assignment assignment => GenerateAssignment(context, assignment),
             IfStatement ifStatement => GenerateIf(context, ifStatement),
             MoveToOpcodeRead => GenerateMoveToOpcodeReadStatement(),
-            MoveToOpcode => GenerateOpcodeJump(),
+            MoveToOpcode => GenerateMoveToOpcode(),
             OverlappedOpcodeRead => GenerateOverlappedOpcodeRead(context),
             RequestAction requestAction => GenerateRequestAction(requestAction),
             CallStatement callStatement => GenerateCall(context, callStatement),
@@ -145,15 +151,15 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateOpcodeJump()
+    private static IEnumerable<StatementSyntax> GenerateMoveToOpcode()
     {
-        // TODO: Version without bounds checks, don't rely on the JIT. Maybe wait until prefixes are added.
-        var getOpcode = ElementAccessExpression(
-                IdentifierName(DataMember.OpcodeStepTable.Name),
-                BracketedArgumentList(
-                    SingletonSeparatedList(
-                        Argument(
-                            IdentifierName(DataMember.Opcode.Name)))));
+        // TODO: Version without bounds checks, don't rely on the JIT.
+        var getOpcode =
+            ElementAccessExpression(
+                ElementAccessExpression(
+                    IdentifierName(DataMember.OpcodeStepTable.Name),
+                    BracketedArgumentList([Argument(IdentifierName(DataMember.Prefix.Name))])),
+                BracketedArgumentList([Argument(IdentifierName(DataMember.Data.Name))]));
 
         yield return CreateSetStep(getOpcode);
     }
@@ -169,6 +175,10 @@ public abstract class StatementGenerator : Generator
         // goto case 0 to perform step 0.
         yield return GotoStatement(SyntaxKind.GotoCaseStatement, Token(SyntaxKind.CaseKeyword), GenerateNumericLiteralExpression(0));
     }
+
+    [Pure]
+    private static StatementSyntax GenerateResetPrefix() =>
+        ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(DataMember.Prefix.Name), GenerateNumericLiteralExpression(0)));
 
     [Pure]
     private static StatementSyntax CreateSetStep(int step) => CreateSetStep(GenerateNumericLiteralExpression(step));

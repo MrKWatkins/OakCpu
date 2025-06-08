@@ -24,7 +24,7 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
 
         var members = new List<MemberDeclarationSyntax>
         {
-            CreateOpcodeStepTableField(input),
+            CreateOpcodeStepTableField(),
             CreateStaticConstructor(requiredUsings, input)
         };
 
@@ -45,8 +45,8 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
         members.Add(CreateGetSetProperty(requiredUsings, DataMember.Data, fieldOffset));
         fieldOffset += DataMember.Data.MemberSize;
 
-        members.Add(CreateField(requiredUsings, DataMember.Opcode, fieldOffset, Private));
-        fieldOffset += DataMember.Opcode.MemberSize;
+        members.Add(CreateField(requiredUsings, DataMember.Prefix, fieldOffset, Private));
+        fieldOffset += DataMember.Prefix.MemberSize;
 
         // TODO: Make private, think of a nice and quick way to indicate the end (or start!) of an instruction.
         members.Add(CreateField(requiredUsings, DataMember.Step, fieldOffset, Internal));
@@ -140,10 +140,14 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     }
 
     [Pure]
-    private static FieldDeclarationSyntax CreateOpcodeStepTableField(GeneratorInput input)
+    private static FieldDeclarationSyntax CreateOpcodeStepTableField()
     {
+        var ushortType = PredefinedType(Token(SyntaxKind.UShortKeyword));
+        var ushortArrayType = ArrayType(ushortType).WithRankSpecifiers([ArrayRankSpecifier([LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(256))])]);
+        var arrayType = ArrayType(ushortArrayType).WithRankSpecifiers([ArrayRankSpecifier([OmittedArraySizeExpression()])]);
+
         var variableDeclarator = VariableDeclarator(Identifier(DataMember.OpcodeStepTable.Name))
-            .WithInitializer(EqualsValueClause(CreateOpcodeStepTableInitializer(input)));
+            .WithInitializer(EqualsValueClause(ArrayCreationExpression(arrayType)));
 
         var variable = VariableDeclaration(DataMember.OpcodeStepTable.MemberTypeSyntax)
             .WithVariables(SingletonSeparatedList(variableDeclarator));
@@ -181,20 +185,6 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
                         LiteralExpression(
                             SyntaxKind.NumericLiteralExpression,
                             Literal(fieldOffset))))));
-    }
-
-    [Pure]
-    private static ExpressionSyntax CreateOpcodeStepTableInitializer(GeneratorInput input)
-    {
-        var stepIndices = Enumerable.Repeat(65535, 256).ToArray();
-        foreach (var instruction in input.Instructions)
-        {
-            stepIndices[instruction.Opcode] = instruction.Steps.First().Index;
-        }
-
-        var literals = stepIndices.Select(index => ExpressionElement(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(index))));
-
-        return CollectionExpression(SeparatedList<CollectionElementSyntax>(literals));
     }
 
     [MustUseReturnValue]
@@ -250,9 +240,42 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
                             .WithLeadingTrivia(Trivia(pragmaDisable))
                             .WithTrailingTrivia(Trivia(pragmaRestore)))));
 
+        var statements = CreateOpcodeStepTableInitializationStatements(input).Prepend(ifStatement).ToArray();
+
         // Static constructor
         return ConstructorDeclaration(GetEmulatorClassName(input))
             .WithModifiers(TokenList(Static))
-            .WithBody(Block(SingletonList(ifStatement)));
+            .WithBody(Block(statements));
+    }
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> CreateOpcodeStepTableInitializationStatements(GeneratorInput input)
+    {
+        var instructionsByPrefix = input.Instructions.GroupBy(i => i.Prefix ?? 0).OrderBy(g => g.Key);
+
+        foreach (var group in instructionsByPrefix)
+        {
+            var prefixIndex = group.Key;
+            var instructions = group;
+
+            var stepIndices = Enumerable.Repeat(65535, 256).ToArray();
+            foreach (var instruction in instructions)
+            {
+                // TODO: If instruction.opcode in prefixes do something.
+                stepIndices[instruction.Opcode] = instruction.Steps.First().Index;
+            }
+
+            var literals = stepIndices.Select(index => ExpressionElement(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(index))));
+
+            var value = CollectionExpression(SeparatedList<CollectionElementSyntax>(literals));
+
+            var assignment = AssignmentExpression(
+                SyntaxKind.SimpleAssignmentExpression,
+                ElementAccessExpression(IdentifierName(DataMember.OpcodeStepTable.Name))
+                    .WithArgumentList(BracketedArgumentList([Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(prefixIndex)))])),
+                value);
+
+            yield return ExpressionStatement(assignment);
+        }
     }
 }

@@ -1,3 +1,4 @@
+using System.Globalization;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
@@ -6,7 +7,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Instruction
 {
-    private Instruction(string group, string mnemonic, byte opcode, byte? prefix, bool nextOpcodeOverlapped, IReadOnlyList<Step> steps, IReadOnlyDictionary<string, Expression> flags)
+    private Instruction(string group, string mnemonic, byte? prefix, byte opcode,bool nextOpcodeOverlapped, IReadOnlyList<Step> steps, IReadOnlyDictionary<string, Expression> flags)
     {
         if (steps.Count == 0)
         {
@@ -14,8 +15,8 @@ public sealed class Instruction
         }
         Group = group;
         Mnemonic = mnemonic;
-        Opcode = opcode;
         Prefix = prefix;
+        Opcode = opcode;
         NextOpcodeOverlapped = nextOpcodeOverlapped;
         Steps = steps;
         Flags = flags;
@@ -30,9 +31,9 @@ public sealed class Instruction
 
     public string Mnemonic { get; }
 
-    public byte Opcode { get; }
-
     public byte? Prefix { get; }
+
+    public byte Opcode { get; }
 
     public bool NextOpcodeOverlapped { get; }
 
@@ -43,8 +44,14 @@ public sealed class Instruction
     public override string ToString() => $"0x{Opcode:X2}: {Mnemonic}";
 
     [Pure]
-    public static IReadOnlyList<Instruction> Create(ParserContext context, IReadOnlyList<InstructionYaml> yamls) =>
-        yamls.SelectMany(y => Create(context, y)).OrderBy(f => f.Prefix).ThenBy(f => f.Opcode).ToList();
+    public static IReadOnlyList<Instruction> Create(ParserContext context, IReadOnlyList<InstructionYaml> yamls)
+    {
+        var instructions = yamls.SelectMany(y => Create(context, y)).OrderBy(f => f.Prefix).ThenBy(f => f.Opcode).ToList();
+
+        var prefixInstructions = CreatePrefixJumpInstructions(context, instructions);
+
+        return prefixInstructions.Concat(instructions).ToList();
+    }
 
     [Pure]
     private static IEnumerable<Instruction> Create(ParserContext context, InstructionYaml yaml)
@@ -61,12 +68,25 @@ public sealed class Instruction
             };
 
             var steps = yaml.Steps
-                .Select((expressions, index) => Step.Parse($"0x{opcodeYaml.Opcode:X2}: {mnemonic} [{index}]", context, Substitute(context, opcodeYaml, expressions), index == yaml.Steps.Count - 1 ? lastStepFinalStatement : null))
+                .Select((expressions, index) => Step.Parse($"{opcodeYaml.Opcode}: {mnemonic} [{index}]", context, Substitute(context, opcodeYaml, expressions), index == yaml.Steps.Count - 1 ? lastStepFinalStatement : null))
                 .ToList();
 
             var flags = yaml.Flags.ToDictionary(kvp => kvp.Key, kvp => Parser.ParseExpression(context, Substitute(context, opcodeYaml, kvp.Value)));
 
-            yield return new Instruction(yaml.Group, mnemonic, opcodeYaml.Opcode, opcodeYaml.Prefix, yaml.NextOpcode == NextOpcodeMode.Overlapped, steps, flags);
+            var (prefix, opcode) = ParseOpcode(opcodeYaml.Opcode);
+
+            yield return new Instruction(yaml.Group, mnemonic, prefix, opcode, yaml.NextOpcode == NextOpcodeMode.Overlapped, steps, flags);
+        }
+    }
+
+    [Pure]
+    private static IEnumerable<Instruction> CreatePrefixJumpInstructions(ParserContext context, IReadOnlyList<Instruction> instructions)
+    {
+        foreach (var prefix in instructions.Where(i => i.Prefix.HasValue).Select(i => i.Prefix!.Value).Distinct().OrderBy(p => p))
+        {
+            var steps = Step.Parse($"Move to read opcode after prefix 0x{prefix:X2}", context, [$"{DataMember.Prefix.Name} = {DataMember.Data.Name};"], OverlappedOpcodeRead.Instance);
+
+            yield return new Instruction("Prefixes", $"Prefix 0x{prefix:X2}", null, prefix, true, steps, new Dictionary<string, Expression>());
         }
     }
 
@@ -131,5 +151,26 @@ public sealed class Instruction
         }
 
         return value;
+    }
+
+    [Pure]
+    private static (byte? Prefix, byte Opcode) ParseOpcode(string value)
+    {
+        var values = value
+            .Split([' '], StringSplitOptions.RemoveEmptyEntries)
+            .Select(ParseHex)
+            .ToArray();
+
+        return values.Length == 2 ? (values[0], values[1]) : (null, values[0]);
+    }
+
+    [Pure]
+    private static byte ParseHex(string hex)
+    {
+        if (hex.StartsWith("0x"))
+        {
+            return byte.Parse(hex.Substring(2), NumberStyles.HexNumber);
+        }
+        throw new InvalidOperationException($"{hex} is not a hex number.");
     }
 }

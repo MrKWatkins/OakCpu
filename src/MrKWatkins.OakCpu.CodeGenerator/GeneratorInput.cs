@@ -24,6 +24,7 @@ public sealed class GeneratorInput
         UserDefinedFunctions = userDefinedFunctions;
         FlagsRegister = Registers.Values.Single(r => r.Flags);
         ProgramCounter = Registers.Values.Single(r => r.ProgramCounter);
+        OpcodePrefixes = Instructions.Where(i => i.Prefix.HasValue).Select(i => i.Prefix!.Value).Distinct().OrderBy(p => p).ToList();
         Step.AssignIndexes(AllSteps);
     }
 
@@ -38,6 +39,8 @@ public sealed class GeneratorInput
     public IReadOnlyDictionary<string, Condition> Conditions { get; }
 
     public IReadOnlyList<Instruction> Instructions { get; }
+
+    public IReadOnlyList<byte> OpcodePrefixes { get; }
 
     public IReadOnlyDictionary<string, UserDefinedFunction> UserDefinedFunctions { get; }
 
@@ -96,11 +99,11 @@ public sealed class GeneratorInput
 
     private static void VerifyNoDuplicateOpcodes(IReadOnlyList<Instruction> instructions)
     {
-        var duplicates = instructions.GroupBy(i => i.Opcode).Where(g => g.Count() > 1).ToList();
+        var duplicates = instructions.GroupBy(i => (i.Prefix, i.Opcode)).Where(g => g.Count() > 1).ToList();
         if (duplicates.Count > 0)
         {
             throw new InvalidOperationException(
-                $"The following opcodes are defined multiple times: {string.Join("\n", duplicates.Select(g => $"0x{g.Key:X2} [{string.Join(", ", g.Select(i => i.Mnemonic))}]"))}");
+                $"The following opcodes are defined multiple times: {string.Join("\n", duplicates.Select(g => $"{(g.Key.Prefix.HasValue ? $"0x{g.Key.Prefix.Value:X2} " : "")}0x{g.Key.Opcode:X2} [{string.Join(", ", g.Select(i => i.Mnemonic))}]"))}");
         }
     }
 }

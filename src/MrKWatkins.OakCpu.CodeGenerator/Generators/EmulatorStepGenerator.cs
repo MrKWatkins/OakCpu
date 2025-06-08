@@ -58,23 +58,45 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
     [Pure]
     private static StatementSyntax CreateThrowNotSupportedException()
     {
-        // $"The opcode 0x{opcode:X2} is not supported."
-        var start = InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, "The opcode 0x", "The opcode 0x", TriviaList()));
+        // $"The opcode {prefix != 0 ? $"0x{opcode:X2} " : ""}0x{Data:X2} is not supported."
 
+        // $"0x{opcode:X2} "
+        var ternaryFormat = GenerateInterpolatedString(
+            InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, "0x", "0x", TriviaList())),
+            GenerateX2Interpolation(DataMember.Prefix),
+            InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, " ", " ", TriviaList())));
 
+        // (prefix != 0 ? $"0x{opcode:X2} " : "")
+        var ternary = ParenthesizedExpression(
+            ConditionalExpression(
+                BinaryExpression(SyntaxKind.NotEqualsExpression, IdentifierName(DataMember.Prefix.Name), LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(0))),
+                ternaryFormat,
+                LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(""))));
+
+        var interpolatedString = GenerateInterpolatedString(
+            InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, "The opcode ", "The opcode ", TriviaList())),
+            Interpolation(ternary),
+            InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, "0x", "0x", TriviaList())),
+            GenerateX2Interpolation(DataMember.Data),
+            InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, " is not supported.", " is not supported.", TriviaList())));
+
+        return ThrowStatement(ObjectCreationExpression(IdentifierName("System.NotSupportedException"))
+            .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(interpolatedString)))));
+    }
+
+    [Pure]
+    private static InterpolatedStringExpressionSyntax GenerateInterpolatedString(params InterpolatedStringContentSyntax[] contents) =>
+        InterpolatedStringExpression(Token(SyntaxKind.InterpolatedStringStartToken))
+            .WithContents(List(contents))
+            .WithStringEndToken(Token(SyntaxKind.InterpolatedStringEndToken));
+
+    [Pure]
+    private static InterpolationSyntax GenerateX2Interpolation(DataMember dataMember)
+    {
         var colonToken = Token(SyntaxKind.ColonToken);
         var formatToken = Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, "X2", "X2", TriviaList());
         var formatClause = InterpolationFormatClause(colonToken, formatToken);
 
-        var interpolation = Interpolation(IdentifierName(DataMember.Opcode.Name)).WithFormatClause(formatClause);
-
-        var end = InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, " is not supported.", " is not supported.", TriviaList()));
-
-        var interpolatedString = InterpolatedStringExpression(Token(SyntaxKind.InterpolatedStringStartToken))
-            .WithContents(List<InterpolatedStringContentSyntax>([start, interpolation, end]))
-            .WithStringEndToken(Token(SyntaxKind.InterpolatedStringEndToken));
-
-        return ThrowStatement(ObjectCreationExpression(IdentifierName("System.NotSupportedException"))
-            .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(interpolatedString)))));
+        return Interpolation(IdentifierName(dataMember.Name)).WithFormatClause(formatClause);
     }
 }
