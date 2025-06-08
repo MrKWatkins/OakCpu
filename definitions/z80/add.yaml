@@ -14,6 +14,30 @@ instructions:
       - opcode: 0x39
         RP0: HL
         RP1: SP
+      - opcode: 0xDD 0x09
+        RP0: IX
+        RP1: BC
+      - opcode: 0xDD 0x19
+        RP0: IX
+        RP1: DE
+      - opcode: 0xDD 0x29
+        RP0: IX
+        RP1: IX
+      - opcode: 0xDD 0x39
+        RP0: IX
+        RP1: SP
+      - opcode: 0xFD 0x09
+        RP0: IY
+        RP1: BC
+      - opcode: 0xFD 0x19
+        RP0: IY
+        RP1: DE
+      - opcode: 0xFD 0x29
+        RP0: IY
+        RP1: IY
+      - opcode: 0xFD 0x39
+        RP0: IY
+        RP1: SP
     steps:
       - $left = RP0; $right = RP1; $result = $left + $right; RP0 = $result; WZ = $left + 1; flags();
       - 

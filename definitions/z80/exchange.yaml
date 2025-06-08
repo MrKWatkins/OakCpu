@@ -16,9 +16,14 @@ instructions:
     next_opcode: overlapped
     
   - group: EX
-    mnemonic: EX (SP); HL
+    mnemonic: EX (SP); RP0
     opcodes:
       - opcode: 0xE3
+        RP0: HL
+      - opcode: 0xDD 0xE3
+        RP0: IX
+      - opcode: 0xFD 0xE3
+        RP0: IY
     steps:
       - Address = SP; memory_read();
       - Z = Data;
@@ -27,12 +32,12 @@ instructions:
       - W = Data;
       - 
       - 
-      - Data = H; memory_write(); # Skipping setting Address as it is already Address = SP + 1.
+      - Data = RP0H; memory_write(); # Skipping setting Address as it is already Address = SP + 1.
       - 
       - 
-      - Address = SP; Data = L; memory_write();
+      - Address = SP; Data = RP0L; memory_write();
       - 
       - 
       - 
-      - HL = WZ;
+      - RP0 = WZ;
     

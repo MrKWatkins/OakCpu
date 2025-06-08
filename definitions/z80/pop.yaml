@@ -10,6 +10,10 @@ instructions:
         RP0: HL
       - opcode: 0xF1
         RP0: AF
+      - opcode: 0xDD 0xE1
+        RP0: IX
+      - opcode: 0xFD 0xE1
+        RP0: IY
 
     steps:
       - Address = SP; SP = SP + 1; memory_read();

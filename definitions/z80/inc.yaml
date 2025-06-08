@@ -4,17 +4,45 @@ instructions:
     opcodes:
       - opcode: 0x04
         R0: B
+      - opcode: 0xDD 0x04
+        R0: B
+      - opcode: 0xFD 0x04
+        R0: B
       - opcode: 0x0C
+        R0: C
+      - opcode: 0xDD 0x0C
+        R0: C
+      - opcode: 0xFD 0x0C
         R0: C
       - opcode: 0x14
         R0: D
+      - opcode: 0xDD 0x14
+        R0: D
+      - opcode: 0xFD 0x14
+        R0: D
       - opcode: 0x1C
+        R0: E
+      - opcode: 0xDD 0x1C
+        R0: E
+      - opcode: 0xFD 0x1C
         R0: E
       - opcode: 0x24
         R0: H
+      - opcode: 0xDD 0x24
+        R0: IXH
+      - opcode: 0xFD 0x24
+        R0: IYH
       - opcode: 0x2C
         R0: L
+      - opcode: 0xDD 0x2C
+        R0: IXL
+      - opcode: 0xFD 0x2C
+        R0: IYL
       - opcode: 0x3C
+        R0: A
+      - opcode: 0xDD 0x3C
+        R0: A
+      - opcode: 0xFD 0x3C
         R0: A
     steps:
       - R0 = R0 + 1; flags();
@@ -59,6 +87,10 @@ instructions:
         RP0: DE
       - opcode: 0x23
         RP0: HL
+      - opcode: 0xDD 0x23
+        RP0: IX
+      - opcode: 0xFD 0x23
+        RP0: IY
       - opcode: 0x33
         RP0: SP
     steps:
