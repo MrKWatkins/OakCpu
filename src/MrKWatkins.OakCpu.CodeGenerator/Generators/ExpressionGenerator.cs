@@ -12,22 +12,27 @@ public abstract class ExpressionGenerator : Generator
     [Pure]
     public static ExpressionSyntax GenerateExpressionSyntax(StepContext context, Expression expression) => expression switch
     {
-        ArgumentAccess argumentAccess => GenerateExpressionSyntax(context, argumentAccess),
-        BinaryOperation binaryOperation => GenerateExpressionSyntax(context, binaryOperation),
-        Call call => GenerateExpressionSyntax(context, call),
-        DataMemberAccess dataMemberAccess => GenerateExpressionSyntax(dataMemberAccess),
-        ConditionAccess conditionAccess => GenerateExpressionSyntax(context, conditionAccess),
-        FlagAccess flagAccess => GenerateExpressionSyntax(context, flagAccess),
-        Number number => GenerateExpressionSyntax(number),
-        RegisterAccess registerAccess => GenerateExpressionSyntax(registerAccess),
-        TemporaryVariableAccess temporaryVariableAccess => GenerateExpressionSyntax(context, temporaryVariableAccess),
-        UnaryOperation unaryOperation => GenerateExpressionSyntax(context, unaryOperation),
+        ArgumentAccess argumentAccess => GenerateArgumentAccess(context, argumentAccess),
+        BinaryOperation binaryOperation => GenerateBinaryOperation(context, binaryOperation),
+        Call call => GenerateCall(context, call),
+        DataMemberAccess dataMemberAccess => GenerateDataMemberAccess(dataMemberAccess),
+        ConditionAccess conditionAccess => GenerateConditionAccess(context, conditionAccess),
+        FlagAccess flagAccess => GenerateFlagAccess(context, flagAccess),
+        Number number => GenerateNumber(number),
+        RegisterAccess registerAccess => GenerateRegisterAccess(registerAccess),
+        TemporaryVariableAccess temporaryVariableAccess => GenerateTemporaryVariableAccess(context, temporaryVariableAccess),
+        UnaryOperation unaryOperation => GenerateUnaryOperation(context, unaryOperation),
         _ => throw new NotSupportedException($"The expression type {expression.GetType().Name} is not supported.")
     };
 
     [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, BinaryOperation binaryOperation)
+    private static ExpressionSyntax GenerateBinaryOperation(StepContext context, BinaryOperation binaryOperation)
     {
+        if (context.InBooleanContext && binaryOperation.Operator.Type != DataType.Bool)
+        {
+            throw new InvalidOperationException($"Cannot use the Boolean operator {binaryOperation.Operator.Symbol} outside of a Boolean context.");
+        }
+
         var left = GenerateExpressionSyntax(context, binaryOperation.Left);
         if (binaryOperation.Left is BinaryOperation leftBinary && leftBinary.Operator.Precedence < binaryOperation.Operator.Precedence)
         {
@@ -44,7 +49,7 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, Call call)
+    private static ExpressionSyntax GenerateCall(StepContext context, Call call)
     {
         if (call.Function is PreDefinedFunction)
         {
@@ -103,7 +108,7 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, ArgumentAccess argumentAccess)
+    private static ExpressionSyntax GenerateArgumentAccess(StepContext context, ArgumentAccess argumentAccess)
     {
         if (!context.ArgumentScope.TryGetValue(argumentAccess.Name, out var expression))
         {
@@ -114,16 +119,16 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(DataMemberAccess dataMemberAccess) => dataMemberAccess.Identifier;
+    private static ExpressionSyntax GenerateDataMemberAccess(DataMemberAccess dataMemberAccess) => dataMemberAccess.Identifier;
 
     [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(Number number) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(number.NumberString, number.Value));
+    private static ExpressionSyntax GenerateNumber(Number number) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(number.NumberString, number.Value));
 
     [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(RegisterAccess registerAccess) => registerAccess.Identifier;
+    private static ExpressionSyntax GenerateRegisterAccess(RegisterAccess registerAccess) => registerAccess.Identifier;
 
     [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, ConditionAccess conditionAccess, bool invert = false)
+    private static ExpressionSyntax GenerateConditionAccess(StepContext context, ConditionAccess conditionAccess, bool invert = false)
     {
         var bitMask = (byte)(1 << conditionAccess.Condition.Flag.Index);
 
@@ -138,17 +143,25 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, FlagAccess flagAccess)
+    private static ExpressionSyntax GenerateFlagAccess(StepContext context, FlagAccess flagAccess)
     {
         var bitMask = (byte)(1 << flagAccess.Flag.Index);
 
         // Isolate the flag bit.
         var expression = BinaryExpression(SyntaxKind.BitwiseAndExpression, IdentifierName(context.Input.FlagsRegister.FieldName), GenerateBinaryLiteralExpression(bitMask));
 
-        // If the index is not 0, shift the bit to the rightmost position.
-        if (flagAccess.Flag.Index != 0)
+        // If we're in a boolean context, return a bool, otherwise return an int.
+        if (context.InBooleanContext)
         {
-            expression = BinaryExpression(SyntaxKind.RightShiftExpression, expression, GenerateNumericLiteralExpression(flagAccess.Flag.Index));
+            expression = BinaryExpression(SyntaxKind.EqualsExpression, ParenthesizedExpression(expression), GenerateBinaryLiteralExpression(bitMask));
+        }
+        else
+        {
+            // If the index is not 0, shift the bit to the rightmost position.
+            if (flagAccess.Flag.Index != 0)
+            {
+                expression = BinaryExpression(SyntaxKind.RightShiftExpression, expression, GenerateNumericLiteralExpression(flagAccess.Flag.Index));
+            }
         }
 
         return ParenthesizedExpression(expression.WithTrailingTrivia(Comment($"/* flag.{flagAccess.Flag.Name} */")));
@@ -156,7 +169,7 @@ public abstract class ExpressionGenerator : Generator
 
     [Pure]
     // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-    private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, TemporaryVariableAccess temporaryVariableAccess)
+    private static ExpressionSyntax GenerateTemporaryVariableAccess(StepContext context, TemporaryVariableAccess temporaryVariableAccess)
     {
         if (!context.InitializedTemporaryVariables.Contains(temporaryVariableAccess.Name))
         {
@@ -167,12 +180,12 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateExpressionSyntax(StepContext context, UnaryOperation unaryOperation)
+    private static ExpressionSyntax GenerateUnaryOperation(StepContext context, UnaryOperation unaryOperation)
     {
         // Special case for !condition.
         if (unaryOperation.Expression is ConditionAccess conditionAccess)
         {
-            return GenerateExpressionSyntax(context, conditionAccess, true);
+            return GenerateConditionAccess(context, conditionAccess, true);
         }
 
         var expression = GenerateExpressionSyntax(context, unaryOperation.Expression);

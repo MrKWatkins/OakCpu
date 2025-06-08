@@ -2,6 +2,7 @@ using System.Text;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 
+// TODO: Always I32?
 public sealed class Number(int value) : Expression
 {
     public int Value { get; } = value;

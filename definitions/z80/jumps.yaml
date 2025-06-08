@@ -67,7 +67,7 @@ instructions:
         C0: C
     steps:
       - Address = PC; PC = PC + 1; memory_read();
-      - finish_instruction(!condition.C0);
+      - if !condition.C0; finish_instruction(); endif;
       - 
       - PC = PC + signed(Data); WZ = PC;
       - 

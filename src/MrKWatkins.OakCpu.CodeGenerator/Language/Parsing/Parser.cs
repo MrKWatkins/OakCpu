@@ -15,58 +15,32 @@ public static class Parser
     [Pure]
     public static IReadOnlyList<Statement> ParseStatements(ParserContext context, string? input)
     {
-        var statements = new List<Statement>();
         if (string.IsNullOrWhiteSpace(input))
         {
-            return statements;
+            return [];
         }
+
+        using var reader = new StringReader(input);
+        var lexer = new Lexer(reader);
 
         try
         {
-            using var reader = new StringReader(input);
-            var lexer = new Lexer(reader);
-
-            while (!lexer.IsFinished)
-            {
-                if (lexer.Peek() is EndOfInput)
-                {
-                    break;
-                }
-
-                var parsed = Parse<AstNode>(context, lexer, 0);
-                if (lexer.Peek() is not SemiColon)
-                {
-                    throw new InvalidOperationException("Expected semi-colon after statement.");
-                }
-
-                lexer.Read();
-
-                statements.Add(parsed switch
-                {
-                    IfStatement ifStatement => ParseIfStatementBody(context, lexer, ifStatement),
-                    Statement statement => statement,
-                    Call { Function.Type: DataType.Void } call => new CallStatement(call),
-                    _ => throw new InvalidOperationException($"Expression \"{parsed}\" did not parse to a statement.")
-                });
-            }
+            return ParseStatements(context, lexer).ToList();
         }
         catch (Exception exception)
         {
             throw new FormatException($"Exception parsing \"{input}\": {exception.Message}", exception);
         }
-
-        return statements;
     }
 
-    [MustUseReturnValue]
-    private static IfStatement ParseIfStatementBody(ParserContext context, Lexer lexer, IfStatement ifStatement)
+    [Pure]
+    private static IEnumerable<Statement> ParseStatements(ParserContext context, Lexer lexer)
     {
-        var body = new List<Statement>();
         while (!lexer.IsFinished)
         {
             if (lexer.Peek() is EndOfInput)
             {
-                break;
+                yield break;
             }
 
             var parsed = Parse<AstNode>(context, lexer, 0);
@@ -74,19 +48,43 @@ public static class Parser
             {
                 throw new InvalidOperationException("Expected semi-colon after statement.");
             }
+
             lexer.Read();
 
-            if (parsed is EndIfStatement)
+            yield return parsed switch
             {
-                return ifStatement.WithBody(body);
-            }
-
-            body.Add(parsed switch
-            {
+                IfStatement ifStatement => ParseIfStatements(context, lexer, ifStatement),
                 Statement statement => statement,
                 Call { Function.Type: DataType.Void } call => new CallStatement(call),
                 _ => throw new InvalidOperationException($"Expression \"{parsed}\" did not parse to a statement.")
-            });
+            };
+        }
+    }
+
+    [MustUseReturnValue]
+    private static IfStatement ParseIfStatements(ParserContext context, Lexer lexer, IfStatement ifStatement)
+    {
+        var ifStatements = new List<Statement>();
+        var elseStatements = new List<Statement>();
+        var statements = ifStatements;
+        foreach (var statement in ParseStatements(context, lexer))
+        {
+            switch (statement)
+            {
+                case EndIfStatement:
+                    return ifStatement.WithStatements(ifStatements, elseStatements);
+
+                case ElseStatement when statements == elseStatements:
+                    throw new InvalidOperationException("Multiple else statements.");
+
+                case ElseStatement:
+                    statements = elseStatements;
+                    break;
+
+                default:
+                    statements.Add(statement);
+                    break;
+            }
         }
 
         throw new InvalidOperationException("if without endif.");
@@ -200,6 +198,9 @@ public static class Parser
                 }
                 return new IfStatement(expression);
 
+            case Keyword.Else:
+                return ElseStatement.Instance;
+
             case Keyword.EndIf:
                 return EndIfStatement.Instance;
         }
@@ -298,4 +299,9 @@ public static class Parser
 
     [Pure]
     private static FormatException CreateUnexpectedTokenException(Token token) => new($"Unexpected token {token.GetType().Name} {token} at index {token.StartIndex}.");
+
+    private sealed class State
+    {
+        public IfStatement? IfStatement { get; set; }
+    }
 }

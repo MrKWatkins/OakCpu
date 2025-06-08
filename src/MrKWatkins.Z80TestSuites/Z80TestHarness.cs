@@ -7,6 +7,18 @@ public abstract class Z80TestHarness
 
     public abstract ushort RegisterAF { get; set; }
 
+    public byte RegisterA
+    {
+        get => GetLowByte(RegisterAF);
+        set => RegisterAF = SetLowByte(RegisterAF, value);
+    }
+
+    public byte RegisterF
+    {
+        get => GetHighByte(RegisterAF);
+        set => RegisterAF = SetHighByte(RegisterAF, value);
+    }
+
     public abstract ushort RegisterBC { get; set; }
 
     public abstract ushort RegisterDE { get; set; }
@@ -80,6 +92,18 @@ public abstract class Z80TestHarness
     public abstract void ExecuteStep();
 
     public abstract void ExecuteInstruction();
+
+    [Pure]
+    private static byte GetLowByte(ushort value) => (byte)(value >> 8); // Little endian, so the lowest byte is first in memory, i.e. the first byte in the short.
+
+    [Pure]
+    private static byte GetHighByte(ushort value) => (byte)(value & 0xFF);
+
+    [Pure]
+    private static ushort SetLowByte(ushort value, byte lowByte) => (ushort)((value & 0x00FF) | (lowByte << 8));
+
+    [Pure]
+    private static ushort SetHighByte(ushort value, byte highByte) => (ushort)((value & 0xFF00) | highByte);
 
     private sealed class NullDisposable : IDisposable
     {

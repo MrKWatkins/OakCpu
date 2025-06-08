@@ -62,10 +62,7 @@ public abstract class StatementGenerator : Generator
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateFinishInstruction(StepContext context, Call call)
     {
-        var condition = ExpressionGenerator.GenerateExpressionSyntax(context, call.Arguments[0]);
-
-        yield return IfStatement(condition, Block(CreateSetStep(0)))
-            .WithLeadingTrivia(Comment($"// The instruction is finished if {call.Arguments[0]}."));
+        yield return CreateSetStep(0).WithLeadingTrivia(Comment("// Finish instruction."));
     }
 
     [Pure]
@@ -114,11 +111,20 @@ public abstract class StatementGenerator : Generator
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateIf(StepContext context, IfStatement ifStatement)
     {
-        var condition = ExpressionGenerator.GenerateExpressionSyntax(context, ifStatement.Condition);
+        var condition = ExpressionGenerator.GenerateExpressionSyntax(context.WithBooleanContext(), ifStatement.Condition);
 
-        var body = Block(ifStatement.Body.SelectMany(statement => GenerateStatementSyntaxes(context, statement)));
+        var ifBlock = Block(ifStatement.IfStatements.SelectMany(statement => GenerateStatementSyntaxes(context, statement)));
 
-        yield return IfStatement(condition, body);
+        if (ifStatement.ElseStatements.Any())
+        {
+            var elseBlock = Block(ifStatement.ElseStatements.SelectMany(statement => GenerateStatementSyntaxes(context, statement)));
+
+            yield return IfStatement(condition, ifBlock, ElseClause(elseBlock));
+        }
+        else
+        {
+            yield return IfStatement(condition, ifBlock);
+        }
     }
 
     [Pure]
