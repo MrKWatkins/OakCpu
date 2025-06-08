@@ -1,0 +1,55 @@
+instructions:
+  - group: CALL
+    mnemonic: CALL nn
+    opcodes:
+      - opcode: 0xCD
+
+    steps:
+      - Address = PC; PC = PC + 1; memory_read();
+      - Z = Data;
+      - 
+      - Address = PC; PC = PC + 1; memory_read();
+      - W = Data;
+      - 
+      - 
+      - SP = SP - 1; Address = SP; Data = PCH; memory_write();
+      - 
+      - 
+      - SP = SP - 1; Address = SP; Data = PCL; PC = WZ; memory_write();
+      -
+      -
+  
+  - group: CALL
+    mnemonic: CALL C0, nn
+    opcodes:
+      - opcode: 0xC4
+        C0: NZ
+      - opcode: 0xCC
+        C0: Z
+      - opcode: 0xD4
+        C0: NC
+      - opcode: 0xDC
+        C0: C
+      - opcode: 0xE4
+        C0: PO
+      - opcode: 0xEC
+        C0: PE
+      - opcode: 0xF4
+        C0: P
+      - opcode: 0xFC
+        C0: M
+
+    steps:
+      - Address = PC; PC = PC + 1; memory_read();
+      - Z = Data;
+      -
+      - Address = PC; PC = PC + 1; memory_read();
+      - W = Data; if !condition.C0; finish_instruction(); endif;
+      -
+      -
+      - SP = SP - 1; Address = SP; Data = PCH; memory_write();
+      -
+      -
+      - SP = SP - 1; Address = SP; Data = PCL; PC = WZ; memory_write();
+      -
+      -

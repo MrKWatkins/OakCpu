@@ -66,6 +66,12 @@ registers:
   - name: PC
     type: u16
     program_counter: true
+    high:
+      name: PCH
+      type: u8
+    low:
+      name: PCL
+      type: u8
 
   - name: SP
     type: u16
