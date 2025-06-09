@@ -5,7 +5,7 @@ instructions:
       - opcode: 0x10
     steps:
       - 
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - B = B - 1; if B == 0; finish_instruction(); endif;
       - PC = PC + signed(Data); WZ = PC;
       - 

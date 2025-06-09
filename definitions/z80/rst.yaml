@@ -21,9 +21,9 @@ instructions:
 
     steps:
       - 
-      - SP = SP - 1; Address = SP; Data = PCH; memory_write();
+      - SP = SP - 1; Address = SP; Data = PCH; request(action.memory_write);
       - 
       - 
-      - SP = SP - 1; Address = SP; Data = PCL; PC = N0; WZ = N0; memory_write();
+      - SP = SP - 1; Address = SP; Data = PCL; PC = N0; WZ = N0; request(action.memory_write);
       -
       - 

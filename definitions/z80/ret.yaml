@@ -5,10 +5,10 @@ instructions:
       - opcode: 0xC9
 
     steps:
-      - Address = SP; SP = SP + 1; memory_read();
+      - Address = SP; SP = SP + 1; request(action.memory_read);
       - Z = Data;
       - 
-      - Address = SP; SP = SP + 1; memory_read();
+      - Address = SP; SP = SP + 1; request(action.memory_read);
       - W = Data; PC = WZ;
       - 
 
@@ -34,9 +34,9 @@ instructions:
 
     steps:
       - if !condition.C0; finish_instruction(); endif;
-      - Address = SP; SP = SP + 1; memory_read();
+      - Address = SP; SP = SP + 1; request(action.memory_read);
       - Z = Data;
       - 
-      - Address = SP; SP = SP + 1; memory_read();
+      - Address = SP; SP = SP + 1; request(action.memory_read);
       - W = Data; PC = WZ;
       - 

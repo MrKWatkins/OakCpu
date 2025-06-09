@@ -1,4 +1,3 @@
-using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 
@@ -27,7 +26,7 @@ public sealed class Cpu
 
         var context = new ParserContext(actions, registers, flags, conditions);
 
-        var opcodeRead = Step.Parse("Opcode read", context, yaml.OpcodeRead, MoveToOpcode.Instance);
+        var opcodeRead = Step.Parse("Opcode read", context, yaml.OpcodeRead);
 
         return new Cpu(yaml.Name, actions, opcodeRead);
     }

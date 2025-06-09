@@ -7,13 +7,13 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorClassGenerator
+public sealed class EmulatorInstanceFieldsPropertiesAndConstructorGenerator : EmulatorClassGenerator
 {
     private const string RegistersPropertyName = "Registers";
     private const string FlagsPropertyName = "Flags";
-    public static readonly EmulatorFieldsPropertiesAndConstructorGenerator Instance = new();
+    public static readonly EmulatorInstanceFieldsPropertiesAndConstructorGenerator Instance = new();
 
-    private EmulatorFieldsPropertiesAndConstructorGenerator()
+    private EmulatorInstanceFieldsPropertiesAndConstructorGenerator()
     {
     }
 
@@ -22,13 +22,7 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     {
         var structLayout = CreateStructLayoutAttribute(requiredUsings);
 
-        var members = new List<MemberDeclarationSyntax>
-        {
-            CreateOpcodeStepTableField(),
-            CreateStaticConstructor(requiredUsings, input)
-        };
-
-        members.AddRange(input.Registers.Values.Select(r => CreateField(requiredUsings, r)));
+        var members = input.Registers.Values.Select(r => CreateField(requiredUsings, r)).ToList<MemberDeclarationSyntax>();
 
         members.Add(CreateConstructor(input));
 
@@ -39,17 +33,20 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
         members.Add(CreateGetOnlyProperty(requiredUsings, GetFlagsClassName(input), FlagsPropertyName, fieldOffset));
         fieldOffset += 8;
 
+        members.Add(CreateField(requiredUsings, DataMember.OpcodeStepTable, fieldOffset, Private));
+        fieldOffset += 8;
+
         members.Add(CreateGetSetProperty(requiredUsings, DataMember.Address, fieldOffset));
         fieldOffset += DataMember.Address.MemberSize;
+
+        // TODO: Make private, think of a nice and quick way to indicate the end (or start!) of an instruction.
+        members.Add(CreateField(requiredUsings, DataMember.Step, fieldOffset, Internal));
+        fieldOffset += DataMember.Step.MemberSize;
 
         members.Add(CreateGetSetProperty(requiredUsings, DataMember.Data, fieldOffset));
         fieldOffset += DataMember.Data.MemberSize;
 
-        members.Add(CreateField(requiredUsings, DataMember.Prefix, fieldOffset, Private));
-        fieldOffset += DataMember.Prefix.MemberSize;
-
-        // TODO: Make private, think of a nice and quick way to indicate the end (or start!) of an instruction.
-        members.Add(CreateField(requiredUsings, DataMember.Step, fieldOffset, Internal));
+        members.Add(CreateGetSetProperty(requiredUsings, DataMember.Latch, fieldOffset));
 
         return classDeclaration
             .AddAttributeLists(AttributeList(SingletonSeparatedList(structLayout)))
@@ -61,6 +58,13 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
     {
         var statements = new List<StatementSyntax>
         {
+            // opcodeStepTable = OpcodeStepTableNoPrefix;
+            ExpressionStatement(
+                AssignmentExpression(
+                    SyntaxKind.SimpleAssignmentExpression,
+                    IdentifierName(DataMember.OpcodeStepTable.Name),
+                    IdentifierName(input.OpcodeStepTables.NoPrefix.FieldName))),
+
             // Registers = new Z80Registers(this);
             CreateNewObjectAndAssignToProperty(RegistersPropertyName, GetRegistersClassName(input), ThisExpression()),
 
@@ -139,23 +143,6 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
             .AddModifiers(modifiers.ToArray());
     }
 
-    [Pure]
-    private static FieldDeclarationSyntax CreateOpcodeStepTableField()
-    {
-        var ushortType = PredefinedType(Token(SyntaxKind.UShortKeyword));
-        var ushortArrayType = ArrayType(ushortType).WithRankSpecifiers([ArrayRankSpecifier([LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(256))])]);
-        var arrayType = ArrayType(ushortArrayType).WithRankSpecifiers([ArrayRankSpecifier([OmittedArraySizeExpression()])]);
-
-        var variableDeclarator = VariableDeclarator(Identifier(DataMember.OpcodeStepTable.Name))
-            .WithInitializer(EqualsValueClause(ArrayCreationExpression(arrayType)));
-
-        var variable = VariableDeclaration(DataMember.OpcodeStepTable.MemberTypeSyntax)
-            .WithVariables(SingletonSeparatedList(variableDeclarator));
-
-        return FieldDeclaration(variable)
-            .AddModifiers(Private, Static, ReadOnly);
-    }
-
     [MustUseReturnValue]
     private static AttributeSyntax CreateStructLayoutAttribute(HashSet<string> requiredUsings)
     {
@@ -185,97 +172,5 @@ public sealed class EmulatorFieldsPropertiesAndConstructorGenerator : EmulatorCl
                         LiteralExpression(
                             SyntaxKind.NumericLiteralExpression,
                             Literal(fieldOffset))))));
-    }
-
-    [MustUseReturnValue]
-    private static ConstructorDeclarationSyntax CreateStaticConstructor(HashSet<string> requiredUsings, GeneratorInput input)
-    {
-        requiredUsings.Add(typeof(BitConverter).Namespace);
-        requiredUsings.Add(typeof(NotSupportedException).Namespace);
-
-        // throw new NotSupportedException("Only little endian systems are supported.");
-        var throwStatement = ThrowStatement(
-                ObjectCreationExpression(IdentifierName(nameof(NotSupportedException)))
-                    .WithArgumentList(
-                        ArgumentList(
-                            SingletonSeparatedList(
-                                Argument(
-                                    LiteralExpression(
-                                        SyntaxKind.StringLiteralExpression,
-                                        Literal("Only little endian systems are supported.")))))));
-
-        // #pragma warning disable CA1065
-        var pragmaDisable = PragmaWarningDirectiveTrivia(
-                Token(SyntaxKind.DisableKeyword),
-                SeparatedList<ExpressionSyntax>()
-                    .Add(IdentifierName("CA1065")),
-                true);
-
-        // #pragma warning enable CA1065
-        var pragmaRestore = PragmaWarningDirectiveTrivia(
-                Token(SyntaxKind.RestoreKeyword),
-                SeparatedList<ExpressionSyntax>()
-                    .Add(IdentifierName("CA1065")),
-                true);
-
-        // !BitConverter.IsLittleEndian
-        var condition = PrefixUnaryExpression(
-                SyntaxKind.LogicalNotExpression,
-                MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName(nameof(BitConverter)),
-                    IdentifierName(nameof(BitConverter.IsLittleEndian))));
-
-        // if (!BitConverter.IsLittleEndian)
-        // {
-        // #pragma warning disable CA1065
-        //  throw new NotSupportedException("Only little endian systems are supported.");
-        // #pragma warning restore CA1065
-        // }
-        var ifStatement = IfStatement(
-                condition,
-                Block(
-                    List<StatementSyntax>()
-                        .Add(throwStatement
-                            .WithLeadingTrivia(Trivia(pragmaDisable))
-                            .WithTrailingTrivia(Trivia(pragmaRestore)))));
-
-        var statements = CreateOpcodeStepTableInitializationStatements(input).Prepend(ifStatement).ToArray();
-
-        // Static constructor
-        return ConstructorDeclaration(GetEmulatorClassName(input))
-            .WithModifiers(TokenList(Static))
-            .WithBody(Block(statements));
-    }
-
-    [Pure]
-    private static IEnumerable<StatementSyntax> CreateOpcodeStepTableInitializationStatements(GeneratorInput input)
-    {
-        var instructionsByPrefix = input.Instructions.GroupBy(i => i.Prefix ?? 0).OrderBy(g => g.Key);
-
-        foreach (var group in instructionsByPrefix)
-        {
-            var prefixIndex = group.Key;
-            var instructions = group;
-
-            var stepIndices = Enumerable.Repeat(65535, 256).ToArray();
-            foreach (var instruction in instructions)
-            {
-                // TODO: If instruction.opcode in prefixes do something.
-                stepIndices[instruction.Opcode] = instruction.Steps.First().Index;
-            }
-
-            var literals = stepIndices.Select(index => ExpressionElement(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(index))));
-
-            var value = CollectionExpression(SeparatedList<CollectionElementSyntax>(literals));
-
-            var assignment = AssignmentExpression(
-                SyntaxKind.SimpleAssignmentExpression,
-                ElementAccessExpression(IdentifierName(DataMember.OpcodeStepTable.Name))
-                    .WithArgumentList(BracketedArgumentList([Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(prefixIndex)))])),
-                value);
-
-            yield return ExpressionStatement(assignment);
-        }
     }
 }

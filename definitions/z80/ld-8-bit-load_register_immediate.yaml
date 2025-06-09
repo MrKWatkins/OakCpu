@@ -17,7 +17,7 @@ instructions:
       - opcode: 0x3E
         R0: A
     steps:
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - R0 = Data;
       - 
     next_opcode: overlapped

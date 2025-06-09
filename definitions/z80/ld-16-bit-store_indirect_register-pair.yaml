@@ -4,15 +4,15 @@ instructions:
     opcodes:
       - opcode: 0x22
     steps:
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - Z = Data;
       - 
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - W = Data;
       - 
-      - Address = WZ; Data = L; WZ = WZ + 1; memory_write();
+      - Address = WZ; Data = L; WZ = WZ + 1; request(action.memory_write);
       - 
       - 
-      - Address = WZ; Data = H; memory_write();
+      - Address = WZ; Data = H; request(action.memory_write);
       - 
       - 

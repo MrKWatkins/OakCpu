@@ -4,10 +4,10 @@ instructions:
     opcodes:
       - opcode: 0x36
     steps:
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - # Data will be set with n.
       - 
-      - Address = HL; memory_write();
+      - Address = HL; request(action.memory_write);
       - 
       - 
     next_opcode: overlapped

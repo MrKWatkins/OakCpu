@@ -58,25 +58,9 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
     [Pure]
     private static StatementSyntax CreateThrowNotSupportedException()
     {
-        // $"The opcode {prefix != 0 ? $"0x{opcode:X2} " : ""}0x{Data:X2} is not supported."
-
-        // $"0x{opcode:X2} "
-        var ternaryFormat = GenerateInterpolatedString(
-            InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, "0x", "0x", TriviaList())),
-            GenerateX2Interpolation(DataMember.Prefix),
-            InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, " ", " ", TriviaList())));
-
-        // (prefix != 0 ? $"0x{opcode:X2} " : "")
-        var ternary = ParenthesizedExpression(
-            ConditionalExpression(
-                BinaryExpression(SyntaxKind.NotEqualsExpression, IdentifierName(DataMember.Prefix.Name), LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(0))),
-                ternaryFormat,
-                LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(""))));
-
+        // $"The opcode 0x{Data:X2} is not supported."
         var interpolatedString = GenerateInterpolatedString(
-            InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, "The opcode ", "The opcode ", TriviaList())),
-            Interpolation(ternary),
-            InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, "0x", "0x", TriviaList())),
+            InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, "The opcode 0x", "The opcode 0x", TriviaList())),
             GenerateX2Interpolation(DataMember.Data),
             InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, " is not supported.", " is not supported.", TriviaList())));
 

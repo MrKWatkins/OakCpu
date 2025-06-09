@@ -201,11 +201,11 @@ instructions:
       - opcode: 0xCB 0xFE
         N0: 7
     steps:
-      - Address = HL; memory_read();
+      - Address = HL; request(action.memory_read);
       -
       -
       - Data = Data | (1 << N0);
-      - memory_write();
+      - request(action.memory_write);
       -
       -
     next_opcode: overlapped

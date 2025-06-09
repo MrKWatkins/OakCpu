@@ -240,6 +240,16 @@ public static class Parser
             return new ConditionAccess(condition);
         }
 
+        if (identifier.StartsWith("action.") && context.Actions.TryGetValue(identifier.Substring(7), out var action))
+        {
+            return new ActionAccess(action);
+        }
+
+        if (identifier.StartsWith("opcode_table.") && context.OpcodeStepTables!.Custom.TryGetValue(identifier.Substring(13), out var opcodeStepTable))
+        {
+            return new OpcodeStepTableAccess(opcodeStepTable);
+        }
+
         throw new NotSupportedException($"Unsupported identifier {identifier}.");
     }
 
@@ -248,16 +258,6 @@ public static class Parser
     {
         // Open bracket.
         lexer.Read();
-
-        if (context.Actions.TryGetValue(identifier, out var action))
-        {
-            if (lexer.Read() is not CloseBracket)
-            {
-                throw new InvalidOperationException("Expected close bracket.");
-            }
-
-            return new RequestAction(action);
-        }
 
         var function = ResolveFunction(context, identifier);
 
@@ -299,9 +299,4 @@ public static class Parser
 
     [Pure]
     private static FormatException CreateUnexpectedTokenException(Token token) => new($"Unexpected token {token.GetType().Name} {token} at index {token.StartIndex}.");
-
-    private sealed class State
-    {
-        public IfStatement? IfStatement { get; set; }
-    }
 }

@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
+using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -16,7 +17,7 @@ public abstract class StatementGenerator : Generator
 
         if (step.Instruction is { Prefix: not null } && step.Instruction.Steps[0] == step)
         {
-            yield return GenerateResetPrefix();
+            yield return GenerateSetOpcodeStepTable(input.OpcodeStepTables.NoPrefix);
         }
 
         foreach (var stepStatement in step.Statements)
@@ -42,10 +43,6 @@ public abstract class StatementGenerator : Generator
         {
             Assignment assignment => GenerateAssignment(context, assignment),
             IfStatement ifStatement => GenerateIf(context, ifStatement),
-            MoveToOpcodeRead => GenerateMoveToOpcodeReadStatement(),
-            MoveToOpcode => GenerateMoveToOpcode(),
-            OverlappedOpcodeRead => GenerateOverlappedOpcodeRead(context),
-            RequestAction requestAction => GenerateRequestAction(requestAction),
             CallStatement callStatement => GenerateCall(context, callStatement),
             _ => throw new NotSupportedException($"The statement type {statement.GetType().Name} is not supported.")
         };
@@ -59,14 +56,35 @@ public abstract class StatementGenerator : Generator
         }
         if (callStatement.Call.Function == PreDefinedFunction.FinishInstruction)
         {
-            return GenerateFinishInstruction(context, callStatement.Call);
+            return GenerateFinishInstruction();
+        }
+        if (callStatement.Call.Function == PreDefinedFunction.MoveToOpcode)
+        {
+            return GenerateMoveToOpcode();
+        }
+        if (callStatement.Call.Function == PreDefinedFunction.MoveToOpcodeRead)
+        {
+            return GenerateMoveToOpcodeRead();
+        }
+        if (callStatement.Call.Function == PreDefinedFunction.OverlapOpcodeRead)
+        {
+            return GenerateOverlapOpcodeRead(context);
+        }
+        if (callStatement.Call.Function == PreDefinedFunction.Request)
+        {
+            return GenerateRequest(
+                (callStatement.Call.Arguments.FirstOrDefault() as ActionAccess)?.Action ?? throw new InvalidOperationException("The request function must have an action as the first argument."));
+        }
+        if (callStatement.Call.Function == PreDefinedFunction.SetOpcodeStepTable)
+        {
+            return GenerateSetOpcodeStepTable(context, callStatement.Call);
         }
 
         throw new NotSupportedException($"The function {callStatement.Call.Function} is not supported.");
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateFinishInstruction(StepContext context, Call call)
+    private static IEnumerable<StatementSyntax> GenerateFinishInstruction()
     {
         yield return CreateSetStep(0).WithLeadingTrivia(Comment("// Finish instruction."));
     }
@@ -134,18 +152,18 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateRequestAction(RequestAction requestAction)
+    private static IEnumerable<StatementSyntax> GenerateRequest(Action action)
     {
         yield return
             ReturnStatement(
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     IdentifierName(ActionRequiredEnumName),
-                    IdentifierName(requestAction.Action.EnumName)));
+                    IdentifierName(action.EnumName)));
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateMoveToOpcodeReadStatement()
+    private static IEnumerable<StatementSyntax> GenerateMoveToOpcodeRead()
     {
         yield return CreateSetStep(0);
     }
@@ -156,16 +174,14 @@ public abstract class StatementGenerator : Generator
         // TODO: Version without bounds checks, don't rely on the JIT.
         var getOpcode =
             ElementAccessExpression(
-                ElementAccessExpression(
-                    IdentifierName(DataMember.OpcodeStepTable.Name),
-                    BracketedArgumentList([Argument(IdentifierName(DataMember.Prefix.Name))])),
+                IdentifierName(DataMember.OpcodeStepTable.Name),
                 BracketedArgumentList([Argument(IdentifierName(DataMember.Data.Name))]));
 
         yield return CreateSetStep(getOpcode);
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateOverlappedOpcodeRead(StepContext context)
+    private static IEnumerable<StatementSyntax> GenerateOverlapOpcodeRead(StepContext context)
     {
         context.CommentsAheadOfNextStatement.Add("Overlapped opcode read.");
 
@@ -177,8 +193,34 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    private static StatementSyntax GenerateResetPrefix() =>
-        ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(DataMember.Prefix.Name), GenerateNumericLiteralExpression(0)));
+    private static IEnumerable<StatementSyntax> GenerateSetOpcodeStepTable(StepContext opcodeStepTable, Call callStatementCall)
+    {
+        if (callStatementCall.Arguments.Count == 0)
+        {
+            return [GenerateSetOpcodeStepTable(opcodeStepTable.Input.OpcodeStepTables.NoPrefix)];
+        }
+
+        var argument = callStatementCall.Arguments[0];
+        if (argument is Number number)
+        {
+            return [GenerateSetOpcodeStepTable(opcodeStepTable.Input.OpcodeStepTables.GetForPrefix((byte)number.Value))];
+        }
+
+        if (argument is OpcodeStepTableAccess opcodeStepTableAccess)
+        {
+            return [GenerateSetOpcodeStepTable(opcodeStepTableAccess.OpcodeStepTable)];
+        }
+
+        throw new NotSupportedException($"The argument {argument} is not supported for {PreDefinedFunction.SetOpcodeStepTable.Name}.");
+    }
+
+    [Pure]
+    private static StatementSyntax GenerateSetOpcodeStepTable(OpcodeStepTable opcodeStepTable) =>
+        ExpressionStatement(
+            AssignmentExpression(
+                SyntaxKind.SimpleAssignmentExpression,
+                IdentifierName(DataMember.OpcodeStepTable.Name),
+                IdentifierName(opcodeStepTable.FieldName)));
 
     [Pure]
     private static StatementSyntax CreateSetStep(int step) => CreateSetStep(GenerateNumericLiteralExpression(step));

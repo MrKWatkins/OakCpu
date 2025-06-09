@@ -25,17 +25,17 @@ instructions:
       - opcode: 0xFD 0xE3
         RP0: IY
     steps:
-      - Address = SP; memory_read();
+      - Address = SP; request(action.memory_read);
       - Z = Data;
       - 
-      - Address = SP + 1; memory_read();
+      - Address = SP + 1; request(action.memory_read);
       - W = Data;
       - 
       - 
-      - Data = RP0H; memory_write(); # Skipping setting Address as it is already Address = SP + 1.
+      - Data = RP0H; request(action.memory_write); # Skipping setting Address as it is already Address = SP + 1.
       - 
       - 
-      - Address = SP; Data = RP0L; memory_write();
+      - Address = SP; Data = RP0L; request(action.memory_write);
       - 
       - 
       - 

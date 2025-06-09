@@ -5,17 +5,17 @@ instructions:
       - opcode: 0xCD
 
     steps:
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - Z = Data;
       - 
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - W = Data;
       - 
       - 
-      - SP = SP - 1; Address = SP; Data = PCH; memory_write();
+      - SP = SP - 1; Address = SP; Data = PCH; request(action.memory_write);
       - 
       - 
-      - SP = SP - 1; Address = SP; Data = PCL; PC = WZ; memory_write();
+      - SP = SP - 1; Address = SP; Data = PCL; PC = WZ; request(action.memory_write);
       -
       -
   
@@ -40,16 +40,16 @@ instructions:
         C0: M
 
     steps:
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - Z = Data;
       -
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - W = Data; if !condition.C0; finish_instruction(); endif;
       -
       -
-      - SP = SP - 1; Address = SP; Data = PCH; memory_write();
+      - SP = SP - 1; Address = SP; Data = PCH; request(action.memory_write);
       -
       -
-      - SP = SP - 1; Address = SP; Data = PCL; PC = WZ; memory_write();
+      - SP = SP - 1; Address = SP; Data = PCL; PC = WZ; request(action.memory_write);
       -
       -

@@ -4,12 +4,12 @@ instructions:
     opcodes:
       - opcode: 0x32
     steps:
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - Z = Data;
       - 
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - W = Data;
       - 
-      - Address = WZ; Data = A; Z = Z + 1; W = A; memory_write();
+      - Address = WZ; Data = A; Z = Z + 1; W = A; request(action.memory_write);
       - 
       - 

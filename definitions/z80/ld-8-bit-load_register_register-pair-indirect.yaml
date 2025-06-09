@@ -7,7 +7,7 @@ instructions:
       - opcode: 0x1A
         RP0: DE
     steps:
-      - Address = RP0; memory_read();
+      - Address = RP0; request(action.memory_read);
       - A = Data; WZ = RP0 + 1;
       - 
 
@@ -36,6 +36,6 @@ instructions:
         R0: A
         RP0: HL
     steps:
-      - Address = RP0; memory_read();
+      - Address = RP0; request(action.memory_read);
       - R0 = Data;
       - 

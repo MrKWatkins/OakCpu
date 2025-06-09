@@ -34,7 +34,7 @@ instructions:
     opcodes:
       - opcode: 0xFE
     steps:
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       -
       - $left = A; $right = Data; $result = $left - $right; flags();
     flags:
@@ -53,7 +53,7 @@ instructions:
     opcodes:
       - opcode: 0xBE
     steps:
-      - Address = HL; memory_read();
+      - Address = HL; request(action.memory_read);
       - 
       - $left = A; $right = Data; $result = $left - $right; flags();
     flags:

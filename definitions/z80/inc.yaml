@@ -61,11 +61,11 @@ instructions:
     opcodes:
       - opcode: 0x34
     steps:
-      - Address = HL; memory_read();
+      - Address = HL; request(action.memory_read);
       - 
       - 
       - Data = Data + 1; flags();
-      - memory_write(); # Skipping setting Address = HL as it should still contain HL. Skipping setting Data as it should still contain Data + 1.
+      - request(action.memory_write); # Skipping setting Address = HL as it should still contain HL. Skipping setting Data as it should still contain Data + 1.
       - 
       - 
     flags:

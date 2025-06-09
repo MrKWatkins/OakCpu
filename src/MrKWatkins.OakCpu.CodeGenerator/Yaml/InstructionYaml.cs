@@ -18,6 +18,8 @@ public sealed partial class InstructionYaml
 
     public string Mnemonic { get; private set; } = null!;
 
+    public string? OpcodeTable { get; private set; }
+
     public IReadOnlyList<OpcodeYaml> Opcodes
     {
         get => opcodes ?? [];

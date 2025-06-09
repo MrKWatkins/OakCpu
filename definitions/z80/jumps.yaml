@@ -5,10 +5,10 @@ instructions:
       - opcode: 0xC3
 
     steps:
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - Z = Data;
       - 
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - W = Data; PC = WZ;
       - 
 
@@ -33,10 +33,10 @@ instructions:
         C0: M
 
     steps:
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - Z = Data;
       - 
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - W = Data;
       - if condition.C0; PC = WZ; endif;
     
@@ -45,7 +45,7 @@ instructions:
     opcodes:
       - opcode: 0x18
     steps:
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - 
       - 
       - PC = PC + signed(Data); WZ = PC;
@@ -66,7 +66,7 @@ instructions:
       - opcode: 0x38
         C0: C
     steps:
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       - if !condition.C0; finish_instruction(); endif;
       - 
       - PC = PC + signed(Data); WZ = PC;

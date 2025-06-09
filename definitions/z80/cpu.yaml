@@ -6,8 +6,36 @@ cpu:
     - memory_write
     - io_read
     - io_write
+  # TODO: Custom fields for latch.
   opcode_read:
-    - Address = PC; PC = PC + 1; opcode_read();
+    - Address = PC; PC = PC + 1; request(action.opcode_read);
     - 
     - R = (R & 0x80) | ((R + 1) & 0x7F); Address = IR;  # TODO: Visual Z80 remix implies IR goes on the bus before increment; but Fuse contention tests imply after.
-    - 
+    - move_to_opcode();
+
+instructions:
+  - group: Redirects
+    mnemonic: DDCB Redirect
+    opcodes:
+      - opcode: 0xDD 0xCB
+    steps:
+      - set_opcode_step_table(opcode_table.DDCB); Address = PC; PC = PC + 1; request(action.memory_read);
+      - latch = Data;
+      -
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - 
+      - move_to_opcode(); set_opcode_step_table();
+    next_opcode: none
+    
+  - group: Redirects
+    mnemonic: FDCB Redirect
+    opcodes:
+      - opcode: 0xFD 0xCB
+    steps:
+      - set_opcode_step_table(opcode_table.FDCB); Address = PC; PC = PC + 1; request(action.memory_read);
+      - latch = Data;
+      -
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - 
+      - move_to_opcode(); set_opcode_step_table();
+    next_opcode: none

@@ -13,7 +13,7 @@ public sealed class Step
             throw new ArgumentException("Value cannot be empty.", nameof(statements));
         }
 
-        if (statements.Last() is not TerminalStatement)
+        if (!statements.Last().IsTerminal)
         {
             throw new ArgumentException("The last statement must be a terminal statement.", nameof(statements));
         }
@@ -45,22 +45,18 @@ public sealed class Step
     }
 
     [Pure]
-    public static IReadOnlyList<Step> Parse(string baseName, ParserContext context, IReadOnlyList<string?> steps, Statement? finalStepStatement = null) =>
-        steps.Select((s, i) => Parse($"{baseName} [{i}]", context, s, i == steps.Count - 1 ? finalStepStatement : null)).ToList();
+    public static IReadOnlyList<Step> Parse(string baseName, ParserContext context, IReadOnlyList<string?> steps) =>
+        steps.Select((s, i) => Parse($"{baseName} [{i}]", context, s)).ToList();
 
     [Pure]
-    public static Step Parse(string name, ParserContext context, string? step, Statement? finalStatement = null)
+    public static Step Parse(string name, ParserContext context, string? step)
     {
         var statements = Parser.ParseStatements(context, step).ToList();
-        if (finalStatement != null)
-        {
-            statements.Add(finalStatement);
-        }
 
         var lastStep = statements.LastOrDefault();
-        if (lastStep is not TerminalStatement)
+        if (lastStep is not { IsTerminal: true })
         {
-            statements.Add(RequestAction.None);
+            statements.Add(new CallStatement(new Call(PreDefinedFunction.Request, [new ActionAccess(Action.None)])));
         }
         return new Step(name, statements);
     }

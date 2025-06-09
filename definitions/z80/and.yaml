@@ -32,7 +32,7 @@ instructions:
     opcodes:
       - opcode: 0xE6
     steps:
-      - Address = PC; PC = PC + 1; memory_read();
+      - Address = PC; PC = PC + 1; request(action.memory_read);
       -
       - A = A & Data; flags();
     flags:
@@ -49,7 +49,7 @@ instructions:
     opcodes:
       - opcode: 0xA6
     steps:
-      - Address = HL; memory_read();
+      - Address = HL; request(action.memory_read);
       - 
       - 
       - A = A & Data; flags();

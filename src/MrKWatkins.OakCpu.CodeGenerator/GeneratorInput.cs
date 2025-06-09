@@ -12,7 +12,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator;
 
 public sealed class GeneratorInput
 {
-    private GeneratorInput(string rootNamespace, Cpu cpu, IReadOnlyDictionary<string, Register> registers, IReadOnlyDictionary<string, Flag> flags, IReadOnlyDictionary<string, Condition> conditions, IReadOnlyList<Instruction> instructions, Dictionary<string, UserDefinedFunction> userDefinedFunctions)
+    private GeneratorInput(string rootNamespace, Cpu cpu, IReadOnlyDictionary<string, Register> registers, IReadOnlyDictionary<string, Flag> flags, IReadOnlyDictionary<string, Condition> conditions, IReadOnlyList<Instruction> instructions, Dictionary<string, UserDefinedFunction> userDefinedFunctions, OpcodeStepTables opcodeStepTables)
     {
         VerifyNoDuplicateOpcodes(instructions);
         RootNamespace = rootNamespace;
@@ -22,6 +22,7 @@ public sealed class GeneratorInput
         Conditions = conditions;
         Instructions = instructions;
         UserDefinedFunctions = userDefinedFunctions;
+        OpcodeStepTables = opcodeStepTables;
         FlagsRegister = Registers.Values.Single(r => r.Flags);
         ProgramCounter = Registers.Values.Single(r => r.ProgramCounter);
         OpcodePrefixes = Instructions.Where(i => i.Prefix.HasValue).Select(i => i.Prefix!.Value).Distinct().OrderBy(p => p).ToList();
@@ -48,7 +49,9 @@ public sealed class GeneratorInput
 
     public Register ProgramCounter { get; }
 
-    public IEnumerable<Step> AllSteps => Cpu.OpcodeRead.Concat(Instructions.SelectMany(i => i.Steps));
+    public OpcodeStepTables OpcodeStepTables { get; }
+
+    public IEnumerable<Step> AllSteps => Cpu.OpcodeRead.Concat(Instructions.SelectMany(i => i.Steps).OrderBy(s => s.Name));
 
     [Pure]
     public NamespaceDeclarationSyntax CreateRootNamespaceDeclaration() => SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(RootNamespace));
@@ -73,14 +76,17 @@ public sealed class GeneratorInput
 
         var cpu = Cpu.Create(yaml.Cpu, registers, flags, conditions);
 
-        var context = new ParserContext(cpu.Actions, registers, flags, conditions);
+        var opcodeStepTables = new OpcodeStepTables(yaml.Instructions);
+
+        var context = new ParserContext(cpu.Actions, registers, flags, conditions).WithOpcodeStepTables(opcodeStepTables);
+
         var userDefinedFunctions = UserDefinedFunction.Create(context, yaml.Functions).ToDictionary(f => f.Name);
 
         context = context.WithFunctions(userDefinedFunctions);
 
         var instructions = Instruction.Create(context, yaml.Instructions);
 
-        return new GeneratorInput(rootNamespace, cpu, registers, flags, conditions, instructions, userDefinedFunctions);
+        return new GeneratorInput(rootNamespace, cpu, registers, flags, conditions, instructions, userDefinedFunctions, opcodeStepTables);
     }
 
     [Pure]
@@ -99,11 +105,16 @@ public sealed class GeneratorInput
 
     private static void VerifyNoDuplicateOpcodes(IReadOnlyList<Instruction> instructions)
     {
-        var duplicates = instructions.GroupBy(i => (i.Prefix, i.Opcode)).Where(g => g.Count() > 1).ToList();
-        if (duplicates.Count > 0)
+        foreach (var group in instructions.GroupBy(i => i.OpcodeTable))
         {
-            throw new InvalidOperationException(
-                $"The following opcodes are defined multiple times: {string.Join("\n", duplicates.Select(g => $"{(g.Key.Prefix.HasValue ? $"0x{g.Key.Prefix.Value:X2} " : "")}0x{g.Key.Opcode:X2} [{string.Join(", ", g.Select(i => i.Mnemonic))}]"))}");
+            var duplicates = group.GroupBy(i => (i.Prefix, i.Opcode)).Where(g => g.Count() > 1).ToList();
+            if (duplicates.Count > 0)
+            {
+                var groupText = group != null ? $"in opcode table {group.Key}" : "";
+
+                throw new InvalidOperationException(
+                    $"The following opcodes {groupText} are defined multiple times: {string.Join("\n", duplicates.Select(g => $"{(g.Key.Prefix.HasValue ? $"0x{g.Key.Prefix.Value:X2} " : "")}0x{g.Key.Opcode:X2} [{string.Join(", ", g.Select(i => i.Mnemonic))}]"))}");
+            }
         }
     }
 }

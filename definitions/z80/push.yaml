@@ -17,9 +17,9 @@ instructions:
 
     steps:
       - 
-      - SP = SP - 1; Address = SP; Data = RP0H; memory_write();
+      - SP = SP - 1; Address = SP; Data = RP0H; request(action.memory_write);
       - 
       - 
-      - SP = SP - 1; Address = SP; Data = RP0L; memory_write();
+      - SP = SP - 1; Address = SP; Data = RP0L; request(action.memory_write);
       - 
       - 
