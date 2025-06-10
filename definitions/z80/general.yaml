@@ -1,8 +1,0 @@
-instructions:
-  - group: General
-    mnemonic: NOP
-    opcodes:
-      - opcode: 0x00
-    steps:
-      - 
-    next_opcode: overlapped
