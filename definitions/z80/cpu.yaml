@@ -15,6 +15,22 @@ cpu:
 
 instructions:
   - group: Redirects
+    mnemonic: DDFD Redirect
+    opcodes:
+      - opcode: 0xDD 0xFD
+    steps:
+      - set_opcode_step_table(0xFD);
+    next_opcode: overlapped
+
+  - group: Redirects
+    mnemonic: FDDD Redirect
+    opcodes:
+      - opcode: 0xFD 0xDD
+    steps:
+      - set_opcode_step_table(0xDD);
+    next_opcode: overlapped
+    
+  - group: Redirects
     mnemonic: DDCB Redirect
     opcodes:
       - opcode: 0xDD 0xCB
