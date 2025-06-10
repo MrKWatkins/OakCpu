@@ -1,8 +1,13 @@
 instructions:
   - group: LD
-    mnemonic: LD HL, (nn)
+    mnemonic: LD RP0, (nn)
     opcodes:
       - opcode: 0x2A
+        RP0: HL
+      - opcode: 0xDD 0x2A
+        RP0: IX
+      - opcode: 0xFD 0x2A
+        RP0: IY
     steps:
       - Address = PC; PC = PC + 1; request(action.memory_read);
       - Z = Data;
@@ -11,8 +16,8 @@ instructions:
       - W = Data;
       - 
       - Address = WZ; WZ = WZ + 1; request(action.memory_read);
-      - L = Data;
+      - RP0L = Data;
       - 
       - Address = WZ; request(action.memory_read);
-      - H = Data;
+      - RP0H = Data;
       - 

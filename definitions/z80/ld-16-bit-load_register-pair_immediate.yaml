@@ -10,6 +10,10 @@ instructions:
         RP0: HL
       - opcode: 0x31
         RP0: SP
+      - opcode: 0xDD 0x21
+        RP0: IX
+      - opcode: 0xFD 0x21
+        RP0: IY
     steps:
       - Address = PC; PC = PC + 1; request(action.memory_read);
       - RP0L = Data;

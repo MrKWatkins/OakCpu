@@ -16,6 +16,14 @@ instructions:
         R0: L
       - opcode: 0x3E
         R0: A
+      - opcode: 0xDD 0x26
+        R0: IXH
+      - opcode: 0xDD 0x2E
+        R0: IXL
+      - opcode: 0xFD 0x26
+        R0: IYH
+      - opcode: 0xFD 0x2E
+        R0: IYL
     steps:
       - Address = PC; PC = PC + 1; request(action.memory_read);
       - R0 = Data;
