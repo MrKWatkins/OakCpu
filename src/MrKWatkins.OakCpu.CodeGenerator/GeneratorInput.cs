@@ -51,7 +51,8 @@ public sealed class GeneratorInput
 
     public OpcodeStepTables OpcodeStepTables { get; }
 
-    public IEnumerable<Step> AllSteps => Cpu.OpcodeRead.Concat(Instructions.SelectMany(i => i.Steps).OrderBy(s => s.Name));
+    // Steps need to keep their order within an instruction or all hell breaks loose.
+    public IEnumerable<Step> AllSteps => Cpu.OpcodeRead.Concat(Instructions.SelectMany(i => i.Steps));
 
     [Pure]
     public NamespaceDeclarationSyntax CreateRootNamespaceDeclaration() => SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(RootNamespace));
