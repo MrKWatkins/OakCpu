@@ -259,7 +259,137 @@ instructions:
       Y: copy_from(Data)
       S: copy_from(Data)
     next_opcode: overlapped
-        
+
+  - group: RL
+    mnemonic: RL (IX + d)
+    opcode_table: DDCB
+    opcodes:
+      - opcode: 0x16
+    steps:
+      -
+      -
+      - WZ = IX + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = (Data << 1) | flag.C; flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: ($temp & 0x80) == 0x80
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+    next_opcode: overlapped
+
+  - group: RL
+    mnemonic: RL (IX + d), R0
+    opcode_table: DDCB
+    opcodes:
+      - opcode: 0x10
+        R0: B
+      - opcode: 0x11
+        R0: C
+      - opcode: 0x12
+        R0: D
+      - opcode: 0x13
+        R0: E
+      - opcode: 0x14
+        R0: H
+      - opcode: 0x15
+        R0: L
+      - opcode: 0x17
+        R0: A
+    steps:
+      -
+      -
+      - WZ = IX + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = (Data << 1) | flag.C; R0 = Data; flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: ($temp & 0x80) == 0x80
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+    next_opcode: overlapped
+
+  - group: RL
+    mnemonic: RL (IY + d)
+    opcode_table: FDCB
+    opcodes:
+      - opcode: 0x16
+    steps:
+      -
+      -
+      - WZ = IY + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = (Data << 1) | flag.C; flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: ($temp & 0x80) == 0x80
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+    next_opcode: overlapped
+
+  - group: RL
+    mnemonic: RL (IY + d), R0
+    opcode_table: FDCB
+    opcodes:
+      - opcode: 0x10
+        R0: B
+      - opcode: 0x11
+        R0: C
+      - opcode: 0x12
+        R0: D
+      - opcode: 0x13
+        R0: E
+      - opcode: 0x14
+        R0: H
+      - opcode: 0x15
+        R0: L
+      - opcode: 0x17
+        R0: A
+    steps:
+      -
+      -
+      - WZ = IY + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = (Data << 1) | flag.C; R0 = Data; flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: ($temp & 0x80) == 0x80
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+    next_opcode: overlapped
+    
   - group: RRCA
     mnemonic: RRCA
     opcodes:
