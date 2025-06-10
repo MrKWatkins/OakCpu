@@ -211,6 +211,37 @@ instructions:
     next_opcode: overlapped
 
   - group: RES
+    mnemonic: RES N0, (IX + d)
+    opcode_table: DDCB
+    opcodes:
+      - opcode: 0x86
+        N0: 0
+      - opcode: 0x8E
+        N0: 1
+      - opcode: 0x96
+        N0: 2
+      - opcode: 0x9E
+        N0: 3
+      - opcode: 0xA6
+        N0: 4
+      - opcode: 0xAE
+        N0: 5
+      - opcode: 0xB6
+        N0: 6
+      - opcode: 0xBE
+        N0: 7
+    steps:
+      -
+      -
+      - WZ = IX + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      -
+      - Data = Data & ~(1 << N0); request(action.memory_write);
+      -
+      -  
+  
+  - group: RES
     mnemonic: RES N0, (IX + d), R0
     opcode_table: DDCB
     opcodes:
@@ -588,4 +619,37 @@ instructions:
       -
       - Data = Data & ~(1 << N0); R0 = Data; request(action.memory_write);
       -
-      - 
+      -
+
+  - group: RES
+    mnemonic: RES N0, (IY + d)
+    opcode_table: FDCB
+    opcodes:
+      - opcode: 0x86
+        N0: 0
+      - opcode: 0x8E
+        N0: 1
+      - opcode: 0x96
+        N0: 2
+      - opcode: 0x9E
+        N0: 3
+      - opcode: 0xA6
+        N0: 4
+      - opcode: 0xAE
+        N0: 5
+      - opcode: 0xB6
+        N0: 6
+      - opcode: 0xBE
+        N0: 7
+    steps:
+      -
+      -
+      - WZ = IY + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      -
+      - Data = Data & ~(1 << N0); request(action.memory_write);
+      -
+      -  
+         
+        
