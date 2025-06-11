@@ -1,4 +1,4 @@
-using MrKWatkins.OakCpu.Z80.TestSuites.Fuse;
+using MrKWatkins.OakCpu.Z80.TestSuites.InstructionLevel.Fuse;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 

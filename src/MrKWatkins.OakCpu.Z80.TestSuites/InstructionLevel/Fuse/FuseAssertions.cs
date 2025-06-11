@@ -1,4 +1,4 @@
-namespace MrKWatkins.OakCpu.Z80.TestSuites.Fuse;
+namespace MrKWatkins.OakCpu.Z80.TestSuites.InstructionLevel.Fuse;
 
 // TODO: Make general version for all tests. Maybe make more granular, e.g. to register/flag level.
 [Flags]

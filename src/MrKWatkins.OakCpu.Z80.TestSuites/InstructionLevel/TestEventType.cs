@@ -1,4 +1,4 @@
-namespace MrKWatkins.OakCpu.Z80.TestSuites;
+namespace MrKWatkins.OakCpu.Z80.TestSuites.InstructionLevel;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public enum TestEventType

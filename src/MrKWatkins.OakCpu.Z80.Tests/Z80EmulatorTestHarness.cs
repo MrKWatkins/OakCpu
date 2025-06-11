@@ -1,5 +1,6 @@
 using FluentAssertions.Execution;
 using MrKWatkins.OakCpu.Z80.TestSuites;
+using MrKWatkins.OakCpu.Z80.TestSuites.InstructionLevel;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 

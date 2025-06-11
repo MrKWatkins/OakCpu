@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <ItemGroup>
-        <EmbeddedResource Include="Fuse\tests.expected" />
-        <EmbeddedResource Include="Fuse\tests.in" />
-    </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="InstructionLevel\Fuse\tests.expected" />
+    <EmbeddedResource Include="InstructionLevel\Fuse\tests.in" />
+  </ItemGroup>
 </Project>
