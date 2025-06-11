@@ -6,7 +6,7 @@ namespace MrKWatkins.OakCpu.Z80.Tests;
 public sealed class Z80EmulatorTestHarness : Z80TestHarness
 {
     private readonly Z80Emulator emulator = new();
-    private readonly byte[] memory = new byte[65536];
+    private int noContentionUntil;
 
     public override ushort RegisterAF
     {
@@ -109,6 +109,7 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
         get => emulator.Flags.N;
         set => emulator.Flags.N = value;
     }
+
     public override bool FlagPV
     {
         get => emulator.Flags.PV;
@@ -169,50 +170,16 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
         set => emulator.Interrupts.IsHalted = value;
     }
 
-    public override byte GetMemory(ushort address) => memory[address];
-
-    public override void SetMemory(ushort address, byte value) => memory[address] = value;
-
     public override IDisposable CreateAssertionScope() => new AssertionScope();
 
     public override void AssertEqual<T>(T actual, T expected, string? message = null) => actual.Should().Be(expected, message);
 
+    public override void AssertFail(string message) => Execute.Assertion.FailWith(message);
+
     public override void ExecuteStep()
     {
         var actionRequired = emulator.Step();
-
-        switch (actionRequired)
-        {
-            case ActionRequired.None:
-                var previousEvent = Events.LastOrDefault();
-                var previousEventFinished = previousEvent != null && TStates >= previousEvent.TStateAfter;
-                if (previousEventFinished)
-                {
-                    AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
-                }
-                break;
-
-            case ActionRequired.OpcodeRead:
-                emulator.Data = memory[emulator.Address];
-                AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
-                AddEvent(new TestEvent(TestEventType.OpcodeRead, TStates, emulator.Address, emulator.Data));
-                break;
-
-            case ActionRequired.MemoryRead:
-                emulator.Data = memory[emulator.Address];
-                AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
-                AddEvent(new TestEvent(TestEventType.MemoryRead, TStates, emulator.Address, emulator.Data));
-                break;
-
-            case ActionRequired.MemoryWrite:
-                memory[emulator.Address] = emulator.Data;
-                AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
-                AddEvent(new TestEvent(TestEventType.MemoryWrite, TStates, emulator.Address, emulator.Data));
-                break;
-
-            default:
-                throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");
-        }
+        PerformActionRequired(actionRequired);
         TStates++;
     }
 
@@ -239,44 +206,103 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
 
                     TStates--;
                 }
+
                 break;
             }
 
             var actionRequired = emulator.Step();
-
-            switch (actionRequired)
-            {
-                case ActionRequired.None:
-                    var previousEvent = Events.LastOrDefault();
-                    var previousEventFinished = previousEvent != null && TStates >= previousEvent.TStateAfter;
-                    if (previousEventFinished)
-                    {
-                        AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
-                    }
-                    break;
-
-                case ActionRequired.OpcodeRead:
-                    emulator.Data = memory[emulator.Address];
-                    AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
-                    AddEvent(new TestEvent(TestEventType.OpcodeRead, TStates, emulator.Address, emulator.Data));
-                    break;
-
-                case ActionRequired.MemoryRead:
-                    emulator.Data = memory[emulator.Address];
-                    AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
-                    AddEvent(new TestEvent(TestEventType.MemoryRead, TStates, emulator.Address, emulator.Data));
-                    break;
-
-                case ActionRequired.MemoryWrite:
-                    memory[emulator.Address] = emulator.Data;
-                    AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
-                    AddEvent(new TestEvent(TestEventType.MemoryWrite, TStates, emulator.Address, emulator.Data));
-                    break;
-
-                default:
-                    throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");
-            }
+            PerformActionRequired(actionRequired);
             TStates++;
         }
+    }
+
+    // TODO: Contend events are ZX Spectrum specific, can we pull them out into the Fuse only tests?
+    private void PerformActionRequired(ActionRequired actionRequired)
+    {
+        switch (actionRequired)
+        {
+            case ActionRequired.None:
+                if (TStates >= noContentionUntil)
+                {
+                    AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
+                    noContentionUntil++;
+                }
+
+                break;
+
+            case ActionRequired.OpcodeRead:
+                emulator.Data = ReadMemory(emulator.Address);
+                AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
+                AddEvent(new TestEvent(TestEventType.OpcodeRead, TStates, emulator.Address, emulator.Data));
+                noContentionUntil += 4;
+                break;
+
+            case ActionRequired.MemoryRead:
+                emulator.Data = ReadMemory(emulator.Address);
+                AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
+                AddEvent(new TestEvent(TestEventType.MemoryRead, TStates, emulator.Address, emulator.Data));
+                noContentionUntil += 3;
+                break;
+
+            case ActionRequired.MemoryWrite:
+                WriteMemory(emulator.Address, emulator.Data);
+                AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
+                AddEvent(new TestEvent(TestEventType.MemoryWrite, TStates, emulator.Address, emulator.Data));
+                noContentionUntil += 3;
+                break;
+
+            case ActionRequired.IoWrite:
+                WriteIO(emulator.Address, emulator.Data);
+                AddEvents(IOContendEvents(TestEventType.IOWrite));
+                noContentionUntil += 4;
+                break;
+
+            default:
+                throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");
+        }
+    }
+
+    [Pure]
+    private IEnumerable<TestEvent> IOContendEvents(TestEventType ioEventType)
+    {
+        // Based on https://sinclair.wiki.zxnet.co.uk/wiki/Contended_I/O.
+        var portHighByteInRange = (emulator.Address >> 8) is >= 0x40 and <= 0x7F;
+        var lowBitSet = (emulator.Address & 1) == 1;
+
+        if (portHighByteInRange)
+        {
+            if (lowBitSet)
+            {
+                return
+                [
+                    new TestEvent(TestEventType.IOContend, TStates, emulator.Address, emulator.Data),
+                    new TestEvent(ioEventType, TStates + 1, emulator.Address, emulator.Data),
+                    new TestEvent(TestEventType.IOContend, TStates + 1, emulator.Address, emulator.Data),
+                    new TestEvent(TestEventType.IOContend, TStates + 2, emulator.Address, emulator.Data),
+                    new TestEvent(TestEventType.IOContend, TStates + 3, emulator.Address, emulator.Data)
+                ];
+            }
+
+            return
+            [
+                new TestEvent(TestEventType.IOContend, TStates, emulator.Address, emulator.Data),
+                new TestEvent(ioEventType, TStates + 1, emulator.Address, emulator.Data),
+                new TestEvent(TestEventType.IOContend, TStates + 1, emulator.Address, emulator.Data)
+            ];
+        }
+
+        if (lowBitSet)
+        {
+            return
+            [
+                new TestEvent(ioEventType, TStates + 1, emulator.Address, emulator.Data),
+            ];
+        }
+
+        return
+        [
+            new TestEvent(ioEventType, TStates + 1, emulator.Address, emulator.Data),
+            new TestEvent(TestEventType.IOContend, TStates + 1, emulator.Address, emulator.Data)
+        ];
     }
 }

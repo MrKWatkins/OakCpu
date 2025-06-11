@@ -1,9 +1,13 @@
+using System.Diagnostics;
+
 namespace MrKWatkins.Z80TestSuites;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public abstract class Z80TestHarness
 {
     private readonly List<TestEvent> events = new();
+    private readonly byte[] memory = new byte[65536];
+    private readonly List<IOWrite> ioWrites = new();
 
     public abstract ushort RegisterAF { get; set; }
 
@@ -77,17 +81,50 @@ public abstract class Z80TestHarness
 
     protected void AddEvent(TestEvent fuseEvent) => events.Add(fuseEvent);
 
+    protected void AddEvents([InstantHandle] IEnumerable<TestEvent> fuseEvents) => events.AddRange(fuseEvents);
+
     public void RemoveLastEvent() => events.RemoveAt(events.Count - 1);
 
     [Pure]
-    public abstract byte GetMemory(ushort address);
+    public byte ReadMemory(ushort address) => memory[address];
 
-    public abstract void SetMemory(ushort address, byte value);
+    public virtual void WriteMemory(ushort address, byte value) => memory[address] = value;
+
+    public virtual byte? DefaultIORead { get; set; }
+
+    public Queue<IORead> ExpectedIOReads { get; } = new();
+
+    [Pure]
+    public byte ReadIO(ushort port)
+    {
+        if (DefaultIORead.HasValue)
+        {
+            return DefaultIORead.Value;
+        }
+
+        if (ExpectedIOReads.TryDequeue(out var read))
+        {
+            AssertEqual(port, read.Port, $"expected read of port {port}.");
+            return read.Data;
+        }
+
+        AssertFail($"Unexpected IO read of port {port}.");
+        throw new UnreachableException();
+    }
+
+    public IReadOnlyList<IOWrite> IOWrites => ioWrites;
+
+    public void WriteIO(ushort port, byte value)
+    {
+        ioWrites.Add(new IOWrite(port, value));
+    }
 
     [MustDisposeResource]
     public virtual IDisposable CreateAssertionScope() => NullDisposable.Instance;
 
     public abstract void AssertEqual<T>(T actual, T expected, string? message = null);
+
+    public abstract void AssertFail(string message);
 
     public abstract void ExecuteStep();
 

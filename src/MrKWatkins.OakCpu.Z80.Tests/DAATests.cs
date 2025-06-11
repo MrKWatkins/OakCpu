@@ -16,7 +16,7 @@ public sealed class DAATests
             RegisterA = a
         };
 
-        emulator.SetMemory(0x0000, 0x27);
+        emulator.WriteMemory(0x0000, 0x27);
 
         emulator.ExecuteInstruction();
 

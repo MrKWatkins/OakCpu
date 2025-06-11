@@ -2,10 +2,10 @@ namespace MrKWatkins.Z80TestSuites.Fuse;
 
 public enum FuseEventType
 {
+    MemoryContend,
     MemoryRead,
     MemoryWrite,
-    MemoryContend,
-    PortRead,
     PortWrite,
-    PortContend
+    PortContend,
+    PortRead,
 }

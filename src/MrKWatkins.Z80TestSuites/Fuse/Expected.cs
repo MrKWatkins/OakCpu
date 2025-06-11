@@ -86,7 +86,7 @@ public sealed class Expected : Z80State
             var address = memory.Address;
             foreach (var expected in memory.Data)
             {
-                var actual = testHarness.GetMemory(address);
+                var actual = testHarness.ReadMemory(address);
                 testHarness.AssertEqual(actual, expected, $"memory at 0x{address:X4} should match");
                 address++;
             }

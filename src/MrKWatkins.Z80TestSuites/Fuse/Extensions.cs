@@ -5,19 +5,19 @@ public static class Extensions
     [Pure]
     public static FuseEvent ToFuse(this TestEvent testEvent)
     {
-        var type = testEvent.Type switch
+        var (type, length) = testEvent.Type switch
         {
-            TestEventType.MemoryContend => FuseEventType.MemoryContend,
-            TestEventType.OpcodeRead => FuseEventType.MemoryRead,
-            TestEventType.MemoryRead => FuseEventType.MemoryRead,
-            TestEventType.MemoryWrite => FuseEventType.MemoryWrite,
-            TestEventType.IOContend => FuseEventType.PortContend,
-            TestEventType.IORead => FuseEventType.PortRead,
-            TestEventType.IOWrite => FuseEventType.PortWrite,
+            TestEventType.MemoryContend => (FuseEventType.MemoryContend, 0),
+            TestEventType.OpcodeRead => (FuseEventType.MemoryRead, 4),
+            TestEventType.MemoryRead => (FuseEventType.MemoryRead, 3),
+            TestEventType.MemoryWrite => (FuseEventType.MemoryWrite, 3),
+            TestEventType.IOContend => (FuseEventType.PortContend, 0),
+            TestEventType.IORead => (FuseEventType.PortRead, 0),
+            TestEventType.IOWrite => (FuseEventType.PortWrite, 0),
             _ => throw new NotSupportedException($"The {nameof(TestEventType)} {testEvent.Type} is not supported.")
         };
 
-        var tStatesAfter = testEvent.TState + testEvent.Length;
+        var tStatesAfter = testEvent.TState + length;
         var data = testEvent.Type is TestEventType.MemoryContend or TestEventType.IOContend ? (byte?)null : testEvent.Data;
 
         return new FuseEvent(type, tStatesAfter, testEvent.Address, data);

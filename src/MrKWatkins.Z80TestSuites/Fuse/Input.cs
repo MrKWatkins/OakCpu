@@ -41,7 +41,7 @@ public sealed class Input : Z80State
             var address = memory.Address;
             foreach (var data in memory.Data)
             {
-                testHarness.SetMemory(address, data);
+                testHarness.WriteMemory(address, data);
                 address++;
             }
         }
