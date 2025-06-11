@@ -1,4 +1,4 @@
-namespace MrKWatkins.Z80TestSuites.Fuse;
+namespace MrKWatkins.OakCpu.Z80.TestSuites.Fuse;
 
 public enum FuseEventType
 {

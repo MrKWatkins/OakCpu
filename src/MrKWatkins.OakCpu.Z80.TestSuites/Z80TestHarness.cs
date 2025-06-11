@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace MrKWatkins.Z80TestSuites;
+namespace MrKWatkins.OakCpu.Z80.TestSuites;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public abstract class Z80TestHarness

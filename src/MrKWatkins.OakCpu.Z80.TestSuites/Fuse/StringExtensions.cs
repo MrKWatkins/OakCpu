@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace MrKWatkins.Z80TestSuites.Fuse;
+namespace MrKWatkins.OakCpu.Z80.TestSuites.Fuse;
 
 internal static class StringExtensions
 {

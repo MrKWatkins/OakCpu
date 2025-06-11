@@ -1,4 +1,4 @@
-namespace MrKWatkins.Z80TestSuites;
+namespace MrKWatkins.OakCpu.Z80.TestSuites;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public sealed record TestEvent(TestEventType Type, int TState, ushort Address, byte Data)
