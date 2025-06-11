@@ -26,9 +26,45 @@ public abstract class Z80TestHarness
 
     public abstract ushort RegisterBC { get; set; }
 
+    public byte RegisterB
+    {
+        get => GetLowByte(RegisterBC);
+        set => RegisterBC = SetLowByte(RegisterBC, value);
+    }
+
+    public byte RegisterC
+    {
+        get => GetHighByte(RegisterBC);
+        set => RegisterBC = SetHighByte(RegisterBC, value);
+    }
+
     public abstract ushort RegisterDE { get; set; }
 
+    public byte RegisterD
+    {
+        get => GetLowByte(RegisterDE);
+        set => RegisterDE = SetLowByte(RegisterDE, value);
+    }
+
+    public byte RegisterE
+    {
+        get => GetHighByte(RegisterDE);
+        set => RegisterDE = SetHighByte(RegisterDE, value);
+    }
+
     public abstract ushort RegisterHL { get; set; }
+
+    public byte RegisterH
+    {
+        get => GetLowByte(RegisterHL);
+        set => RegisterHL = SetLowByte(RegisterHL, value);
+    }
+
+    public byte RegisterL
+    {
+        get => GetHighByte(RegisterHL);
+        set => RegisterHL = SetHighByte(RegisterHL, value);
+    }
 
     public abstract ushort RegisterIX { get; set; }
 
@@ -76,9 +112,11 @@ public abstract class Z80TestHarness
 
     public abstract bool IsHalted { get; set; }
 
-    public int TStates { get; protected set; }
+    public ulong TStates { get; protected set; }
 
     public IReadOnlyList<TestEvent> Events => events;
+
+    public bool RecordEvents { get; set; }
 
     protected void AddEvent(TestEvent fuseEvent) => events.Add(fuseEvent);
 
@@ -86,10 +124,33 @@ public abstract class Z80TestHarness
 
     public void RemoveLastEvent() => events.RemoveAt(events.Count - 1);
 
-    [Pure]
-    public byte ReadMemory(ushort address) => memory[address];
+    public void CopyIntoMemory(ReadOnlySpan<byte> source) => source.CopyTo(memory);
 
-    public virtual void WriteMemory(ushort address, byte value) => memory[address] = value;
+    [Pure]
+    public byte ReadByteFromMemory(ushort address) => memory[address];
+
+    [Pure]
+    public ushort ReadWordFromMemory(ushort address)
+    {
+        // Read the two bytes separately and assemble rather than use something like BinaryPrimitives.ReadUInt16LittleEndian.
+        // This enables us to cope with wraparound from 0xFFFF -> 0x0000 by using the overflow on ushort.
+        var lsb = ReadByteFromMemory(address);
+
+        address++;
+        var msb = ReadByteFromMemory(address);
+
+        return (ushort)((msb << 8) | lsb);
+    }
+
+    public virtual void WriteByteToMemory(ushort address, byte value) => memory[address] = value;
+
+    public void WriteWordToMemory(ushort address, ushort value)
+    {
+        WriteByteToMemory(address, (byte) value);
+
+        address++;
+        WriteByteToMemory(address, (byte)(value >> 8));
+    }
 
     public virtual byte? DefaultIORead { get; set; }
 

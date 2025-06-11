@@ -1,0 +1,28 @@
+instructions:
+  - group: LDIR
+    mnemonic: LDIR
+    opcodes:
+      - opcode: 0xED 0xB0
+    steps:
+      - Address = HL; HL = HL + 1; request(action.memory_read);
+      -
+      -
+      - Address = DE; DE = DE + 1; request(action.memory_write);
+      - 
+      - 
+      - 
+      - $result = A + Data; BC = BC - 1; flags(); if BC == 0; finish_instruction(); endif;
+      - 
+      - PC = PC - 1; WZ = PC; PC = PC - 1;
+      - 
+      - 
+      - 
+      - 
+    flags:
+      # TODO: Set X and Y from PC 11/13.
+      N: 0
+      PV: BC != 0;
+      X: ($result & 0x08) == 0x08
+      H: 0
+      Y: ($result & 0x02) == 0x02
+    next_opcode: overlapped

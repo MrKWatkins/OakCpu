@@ -4,6 +4,8 @@ instructions:
     opcodes:
       - opcode: 0x22
         RP0: HL
+      - opcode: 0xED 0x73
+        RP0: SP
       - opcode: 0xDD 0x22
         RP0: IX
       - opcode: 0xFD 0x22

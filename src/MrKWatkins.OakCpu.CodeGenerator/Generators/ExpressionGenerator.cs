@@ -82,6 +82,14 @@ public abstract class ExpressionGenerator : Generator
         {
             return GenerateSignedExpressionSyntax(context, call.Arguments[0]);
         }
+        if (call.Function == PreDefinedFunction.IsNegative)
+        {
+             return GenerateIsNegativeExpression(context, call.Arguments[0]);
+        }
+        if (call.Function == PreDefinedFunction.IsZero)
+        {
+            return GenerateIsZeroStatement(context, call.Arguments[0]);
+        }
 
         throw new NotSupportedException($"The function {call.Function} is not supported.");
     }
@@ -108,6 +116,18 @@ public abstract class ExpressionGenerator : Generator
         }
         return CastExpression(PreDefinedFunction.Signed.TypeSyntax, expression);
     }
+
+    [Pure]
+    private static ExpressionSyntax GenerateIsNegativeExpression(StepContext context, Expression argument)
+    {
+        var oneAtBit7IfNegative = BinaryExpression(SyntaxKind.BitwiseAndExpression, GenerateExpressionSyntax(context, argument), GenerateBinaryLiteralExpression(0b10000000));
+
+        return BinaryExpression(SyntaxKind.RightShiftExpression, ParenthesizedExpression(oneAtBit7IfNegative), GenerateNumericLiteralExpression(7));
+    }
+
+    [Pure]
+    private static ExpressionSyntax GenerateIsZeroStatement(StepContext context, Expression argument) =>
+        BinaryExpression(SyntaxKind.EqualsExpression, GenerateExpressionSyntax(context, argument), GenerateNumericLiteralExpression(0));
 
     [Pure]
     private static ExpressionSyntax GenerateArgumentAccess(StepContext context, ArgumentAccess argumentAccess)

@@ -7,7 +7,7 @@ namespace MrKWatkins.OakCpu.Z80.Tests;
 public sealed class Z80EmulatorTestHarness : Z80TestHarness
 {
     private readonly Z80Emulator emulator = new();
-    private int noContentionUntil;
+    private ulong noContentionUntil;
 
     public override ushort RegisterAF
     {
@@ -200,7 +200,7 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
                 if (emulator.step == 1)
                 {
                     emulator.Registers.PC--;
-                    while (Events.Last().TState == TStates - 1)
+                    while (Events.LastOrDefault()?.TState == TStates - 1)
                     {
                         RemoveLastEvent();
                     }
@@ -223,7 +223,7 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
         switch (actionRequired)
         {
             case ActionRequired.None:
-                if (TStates >= noContentionUntil)
+                if (RecordEvents && TStates >= noContentionUntil)
                 {
                     AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
                     noContentionUntil++;
@@ -232,30 +232,46 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
                 break;
 
             case ActionRequired.OpcodeRead:
-                emulator.Data = ReadMemory(emulator.Address);
-                AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
-                AddEvent(new TestEvent(TestEventType.OpcodeRead, TStates, emulator.Address, emulator.Data));
-                noContentionUntil += 4;
+                emulator.Data = ReadByteFromMemory(emulator.Address);
+                if (RecordEvents)
+                {
+                    AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
+                    AddEvent(new TestEvent(TestEventType.OpcodeRead, TStates, emulator.Address, emulator.Data));
+                    noContentionUntil += 4;
+                }
+
                 break;
 
             case ActionRequired.MemoryRead:
-                emulator.Data = ReadMemory(emulator.Address);
-                AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
-                AddEvent(new TestEvent(TestEventType.MemoryRead, TStates, emulator.Address, emulator.Data));
-                noContentionUntil += 3;
+                emulator.Data = ReadByteFromMemory(emulator.Address);
+                if (RecordEvents)
+                {
+                    AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
+                    AddEvent(new TestEvent(TestEventType.MemoryRead, TStates, emulator.Address, emulator.Data));
+                    noContentionUntil += 3;
+                }
+
                 break;
 
             case ActionRequired.MemoryWrite:
-                WriteMemory(emulator.Address, emulator.Data);
-                AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
-                AddEvent(new TestEvent(TestEventType.MemoryWrite, TStates, emulator.Address, emulator.Data));
-                noContentionUntil += 3;
+                WriteByteToMemory(emulator.Address, emulator.Data);
+                if (RecordEvents)
+                {
+                    AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
+                    AddEvent(new TestEvent(TestEventType.MemoryWrite, TStates, emulator.Address, emulator.Data));
+                    noContentionUntil += 3;
+                }
+
                 break;
 
             case ActionRequired.IoWrite:
                 WriteIO(emulator.Address, emulator.Data);
-                AddEvents(IOContendEvents(TestEventType.IOWrite));
-                noContentionUntil += 4;
+                if (RecordEvents)
+                {
+                    AddEvents(IOContendEvents(TestEventType.IOWrite));
+                    noContentionUntil += 4;
+                }
+
                 break;
 
             default:

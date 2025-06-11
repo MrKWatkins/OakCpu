@@ -21,26 +21,29 @@ public sealed class FuseTestCase
     public void Execute<TTestHarness>()
         where TTestHarness : Z80TestHarness, new()
     {
-        var testHarness = new TTestHarness();
-
-        Input.Setup(testHarness);
-
-        while (testHarness.TStates <= Expected.TStates)
+        var z80 = new TTestHarness
         {
-            testHarness.ExecuteStep();
+            RecordEvents = true
+        };
+
+        Input.Setup(z80);
+
+        while (z80.TStates <= (ulong)Expected.TStates)
+        {
+            z80.ExecuteStep();
         }
 
         // If the last event was an OpcodeRead, then we've had an overlapped read. The Fuse tests assume instruction level
         // execution so won't take this into account. We need to adjust the PC and remove the event, plus the associated
         // MemoryContend event.
-        if (testHarness.Events.LastOrDefault()?.Type == TestEventType.OpcodeRead)
+        if (z80.Events.LastOrDefault()?.Type == TestEventType.OpcodeRead)
         {
-            testHarness.RegisterPC--;
-            testHarness.RemoveLastEvent();
-            testHarness.RemoveLastEvent();
+            z80.RegisterPC--;
+            z80.RemoveLastEvent();
+            z80.RemoveLastEvent();
         }
 
-        Expected.Assert(AssertionsToRun, testHarness);
+        Expected.Assert(AssertionsToRun, z80);
     }
 
     public override string ToString() => Name;

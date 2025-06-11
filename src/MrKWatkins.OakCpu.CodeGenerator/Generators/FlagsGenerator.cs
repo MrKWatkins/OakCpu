@@ -17,29 +17,19 @@ public abstract class FlagsGenerator : Generator
         // TODO: Copy fields used in statements to a local variable first for a performance optimisation.
         var instruction = context.Step.Instruction ?? throw new InvalidOperationException("Cannot use flags() outside of an instruction.");
 
-        bool initialized;
-        var constants = GenerateConstantStatement(context, instruction, FlagsVariableName);
+        var handled = new HashSet<Flag>();
+        var constants = GenerateConstantStatement(context, instruction, handled);
         if (constants != null)
         {
             yield return constants;
-            initialized = true;
-        }
-        else
-        {
-            initialized = false;
         }
 
-        foreach (var statement in GenerateCopyFromStatements(context, instruction, FlagsVariableName, initialized))
+        foreach (var statement in GenerateCopyFromStatements(context, instruction, handled))
         {
             yield return statement;
         }
 
-        foreach (var statement in GenerateCallExpressionStatements(context, instruction, FlagsVariableName))
-        {
-            yield return statement;
-        }
-
-        foreach (var statement in GenerateAssignmentFromEqualityStatements(context, instruction, FlagsVariableName))
+        foreach (var statement in GenerateExpressionStatements(context, instruction, handled))
         {
             yield return statement;
         }
@@ -53,45 +43,38 @@ public abstract class FlagsGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateCallExpressionStatements(StepContext context, Instruction instruction, string flagsVariableName)
+    private static IEnumerable<StatementSyntax> GenerateExpressionStatements(StepContext context, Instruction instruction, HashSet<Flag> handled)
     {
-        foreach (var (flag, call) in EnumerateCallExpressions(context, instruction))
+        foreach (var flag in context.Configuration.Flags.Values.Where(f => !handled.Contains(f)).OrderByDescending(f => f.Index))
         {
-            if (call.Function == PreDefinedFunction.IsNegative)
+            var expression = instruction.Flags[flag.Name];
+            if (expression.Type != DataType.Bool && expression.Type != DataType.I32Bool)
             {
-                yield return GenerateIsNegativeStatement(context, flagsVariableName, flag, call);
+                throw new InvalidOperationException($"Flags expression {expression} is not of type {nameof(DataType.Bool)} or {nameof(DataType.I32Bool)}.");
             }
-            if (call.Function == PreDefinedFunction.IsZero)
+
+            var expressionSyntax = ExpressionGenerator.GenerateExpressionSyntax(context, expression);
+
+            if (expression.Type == DataType.Bool)
             {
-                yield return GenerateIsZeroStatement(context, flagsVariableName, flag, call);
+                var bitMask = BuildBitMask(flag);
+
+                yield return IfStatement(expressionSyntax, Block(CreateFlagsOrAssignment($"// Set {flag} when {expression} is true.", GenerateBinaryLiteralExpression(bitMask))));
             }
-            else if (call.Function is UserDefinedFunction userDefinedFunction)
+            else
             {
-                yield return GenerateUserDefinedFunctionStatement(context, flagsVariableName, flag, call, userDefinedFunction);
+                var shiftExpressionSyntax = flag.Index != 0
+                    ? BinaryExpression(SyntaxKind.LeftShiftExpression, ParenthesizedExpression(expressionSyntax), GenerateNumericLiteralExpression(flag.Index))
+                    : expressionSyntax;
+
+                yield return CreateFlagsOrAssignment($"// Set {flag} when {shiftExpressionSyntax} is 0x01.", shiftExpressionSyntax);
             }
         }
     }
 
-    [Pure]
-    // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-    private static StatementSyntax GenerateUserDefinedFunctionStatement(StepContext context, string flagsVariableName, Flag flag, Call call, UserDefinedFunction userDefinedFunction)
-    {
-        if (userDefinedFunction.Type == DataType.Bool)
-        {
-            throw new NotImplementedException("Bool user defined functions have not been implemented.");
-        }
-        if (userDefinedFunction.Type != DataType.I32Bool)
-        {
-            throw new InvalidOperationException("Flags can only be set from Boolean-like functions.");
-        }
-
-        var value = BinaryExpression(SyntaxKind.LeftShiftExpression, ExpressionGenerator.GenerateExpressionSyntax(context, call), GenerateNumericLiteralExpression(flag.Index));
-
-        return CreateFlagsOrAssignment(flagsVariableName, $"// Set {flag} from {call}.", value);
-    }
 
     [Pure]
-    private static StatementSyntax GenerateIsNegativeStatement(StepContext context, string flagsVariableName, Flag flag, Call call)
+    private static StatementSyntax GenerateIsNegativeStatement(StepContext context, Flag flag, Call call)
     {
         var oneAtBit7IfNegative = BinaryExpression(SyntaxKind.BitwiseAndExpression, ExpressionGenerator.GenerateExpressionSyntax(context, call.Arguments[0]), GenerateBinaryLiteralExpression(0b10000000));
 
@@ -100,21 +83,21 @@ public abstract class FlagsGenerator : Generator
             ? BinaryExpression(SyntaxKind.RightShiftExpression, ParenthesizedExpression(oneAtBit7IfNegative), GenerateNumericLiteralExpression(shift))
             : oneAtBit7IfNegative;
 
-        return CreateFlagsOrAssignment(flagsVariableName, $"// Set {flag} when {call.Arguments[0]} is negative.", expression);
+        return CreateFlagsOrAssignment($"// Set {flag} when {call.Arguments[0]} is negative.", expression);
     }
 
     [Pure]
-    private static StatementSyntax GenerateIsZeroStatement(StepContext context, string flagsVariableName, Flag flag, Call call)
+    private static StatementSyntax GenerateIsZeroStatement(StepContext context, Flag flag, Call call)
     {
         var condition = BinaryExpression(SyntaxKind.EqualsExpression, ExpressionGenerator.GenerateExpressionSyntax(context, call.Arguments[0]), GenerateNumericLiteralExpression(0));
 
         var bitMask = BuildBitMask(flag);
 
-        return IfStatement(condition, Block(CreateFlagsOrAssignment(flagsVariableName, $"// Set {flag} when {call.Arguments[0]} is zero.", GenerateBinaryLiteralExpression(bitMask))));
+        return IfStatement(condition, Block(CreateFlagsOrAssignment($"// Set {flag} when {call.Arguments[0]} is zero.", GenerateBinaryLiteralExpression(bitMask))));
     }
 
     [Pure]
-    private static StatementSyntax? GenerateConstantStatement(StepContext context, Instruction instruction, string flagsVariableName)
+    private static StatementSyntax? GenerateConstantStatement(StepContext context, Instruction instruction, HashSet<Flag> handled)
     {
         var constants = GetConstantExpressions(context, instruction);
         if (constants.Count == 0)
@@ -135,11 +118,16 @@ public abstract class FlagsGenerator : Generator
             bitMask = 0;
         }
 
-        return CreateInitialize(flagsVariableName, Comment(comment), GenerateBinaryLiteralExpression(bitMask));
+        foreach (var flag in constants.Values.SelectMany(v => v))
+        {
+            handled.Add(flag);
+        }
+
+        return CreateInitialize(Comment(comment), GenerateBinaryLiteralExpression(bitMask));
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateCopyFromStatements(StepContext context, Instruction instruction, string flagsVariableName, bool initialized)
+    private static IEnumerable<StatementSyntax> GenerateCopyFromStatements(StepContext context, Instruction instruction, HashSet<Flag> handled)
     {
         var copyFroms = GetCopyFromExpressions(context, instruction);
 
@@ -148,32 +136,36 @@ public abstract class FlagsGenerator : Generator
             var comment = Comment($"// Copy {FlagsNames(kvp.Value)} from {kvp.Key}.");
             var copyFromExpression = BinaryExpression(SyntaxKind.BitwiseAndExpression, IdentifierName(kvp.Key), GenerateBinaryLiteralExpression(BuildBitMask(kvp.Value)));
 
-            if (initialized)
+            if (handled.Any())
             {
-                yield return CreateFlagsOrAssignment(flagsVariableName, comment, copyFromExpression);
+                yield return CreateFlagsOrAssignment(comment, copyFromExpression);
             }
             else
             {
-                yield return CreateInitialize(flagsVariableName, comment, copyFromExpression);
-                initialized = true;
+                yield return CreateInitialize(comment, copyFromExpression);
+            }
+
+            foreach (var flag in kvp.Value)
+            {
+                handled.Add(flag);
             }
         }
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateAssignmentFromEqualityStatements(StepContext context, Instruction instruction, string flagsVariableName)
+    private static IEnumerable<StatementSyntax> GenerateAssignmentFromEqualityStatements(StepContext context, Instruction instruction)
     {
         foreach (var flag in context.Configuration.Flags.Values.OrderByDescending(f => f.Index))
         {
             if (instruction.Flags.TryGetValue(flag.Name, out var expression) && expression is BinaryOperation binaryOperation && binaryOperation.Operator == Operator.Equality)
             {
-                yield return GenerateAssignmentFromEqualityStatement(context, flagsVariableName, flag, binaryOperation);
+                yield return GenerateAssignmentFromEqualityStatement(context, flag, binaryOperation);
             }
         }
     }
 
     [Pure]
-    private static StatementSyntax GenerateAssignmentFromEqualityStatement(StepContext context, string flagsVariableName, Flag flag, BinaryOperation equality)
+    private static StatementSyntax GenerateAssignmentFromEqualityStatement(StepContext context, Flag flag, BinaryOperation equality)
     {
         var bitMask = BuildBitMask(flag);
 
@@ -182,22 +174,35 @@ public abstract class FlagsGenerator : Generator
             GenerateBinaryLiteralExpression(bitMask),
             GenerateNumericLiteralExpression(0));
 
-        return CreateFlagsOrAssignment(flagsVariableName, $"// Set {flag} when {equality}.", ternary);
+        return CreateFlagsOrAssignment($"// Set {flag} when {equality}.", ternary);
     }
 
-    private static StatementSyntax CreateInitialize(string flagsVariableName, SyntaxTrivia comment, ExpressionSyntax expression) =>
-        InitializeVariableStatement(flagsVariableName, expression)
+    [Pure]
+    private static StatementSyntax GenerateExpressionStatement(StepContext context, Flag flag, Expression expression)
+    {
+        var bitMask = BuildBitMask(flag);
+
+        var ternary = ConditionalExpression(
+            ExpressionGenerator.GenerateExpressionSyntax(context, expression),
+            GenerateBinaryLiteralExpression(bitMask),
+            GenerateNumericLiteralExpression(0));
+
+        return CreateFlagsOrAssignment($"// Set {flag} when {expression}.", ternary);
+    }
+
+    private static StatementSyntax CreateInitialize(SyntaxTrivia comment, ExpressionSyntax expression) =>
+        InitializeVariableStatement(FlagsVariableName, expression)
             .WithLeadingTrivia(Comment("// Flags."))
             .WithTrailingTrivia(comment);
 
     [Pure]
-    private static StatementSyntax CreateFlagsOrAssignment(string flagsVariableName, string comment, ExpressionSyntax expression) =>
-        ExpressionStatement(AssignmentExpression(SyntaxKind.OrAssignmentExpression, IdentifierName(flagsVariableName), expression))
+    private static StatementSyntax CreateFlagsOrAssignment(string comment, ExpressionSyntax expression) =>
+        ExpressionStatement(AssignmentExpression(SyntaxKind.OrAssignmentExpression, IdentifierName(FlagsVariableName), expression))
         .WithTrailingTrivia(Comment(comment));
 
     [Pure]
-    private static StatementSyntax CreateFlagsOrAssignment(string flagsVariableName, SyntaxTrivia comment, ExpressionSyntax expression) =>
-        ExpressionStatement(AssignmentExpression(SyntaxKind.OrAssignmentExpression, IdentifierName(flagsVariableName), expression))
+    private static StatementSyntax CreateFlagsOrAssignment(SyntaxTrivia comment, ExpressionSyntax expression) =>
+        ExpressionStatement(AssignmentExpression(SyntaxKind.OrAssignmentExpression, IdentifierName(FlagsVariableName), expression))
         .WithTrailingTrivia(comment);
 
     [Pure]

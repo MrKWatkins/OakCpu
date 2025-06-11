@@ -1,6 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <ItemGroup>
-    <EmbeddedResource Include="InstructionLevel\Fuse\tests.expected" />
-    <EmbeddedResource Include="InstructionLevel\Fuse\tests.in" />
-  </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="**\*.bin" />
+        <EmbeddedResource Include="**\*.rom" />
+        <EmbeddedResource Include="**\*.tap" />
+        <EmbeddedResource Include="InstructionLevel\Fuse\tests.expected" />
+        <EmbeddedResource Include="InstructionLevel\Fuse\tests.in" />
+    </ItemGroup>
 </Project>

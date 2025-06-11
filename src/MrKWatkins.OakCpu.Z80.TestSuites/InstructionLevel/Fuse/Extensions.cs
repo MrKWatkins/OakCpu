@@ -17,7 +17,7 @@ public static class Extensions
             _ => throw new NotSupportedException($"The {nameof(TestEventType)} {testEvent.Type} is not supported.")
         };
 
-        var tStatesAfter = testEvent.TState + length;
+        var tStatesAfter = (int)testEvent.TState + length;
         var data = testEvent.Type is TestEventType.MemoryContend or TestEventType.IOContend ? (byte?)null : testEvent.Data;
 
         return new FuseEvent(type, tStatesAfter, testEvent.Address, data);
