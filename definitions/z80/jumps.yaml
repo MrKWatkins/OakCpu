@@ -39,6 +39,19 @@ instructions:
       - Address = PC; PC = PC + 1; request(action.memory_read);
       - W = Data;
       - if condition.C0; PC = WZ; endif;
+  
+  - group: JP
+    mnemonic: JP RP0
+    opcodes:
+      - opcode: 0xE9
+        RP0: HL
+      - opcode: 0xDD 0xE9
+        RP0: IX
+      - opcode: 0xFD 0xE9
+        RP0: IY
+    steps:
+      - PC = RP0;
+    next_opcode: overlapped
     
   - group: JR
     mnemonic: JR d
