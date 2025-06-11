@@ -17,6 +17,8 @@ public sealed partial class YamlFile
 
     public CpuYaml Cpu { get; private set; } = null!;
 
+    public InterruptsYaml Interrupts { get; private set; } = null!;
+
     public IReadOnlyList<RegisterYaml> Registers
     {
         get => registers ?? [];
@@ -52,6 +54,7 @@ public sealed partial class YamlFile
     {
         // TODO: Validation on all this.
         CpuYaml? cpu = null;
+        InterruptsYaml? interrupts = null;
         var registers = new List<RegisterYaml>();
         var opcodeRead = new List<string?>();
         var flags = new List<FlagYaml>();
@@ -60,6 +63,7 @@ public sealed partial class YamlFile
         foreach (var file in files)
         {
             cpu ??= file.Cpu;
+            interrupts ??= file.Interrupts;
             opcodeRead.AddRange(file.OpcodeRead);
             registers.AddRange(file.Registers);
             flags.AddRange(file.Flags);
@@ -69,6 +73,7 @@ public sealed partial class YamlFile
         return new YamlFile
         {
             Cpu = cpu ?? throw new InvalidOperationException("No cpu definition found."),
+            Interrupts = interrupts ?? throw new InvalidOperationException("No interrupts definition found."),
             OpcodeRead = opcodeRead,
             Registers = registers,
             Flags = flags,

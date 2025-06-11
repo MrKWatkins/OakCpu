@@ -1,0 +1,38 @@
+interrupts:
+  properties:
+    - name: IM
+      type: u8
+      
+    - name: IFF1
+      type: bool
+      
+    - name: IFF2
+      type: bool
+    
+    - name: is_halted
+      type: bool
+
+instructions:
+  - group: Interrupts
+    mnemonic: HALT
+    opcodes:
+      - opcode: 0x76
+    steps:
+      - is_halted = true;
+    next_opcode: overlapped
+    
+  - group: Interrupts
+    mnemonic: DI
+    opcodes:
+      - opcode: 0xF3
+    steps:
+      - IFF1 = false; IFF2 = false;
+    next_opcode: overlapped
+    
+  - group: Interrupts
+    mnemonic: EI
+    opcodes:
+      - opcode: 0xFB
+    steps:
+      - IFF1 = true; IFF2 = true;
+    next_opcode: overlapped

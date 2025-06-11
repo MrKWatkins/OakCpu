@@ -20,6 +20,7 @@ public abstract class ClassGenerator : Generator
         EmulatorInstanceDataMembersAndConstructorGenerator.Instance,
         EmulatorStepGenerator.Instance,
         FlagsClassGenerator.Instance,
+        InterruptsClassGenerator.Instance,
         RegistersClassesGenerator.Instance];
 
     public string FileName => GetType().Name.Substring(0, GetType().Name.Length - "Generator".Length);
@@ -125,13 +126,10 @@ public abstract class ClassGenerator : Generator
     protected static string GetRegistersClassName(GeneratorInput input, string? category = null) => $"{input.Cpu.Name}{category}Registers";
 
     [Pure]
-    protected static IdentifierNameSyntax GetRegistersClassIdentifier(GeneratorInput input, string? category = null) => IdentifierName(GetRegistersClassName(input, category));
-
-    [Pure]
     protected static string GetFlagsClassName(GeneratorInput input) => $"{input.Cpu.Name}Flags";
 
     [Pure]
-    protected static IdentifierNameSyntax GetFlagsClassIdentifier(GeneratorInput input) => IdentifierName(GetFlagsClassName(input));
+    protected static string GetInterruptsClassName(GeneratorInput input) => $"{input.Cpu.Name}Interrupts";
 
     [Pure]
     private static UsingDirectiveSyntax CreateUsingStatement(string @namespace) => UsingDirective(IdentifierName(@namespace));

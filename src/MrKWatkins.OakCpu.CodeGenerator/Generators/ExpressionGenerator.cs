@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using Boolean = MrKWatkins.OakCpu.CodeGenerator.Language.Ast.Boolean;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -14,9 +15,10 @@ public abstract class ExpressionGenerator : Generator
     {
         ArgumentAccess argumentAccess => GenerateArgumentAccess(context, argumentAccess),
         BinaryOperation binaryOperation => GenerateBinaryOperation(context, binaryOperation),
+        Boolean boolean => GenerateBoolean(boolean),
         Call call => GenerateCall(context, call),
-        DataMemberAccess dataMemberAccess => GenerateDataMemberAccess(dataMemberAccess),
         ConditionAccess conditionAccess => GenerateConditionAccess(context, conditionAccess),
+        DataMemberAccess dataMemberAccess => GenerateDataMemberAccess(dataMemberAccess),
         FlagAccess flagAccess => GenerateFlagAccess(context, flagAccess),
         Number number => GenerateNumber(number),
         RegisterAccess registerAccess => GenerateRegisterAccess(registerAccess),
@@ -120,6 +122,9 @@ public abstract class ExpressionGenerator : Generator
 
     [Pure]
     private static ExpressionSyntax GenerateDataMemberAccess(DataMemberAccess dataMemberAccess) => dataMemberAccess.Identifier;
+
+    [Pure]
+    private static ExpressionSyntax GenerateBoolean(Boolean boolean) => LiteralExpression(boolean.Value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
 
     [Pure]
     private static ExpressionSyntax GenerateNumber(Number number) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(number.NumberString, number.Value));

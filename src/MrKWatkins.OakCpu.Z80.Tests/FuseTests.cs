@@ -14,6 +14,9 @@ public sealed class FuseTests
         ["28_1"] = FuseAssertions.AllExceptEvents,      // JR Z, d
         ["30_2"] = FuseAssertions.AllExceptEvents,      // JR NC, d
         ["38_1"] = FuseAssertions.AllExceptEvents,      // JR C, d
+
+        // Fuse does not move onto the next instruction on HALT so PC will differ. However, PC should move. See https://github.com/redcode/Z80/wiki/Z80-Special-Reset#halt-and-the-special-reset.
+        ["76"] = FuseAssertions.AllExceptRegisters,
     };
 
     [TestCaseSource(nameof(TestCases))]

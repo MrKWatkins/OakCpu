@@ -1,6 +1,7 @@
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Lexing;
+using Boolean = MrKWatkins.OakCpu.CodeGenerator.Language.Ast.Boolean;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
 
@@ -186,7 +187,7 @@ public static class Parser
     }
 
     [MustUseReturnValue]
-    private static Statement ParseKeyword(ParserContext context, Lexer lexer, Keyword keyword)
+    private static AstNode ParseKeyword(ParserContext context, Lexer lexer, Keyword keyword)
     {
         switch (keyword.Name)
         {
@@ -203,6 +204,12 @@ public static class Parser
 
             case Keyword.EndIf:
                 return EndIfStatement.Instance;
+
+            case Keyword.False:
+                return Boolean.False;
+
+            case Keyword.True:
+                return Boolean.True;
         }
         throw new NotSupportedException($"Unsupported keyword {keyword.Name}.");
     }

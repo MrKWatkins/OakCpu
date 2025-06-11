@@ -11,6 +11,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
 {
     private const string RegistersPropertyName = "Registers";
     private const string FlagsPropertyName = "Flags";
+    private const string InterruptsPropertyName = "Interrupts";
     public static readonly EmulatorInstanceDataMembersAndConstructorGenerator Instance = new();
 
     private EmulatorInstanceDataMembersAndConstructorGenerator()
@@ -33,13 +34,14 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         members.Add(CreateGetOnlyProperty(requiredUsings, GetFlagsClassName(input), FlagsPropertyName, fieldOffset));
         fieldOffset += 8;
 
-        // TODO: Interrupts class field.
+        members.Add(CreateGetOnlyProperty(requiredUsings, GetInterruptsClassName(input), InterruptsPropertyName, fieldOffset));
+        fieldOffset += 8;
 
         // Order by size descending so each field ends up aligned to its own width.
         foreach (var dataMember in input.Configuration.AllDataMembers.Values.OrderByDescending(m => m.Size))
         {
             members.Add(CreateDataMember(requiredUsings, dataMember, fieldOffset));
-            fieldOffset += 8;
+            fieldOffset += dataMember.Size;
         }
 
         return classDeclaration
@@ -56,14 +58,17 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
             ExpressionStatement(
                 AssignmentExpression(
                     SyntaxKind.SimpleAssignmentExpression,
-                    IdentifierName(PreDefinedDataMember.OpcodeStepTable.Name),
+                    IdentifierName(PreDefinedDataMember.OpcodeStepTable.MemberName),
                     IdentifierName(input.Configuration.OpcodeStepTables.NoPrefix.FieldName))),
 
             // Registers = new Z80Registers(this);
             CreateNewObjectAndAssignToProperty(RegistersPropertyName, GetRegistersClassName(input), ThisExpression()),
 
             // Flags = new Z80Flags(this);
-            CreateNewObjectAndAssignToProperty(FlagsPropertyName, GetFlagsClassName(input), ThisExpression())
+            CreateNewObjectAndAssignToProperty(FlagsPropertyName, GetFlagsClassName(input), ThisExpression()),
+
+            // Interrupts = new Z80Interrupts(this);
+            CreateNewObjectAndAssignToProperty(InterruptsPropertyName, GetInterruptsClassName(input), ThisExpression())
         };
 
         return ConstructorDeclaration(GetEmulatorClassName(input))
@@ -82,11 +87,13 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
 
     [Pure]
     private static MemberDeclarationSyntax CreateDataMember(HashSet<string> requiredUsings, DataMember member, int fieldOffset) =>
-        member.IsPublic ? CreateGetSetProperty(requiredUsings, member, fieldOffset) : CreateField(requiredUsings, member, fieldOffset, Private);
+        member.Visibility == DataMemberVisibility.Public
+            ? CreateGetSetProperty(requiredUsings, member, fieldOffset)
+            : CreateField(requiredUsings, member, fieldOffset, member.Visibility == DataMemberVisibility.Internal ? Internal : Private);
 
     [Pure]
     private static PropertyDeclarationSyntax CreateGetSetProperty(HashSet<string> requiredUsings, DataMember member, int fieldOffset) =>
-        CreateGetSetProperty(requiredUsings, member.TypeSyntax, member.Name, fieldOffset);
+        CreateGetSetProperty(requiredUsings, member.TypeSyntax, member.MemberName, fieldOffset);
 
     [Pure]
     private static PropertyDeclarationSyntax CreateGetSetProperty(HashSet<string> requiredUsings, TypeSyntax type, string propertyName, int fieldOffset)
@@ -113,7 +120,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
 
     [MustUseReturnValue]
     private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, DataMember member, int fieldOffset, SyntaxToken visibility, bool readOnly = false, ExpressionSyntax? initializer = null) =>
-        CreateField(requiredUsings, member.TypeSyntax, member.Name, fieldOffset, visibility, readOnly, initializer);
+        CreateField(requiredUsings, member.TypeSyntax, member.MemberName, fieldOffset, visibility, readOnly, initializer);
 
     [MustUseReturnValue]
     private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, TypeSyntax type, string name, int fieldOffset, SyntaxToken visibility, bool readOnly = false, ExpressionSyntax? initializer = null)

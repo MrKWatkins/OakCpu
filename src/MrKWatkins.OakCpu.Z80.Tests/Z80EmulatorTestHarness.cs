@@ -145,13 +145,29 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
         set => emulator.Flags.S = value;
     }
 
-    public override bool IFF1 { get; set; }
+    public override bool IFF1
+    {
+        get => emulator.Interrupts.IFF1;
+        set => emulator.Interrupts.IFF1 = value;
+    }
 
-    public override bool IFF2 { get; set; }
+    public override bool IFF2
+    {
+        get => emulator.Interrupts.IFF2;
+        set => emulator.Interrupts.IFF2 = value;
+    }
 
-    public override byte IM { get; set; }
+    public override byte IM
+    {
+        get => emulator.Interrupts.IM;
+        set => emulator.Interrupts.IM = value;
+    }
 
-    public override bool IsHalted { get; set; }
+    public override bool IsHalted
+    {
+        get => emulator.Interrupts.IsHalted;
+        set => emulator.Interrupts.IsHalted = value;
+    }
 
     public override byte GetMemory(ushort address) => memory[address];
 

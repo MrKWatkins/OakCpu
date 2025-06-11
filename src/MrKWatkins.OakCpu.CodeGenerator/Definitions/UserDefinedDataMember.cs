@@ -4,13 +4,12 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class UserDefinedDataMember : DataMember
 {
-    private UserDefinedDataMember(string name, DataType type)
-        : base(name, type)
+    private UserDefinedDataMember(string name, DataType type, DataMemberVisibility visibility)
+        : base(name, type, visibility)
     {
     }
 
-    public override string ToString() => Name;
-
     [Pure]
-    public static IReadOnlyDictionary<string, UserDefinedDataMember> Create(IReadOnlyList<FieldYaml> yamls) => yamls.Select(y => new UserDefinedDataMember(y.Name, y.Type)).ToDictionary(u => u.Name);
+    public static IEnumerable<UserDefinedDataMember> Create([InstantHandle] IEnumerable<FieldYaml> yamls, DataMemberVisibility visibility) =>
+        yamls.Select(y => new UserDefinedDataMember(y.Name, y.Type, visibility));
 }

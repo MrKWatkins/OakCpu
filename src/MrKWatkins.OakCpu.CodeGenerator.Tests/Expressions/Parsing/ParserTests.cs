@@ -27,6 +27,7 @@ public sealed class ParserTests
     private static ParserContext CreateContext()
     {
         var configuration = new Configuration(
+            new[] { Action.None, new Action("memory_read", 1) }.ToDictionary(a => a.Name),
             new Dictionary<string, Register>
             {
                 ["R"] = new("R", DataType.U8, false, false, null, 0),
@@ -37,10 +38,8 @@ public sealed class ParserTests
             {
                 ["X"] = new("X", 0, "S", "NS")
             },
-            new OpcodeStepTables([]))
-        {
-            Actions = new[] { Action.None, new Action("memory_read", 1) }.ToDictionary(a => a.Name)
-        };
+            new OpcodeStepTables([]),
+            new Dictionary<string, UserDefinedDataMember>());
 
         return new ParserContext(configuration);
     }

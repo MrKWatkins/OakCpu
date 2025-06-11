@@ -7,17 +7,19 @@ using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 using VYaml.Serialization;
+using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 
 namespace MrKWatkins.OakCpu.CodeGenerator;
 
 public sealed class GeneratorInput
 {
-    private GeneratorInput(string rootNamespace, Configuration configuration, Cpu cpu, IReadOnlyList<Step> opcodeRead, IReadOnlyList<Instruction> instructions)
+    private GeneratorInput(string rootNamespace, Configuration configuration, Cpu cpu, Interrupts interrupts, IReadOnlyList<Step> opcodeRead, IReadOnlyList<Instruction> instructions)
     {
         VerifyNoDuplicateOpcodes(instructions);
         RootNamespace = rootNamespace;
         Configuration = configuration;
         Cpu = cpu;
+        Interrupts = interrupts;
         OpcodeRead = opcodeRead;
         Instructions = instructions;
         OpcodePrefixes = Instructions.Where(i => i.Prefix.HasValue).Select(i => i.Prefix!.Value).Distinct().OrderBy(p => p).ToList();
@@ -29,6 +31,8 @@ public sealed class GeneratorInput
     public Configuration Configuration { get; }
 
     public Cpu Cpu { get; }
+
+    public Interrupts Interrupts { get; }
 
     public IReadOnlyList<Step> OpcodeRead { get; }
 
@@ -54,9 +58,15 @@ public sealed class GeneratorInput
             throw new ArgumentNullException(nameof(rootNamespace));
         }
 
-        var configuration = new Configuration(Register.Create(yaml.Registers), Flag.Create(yaml.Flags), new OpcodeStepTables(yaml.Instructions));
+        var actions = Action.Create(yaml.Cpu);
+        var registers = Register.Create(yaml.Registers);
+        var flags = Flag.Create(yaml.Flags);
+        var opcodeStepTables = new OpcodeStepTables(yaml.Instructions);
+        var userDefinedDataMembers = UserDefinedDataMember.Create(yaml.Cpu.Fields, DataMemberVisibility.Private)
+            .Concat(UserDefinedDataMember.Create(yaml.Interrupts.Properties, DataMemberVisibility.Internal))
+            .ToDictionary(u => u.Name);
 
-        var cpu = Cpu.Create(configuration, yaml.Cpu);
+        var configuration = new Configuration(actions, registers, flags, opcodeStepTables, userDefinedDataMembers);
 
         UserDefinedFunction.AddToConfiguration(configuration, yaml.Functions);
 
@@ -66,7 +76,7 @@ public sealed class GeneratorInput
 
         var instructions = Instruction.Create(context, yaml.Instructions);
 
-        return new GeneratorInput(rootNamespace, configuration, cpu, opcodeRead, instructions);
+        return new GeneratorInput(rootNamespace, configuration, Cpu.Create(yaml.Cpu), Interrupts.Create(yaml.Interrupts), opcodeRead, instructions);
     }
 
     [Pure]

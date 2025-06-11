@@ -174,8 +174,8 @@ public abstract class StatementGenerator : Generator
         // TODO: Version without bounds checks, don't rely on the JIT.
         var getOpcode =
             ElementAccessExpression(
-                IdentifierName(PreDefinedDataMember.OpcodeStepTable.Name),
-                BracketedArgumentList([Argument(IdentifierName(PreDefinedDataMember.Data.Name))]));
+                IdentifierName(PreDefinedDataMember.OpcodeStepTable.MemberName),
+                BracketedArgumentList([Argument(IdentifierName(PreDefinedDataMember.Data.MemberName))]));
 
         yield return CreateSetStep(getOpcode);
     }
@@ -219,7 +219,7 @@ public abstract class StatementGenerator : Generator
         ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName(PreDefinedDataMember.OpcodeStepTable.Name),
+                IdentifierName(PreDefinedDataMember.OpcodeStepTable.MemberName),
                 IdentifierName(opcodeStepTable.FieldName)));
 
     [Pure]
