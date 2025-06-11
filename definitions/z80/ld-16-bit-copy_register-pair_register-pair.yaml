@@ -1,0 +1,16 @@
+instructions:
+  - group: LD
+    mnemonic: LD RP0, RP1
+    opcodes:
+      - opcode: 0xF9
+        RP0: SP
+        RP1: HL
+      - opcode: 0xDD 0xF9
+        RP0: SP
+        RP1: IX
+      - opcode: 0xFD 0xF9
+        RP0: SP
+        RP1: IY
+    steps:
+      - RP0 = RP1;
+      -
