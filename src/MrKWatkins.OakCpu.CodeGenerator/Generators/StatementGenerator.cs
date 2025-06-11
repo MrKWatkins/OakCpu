@@ -17,7 +17,7 @@ public abstract class StatementGenerator : Generator
 
         if (step.Instruction is { Prefix: not null } && step.Instruction.Steps[0] == step)
         {
-            yield return GenerateSetOpcodeStepTable(input.OpcodeStepTables.NoPrefix);
+            yield return GenerateSetOpcodeStepTable(input.Configuration.OpcodeStepTables.NoPrefix);
         }
 
         foreach (var stepStatement in step.Statements)
@@ -174,8 +174,8 @@ public abstract class StatementGenerator : Generator
         // TODO: Version without bounds checks, don't rely on the JIT.
         var getOpcode =
             ElementAccessExpression(
-                IdentifierName(DataMember.OpcodeStepTable.Name),
-                BracketedArgumentList([Argument(IdentifierName(DataMember.Data.Name))]));
+                IdentifierName(PreDefinedDataMember.OpcodeStepTable.Name),
+                BracketedArgumentList([Argument(IdentifierName(PreDefinedDataMember.Data.Name))]));
 
         yield return CreateSetStep(getOpcode);
     }
@@ -197,13 +197,13 @@ public abstract class StatementGenerator : Generator
     {
         if (callStatementCall.Arguments.Count == 0)
         {
-            return [GenerateSetOpcodeStepTable(opcodeStepTable.Input.OpcodeStepTables.NoPrefix)];
+            return [GenerateSetOpcodeStepTable(opcodeStepTable.Configuration.OpcodeStepTables.NoPrefix)];
         }
 
         var argument = callStatementCall.Arguments[0];
         if (argument is Number number)
         {
-            return [GenerateSetOpcodeStepTable(opcodeStepTable.Input.OpcodeStepTables.GetForPrefix((byte)number.Value))];
+            return [GenerateSetOpcodeStepTable(opcodeStepTable.Configuration.OpcodeStepTables.GetForPrefix((byte)number.Value))];
         }
 
         if (argument is OpcodeStepTableAccess opcodeStepTableAccess)
@@ -219,7 +219,7 @@ public abstract class StatementGenerator : Generator
         ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName(DataMember.OpcodeStepTable.Name),
+                IdentifierName(PreDefinedDataMember.OpcodeStepTable.Name),
                 IdentifierName(opcodeStepTable.FieldName)));
 
     [Pure]

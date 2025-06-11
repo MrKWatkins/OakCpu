@@ -7,5 +7,6 @@ public sealed class GeneratorInputTests : TestFixture
     {
         var generatorInput = GeneratorInput.Create("MrKWatkins.OakCpu.Z80", Z80Yaml);
         generatorInput.Cpu.Name.Should().Be("Z80");
+        generatorInput.OpcodeRead.Should().HaveCount(4);
     }
 }

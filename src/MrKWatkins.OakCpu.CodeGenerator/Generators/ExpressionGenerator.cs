@@ -133,7 +133,7 @@ public abstract class ExpressionGenerator : Generator
         var bitMask = (byte)(1 << conditionAccess.Condition.Flag.Index);
 
         // Isolate the flag bit.
-        var isolate = ParenthesizedExpression(BinaryExpression(SyntaxKind.BitwiseAndExpression, IdentifierName(context.Input.FlagsRegister.FieldName), GenerateBinaryLiteralExpression(bitMask)));
+        var isolate = ParenthesizedExpression(BinaryExpression(SyntaxKind.BitwiseAndExpression, IdentifierName(context.Configuration.FlagsRegister.FieldName), GenerateBinaryLiteralExpression(bitMask)));
 
         // Comparison.
         var positive = invert ? conditionAccess.Condition.IsNot : !conditionAccess.Condition.IsNot;
@@ -148,7 +148,7 @@ public abstract class ExpressionGenerator : Generator
         var bitMask = (byte)(1 << flagAccess.Flag.Index);
 
         // Isolate the flag bit.
-        var expression = BinaryExpression(SyntaxKind.BitwiseAndExpression, IdentifierName(context.Input.FlagsRegister.FieldName), GenerateBinaryLiteralExpression(bitMask));
+        var expression = BinaryExpression(SyntaxKind.BitwiseAndExpression, IdentifierName(context.Configuration.FlagsRegister.FieldName), GenerateBinaryLiteralExpression(bitMask));
 
         // If we're in a boolean context, return a bool, otherwise return an int.
         if (context.InBooleanContext)

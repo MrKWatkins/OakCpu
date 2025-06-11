@@ -2,23 +2,22 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
-using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-public sealed class EmulatorStaticFieldsAndConstructorGenerator : EmulatorClassGenerator
+public sealed class EmulatorStaticDataMembersAndConstructorGenerator : EmulatorClassGenerator
 {
-    public static readonly EmulatorStaticFieldsAndConstructorGenerator Instance = new();
+    public static readonly EmulatorStaticDataMembersAndConstructorGenerator Instance = new();
 
-    private EmulatorStaticFieldsAndConstructorGenerator()
+    private EmulatorStaticDataMembersAndConstructorGenerator()
     {
     }
 
     // TODO: An automatic layout algorithm taking into account padding would be nice.
     protected override ClassDeclarationSyntax PopulateClass(HashSet<string> requiredUsings, GeneratorInput input, ClassDeclarationSyntax classDeclaration)
     {
-        var members = input.OpcodeStepTables
+        var members = input.Configuration.OpcodeStepTables
             .Select(CreateOpcodeStepTableField)
             .Append(CreateStaticConstructor(requiredUsings, input));
 
@@ -30,7 +29,7 @@ public sealed class EmulatorStaticFieldsAndConstructorGenerator : EmulatorClassG
     {
         var variableDeclarator = VariableDeclarator(Identifier(opcodeStepTable.FieldName));
 
-        var variable = VariableDeclaration(DataMember.OpcodeStepTable.MemberTypeSyntax)
+        var variable = VariableDeclaration(PreDefinedDataMember.OpcodeStepTable.TypeSyntax)
             .WithVariables(SingletonSeparatedList(variableDeclarator));
 
         return FieldDeclaration(variable).AddModifiers(Private, Static, ReadOnly);
@@ -41,7 +40,7 @@ public sealed class EmulatorStaticFieldsAndConstructorGenerator : EmulatorClassG
     {
         var statements = new List<StatementSyntax> { CreateLittleEndianStatement(requiredUsings) };
 
-        foreach (var group in input.Instructions.GroupBy(input.OpcodeStepTables.GetForInstruction))
+        foreach (var group in input.Instructions.GroupBy(input.Configuration.OpcodeStepTables.GetForInstruction))
         {
             statements.Add(CreateOpcodeStepTableInitializationStatement(group.Key, group));
         }

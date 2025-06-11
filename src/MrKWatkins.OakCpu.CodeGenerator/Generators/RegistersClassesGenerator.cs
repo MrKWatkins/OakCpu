@@ -46,7 +46,7 @@ public sealed class RegistersClassesGenerator : ClassGenerator
 
     [Pure]
     private static IEnumerable<PropertyDeclarationSyntax> CreateRegisterProperties(GeneratorInput input, string? category) =>
-        input.Registers.Values
+        input.Configuration.Registers.Values
             .Where(r => r.Category == category)
             .OrderBy(r => r.Name)
             .Select(CreateRegisterProperty);
@@ -97,5 +97,5 @@ public sealed class RegistersClassesGenerator : ClassGenerator
     }
 
     [Pure]
-    private static IEnumerable<string> GetCategories(GeneratorInput input) => input.Registers.Values.Where(r => r.Category != null).Select(r => r.Category!).Distinct().OrderBy(c => c);
+    private static IEnumerable<string> GetCategories(GeneratorInput input) => input.Configuration.Registers.Values.Where(r => r.Category != null).Select(r => r.Category!).Distinct().OrderBy(c => c);
 }

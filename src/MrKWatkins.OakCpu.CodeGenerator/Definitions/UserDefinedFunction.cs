@@ -8,28 +8,26 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class UserDefinedFunction : Function
 {
-    private UserDefinedFunction(string name, DataType type, IReadOnlyList<string> parameters, Expression expression)
+    private UserDefinedFunction(string name, DataType type, IReadOnlyList<string> parameters)
         : base(name, type, parameters)
     {
-        Expression = expression;
     }
 
-    public Expression Expression { get; }
+    public Expression Expression { get; private set; } = null!;
 
     public override string ToString() => $"{Name}({string.Join(", ", Parameters)} => {Expression}";
 
-    [Pure]
-    public static IReadOnlyList<UserDefinedFunction> Create(ParserContext context, IReadOnlyList<FunctionYaml> yamls) =>
-        yamls.Select(y => Create(context, y)).OrderBy(f => f.Name).ToList();
-
-    [Pure]
-    private static UserDefinedFunction Create(ParserContext context, FunctionYaml yaml)
+    public static void AddToConfiguration(Configuration configuration, IReadOnlyList<FunctionYaml> yamls)
     {
-        var parameters = new HashSet<string>(yaml.Parameters);
+        // Two pass as they might reference each other.
+        var functions = yamls.Select(yaml => (Yaml: yaml, Function: new UserDefinedFunction(yaml.Name, YamlSerializer.Deserialize<DataType>(Encoding.UTF8.GetBytes(yaml.Type)), yaml.Parameters))).ToList();
 
-        context = context.WithArguments(parameters);
-        var expression = Parser.ParseExpression(context, yaml.Expression);
+        configuration.UserDefinedFunctions = functions.ToDictionary(u => u.Function.Name, u => u.Function);
 
-        return new UserDefinedFunction(yaml.Name, YamlSerializer.Deserialize<DataType>(Encoding.UTF8.GetBytes(yaml.Type)), parameters.ToList(), expression);
+        var context = new ParserContext(configuration);
+        foreach (var (yaml, function) in functions)
+        {
+            function.Expression = Parser.ParseExpression(context.WithArguments(yaml.Parameters), yaml.Expression);
+        }
     }
 }

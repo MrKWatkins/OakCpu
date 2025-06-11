@@ -29,7 +29,7 @@ public sealed class FlagsClassGenerator : ClassGenerator
     }
 
     [Pure]
-    private static IEnumerable<PropertyDeclarationSyntax> CreateFlagProperties(GeneratorInput input) => input.Flags.Values.Select(f => CreateFlagProperty(input.FlagsRegister, f));
+    private static IEnumerable<PropertyDeclarationSyntax> CreateFlagProperties(GeneratorInput input) => input.Configuration.Flags.Values.Select(f => CreateFlagProperty(input.Configuration.FlagsRegister, f));
 
     [Pure]
     private static PropertyDeclarationSyntax CreateFlagProperty(Register flagsRegister, Flag flag)

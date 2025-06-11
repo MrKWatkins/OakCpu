@@ -26,20 +26,22 @@ public sealed class ParserTests
     [Pure]
     private static ParserContext CreateContext()
     {
-        var flags = new Dictionary<string, Flag>
-        {
-            ["X"] = new("X", 0, "S", "NS")
-        };
-
-        return new ParserContext(
-            new [] {Action.None, new Action("memory_read", 1)}.ToDictionary(a => a.Name),
+        var configuration = new Configuration(
             new Dictionary<string, Register>
             {
                 ["R"] = new("R", DataType.U8, false, false, null, 0),
                 ["RP0"] = new("RP0", DataType.U16, false, false, null, 0),
                 ["RP1"] = new("RP1", DataType.U16, false, false, null, 0)
             },
-            flags,
-            Condition.Create(flags.Values));
+            new Dictionary<string, Flag>
+            {
+                ["X"] = new("X", 0, "S", "NS")
+            },
+            new OpcodeStepTables([]))
+        {
+            Actions = new[] { Action.None, new Action("memory_read", 1) }.ToDictionary(a => a.Name)
+        };
+
+        return new ParserContext(configuration);
     }
 }

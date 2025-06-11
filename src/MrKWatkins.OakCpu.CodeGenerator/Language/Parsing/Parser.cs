@@ -210,17 +210,18 @@ public static class Parser
     [Pure]
     private static AstNode ParseIdentifier(ParserContext context, string identifier)
     {
-        if (context.Parameters.Contains(identifier))
+        // TODO: This feels like it could be done in a better way.
+        if (context.Arguments.Contains(identifier))
         {
             return new ArgumentAccess(identifier);
         }
 
-        if (context.Registers.TryGetValue(identifier, out var register))
+        if (context.Configuration.Registers.TryGetValue(identifier, out var register))
         {
             return new RegisterAccess(register);
         }
 
-        if (DataMember.All.TryGetValue(identifier, out var dataMember))
+        if (context.Configuration.AllDataMembers.TryGetValue(identifier, out var dataMember))
         {
             return new DataMemberAccess(dataMember);
         }
@@ -230,22 +231,22 @@ public static class Parser
             return new TemporaryVariableAccess(identifier.Substring(1));
         }
 
-        if (identifier.StartsWith("flag.") && context.Flags.TryGetValue(identifier.Substring(5), out var flag))
+        if (identifier.StartsWith("flag.") && context.Configuration.Flags.TryGetValue(identifier.Substring(5), out var flag))
         {
             return new FlagAccess(flag);
         }
 
-        if (identifier.StartsWith("condition.") && context.Conditions.TryGetValue(identifier.Substring(10), out var condition))
+        if (identifier.StartsWith("condition.") && context.Configuration.Conditions.TryGetValue(identifier.Substring(10), out var condition))
         {
             return new ConditionAccess(condition);
         }
 
-        if (identifier.StartsWith("action.") && context.Actions.TryGetValue(identifier.Substring(7), out var action))
+        if (identifier.StartsWith("action.") && context.Configuration.Actions.TryGetValue(identifier.Substring(7), out var action))
         {
             return new ActionAccess(action);
         }
 
-        if (identifier.StartsWith("opcode_table.") && context.OpcodeStepTables!.Custom.TryGetValue(identifier.Substring(13), out var opcodeStepTable))
+        if (identifier.StartsWith("opcode_table.") && context.Configuration.OpcodeStepTables.Custom.TryGetValue(identifier.Substring(13), out var opcodeStepTable))
         {
             return new OpcodeStepTableAccess(opcodeStepTable);
         }
@@ -282,20 +283,8 @@ public static class Parser
     }
 
     [Pure]
-    private static Function ResolveFunction(ParserContext context, string identifier)
-    {
-        if (PreDefinedFunction.All.TryGetValue(identifier, out var preDefinedFunction))
-        {
-            return preDefinedFunction;
-        }
-
-        if (context.UserDefinedFunctions.TryGetValue(identifier, out var function))
-        {
-            return function;
-        }
-
-        throw new NotSupportedException($"Unsupported function {identifier}.");
-    }
+    private static Function ResolveFunction(ParserContext context, string identifier) =>
+        context.Configuration.AllFunctions.TryGetValue(identifier, out var function) ? function : throw new NotSupportedException($"Unsupported function {identifier}.");
 
     [Pure]
     private static FormatException CreateUnexpectedTokenException(Token token) => new($"Unexpected token {token.GetType().Name} {token} at index {token.StartIndex}.");

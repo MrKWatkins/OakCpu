@@ -23,7 +23,7 @@ public sealed class Register
 
     public DataType Type { get; }
 
-    public PredefinedTypeSyntax TypeSyntax => Type.TypeSyntax();
+    public TypeSyntax TypeSyntax => Type.TypeSyntax();
 
     public bool Flags { get; }
 
@@ -40,7 +40,7 @@ public sealed class Register
     public override string ToString() => $"{Name}: {Type}";
 
     [Pure]
-    public static IReadOnlyList<Register> Create(IReadOnlyList<RegisterYaml> yamls)
+    public static IReadOnlyDictionary<string, Register> Create(IReadOnlyList<RegisterYaml> yamls)
     {
         var registers = new List<Register>();
 
@@ -66,7 +66,7 @@ public sealed class Register
             fieldOffset += yaml.Type.Size();
         }
 
-        return registers.OrderBy(r => r.FieldOffset).ToList();
+        return registers.ToDictionary(r => r.Name);
     }
 
     [Pure]

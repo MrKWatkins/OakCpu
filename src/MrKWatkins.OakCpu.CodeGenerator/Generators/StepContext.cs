@@ -23,6 +23,8 @@ public sealed class StepContext
 
     public GeneratorInput Input { get; }
 
+    public Configuration Configuration => Input.Configuration;
+
     public Step Step { get; }
 
     public HashSet<string> InitializedTemporaryVariables { get; }

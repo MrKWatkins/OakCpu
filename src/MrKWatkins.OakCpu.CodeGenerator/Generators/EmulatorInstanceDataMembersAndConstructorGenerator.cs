@@ -2,18 +2,18 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
-using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-public sealed class EmulatorInstanceFieldsPropertiesAndConstructorGenerator : EmulatorClassGenerator
+// TODO: Skip requiredUsings, just add them, we know what they are.
+public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : EmulatorClassGenerator
 {
     private const string RegistersPropertyName = "Registers";
     private const string FlagsPropertyName = "Flags";
-    public static readonly EmulatorInstanceFieldsPropertiesAndConstructorGenerator Instance = new();
+    public static readonly EmulatorInstanceDataMembersAndConstructorGenerator Instance = new();
 
-    private EmulatorInstanceFieldsPropertiesAndConstructorGenerator()
+    private EmulatorInstanceDataMembersAndConstructorGenerator()
     {
     }
 
@@ -22,7 +22,7 @@ public sealed class EmulatorInstanceFieldsPropertiesAndConstructorGenerator : Em
     {
         var structLayout = CreateStructLayoutAttribute(requiredUsings);
 
-        var members = input.Registers.Values.Select(r => CreateField(requiredUsings, r)).ToList<MemberDeclarationSyntax>();
+        var members = input.Configuration.Registers.Values.Select(r => CreateField(requiredUsings, r)).ToList<MemberDeclarationSyntax>();
 
         members.Add(CreateConstructor(input));
 
@@ -33,20 +33,14 @@ public sealed class EmulatorInstanceFieldsPropertiesAndConstructorGenerator : Em
         members.Add(CreateGetOnlyProperty(requiredUsings, GetFlagsClassName(input), FlagsPropertyName, fieldOffset));
         fieldOffset += 8;
 
-        members.Add(CreateField(requiredUsings, DataMember.OpcodeStepTable, fieldOffset, Private));
-        fieldOffset += 8;
+        // TODO: Interrupts class field.
 
-        members.Add(CreateGetSetProperty(requiredUsings, DataMember.Address, fieldOffset));
-        fieldOffset += DataMember.Address.MemberSize;
-
-        // TODO: Make private, think of a nice and quick way to indicate the end (or start!) of an instruction.
-        members.Add(CreateField(requiredUsings, DataMember.Step, fieldOffset, Internal));
-        fieldOffset += DataMember.Step.MemberSize;
-
-        members.Add(CreateGetSetProperty(requiredUsings, DataMember.Data, fieldOffset));
-        fieldOffset += DataMember.Data.MemberSize;
-
-        members.Add(CreateGetSetProperty(requiredUsings, DataMember.Latch, fieldOffset));
+        // Order by size descending so each field ends up aligned to its own width.
+        foreach (var dataMember in input.Configuration.AllDataMembers.Values.OrderByDescending(m => m.Size))
+        {
+            members.Add(CreateDataMember(requiredUsings, dataMember, fieldOffset));
+            fieldOffset += 8;
+        }
 
         return classDeclaration
             .AddAttributeLists(AttributeList(SingletonSeparatedList(structLayout)))
@@ -62,8 +56,8 @@ public sealed class EmulatorInstanceFieldsPropertiesAndConstructorGenerator : Em
             ExpressionStatement(
                 AssignmentExpression(
                     SyntaxKind.SimpleAssignmentExpression,
-                    IdentifierName(DataMember.OpcodeStepTable.Name),
-                    IdentifierName(input.OpcodeStepTables.NoPrefix.FieldName))),
+                    IdentifierName(PreDefinedDataMember.OpcodeStepTable.Name),
+                    IdentifierName(input.Configuration.OpcodeStepTables.NoPrefix.FieldName))),
 
             // Registers = new Z80Registers(this);
             CreateNewObjectAndAssignToProperty(RegistersPropertyName, GetRegistersClassName(input), ThisExpression()),
@@ -87,8 +81,12 @@ public sealed class EmulatorInstanceFieldsPropertiesAndConstructorGenerator : Em
     }
 
     [Pure]
+    private static MemberDeclarationSyntax CreateDataMember(HashSet<string> requiredUsings, DataMember member, int fieldOffset) =>
+        member.IsPublic ? CreateGetSetProperty(requiredUsings, member, fieldOffset) : CreateField(requiredUsings, member, fieldOffset, Private);
+
+    [Pure]
     private static PropertyDeclarationSyntax CreateGetSetProperty(HashSet<string> requiredUsings, DataMember member, int fieldOffset) =>
-        CreateGetSetProperty(requiredUsings, member.MemberTypeSyntax, member.Name, fieldOffset);
+        CreateGetSetProperty(requiredUsings, member.TypeSyntax, member.Name, fieldOffset);
 
     [Pure]
     private static PropertyDeclarationSyntax CreateGetSetProperty(HashSet<string> requiredUsings, TypeSyntax type, string propertyName, int fieldOffset)
@@ -102,7 +100,7 @@ public sealed class EmulatorInstanceFieldsPropertiesAndConstructorGenerator : Em
     [Pure]
     private static int GetObjectPropertiesFieldOffset(GeneratorInput input)
     {
-        var lastRegister = input.Registers.Values.OrderByDescending(r => r.FieldOffset).First();
+        var lastRegister = input.Configuration.Registers.Values.OrderByDescending(r => r.FieldOffset).First();
         var nextFieldOffset = lastRegister.FieldOffset + lastRegister.Type.Size();
 
         // Round up to the next multiple of 64 bits, i.e. 8 bytes.
@@ -115,7 +113,7 @@ public sealed class EmulatorInstanceFieldsPropertiesAndConstructorGenerator : Em
 
     [MustUseReturnValue]
     private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, DataMember member, int fieldOffset, SyntaxToken visibility, bool readOnly = false, ExpressionSyntax? initializer = null) =>
-        CreateField(requiredUsings, member.MemberTypeSyntax, member.Name, fieldOffset, visibility, readOnly, initializer);
+        CreateField(requiredUsings, member.TypeSyntax, member.Name, fieldOffset, visibility, readOnly, initializer);
 
     [MustUseReturnValue]
     private static FieldDeclarationSyntax CreateField(HashSet<string> requiredUsings, TypeSyntax type, string name, int fieldOffset, SyntaxToken visibility, bool readOnly = false, ExpressionSyntax? initializer = null)

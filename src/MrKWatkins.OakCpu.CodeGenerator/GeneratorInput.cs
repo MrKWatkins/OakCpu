@@ -12,47 +12,32 @@ namespace MrKWatkins.OakCpu.CodeGenerator;
 
 public sealed class GeneratorInput
 {
-    private GeneratorInput(string rootNamespace, Cpu cpu, IReadOnlyDictionary<string, Register> registers, IReadOnlyDictionary<string, Flag> flags, IReadOnlyDictionary<string, Condition> conditions, IReadOnlyList<Instruction> instructions, Dictionary<string, UserDefinedFunction> userDefinedFunctions, OpcodeStepTables opcodeStepTables)
+    private GeneratorInput(string rootNamespace, Configuration configuration, Cpu cpu, IReadOnlyList<Step> opcodeRead, IReadOnlyList<Instruction> instructions)
     {
         VerifyNoDuplicateOpcodes(instructions);
         RootNamespace = rootNamespace;
+        Configuration = configuration;
         Cpu = cpu;
-        Registers = registers;
-        Flags = flags;
-        Conditions = conditions;
+        OpcodeRead = opcodeRead;
         Instructions = instructions;
-        UserDefinedFunctions = userDefinedFunctions;
-        OpcodeStepTables = opcodeStepTables;
-        FlagsRegister = Registers.Values.Single(r => r.Flags);
-        ProgramCounter = Registers.Values.Single(r => r.ProgramCounter);
         OpcodePrefixes = Instructions.Where(i => i.Prefix.HasValue).Select(i => i.Prefix!.Value).Distinct().OrderBy(p => p).ToList();
         Step.AssignIndexes(AllSteps);
     }
 
     public string RootNamespace { get; }
 
+    public Configuration Configuration { get; }
+
     public Cpu Cpu { get; }
 
-    public IReadOnlyDictionary<string, Register> Registers { get; }
-
-    public IReadOnlyDictionary<string, Flag> Flags { get; }
-
-    public IReadOnlyDictionary<string, Condition> Conditions { get; }
+    public IReadOnlyList<Step> OpcodeRead { get; }
 
     public IReadOnlyList<Instruction> Instructions { get; }
 
     public IReadOnlyList<byte> OpcodePrefixes { get; }
 
-    public IReadOnlyDictionary<string, UserDefinedFunction> UserDefinedFunctions { get; }
-
-    public Register FlagsRegister { get; }
-
-    public Register ProgramCounter { get; }
-
-    public OpcodeStepTables OpcodeStepTables { get; }
-
     // Steps need to keep their order within an instruction or all hell breaks loose.
-    public IEnumerable<Step> AllSteps => Cpu.OpcodeRead.Concat(Instructions.SelectMany(i => i.Steps));
+    public IEnumerable<Step> AllSteps => OpcodeRead.Concat(Instructions.SelectMany(i => i.Steps));
 
     [Pure]
     public NamespaceDeclarationSyntax CreateRootNamespaceDeclaration() => SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(RootNamespace));
@@ -69,25 +54,19 @@ public sealed class GeneratorInput
             throw new ArgumentNullException(nameof(rootNamespace));
         }
 
-        var registers = Register.Create(yaml.Registers).ToDictionary(r => r.Name);
+        var configuration = new Configuration(Register.Create(yaml.Registers), Flag.Create(yaml.Flags), new OpcodeStepTables(yaml.Instructions));
 
-        var flags = Flag.Create(yaml.Flags).ToDictionary(f => f.Name);
+        var cpu = Cpu.Create(configuration, yaml.Cpu);
 
-        var conditions = Condition.Create(flags.Values);
+        UserDefinedFunction.AddToConfiguration(configuration, yaml.Functions);
 
-        var cpu = Cpu.Create(yaml.Cpu, registers, flags, conditions);
+        var context = new ParserContext(configuration);
 
-        var opcodeStepTables = new OpcodeStepTables(yaml.Instructions);
-
-        var context = new ParserContext(cpu.Actions, registers, flags, conditions).WithOpcodeStepTables(opcodeStepTables);
-
-        var userDefinedFunctions = UserDefinedFunction.Create(context, yaml.Functions).ToDictionary(f => f.Name);
-
-        context = context.WithFunctions(userDefinedFunctions);
+        var opcodeRead = Step.Parse("Opcode read", context, yaml.OpcodeRead);
 
         var instructions = Instruction.Create(context, yaml.Instructions);
 
-        return new GeneratorInput(rootNamespace, cpu, registers, flags, conditions, instructions, userDefinedFunctions, opcodeStepTables);
+        return new GeneratorInput(rootNamespace, configuration, cpu, opcodeRead, instructions);
     }
 
     [Pure]

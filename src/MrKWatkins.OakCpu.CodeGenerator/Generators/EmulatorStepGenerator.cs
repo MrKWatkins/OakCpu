@@ -2,7 +2,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
-using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -34,7 +33,7 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
     {
         var sections = input.AllSteps.Select(step => CreateSwitchSection(input, step)).ToArray();
 
-        return SwitchStatement(CreatePostIncrementExpression(DataMember.Step.Name))
+        return SwitchStatement(CreatePostIncrementExpression(PreDefinedDataMember.Step.Name))
             .AddSections(sections);
     }
 
@@ -61,7 +60,7 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
         // $"The opcode 0x{Data:X2} is not supported."
         var interpolatedString = GenerateInterpolatedString(
             InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, "The opcode 0x", "The opcode 0x", TriviaList())),
-            GenerateX2Interpolation(DataMember.Data),
+            GenerateX2Interpolation(PreDefinedDataMember.Data),
             InterpolatedStringText(Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, " is not supported.", " is not supported.", TriviaList())));
 
         return ThrowStatement(ObjectCreationExpression(IdentifierName("System.NotSupportedException"))

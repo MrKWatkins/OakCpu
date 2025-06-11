@@ -123,7 +123,7 @@ public sealed class Instruction
     {
         if (replacement != null)
         {
-            var register = context.Registers[replacement];
+            var register = context.Configuration.Registers[replacement];
 
             if (register.HighRegister != null)
             {
@@ -145,7 +145,7 @@ public sealed class Instruction
     {
         if (replacement != null)
         {
-            var condition = context.Conditions[replacement];
+            var condition = context.Configuration.Conditions[replacement];
 
             value = value.Replace(conditionVariable, condition.Name);
         }

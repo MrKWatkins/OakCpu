@@ -23,5 +23,5 @@ public sealed class Flag
     public override string ToString() => Name;
 
     [Pure]
-    public static IReadOnlyList<Flag> Create(IReadOnlyList<FlagYaml> yamls) => yamls.Select(y => new Flag(y.Name, y.Index, y.Condition, y.NotCondition)).OrderBy(f => f.Index).ToList();
+    public static IReadOnlyDictionary<string, Flag> Create(IReadOnlyList<FlagYaml> yamls) => yamls.Select(y => new Flag(y.Name, y.Index, y.Condition, y.NotCondition)).ToDictionary(f => f.Name);
 }

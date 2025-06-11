@@ -66,6 +66,7 @@ registers:
   - name: PC
     type: u16
     program_counter: true
+    # TODO: Autogenerate high and low members if not specified. No need for the type to be specified.
     high:
       name: PCH
       type: u8
@@ -91,6 +92,7 @@ registers:
       name: Z
       type: u8
 
+  # TODO: Is this really a register or a latch?
   - name: Q
     type: u8
 

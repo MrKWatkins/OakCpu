@@ -47,9 +47,9 @@ public abstract class FlagsGenerator : Generator
         yield return ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName(context.Input.FlagsRegister.FieldName),
+                IdentifierName(context.Configuration.FlagsRegister.FieldName),
                 CastExpression(
-                    context.Input.FlagsRegister.TypeSyntax, IdentifierName(FlagsVariableName))));
+                    context.Configuration.FlagsRegister.TypeSyntax, IdentifierName(FlagsVariableName))));
     }
 
     [Pure]
@@ -143,7 +143,7 @@ public abstract class FlagsGenerator : Generator
     {
         var copyFroms = GetCopyFromExpressions(context, instruction);
 
-        foreach (var kvp in copyFroms.OrderBy(kvp => kvp.Key == context.Input.FlagsRegister.FieldName ? 0 : 1).ThenBy(kvp => kvp.Key))
+        foreach (var kvp in copyFroms.OrderBy(kvp => kvp.Key == context.Configuration.FlagsRegister.FieldName ? 0 : 1).ThenBy(kvp => kvp.Key))
         {
             var comment = Comment($"// Copy {FlagsNames(kvp.Value)} from {kvp.Key}.");
             var copyFromExpression = BinaryExpression(SyntaxKind.BitwiseAndExpression, IdentifierName(kvp.Key), GenerateBinaryLiteralExpression(BuildBitMask(kvp.Value)));
@@ -163,7 +163,7 @@ public abstract class FlagsGenerator : Generator
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateAssignmentFromEqualityStatements(StepContext context, Instruction instruction, string flagsVariableName)
     {
-        foreach (var flag in context.Input.Flags.Values.OrderByDescending(f => f.Index))
+        foreach (var flag in context.Configuration.Flags.Values.OrderByDescending(f => f.Index))
         {
             if (instruction.Flags.TryGetValue(flag.Name, out var expression) && expression is BinaryOperation binaryOperation && binaryOperation.Operator == Operator.Equality)
             {
@@ -204,7 +204,7 @@ public abstract class FlagsGenerator : Generator
     private static IReadOnlyDictionary<string, List<Flag>> GetCopyFromExpressions(StepContext context, Instruction instruction)
     {
         var copyFroms = new Dictionary<string, List<Flag>>();
-        foreach (var flag in context.Input.Flags.Values.OrderByDescending(f => f.Index))
+        foreach (var flag in context.Configuration.Flags.Values.OrderByDescending(f => f.Index))
         {
             if (instruction.Flags.TryGetValue(flag.Name, out var expression))
             {
@@ -217,7 +217,7 @@ public abstract class FlagsGenerator : Generator
             }
             else
             {
-                Add(copyFroms, context.Input.FlagsRegister.Name, flag);
+                Add(copyFroms, context.Configuration.FlagsRegister.Name, flag);
             }
         }
 
@@ -228,7 +228,7 @@ public abstract class FlagsGenerator : Generator
     private static IReadOnlyDictionary<int, List<Flag>> GetConstantExpressions(StepContext context, Instruction instruction)
     {
         var constants = new Dictionary<int, List<Flag>>();
-        foreach (var flag in context.Input.Flags.Values.OrderByDescending(f => f.Index))
+        foreach (var flag in context.Configuration.Flags.Values.OrderByDescending(f => f.Index))
         {
             if (instruction.Flags.TryGetValue(flag.Name, out var expression) && expression is Number number)
             {
@@ -246,7 +246,7 @@ public abstract class FlagsGenerator : Generator
         {
             if (kvp.Value is Call call && call.Function != PreDefinedFunction.CopyFrom)
             {
-                yield return (context.Input.Flags[kvp.Key], call);
+                yield return (context.Configuration.Flags[kvp.Key], call);
             }
         }
     }

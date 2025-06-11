@@ -5,7 +5,7 @@ public sealed class InstructionYamlTests : TestFixture
     [Test]
     public async Task Load_NOP()
     {
-        var instructionsYaml = await LoadZ80DefinitionFileAsync("general.yaml");
+        var instructionsYaml = await LoadZ80DefinitionFileAsync("nop.yaml");
         instructionsYaml.Instructions.Should().ContainSingle(i => i.Mnemonic == "NOP");
     }
 

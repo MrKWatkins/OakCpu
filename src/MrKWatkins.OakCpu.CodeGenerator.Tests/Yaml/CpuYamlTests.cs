@@ -7,5 +7,6 @@ public class CpuYamlTests : TestFixture
     {
         var yaml = await LoadZ80DefinitionFileAsync("cpu.yaml");
         yaml.Cpu.Should().NotBeNull();
+        yaml.OpcodeRead.Should().HaveCount(4);
     }
 }
