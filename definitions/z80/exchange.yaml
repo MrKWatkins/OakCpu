@@ -1,4 +1,15 @@
 instructions:
+  - group: EXX
+    mnemonic: EXX
+    opcodes:
+      - opcode: 0xD9
+    steps:
+      - |
+        $temp = BC'; BC' = BC; BC = $temp;
+        $temp = DE'; DE' = DE; DE = $temp;
+        $temp = HL'; HL' = HL; HL = $temp;
+    next_opcode: overlapped
+  
   - group: EX
     mnemonic: EX AF; AF'
     opcodes:
