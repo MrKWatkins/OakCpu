@@ -28,3 +28,8 @@ functions:
     type: i32_bool
     parameters: [value]
     expression: ~pop_count(value) & 1
+    
+  - name: is_negative
+    type: i32_bool
+    parameters: [value]
+    expression: (value & 0x80) >> 7

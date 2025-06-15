@@ -38,7 +38,7 @@ public sealed class StepContext
     [Pure]
     public StepContext WithArguments(IEnumerable<string> parameters, IEnumerable<Expression> arguments)
     {
-        var newScope = ArgumentScope.AddRange(parameters.Zip(arguments, (p, a) => new KeyValuePair<string, Expression>(p, a)));
+        var newScope = ArgumentScope.AddRange(parameters.Zip(arguments, (p, a) => new KeyValuePair<string, Expression>(p, a)).Where(t => !ArgumentScope.ContainsKey(t.Key)));
 
         return new StepContext(Context, Step, InitializedTemporaryVariables, newScope, CommentsAheadOfNextStatement, InBooleanContext);
     }

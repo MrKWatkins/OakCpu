@@ -5,9 +5,9 @@ using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
+namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags;
 
-public abstract class FlagsGenerator : Generator
+public abstract class OldFlagsGenerator : Generator
 {
     private const string FlagsVariableName = "flags";
 
@@ -72,30 +72,6 @@ public abstract class FlagsGenerator : Generator
         }
     }
 
-
-    [Pure]
-    private static StatementSyntax GenerateIsNegativeStatement(StepContext context, Flag flag, Call call)
-    {
-        var oneAtBit7IfNegative = BinaryExpression(SyntaxKind.BitwiseAndExpression, ExpressionGenerator.GenerateExpressionSyntax(context, call.Arguments[0]), GenerateBinaryLiteralExpression(0b10000000));
-
-        var shift = 7 - flag.Index;
-        var expression = shift > 0
-            ? BinaryExpression(SyntaxKind.RightShiftExpression, ParenthesizedExpression(oneAtBit7IfNegative), GenerateNumericLiteralExpression(shift))
-            : oneAtBit7IfNegative;
-
-        return CreateFlagsOrAssignment($"// Set {flag} when {call.Arguments[0]} is negative.", expression);
-    }
-
-    [Pure]
-    private static StatementSyntax GenerateIsZeroStatement(StepContext context, Flag flag, Call call)
-    {
-        var condition = BinaryExpression(SyntaxKind.EqualsExpression, ExpressionGenerator.GenerateExpressionSyntax(context, call.Arguments[0]), GenerateNumericLiteralExpression(0));
-
-        var bitMask = BuildBitMask(flag);
-
-        return IfStatement(condition, Block(CreateFlagsOrAssignment($"// Set {flag} when {call.Arguments[0]} is zero.", GenerateBinaryLiteralExpression(bitMask))));
-    }
-
     [Pure]
     private static StatementSyntax? GenerateConstantStatement(StepContext context, Instruction instruction, HashSet<Flag> handled)
     {
@@ -152,44 +128,6 @@ public abstract class FlagsGenerator : Generator
         }
     }
 
-    [Pure]
-    private static IEnumerable<StatementSyntax> GenerateAssignmentFromEqualityStatements(StepContext context, Instruction instruction)
-    {
-        foreach (var flag in context.Configuration.Flags.Values.OrderByDescending(f => f.Index))
-        {
-            if (instruction.Flags.TryGetValue(flag.Name, out var expression) && expression is BinaryOperation binaryOperation && binaryOperation.Operator == Operator.Equality)
-            {
-                yield return GenerateAssignmentFromEqualityStatement(context, flag, binaryOperation);
-            }
-        }
-    }
-
-    [Pure]
-    private static StatementSyntax GenerateAssignmentFromEqualityStatement(StepContext context, Flag flag, BinaryOperation equality)
-    {
-        var bitMask = BuildBitMask(flag);
-
-        var ternary = ConditionalExpression(
-            ExpressionGenerator.GenerateExpressionSyntax(context, equality),
-            GenerateBinaryLiteralExpression(bitMask),
-            GenerateNumericLiteralExpression(0));
-
-        return CreateFlagsOrAssignment($"// Set {flag} when {equality}.", ternary);
-    }
-
-    [Pure]
-    private static StatementSyntax GenerateExpressionStatement(StepContext context, Flag flag, Expression expression)
-    {
-        var bitMask = BuildBitMask(flag);
-
-        var ternary = ConditionalExpression(
-            ExpressionGenerator.GenerateExpressionSyntax(context, expression),
-            GenerateBinaryLiteralExpression(bitMask),
-            GenerateNumericLiteralExpression(0));
-
-        return CreateFlagsOrAssignment($"// Set {flag} when {expression}.", ternary);
-    }
-
     private static StatementSyntax CreateInitialize(SyntaxTrivia comment, ExpressionSyntax expression) =>
         InitializeVariableStatement(FlagsVariableName, expression)
             .WithLeadingTrivia(Comment("// Flags."))
@@ -242,18 +180,6 @@ public abstract class FlagsGenerator : Generator
         }
 
         return constants;
-    }
-
-    [Pure]
-    private static IEnumerable<(Flag Flag, Call Expression)> EnumerateCallExpressions(StepContext context, Instruction instruction)
-    {
-        foreach (var kvp in instruction.Flags)
-        {
-            if (kvp.Value is Call call && call.Function != PreDefinedFunction.CopyFrom)
-            {
-                yield return (context.Configuration.Flags[kvp.Key], call);
-            }
-        }
     }
 
     [Pure]

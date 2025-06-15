@@ -26,6 +26,9 @@ public abstract class Generator
     protected static PredefinedTypeSyntax Bool => PredefinedType(Token(SyntaxKind.BoolKeyword));
 
     [Pure]
+    protected static PredefinedTypeSyntax Byte => PredefinedType(Token(SyntaxKind.ByteKeyword));
+
+    [Pure]
     protected static SyntaxToken Field => Token(SyntaxKind.FieldKeyword);
 
     [Pure]

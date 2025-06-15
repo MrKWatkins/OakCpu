@@ -82,10 +82,6 @@ public abstract class ExpressionGenerator : Generator
         {
             return GenerateSignedExpressionSyntax(context, call.Arguments[0]);
         }
-        if (call.Function == PreDefinedFunction.IsNegative)
-        {
-             return GenerateIsNegativeExpression(context, call.Arguments[0]);
-        }
         if (call.Function == PreDefinedFunction.IsZero)
         {
             return GenerateIsZeroStatement(context, call.Arguments[0]);
@@ -115,14 +111,6 @@ public abstract class ExpressionGenerator : Generator
             expression = ParenthesizedExpression(expression);
         }
         return CastExpression(PreDefinedFunction.Signed.TypeSyntax, expression);
-    }
-
-    [Pure]
-    private static ExpressionSyntax GenerateIsNegativeExpression(StepContext context, Expression argument)
-    {
-        var oneAtBit7IfNegative = BinaryExpression(SyntaxKind.BitwiseAndExpression, GenerateExpressionSyntax(context, argument), GenerateBinaryLiteralExpression(0b10000000));
-
-        return BinaryExpression(SyntaxKind.RightShiftExpression, ParenthesizedExpression(oneAtBit7IfNegative), GenerateNumericLiteralExpression(7));
     }
 
     [Pure]

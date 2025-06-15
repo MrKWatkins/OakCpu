@@ -2,6 +2,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
+using MrKWatkins.OakCpu.CodeGenerator.Generators.Flags;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;

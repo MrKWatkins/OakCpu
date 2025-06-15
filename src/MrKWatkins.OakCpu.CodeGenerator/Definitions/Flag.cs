@@ -20,6 +20,8 @@ public sealed class Flag
 
     public string? NotCondition { get; }
 
+    public byte BitMask => (byte)(1 << Index);
+
     public override string ToString() => Name;
 
     [Pure]
