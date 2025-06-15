@@ -62,8 +62,8 @@ public sealed class GeneratorContext
         var registers = Register.Create(yaml.Registers);
         var flags = Flag.Create(yaml.Flags);
         var opcodeStepTables = new OpcodeStepTables(yaml.Instructions);
-        var userDefinedDataMembers = UserDefinedDataMember.Create(yaml.Cpu.Fields, DataMemberVisibility.Private)
-            .Concat(UserDefinedDataMember.Create(yaml.Interrupts.Properties, DataMemberVisibility.Internal))
+        var userDefinedDataMembers = UserDefinedDataMember.Create(yaml.Cpu.Fields, Visibility.Private)
+            .Concat(UserDefinedDataMember.Create(yaml.Interrupts.Properties, Visibility.Internal))
             .ToDictionary(u => u.Name);
 
         var configuration = new Configuration(actions, registers, flags, opcodeStepTables, userDefinedDataMembers);

@@ -47,7 +47,7 @@
         <IsTestProject>true</IsTestProject>
     </PropertyGroup>
 
-    <PropertyGroup Condition="!$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Generator')) And !$(MSBuildProjectName.Contains('Benchmarks'))">
+    <PropertyGroup Condition="!$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Generator')) And !$(MSBuildProjectName.Contains('Benchmarks')) And !$(MSBuildProjectName.Contains('Disassemble'))">
         <IsPackable>true</IsPackable>
         <Title>$(MSBuildProjectName)</Title>
         <Authors>Kevin Watkins</Authors>
@@ -61,7 +61,7 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
     </PropertyGroup>
 
-    <ItemGroup Condition="!$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.EndsWith('Generator')) And !$(MSBuildProjectName.Contains('Benchmarks'))">
+    <ItemGroup Condition="!$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.EndsWith('Generator')) And !$(MSBuildProjectName.Contains('Benchmarks')) And !$(MSBuildProjectName.Contains('Disassemble'))">
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
         <Content Include="..\..\Icon.png" Pack="true" PackagePath="\">
             <Link>Icon.png</Link>

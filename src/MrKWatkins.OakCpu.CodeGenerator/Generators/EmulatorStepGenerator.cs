@@ -34,7 +34,7 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
     {
         var sections = context.AllSteps.Select(step => CreateSwitchSection(context, step)).ToArray();
 
-        return SwitchStatement(CreatePostIncrementExpression(PreDefinedDataMember.Step.MemberName))
+        return SwitchStatement(CreatePostIncrementExpression(PreDefinedDataMember.CurrentStep.FieldName))
             .AddSections(sections);
     }
 
@@ -81,6 +81,6 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
         var formatToken = Token(TriviaList(), SyntaxKind.InterpolatedStringTextToken, "X2", "X2", TriviaList());
         var formatClause = InterpolationFormatClause(colonToken, formatToken);
 
-        return Interpolation(IdentifierName(dataMember.MemberName)).WithFormatClause(formatClause);
+        return Interpolation(IdentifierName(dataMember.FieldName)).WithFormatClause(formatClause);
     }
 }

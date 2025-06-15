@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -41,7 +42,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         // Order by size descending so each field ends up aligned to its own width.
         foreach (var dataMember in context.Configuration.AllDataMembers.Values.OrderByDescending(m => m.Size))
         {
-            members.Add(CreateDataMember(context, dataMember, fieldOffset));
+            members.AddRange(CreateDataMember(context, dataMember, fieldOffset));
             fieldOffset += dataMember.Size;
         }
 
@@ -59,7 +60,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
             ExpressionStatement(
                 AssignmentExpression(
                     SyntaxKind.SimpleAssignmentExpression,
-                    IdentifierName(PreDefinedDataMember.OpcodeStepTable.MemberName),
+                    IdentifierName(PreDefinedDataMember.OpcodeStepTable.FieldName),
                     IdentifierName(context.Configuration.OpcodeStepTables.NoPrefix.FieldName))),
 
             // Registers = new Z80Registers(this);
@@ -87,22 +88,49 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
     }
 
     [Pure]
-    private static MemberDeclarationSyntax CreateDataMember(GeneratorContext context, DataMember member, int fieldOffset) =>
-        member.Visibility == DataMemberVisibility.Public
-            ? CreateGetSetProperty(context, member, fieldOffset)
-            : CreateField(context, member, fieldOffset, member.Visibility == DataMemberVisibility.Internal ? Internal : Private);
-
-    [Pure]
-    private static PropertyDeclarationSyntax CreateGetSetProperty(GeneratorContext context, DataMember member, int fieldOffset) =>
-        CreateGetSetProperty(context, member.TypeSyntax, member.MemberName, fieldOffset);
-
-    [Pure]
-    private static PropertyDeclarationSyntax CreateGetSetProperty(GeneratorContext context, TypeSyntax type, string propertyName, int fieldOffset)
+    private static IEnumerable<MemberDeclarationSyntax> CreateDataMember(GeneratorContext context, DataMember member, int fieldOffset)
     {
-        var attributeList = AttributeList(SingletonSeparatedList(CreateFieldOffsetAttribute(context, fieldOffset)))
-            .WithTarget(AttributeTargetSpecifier(Field));
+        yield return CreateField(context, member.TypeSyntax, member.FieldName, fieldOffset, member.FieldVisibility.ToSyntax());
 
-        return CreateGetSetProperty(context, type, propertyName).AddAttributeLists(attributeList);
+        if (member.GetterVisibility == null)
+        {
+            yield break;
+        }
+
+        var fieldAccessExpression = IdentifierName(member.FieldName);
+
+        var accessors = new List<AccessorDeclarationSyntax>
+        {
+            AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                .WithExpressionBody(ArrowExpressionClause(fieldAccessExpression))
+                .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)])])
+                .WithSemicolonToken(Semicolon)
+        };
+
+        if (member.SetterVisibility != null)
+        {
+            var setExpression = AssignmentExpression(
+                SyntaxKind.SimpleAssignmentExpression,
+                fieldAccessExpression,
+                IdentifierName("value"));
+
+            var setter =
+                AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                    .WithExpressionBody(ArrowExpressionClause(setExpression))
+                    .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)])])
+                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+
+            if (member.SetterVisibility != member.GetterVisibility)
+            {
+                setter = setter.AddModifiers(member.SetterVisibility.Value.ToSyntax());
+            }
+
+            accessors.Add(setter);
+        }
+
+        yield return PropertyDeclaration(member.Type.TypeSyntax(), Identifier(member.PropertyName))
+            .WithModifiers(TokenList(Public))
+            .WithAccessorList(AccessorList(List(accessors)));
     }
 
     [Pure]
@@ -118,10 +146,6 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
     [MustUseReturnValue]
     private static FieldDeclarationSyntax CreateField(GeneratorContext context, Register register) =>
         CreateField(context, register.Type.TypeSyntax(), register.FieldName, register.FieldOffset, Internal);
-
-    [MustUseReturnValue]
-    private static FieldDeclarationSyntax CreateField(GeneratorContext context, DataMember member, int fieldOffset, SyntaxToken visibility, bool readOnly = false, ExpressionSyntax? initializer = null) =>
-        CreateField(context, member.TypeSyntax, member.MemberName, fieldOffset, visibility, readOnly, initializer);
 
     [MustUseReturnValue]
     private static FieldDeclarationSyntax CreateField(GeneratorContext context, TypeSyntax type, string name, int fieldOffset, SyntaxToken visibility, bool readOnly = false, ExpressionSyntax? initializer = null)

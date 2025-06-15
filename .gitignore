@@ -1,4 +1,5 @@
 temp/**
+Disassembly.txt
 
 # VerifyTests
 *.received.*

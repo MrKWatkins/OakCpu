@@ -199,7 +199,7 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
         var instructionInProgress = false;
         while (true)
         {
-            if (emulator.step > 1)
+            if (emulator.CurrentStep > 1)
             {
                 instructionInProgress = true;
             }
@@ -207,7 +207,7 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
             {
                 // If we're at step 1, then we've had an overlapped read. Instruction level tests won't include this,
                 // so we need to restore the PC to before the opcode read and remove any events associated with it.
-                if (emulator.step == 1)
+                if (emulator.CurrentStep == 1)
                 {
                     emulator.Registers.PC--;
                     TStates--;

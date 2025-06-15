@@ -44,7 +44,7 @@ public sealed class InterruptsClassGenerator : ClassGenerator
         var memberAccessExpression = MemberAccessExpression(
             SyntaxKind.SimpleMemberAccessExpression,
             IdentifierName(EmulatorFieldName),
-            IdentifierName(field.MemberName));
+            IdentifierName(field.FieldName));
 
         var getExpression = memberAccessExpression;
 

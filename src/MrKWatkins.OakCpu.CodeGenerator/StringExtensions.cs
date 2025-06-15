@@ -5,10 +5,16 @@ namespace MrKWatkins.OakCpu.CodeGenerator;
 public static class StringExtensions
 {
     [Pure]
-    public static string ToUpperCamelCaseFromSnakeCase(this string snakeCase)
+    public static string ToUpperCamelCaseFromSnakeCase(this string snakeCase) => ToCamelCaseFromSnakeCase(snakeCase, false);
+
+    [Pure]
+    public static string ToLowerCamelCaseFromSnakeCase(this string snakeCase) => ToCamelCaseFromSnakeCase(snakeCase, true);
+
+    [Pure]
+    private static string ToCamelCaseFromSnakeCase(this string snakeCase, bool lower)
     {
         var result = new StringBuilder();
-        var needsUpper = true;
+        var needsUpper = !lower;
         foreach (var character in snakeCase)
         {
             if (character == '_')
@@ -20,6 +26,10 @@ public static class StringExtensions
             {
                 result.Append(char.ToUpper(character));
                 needsUpper = false;
+            }
+            else if (lower)
+            {
+                result.Append(char.ToLower(character));
             }
             else
             {

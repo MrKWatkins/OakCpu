@@ -9,7 +9,6 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public abstract class Generator
 {
     protected const string ActionRequiredEnumName = "ActionRequired";
-    protected const string StepVariableName = "step";
 
     private protected Generator()
     {

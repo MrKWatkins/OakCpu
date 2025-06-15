@@ -1,6 +1,6 @@
 namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
-public enum DataMemberVisibility
+public enum Visibility
 {
     Private,
     Internal,

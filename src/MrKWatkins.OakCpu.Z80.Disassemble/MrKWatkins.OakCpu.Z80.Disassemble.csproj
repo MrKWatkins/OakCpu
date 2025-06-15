@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\MrKWatkins.OakCpu.Z80\MrKWatkins.OakCpu.Z80.csproj" />
+    </ItemGroup>
+
+</Project>

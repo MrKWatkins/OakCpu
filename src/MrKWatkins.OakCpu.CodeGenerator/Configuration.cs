@@ -30,7 +30,7 @@ public sealed class Configuration(
 
     public IReadOnlyDictionary<string, UserDefinedDataMember> UserDefinedDataMembers => userDefinedDataMembers;
 
-    public IReadOnlyDictionary<string, DataMember> AllDataMembers => allDataMembers ??= UserDefinedDataMembers.Values.Concat<DataMember>(PreDefinedDataMember.All.Values).ToDictionary(f => f.Name);
+    public IReadOnlyDictionary<string, DataMember> AllDataMembers => allDataMembers ??= UserDefinedDataMembers.Values.Concat<DataMember>(PreDefinedDataMember.All.Values).ToDictionary(f => f.Name, StringComparer.OrdinalIgnoreCase);
 
     public IReadOnlyDictionary<string, UserDefinedFunction> UserDefinedFunctions
     {
