@@ -1,4 +1,4 @@
-namespace MrKWatkins.OakCpu.CodeGenerator;
+namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public sealed class OpcodeStepTable
 {

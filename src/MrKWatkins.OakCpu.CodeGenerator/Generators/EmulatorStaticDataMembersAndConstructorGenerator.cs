@@ -15,11 +15,11 @@ public sealed class EmulatorStaticDataMembersAndConstructorGenerator : EmulatorC
     }
 
     // TODO: An automatic layout algorithm taking into account padding would be nice.
-    protected override ClassDeclarationSyntax PopulateClass(HashSet<string> requiredUsings, GeneratorInput input, ClassDeclarationSyntax classDeclaration)
+    protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration)
     {
-        var members = input.Configuration.OpcodeStepTables
+        var members = context.Configuration.OpcodeStepTables
             .Select(CreateOpcodeStepTableField)
-            .Append(CreateStaticConstructor(requiredUsings, input));
+            .Append(CreateStaticConstructor(context));
 
         return classDeclaration.AddMembers(members.ToArray());
     }
@@ -36,27 +36,26 @@ public sealed class EmulatorStaticDataMembersAndConstructorGenerator : EmulatorC
     }
 
     [MustUseReturnValue]
-    private static ConstructorDeclarationSyntax CreateStaticConstructor(HashSet<string> requiredUsings, GeneratorInput input)
+    private static ConstructorDeclarationSyntax CreateStaticConstructor(GeneratorContext context)
     {
-        var statements = new List<StatementSyntax> { CreateLittleEndianStatement(requiredUsings) };
+        var statements = new List<StatementSyntax> { CreateLittleEndianStatement(context) };
 
-        foreach (var group in input.Instructions.GroupBy(input.Configuration.OpcodeStepTables.GetForInstruction))
+        foreach (var group in context.Instructions.GroupBy(context.Configuration.OpcodeStepTables.GetForInstruction))
         {
             statements.Add(CreateOpcodeStepTableInitializationStatement(group.Key, group));
         }
 
         // Static constructor
-        return ConstructorDeclaration(GetEmulatorClassName(input))
+        return ConstructorDeclaration(GetEmulatorClassName(context))
             .WithModifiers(TokenList(Static))
             .WithBody(Block(statements));
     }
 
     [Pure]
-    private static StatementSyntax CreateLittleEndianStatement(HashSet<string> requiredUsings)
+    private static StatementSyntax CreateLittleEndianStatement(GeneratorContext context)
     {
-
-        requiredUsings.Add(typeof(BitConverter).Namespace);
-        requiredUsings.Add(typeof(NotSupportedException).Namespace);
+        context.RequiredUsings.Add(typeof(BitConverter).Namespace);
+        context.RequiredUsings.Add(typeof(NotSupportedException).Namespace);
 
         // throw new NotSupportedException("Only little endian systems are supported.");
         var throwStatement = ThrowStatement(

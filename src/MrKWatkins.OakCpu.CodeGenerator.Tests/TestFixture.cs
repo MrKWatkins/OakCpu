@@ -1,3 +1,4 @@
+using MrKWatkins.OakCpu.CodeGenerator.Generators;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 using VYaml.Serialization;
 
@@ -6,11 +7,11 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Tests;
 public abstract class TestFixture
 {
     private static readonly Lazy<YamlFile> LazyZ80Yaml = new(() => LoadZ80Yaml().Result);
-    private static readonly Lazy<GeneratorInput> LazyZ80GeneratorInput = new(() => GeneratorInput.Create("MrKWatkins.OakCpu.Z80", Z80Yaml));
+    private static readonly Lazy<GeneratorContext> LazyZ80GeneratorInput = new(() => GeneratorContext.Create("MrKWatkins.OakCpu.Z80", Z80Yaml));
 
     protected static YamlFile Z80Yaml => LazyZ80Yaml.Value;
 
-    protected static GeneratorInput Z80GeneratorInput => LazyZ80GeneratorInput.Value;
+    protected static GeneratorContext Z80GeneratorContext => LazyZ80GeneratorInput.Value;
 
     [Pure]
     protected static async Task<YamlFile> LoadZ80DefinitionFileAsync(string name)

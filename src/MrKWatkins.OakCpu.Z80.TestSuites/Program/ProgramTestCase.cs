@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace MrKWatkins.OakCpu.Z80.TestSuites.Program;
 
 public abstract class ProgramTestCase : TestCase
@@ -12,6 +14,13 @@ public abstract class ProgramTestCase : TestCase
         this.memory = memory;
     }
 
+    public ushort Address
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+        set;
+    }
+
     public override void Execute<TTestHarness>(TextWriter? testOutput = null)
     {
         var z80 = new TTestHarness();
@@ -23,18 +32,19 @@ public abstract class ProgramTestCase : TestCase
         var printInterceptor = CreatePrintInterceptor(z80, resultWatcher);
 
         // TODO: TState limit.
+        var stopAddress = StopAddress;
         while (true)
         {
             z80.ExecuteStep();
 
-            if (z80.RegisterPC == StopAddress)
-            {
-                break;
-            }
-
-            if (z80.RegisterPC == PrintInterceptor.PrintRoutineAddress)
+            var pc = z80.RegisterPC;
+            if (pc == PrintInterceptor.PrintRoutineAddress)
             {
                 printInterceptor.PrintRoutineCalled(z80);
+            }
+            else if (pc == stopAddress)
+            {
+                break;
             }
         }
 

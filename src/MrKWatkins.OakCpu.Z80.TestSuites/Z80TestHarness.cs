@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using MrKWatkins.OakCpu.Z80.TestSuites.InstructionLevel;
 
 namespace MrKWatkins.OakCpu.Z80.TestSuites;
@@ -6,7 +7,6 @@ namespace MrKWatkins.OakCpu.Z80.TestSuites;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public abstract class Z80TestHarness
 {
-    private readonly List<TestEvent> events = new();
     private readonly byte[] memory = new byte[65536];
     private readonly List<IOWrite> ioWrites = new();
 
@@ -112,21 +112,18 @@ public abstract class Z80TestHarness
 
     public abstract bool IsHalted { get; set; }
 
-    public ulong TStates { get; protected set; }
-
-    public IReadOnlyList<TestEvent> Events => events;
-
-    public bool RecordEvents { get; set; }
-
-    protected void AddEvent(TestEvent fuseEvent) => events.Add(fuseEvent);
-
-    protected void AddEvents([InstantHandle] IEnumerable<TestEvent> fuseEvents) => events.AddRange(fuseEvents);
-
-    public void RemoveLastEvent() => events.RemoveAt(events.Count - 1);
+    public ulong TStates
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected set;
+    }
 
     public void CopyIntoMemory(ReadOnlySpan<byte> source) => source.CopyTo(memory);
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte ReadByteFromMemory(ushort address) => memory[address];
 
     [Pure]
@@ -142,6 +139,7 @@ public abstract class Z80TestHarness
         return (ushort)((msb << 8) | lsb);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void WriteByteToMemory(ushort address, byte value) => memory[address] = value;
 
     public void WriteWordToMemory(ushort address, ushort value)
@@ -189,6 +187,9 @@ public abstract class Z80TestHarness
     public abstract void AssertFail(string message);
 
     public abstract void ExecuteStep();
+
+    [MustUseReturnValue]
+    public abstract IEnumerable<TestEvent> ExecuteStepRecordingEvents();
 
     public abstract void ExecuteInstruction();
 

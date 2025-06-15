@@ -9,21 +9,20 @@ using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 using VYaml.Serialization;
 using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 
-namespace MrKWatkins.OakCpu.CodeGenerator;
+namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-public sealed class GeneratorInput
+public sealed class GeneratorContext
 {
-    private GeneratorInput(string rootNamespace, Configuration configuration, Cpu cpu, Interrupts interrupts, IReadOnlyList<Step> opcodeRead, IReadOnlyList<Instruction> instructions)
+    private GeneratorContext(string rootNamespace, Configuration configuration, Cpu cpu, Interrupts interrupts, IReadOnlyList<Step> opcodeRead, IReadOnlyList<Instruction> instructions, IReadOnlyList<byte> opcodePrefixes, IReadOnlyList<Step> allSteps)
     {
-        VerifyNoDuplicateOpcodes(instructions);
         RootNamespace = rootNamespace;
         Configuration = configuration;
         Cpu = cpu;
         Interrupts = interrupts;
         OpcodeRead = opcodeRead;
         Instructions = instructions;
-        OpcodePrefixes = Instructions.Where(i => i.Prefix.HasValue).Select(i => i.Prefix!.Value).Distinct().OrderBy(p => p).ToList();
-        Step.AssignIndexes(AllSteps);
+        OpcodePrefixes = opcodePrefixes;
+        AllSteps = allSteps;
     }
 
     public string RootNamespace { get; }
@@ -40,18 +39,19 @@ public sealed class GeneratorInput
 
     public IReadOnlyList<byte> OpcodePrefixes { get; }
 
-    // Steps need to keep their order within an instruction or all hell breaks loose.
-    public IEnumerable<Step> AllSteps => OpcodeRead.Concat(Instructions.SelectMany(i => i.Steps));
+    public IReadOnlyList<Step> AllSteps { get; }
+
+    public HashSet<string> RequiredUsings { get; } = new();
 
     [Pure]
     public NamespaceDeclarationSyntax CreateRootNamespaceDeclaration() => SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(RootNamespace));
 
     [Pure]
-    public static GeneratorInput Create(string? rootNamespace, ImmutableArray<AdditionalText> yamls) =>
+    public static GeneratorContext Create(string? rootNamespace, ImmutableArray<AdditionalText> yamls) =>
         Create(rootNamespace, YamlFile.Combine(yamls.Select(LoadYaml)));
 
     [Pure]
-    internal static GeneratorInput Create(string? rootNamespace, YamlFile yaml)
+    internal static GeneratorContext Create(string? rootNamespace, YamlFile yaml)
     {
         if (rootNamespace == null)
         {
@@ -75,9 +75,19 @@ public sealed class GeneratorInput
         var opcodeRead = Step.Parse("Opcode read", context, yaml.OpcodeRead);
 
         var instructions = Instruction.Create(context, yaml.Instructions);
+        VerifyNoDuplicateOpcodes(instructions);
 
-        return new GeneratorInput(rootNamespace, configuration, Cpu.Create(yaml.Cpu), Interrupts.Create(yaml.Interrupts), opcodeRead, instructions);
+        var opcodePrefixes = instructions.Where(i => i.Prefix.HasValue).Select(i => i.Prefix!.Value).Distinct().OrderBy(p => p).ToList();
+
+        // Steps need to keep their order within an instruction or all hell breaks loose.
+        var allSteps = opcodeRead.Concat(instructions.SelectMany(i => i.Steps)).ToList();
+        Step.AssignIndexes(allSteps);
+
+        return new GeneratorContext(rootNamespace, configuration, Cpu.Create(yaml.Cpu), Interrupts.Create(yaml.Interrupts), opcodeRead, instructions, opcodePrefixes, allSteps);
     }
+
+    [Pure]
+    internal GeneratorContext WithRequiredUsings() => new(RootNamespace, Configuration, Cpu, Interrupts, OpcodeRead, Instructions, OpcodePrefixes, AllSteps);
 
     [Pure]
     private static YamlFile LoadYaml(AdditionalText text)

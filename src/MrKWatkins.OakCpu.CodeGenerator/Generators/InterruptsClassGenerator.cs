@@ -13,33 +13,33 @@ public sealed class InterruptsClassGenerator : ClassGenerator
     {
     }
 
-    protected override IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(HashSet<string> requiredUsings, GeneratorInput input)
+    protected override IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(GeneratorContext context)
     {
-        yield return CreateClass(input);
+        yield return CreateClass(context);
     }
 
-    private static ClassDeclarationSyntax CreateClass(GeneratorInput input)
+    private static ClassDeclarationSyntax CreateClass(GeneratorContext context)
     {
         var members = new List<MemberDeclarationSyntax>
         {
-            CreateEmulatorField(input),
-            CreateConstructor(input)
+            CreateEmulatorField(context),
+            CreateConstructor(context)
         };
-        members.AddRange(CreateInterruptProperties(input));
+        members.AddRange(CreateInterruptProperties(context));
 
-        return ClassDeclaration(GetInterruptsClassName(input))
+        return ClassDeclaration(GetInterruptsClassName(context))
             .AddModifiers(Public, Sealed)
             .AddMembers(members.ToArray());
     }
 
     [Pure]
-    private static IEnumerable<PropertyDeclarationSyntax> CreateInterruptProperties(GeneratorInput input) =>
-        input.Interrupts.Properties
+    private static IEnumerable<PropertyDeclarationSyntax> CreateInterruptProperties(GeneratorContext context) =>
+        context.Interrupts.Properties
             .OrderBy(p => p)
-            .Select(p => CreateInterruptProperty(p, input.Configuration.UserDefinedDataMembers[p]));
+            .Select(p => CreateInterruptProperty(context, p, context.Configuration.UserDefinedDataMembers[p]));
 
     [Pure]
-    private static PropertyDeclarationSyntax CreateInterruptProperty(string property, UserDefinedDataMember field)
+    private static PropertyDeclarationSyntax CreateInterruptProperty(GeneratorContext context, string property, UserDefinedDataMember field)
     {
         var memberAccessExpression = MemberAccessExpression(
             SyntaxKind.SimpleMemberAccessExpression,
@@ -53,24 +53,24 @@ public sealed class InterruptsClassGenerator : ClassGenerator
             memberAccessExpression,
             IdentifierName("value"));
 
-        return CreateGetSetProperty(field.TypeSyntax, property.ToUpperCamelCaseFromSnakeCase(), getExpression, setExpression);
+        return CreateGetSetProperty(context, field.TypeSyntax, property.ToUpperCamelCaseFromSnakeCase(), getExpression, setExpression);
     }
 
     [Pure]
-    private static ConstructorDeclarationSyntax CreateConstructor(GeneratorInput input)
+    private static ConstructorDeclarationSyntax CreateConstructor(GeneratorContext context)
     {
         var statements = new List<StatementSyntax>
         {
             CreateAssignEmulatorFieldExpression()
         };
 
-        return ConstructorDeclaration(GetInterruptsClassName(input))
+        return ConstructorDeclaration(GetInterruptsClassName(context))
             .WithModifiers(TokenList(Internal))
             .WithParameterList(
                 ParameterList(
                     SingletonSeparatedList(
                         Parameter(Identifier(EmulatorFieldName))
-                            .WithType(GetEmulatorClassIdentifier(input)))))
+                            .WithType(GetEmulatorClassIdentifier(context)))))
             .WithBody(Block(statements.ToArray()));
     }
 }

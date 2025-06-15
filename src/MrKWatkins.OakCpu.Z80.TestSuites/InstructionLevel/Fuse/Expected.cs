@@ -9,7 +9,7 @@ public sealed class Expected : Z80State
 
     public IReadOnlyList<FuseEvent> Events { get; }
 
-    public void Assert(FuseAssertions assertionsToRun, Z80TestHarness testHarness)
+    public void Assert(FuseAssertions assertionsToRun, Z80TestHarness testHarness, IReadOnlyList<TestEvent> events)
     {
         using (testHarness.CreateAssertionScope())
         {
@@ -35,7 +35,7 @@ public sealed class Expected : Z80State
 
             if (assertionsToRun.HasFlag(FuseAssertions.Events))
             {
-                AssertEvents(testHarness);
+                AssertEvents(testHarness, events);
             }
         }
     }
@@ -93,10 +93,10 @@ public sealed class Expected : Z80State
         }
     }
 
-    private void AssertEvents(Z80TestHarness testHarness)
+    private void AssertEvents(Z80TestHarness testHarness, IReadOnlyList<TestEvent> events)
     {
         var expectedEvents = Events;
-        var actualEvents = testHarness.Events.Select(e => e.ToFuse()).ToList();
+        var actualEvents = events.Select(e => e.ToFuse()).ToList();
         testHarness.AssertEqual(actualEvents.Count, expectedEvents.Count, "number of events should match");
 
         for (var f = 0; f < Math.Min(actualEvents.Count, expectedEvents.Count); f++)

@@ -13,26 +13,26 @@ public sealed class FlagsClassGenerator : ClassGenerator
     {
     }
 
-    protected override BaseTypeDeclarationSyntax CreateType(HashSet<string> requiredUsings, GeneratorInput input)
+    protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
     {
         var members = new List<MemberDeclarationSyntax>
         {
-            CreateEmulatorField(input),
-            CreateConstructor(input)
+            CreateEmulatorField(context),
+            CreateConstructor(context)
         };
 
-        members.AddRange(CreateFlagProperties(input));
+        members.AddRange(CreateFlagProperties(context));
 
-        return ClassDeclaration(GetFlagsClassName(input))
+        return ClassDeclaration(GetFlagsClassName(context))
             .AddModifiers(Public, Sealed)
             .AddMembers(members.ToArray());
     }
 
     [Pure]
-    private static IEnumerable<PropertyDeclarationSyntax> CreateFlagProperties(GeneratorInput input) => input.Configuration.Flags.Values.Select(f => CreateFlagProperty(input.Configuration.FlagsRegister, f));
+    private static IEnumerable<PropertyDeclarationSyntax> CreateFlagProperties(GeneratorContext context) => context.Configuration.Flags.Values.Select(f => CreateFlagProperty(context, f));
 
     [Pure]
-    private static PropertyDeclarationSyntax CreateFlagProperty(Register flagsRegister, Flag flag)
+    private static PropertyDeclarationSyntax CreateFlagProperty(GeneratorContext context, Flag flag)
     {
         var getMask = (byte)(1 << flag.Index);
         var setMask = (byte)(1 << flag.Index);
@@ -41,7 +41,7 @@ public sealed class FlagsClassGenerator : ClassGenerator
         var flagsMemberAccess = MemberAccessExpression(
             SyntaxKind.SimpleMemberAccessExpression,
             IdentifierName(EmulatorFieldName),
-            IdentifierName(flagsRegister.FieldName));
+            IdentifierName(context.Configuration.FlagsRegister.FieldName));
 
         var getExpression = BinaryExpression(
             SyntaxKind.NotEqualsExpression,
@@ -56,7 +56,7 @@ public sealed class FlagsClassGenerator : ClassGenerator
             SyntaxKind.SimpleAssignmentExpression,
             flagsMemberAccess,
             CastExpression(
-                flagsRegister.Type.TypeSyntax(),
+                context.Configuration.FlagsRegister.Type.TypeSyntax(),
                 ParenthesizedExpression(
                     ConditionalExpression(
                         IdentifierName("value"),
@@ -69,24 +69,24 @@ public sealed class FlagsClassGenerator : ClassGenerator
                             flagsMemberAccess,
                             GenerateBinaryLiteralExpression(resetMask))))));
 
-        return CreateGetSetProperty(Bool, flag.Name, getExpression, setExpression);
+        return CreateGetSetProperty(context, Bool, flag.Name, getExpression, setExpression);
     }
 
     [Pure]
-    private static ConstructorDeclarationSyntax CreateConstructor(GeneratorInput input)
+    private static ConstructorDeclarationSyntax CreateConstructor(GeneratorContext context)
     {
         var statements = new StatementSyntax[]
         {
             CreateAssignEmulatorFieldExpression()
         };
 
-        return ConstructorDeclaration(GetFlagsClassName(input))
+        return ConstructorDeclaration(GetFlagsClassName(context))
             .WithModifiers(TokenList(Internal))
             .WithParameterList(
                 ParameterList(
                     SingletonSeparatedList(
                         Parameter(Identifier(EmulatorFieldName))
-                            .WithType(GetEmulatorClassIdentifier(input)))))
+                            .WithType(GetEmulatorClassIdentifier(context)))))
             .WithBody(Block(statements));
     }
 }

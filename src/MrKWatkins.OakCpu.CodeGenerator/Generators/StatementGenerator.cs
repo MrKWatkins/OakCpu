@@ -11,7 +11,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public abstract class StatementGenerator : Generator
 {
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(GeneratorInput input, Step step)
+    public static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(GeneratorContext input, Step step)
     {
         var context = new StepContext(input, step);
 

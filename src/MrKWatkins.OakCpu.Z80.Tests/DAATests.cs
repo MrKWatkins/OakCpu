@@ -6,7 +6,7 @@ namespace MrKWatkins.OakCpu.Z80.Tests;
 public sealed class DAATests
 {
     [TestCaseSource(typeof(DAATestCases), nameof(DAATestCases.TestCases))]
-    public void ExecuteInstruction(bool n, bool c, bool h, byte a, bool expectedC, bool expectedH, byte expectedA)
+    public void Execute(bool n, bool c, bool h, byte a, bool expectedC, bool expectedH, byte expectedA)
     {
         var emulator = new Z80EmulatorTestHarness
         {

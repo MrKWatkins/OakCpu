@@ -1,6 +1,7 @@
 using FluentAssertions.Execution;
 using MrKWatkins.OakCpu.Z80.TestSuites;
 using MrKWatkins.OakCpu.Z80.TestSuites.InstructionLevel;
+using NUnit.Framework.Internal;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 
@@ -184,6 +185,16 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
         TStates++;
     }
 
+    public override IEnumerable<TestEvent> ExecuteStepRecordingEvents()
+    {
+        var actionRequired = emulator.Step();
+        foreach (var testEvent in PerformActionRequiredRecordingEvents(actionRequired))
+        {
+            yield return testEvent;
+        }
+        TStates++;
+    }
+
     public override void ExecuteInstruction()
     {
         var instructionInProgress = false;
@@ -200,11 +211,6 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
                 if (emulator.step == 1)
                 {
                     emulator.Registers.PC--;
-                    while (Events.LastOrDefault()?.TState == TStates - 1)
-                    {
-                        RemoveLastEvent();
-                    }
-
                     TStates--;
                 }
 
@@ -217,15 +223,35 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
         }
     }
 
-    // TODO: Contend events are ZX Spectrum specific, can we pull them out into the Fuse only tests?
+    // TODO: Contend events are ZX Spectrum specific, can we pull them out into the Fuse only tests? Need a none event.
     private void PerformActionRequired(ActionRequired actionRequired)
     {
         switch (actionRequired)
         {
+            case ActionRequired.OpcodeRead:
+            case ActionRequired.MemoryRead:
+                emulator.Data = ReadByteFromMemory(emulator.Address);
+                break;
+
+            case ActionRequired.MemoryWrite:
+                WriteByteToMemory(emulator.Address, emulator.Data);
+                break;
+
+            case ActionRequired.IoWrite:
+                WriteIO(emulator.Address, emulator.Data);
+                break;
+        }
+    }
+
+    // TODO: Contend events are ZX Spectrum specific, can we pull them out into the Fuse only tests? Need a none event.
+    private IEnumerable<TestEvent> PerformActionRequiredRecordingEvents(ActionRequired actionRequired)
+    {
+        switch (actionRequired)
+        {
             case ActionRequired.None:
-                if (RecordEvents && TStates >= noContentionUntil)
+                if (TStates >= noContentionUntil)
                 {
-                    AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
+                    yield return new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data);
                     noContentionUntil++;
                 }
 
@@ -233,44 +259,35 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
 
             case ActionRequired.OpcodeRead:
                 emulator.Data = ReadByteFromMemory(emulator.Address);
-                if (RecordEvents)
-                {
-                    AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
-                    AddEvent(new TestEvent(TestEventType.OpcodeRead, TStates, emulator.Address, emulator.Data));
-                    noContentionUntil += 4;
-                }
+                yield return new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data);
+                yield return new TestEvent(TestEventType.OpcodeRead, TStates, emulator.Address, emulator.Data);
+                noContentionUntil += 4;
 
                 break;
 
             case ActionRequired.MemoryRead:
                 emulator.Data = ReadByteFromMemory(emulator.Address);
-                if (RecordEvents)
-                {
-                    AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
-                    AddEvent(new TestEvent(TestEventType.MemoryRead, TStates, emulator.Address, emulator.Data));
-                    noContentionUntil += 3;
-                }
+                yield return new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data);
+                yield return new TestEvent(TestEventType.MemoryRead, TStates, emulator.Address, emulator.Data);
+                noContentionUntil += 3;
 
                 break;
 
             case ActionRequired.MemoryWrite:
                 WriteByteToMemory(emulator.Address, emulator.Data);
-                if (RecordEvents)
-                {
-                    AddEvent(new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data));
-                    AddEvent(new TestEvent(TestEventType.MemoryWrite, TStates, emulator.Address, emulator.Data));
-                    noContentionUntil += 3;
-                }
+                yield return new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data);
+                yield return new TestEvent(TestEventType.MemoryWrite, TStates, emulator.Address, emulator.Data);
+                noContentionUntil += 3;
 
                 break;
 
             case ActionRequired.IoWrite:
                 WriteIO(emulator.Address, emulator.Data);
-                if (RecordEvents)
+                foreach (var ioEvent in IOContendEvents(TestEventType.IOWrite))
                 {
-                    AddEvents(IOContendEvents(TestEventType.IOWrite));
-                    noContentionUntil += 4;
+                    yield return ioEvent;
                 }
+                noContentionUntil += 4;
 
                 break;
 

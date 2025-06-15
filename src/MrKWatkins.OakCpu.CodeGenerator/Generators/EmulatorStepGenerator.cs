@@ -15,32 +15,33 @@ public sealed class EmulatorStepGenerator : EmulatorClassGenerator
     {
     }
 
-    protected override ClassDeclarationSyntax PopulateClass(HashSet<string> requiredUsings, GeneratorInput input, ClassDeclarationSyntax classDeclaration) =>
-        classDeclaration.AddMembers(CreateStepMethod(input));
+    protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
+        classDeclaration.AddMembers(CreateStepMethod(context));
 
     [Pure]
-    private static MethodDeclarationSyntax CreateStepMethod(GeneratorInput input) =>
+    private static MethodDeclarationSyntax CreateStepMethod(GeneratorContext context) =>
         MethodDeclaration(
                 IdentifierName(ActionRequiredEnumName),
                 Identifier(StepMethodName))
             .AddModifiers(Public)
+            .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, "AggressiveOptimization")])])
             .WithBody(Block(
-                CreateSwitch(input),
+                CreateSwitch(context),
                 CreateThrowNotSupportedException()));
 
     [Pure]
-    private static SwitchStatementSyntax CreateSwitch(GeneratorInput input)
+    private static SwitchStatementSyntax CreateSwitch(GeneratorContext context)
     {
-        var sections = input.AllSteps.Select(step => CreateSwitchSection(input, step)).ToArray();
+        var sections = context.AllSteps.Select(step => CreateSwitchSection(context, step)).ToArray();
 
         return SwitchStatement(CreatePostIncrementExpression(PreDefinedDataMember.Step.MemberName))
             .AddSections(sections);
     }
 
     [Pure]
-    private static SwitchSectionSyntax CreateSwitchSection(GeneratorInput input, Step step)
+    private static SwitchSectionSyntax CreateSwitchSection(GeneratorContext context, Step step)
     {
-        var statements = StatementGenerator.GenerateStatementSyntaxes(input, step).ToArray();
+        var statements = StatementGenerator.GenerateStatementSyntaxes(context, step).ToArray();
 
         return SwitchSection()
             .AddLabels(CaseSwitchLabel(GenerateNumericLiteralExpression(step.Index)))

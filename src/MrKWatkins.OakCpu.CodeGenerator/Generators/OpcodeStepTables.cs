@@ -3,7 +3,7 @@ using System.Collections.Frozen;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 
-namespace MrKWatkins.OakCpu.CodeGenerator;
+namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public sealed class OpcodeStepTables : IEnumerable<OpcodeStepTable>
 {
