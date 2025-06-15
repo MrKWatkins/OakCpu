@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="BenchmarkDotNet" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\MrKWatkins.OakCpu.Z80.TestSuites\MrKWatkins.OakCpu.Z80.TestSuites.csproj" />
+      <ProjectReference Include="..\MrKWatkins.OakCpu.Z80.Tests\MrKWatkins.OakCpu.Z80.Tests.csproj" />
+    </ItemGroup>
+</Project>
