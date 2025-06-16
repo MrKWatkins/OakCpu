@@ -39,6 +39,15 @@ public sealed class BinaryOperation : Expression
 
     public override DataType Type => Operator.Type;
 
+    public override IEnumerable<AstNode> Children
+    {
+        get
+        {
+            yield return Left;
+            yield return Right;
+        }
+    }
+
     public override void WriteStringRepresentation(StringBuilder stringRepresentation)
     {
         if (Left is BinaryOperation leftBinary && leftBinary.Operator.Precedence < Operator.Precedence)

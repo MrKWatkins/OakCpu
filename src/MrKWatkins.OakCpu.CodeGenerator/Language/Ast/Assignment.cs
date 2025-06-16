@@ -24,6 +24,15 @@ public sealed class Assignment : Statement
     /// </summary>
     public Expression Value { get; }
 
+    public override IEnumerable<AstNode> Children
+    {
+        get
+        {
+            yield return Target;
+            yield return Value;
+        }
+    }
+
     public override void WriteStringRepresentation(StringBuilder stringRepresentation)
     {
         Target.WriteStringRepresentation(stringRepresentation);

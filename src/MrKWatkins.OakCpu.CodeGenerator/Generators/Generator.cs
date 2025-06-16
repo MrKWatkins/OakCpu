@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -20,6 +21,9 @@ public abstract class Generator
             .WithVariables(SingletonSeparatedList(
                 VariableDeclarator(Identifier(variable))
                     .WithInitializer(EqualsValueClause(value)))));
+
+    [Pure]
+    protected static string GetFlagsMethodName(Step step) => $"Flags_{step.Index}";
 
     [Pure]
     protected static PredefinedTypeSyntax Bool => PredefinedType(Token(SyntaxKind.BoolKeyword));
@@ -53,6 +57,9 @@ public abstract class Generator
 
     [Pure]
     protected static SyntaxToken Static => Token(SyntaxKind.StaticKeyword);
+
+    [Pure]
+    protected static TypeSyntax Void => PredefinedType(Token(SyntaxKind.VoidKeyword));
 
     [Pure]
     protected static SyntaxToken GenerateBinaryLiteral(byte value) => Literal($"0b{Convert.ToString(value, 2).PadLeft(8, '0')}", value);

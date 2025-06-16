@@ -43,6 +43,8 @@ public sealed class Instruction
 
     public IReadOnlyDictionary<string, Expression> Flags { get; }
 
+    public IEnumerable<string> TemporaryVariablesUsedByFlags => Flags.Values.SelectMany(s => s.Traverse().OfType<TemporaryVariableAccess>().Select(t => t.Name)).Distinct().OrderBy(n => n);
+
     [Pure]
     public static IReadOnlyList<Instruction> Create(ParserContext context, IReadOnlyList<InstructionYaml> yamls)
     {

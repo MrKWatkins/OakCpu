@@ -22,6 +22,22 @@ public sealed class IfStatement : Statement
 
     public IReadOnlyList<Statement> ElseStatements { get; }
 
+    public override IEnumerable<AstNode> Children
+    {
+        get
+        {
+            yield return Condition;
+            foreach (var child in IfStatements)
+            {
+                yield return child;
+            }
+            foreach (var child in ElseStatements)
+            {
+                yield return child;
+            }
+        }
+    }
+
     [Pure]
     internal IfStatement WithStatements(IReadOnlyList<Statement> ifStatements, IReadOnlyList<Statement> elseStatements) => new(Condition, ifStatements, elseStatements);
 

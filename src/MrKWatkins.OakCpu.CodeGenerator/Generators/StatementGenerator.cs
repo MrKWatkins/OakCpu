@@ -53,7 +53,7 @@ public abstract class StatementGenerator : Generator
     {
         if (callStatement.Call.Function == PreDefinedFunction.Flags)
         {
-            return FlagsGenerator.GenerateFlagsStatements(context);
+            return GenerateFlagsCall(context);
         }
         if (callStatement.Call.Function == PreDefinedFunction.FinishInstruction)
         {
@@ -82,6 +82,17 @@ public abstract class StatementGenerator : Generator
         }
 
         throw new NotSupportedException($"The function {callStatement.Call.Function} is not supported.");
+    }
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateFlagsCall(StepContext context)
+    {
+        var arguments = context.Step.Instruction!.TemporaryVariablesUsedByFlags.Select(t => Argument(IdentifierName(t)));
+
+        var call = InvocationExpression(IdentifierName(GetFlagsMethodName(context.Step)))
+            .WithArgumentList(ArgumentList(SeparatedList(arguments)));
+
+        yield return ExpressionStatement(call);
     }
 
     [Pure]

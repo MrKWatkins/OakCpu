@@ -19,5 +19,17 @@ public abstract class AstNode
         return toString;
     }
 
+    public virtual IEnumerable<AstNode> Children => [];
+
     public abstract void WriteStringRepresentation(StringBuilder stringRepresentation);
+
+    [Pure]
+    public IEnumerable<AstNode> Traverse()
+    {
+        yield return this;
+        foreach (var descendent in Children.SelectMany(c => c.Traverse()))
+        {
+            yield return descendent;
+        }
+    }
 }

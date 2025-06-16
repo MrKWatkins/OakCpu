@@ -14,4 +14,12 @@ public sealed class CallStatement : Statement
     public override bool IsTerminal => Call.Function.IsTerminal;
 
     public override void WriteStringRepresentation(StringBuilder stringRepresentation) => Call.WriteStringRepresentation(stringRepresentation);
+
+    public override IEnumerable<AstNode> Children
+    {
+        get
+        {
+            yield return Call;
+        }
+    }
 }

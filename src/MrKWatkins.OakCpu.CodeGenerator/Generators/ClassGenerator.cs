@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -17,8 +18,9 @@ public abstract class ClassGenerator : Generator
 
     public static readonly IReadOnlyList<ClassGenerator> AllGenerators = [
         ActionRequiredGenerator.Instance,
-        EmulatorStaticDataMembersAndConstructorGenerator.Instance,
+        EmulatorFlagsMethodsGenerator.Instance,
         EmulatorInstanceDataMembersAndConstructorGenerator.Instance,
+        EmulatorStaticDataMembersAndConstructorGenerator.Instance,
         EmulatorStepGenerator.Instance,
         FlagsClassGenerator.Instance,
         InterruptsClassGenerator.Instance,
@@ -62,20 +64,6 @@ public abstract class ClassGenerator : Generator
                 AccessorList(
                 [
                     AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                        .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)])])
-                        .WithSemicolonToken(Semicolon)
-                ]));
-
-    [Pure]
-    protected static PropertyDeclarationSyntax CreateGetSetProperty(GeneratorContext context, TypeSyntax type, string propertyName) =>
-        PropertyDeclaration(type, Identifier(propertyName))
-            .WithModifiers(TokenList(Public))
-            .WithAccessorList(
-                AccessorList([
-                    AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                        .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)])])
-                        .WithSemicolonToken(Semicolon),
-                    AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
                         .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)])])
                         .WithSemicolonToken(Semicolon)
                 ]));

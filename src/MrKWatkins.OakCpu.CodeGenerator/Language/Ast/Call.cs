@@ -19,6 +19,8 @@ public sealed class Call : Expression
 
     public IReadOnlyList<Expression> Arguments => arguments;
 
+    public override IEnumerable<AstNode> Children => arguments;
+
     public override void WriteStringRepresentation(StringBuilder stringRepresentation)
     {
         stringRepresentation.Append(Function.Name);
