@@ -25,13 +25,10 @@ public sealed class OpcodeStepTables : IEnumerable<OpcodeStepTable>
 
             foreach (var opcodeYaml in instructionYaml.Opcodes)
             {
-                var (prefix, _) = opcodeYaml.GetBytes();
-                if (prefix != null)
+                var prefix = opcodeYaml.PrefixByte;
+                if (prefix != null && !prefixes.ContainsKey(prefix.Value))
                 {
-                    if (!prefixes.ContainsKey(prefix.Value))
-                    {
-                        prefixes.Add(prefix.Value, OpcodeStepTable.CreatePrefix(prefix.Value));
-                    }
+                    prefixes.Add(prefix.Value, OpcodeStepTable.CreatePrefix(prefix.Value));
                 }
             }
         }

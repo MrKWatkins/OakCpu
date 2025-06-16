@@ -6,7 +6,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Instruction
 {
-    private Instruction(string group, string mnemonic, string? opcodeTable, byte? prefix, byte opcode, bool nextOpcodeOverlapped, IReadOnlyList<Step> steps, IReadOnlyDictionary<string, Expression> flags)
+    private Instruction(string group, string mnemonic, string? opcodeTable, byte? prefix, byte opcode, bool nextOpcodeOverlapped, IReadOnlyList<Step> steps, IReadOnlyDictionary<string, Expression> flags, IReadOnlyList<(byte? Prefix, byte Opcode, Step Step)> duplicates)
     {
         if (steps.Count == 0)
         {
@@ -20,6 +20,7 @@ public sealed class Instruction
         NextOpcodeOverlapped = nextOpcodeOverlapped;
         Steps = steps;
         Flags = flags;
+        Duplicates = duplicates;
 
         foreach (var step in steps)
         {
@@ -43,6 +44,8 @@ public sealed class Instruction
 
     public IReadOnlyDictionary<string, Expression> Flags { get; }
 
+    public IReadOnlyList<(byte? Prefix, byte Opcode, Step Step)> Duplicates { get; }
+
     public IEnumerable<string> TemporaryVariablesUsedByFlags => Flags.Values.SelectMany(s => s.Traverse().OfType<TemporaryVariableAccess>().Select(t => t.Name)).Distinct().OrderBy(n => n);
 
     [Pure]
@@ -59,9 +62,24 @@ public sealed class Instruction
     private static IEnumerable<Instruction> Create(ParserContext context, InstructionYaml yaml)
     {
         var tablePrefix = yaml.OpcodeTable != null ? $"{yaml.OpcodeTable} " : "";
-        foreach (var opcodeYaml in yaml.Opcodes)
+
+        foreach (var group in yaml.Opcodes.GroupBy(o => o, OpcodeYamlDuplicateEqualityComparer.Instance))
         {
+            var opcodeAndDuplicates = group.ToList();
+            opcodeAndDuplicates.Sort(OpcodeYamlNoPrefixFirstComparer.Instance);
+
+            var opcodeYaml = opcodeAndDuplicates[0];
+
             var mnemonic = Substitute(context, opcodeYaml, yaml.Mnemonic);
+
+            if (mnemonic == "LD B, C")
+            {
+
+            }
+            if (mnemonic == "ADD HL, HL")
+            {
+
+            }
 
             var lastStepFinalStatement = yaml.NextOpcode switch
             {
@@ -84,11 +102,11 @@ public sealed class Instruction
                 })
                 .ToList();
 
+            var duplicates = opcodeAndDuplicates.Skip(1).Select(y => (y.PrefixByte, y.OpcodeByte, steps[0])).ToList();
+
             var flags = yaml.Flags.ToDictionary(kvp => kvp.Key, kvp => Parser.ParseExpression(context, Substitute(context, opcodeYaml, kvp.Value)));
 
-            var (prefix, opcode) = opcodeYaml.GetBytes();
-
-            yield return new Instruction(yaml.Group, mnemonic, yaml.OpcodeTable, prefix, opcode, yaml.NextOpcode == NextOpcodeMode.Overlapped, steps, flags);
+            yield return new Instruction(yaml.Group, mnemonic, yaml.OpcodeTable, opcodeYaml.PrefixByte, opcodeYaml.OpcodeByte, yaml.NextOpcode == NextOpcodeMode.Overlapped, steps, flags, duplicates);
         }
     }
 
@@ -99,7 +117,7 @@ public sealed class Instruction
         {
             var steps = Step.Parse($"Read opcode after prefix 0x{prefix:X2}", context, [$"{PreDefinedFunction.SetOpcodeStepTable.Name}({prefix}); {PreDefinedFunction.OverlapOpcodeRead.Name}();"]);
 
-            yield return new Instruction("Prefixes", $"Prefix 0x{prefix:X2}", null, null, prefix, true, steps, new Dictionary<string, Expression>());
+            yield return new Instruction("Prefixes", $"Prefix 0x{prefix:X2}", null, null, prefix, true, steps, new Dictionary<string, Expression>(), []);
         }
     }
 

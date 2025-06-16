@@ -4,6 +4,7 @@ using BenchmarkDotNet.Attributes;
 namespace MrKWatkins.OakCpu.Z80.Benchmarks;
 
 [DisassemblyDiagnoser]
+[SuppressMessage("ReSharper", "InconsistentNaming")]
 public class BitCastVersusCmovBenchmark
 {
     private byte A;

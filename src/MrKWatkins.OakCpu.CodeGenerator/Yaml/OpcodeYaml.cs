@@ -7,7 +7,10 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Yaml;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public sealed partial class OpcodeYaml
 {
-    public string Opcode { get; private set; } = null!;
+    [YamlIgnore]
+    private (byte? Prefix, byte Opcode)? prefixAndOpcode;
+
+    public string Opcode { get; internal set; } = null!;
 
     public string? R0 { get; private set; }
 
@@ -23,8 +26,14 @@ public sealed partial class OpcodeYaml
 
     public override string ToString() => Opcode;
 
+    [YamlIgnore]
+    public byte? PrefixByte => (prefixAndOpcode ??= GetPrefixAndOpcode()).Prefix;
+
+    [YamlIgnore]
+    public byte OpcodeByte => (prefixAndOpcode ??= GetPrefixAndOpcode()).Opcode;
+
     [Pure]
-    public (byte? Prefix, byte Opcode) GetBytes()
+    private (byte? Prefix, byte Opcode) GetPrefixAndOpcode()
     {
         var values = Opcode
             .Split([' '], StringSplitOptions.RemoveEmptyEntries)

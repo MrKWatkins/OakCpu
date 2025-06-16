@@ -40,9 +40,25 @@ public sealed class EmulatorStaticDataMembersAndConstructorGenerator : EmulatorC
     {
         var statements = new List<StatementSyntax> { CreateLittleEndianStatement(context) };
 
+        // This is not totally generic. But it does support everything I need. Doesn't support:
+        // - Duplicates with no prefix, i.e. different opcodes.
+        // - Duplicates between an item in an opcode table and out.
+        var duplicatesWithPrefix = context.Instructions
+            .Where(i => i.OpcodeTable == null)
+            .SelectMany(i => i.Duplicates)
+            .GroupBy(d => context.Configuration.OpcodeStepTables.GetForPrefix(d.Prefix!.Value)) // Assumes no duplicates without a prefix.
+            .Select(g => (g.Key, Items: g.Select(d => (d.Opcode, d.Step))));
+
+        var duplicatesWithinOpcodeTable = context.Instructions
+            .Where(i => i.OpcodeTable != null)
+            .GroupBy(context.Configuration.OpcodeStepTables.GetForInstruction)
+            .Select(g => (g.Key, Items: g.SelectMany(i => i.Duplicates.Select(d => (d.Opcode, d.Step)))));
+
+        var duplicatesByOpcodeTable = duplicatesWithPrefix.Concat(duplicatesWithinOpcodeTable).ToDictionary(x => x.Key, x => x.Items.ToList());
+
         foreach (var group in context.Instructions.GroupBy(context.Configuration.OpcodeStepTables.GetForInstruction))
         {
-            statements.Add(CreateOpcodeStepTableInitializationStatement(group.Key, group));
+            statements.Add(CreateOpcodeStepTableInitializationStatement(group.Key, group, duplicatesByOpcodeTable.TryGetValue(group.Key, out var duplicates) ? duplicates : []));
         }
 
         // Static constructor
@@ -106,13 +122,17 @@ public sealed class EmulatorStaticDataMembersAndConstructorGenerator : EmulatorC
     }
 
     [Pure]
-    private static StatementSyntax CreateOpcodeStepTableInitializationStatement(OpcodeStepTable opcodeStepTable, [InstantHandle] IEnumerable<Instruction> instructions)
+    private static StatementSyntax CreateOpcodeStepTableInitializationStatement(OpcodeStepTable opcodeStepTable, [InstantHandle] IEnumerable<Instruction> instructions, IReadOnlyList<(byte Opcode, Step Step)> duplicates)
     {
         var stepIndices = Enumerable.Repeat(65535, 256).ToArray();
         foreach (var instruction in instructions)
         {
-            // TODO: If instruction.opcode in prefixes do something.
             stepIndices[instruction.Opcode] = instruction.Steps.First().Index;
+        }
+
+        foreach (var duplicate in duplicates)
+        {
+            stepIndices[duplicate.Opcode] = duplicate.Step.Index;
         }
 
         var literals = stepIndices.Select(index => ExpressionElement(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(index))));
