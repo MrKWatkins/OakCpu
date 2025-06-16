@@ -25,6 +25,7 @@ internal sealed class BoolExpression : FlagAction
         var boolExpression = ExpressionGenerator.GenerateExpressionSyntax(context, Expression);
 
         // Tried using a ternary instead to get a CMOV to select the correct bitmask but the JIT would not play ball.
+        // TODO: Benchmarks show CMOVs are twice as fast. Try moving flags to separate functions to get CMOVs. Will certainly get shorter code. Could also use function parameters instead of field access.
         var byteExpression = GenerateBitCastFromBoolToByte(context, boolExpression);
 
         var shift = Flags[0].Index;
