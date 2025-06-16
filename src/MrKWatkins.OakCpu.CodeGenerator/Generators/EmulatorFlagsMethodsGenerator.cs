@@ -39,8 +39,13 @@ public sealed class EmulatorFlagsMethodsGenerator : EmulatorClassGenerator
             stepContext.InitializedTemporaryVariables.Add(temporary);
         }
 
+        // Tried adding both data members and registers as parameters to the methods when they were used more than once, in case using a local
+        // variable is cheaper than repeated field access. However, the disassembly only changed by one argument to the initial MOV and there
+        // was no change in performance.
         var parameters = temporaryVariables.Select(t => Parameter(Identifier(t)).WithType(PredefinedType(Token(SyntaxKind.IntKeyword)))).ToArray();
 
+        // Tried returning the flags value and assigning to the field in the steps. No noticeable change in performance but it does increase the
+        // size of the step method and we want to keep that as small as possible.
         return MethodDeclaration(
                 Void,
                 Identifier(GetFlagsMethodName(step)))
