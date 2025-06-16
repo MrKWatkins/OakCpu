@@ -4,6 +4,9 @@ using MrKWatkins.OakCpu.Z80.TestSuites.Program.ZEXALL;
 
 namespace MrKWatkins.OakCpu.Z80.Benchmarks;
 
+// | Method | Test        | Mean    | Error    | StdDev   | Code Size | Allocated |
+// |------- |------------ |--------:|---------:|---------:|----------:|----------:|
+// | ZEXALL | <inc,dec> a | 3.021 s | 0.0054 s | 0.0050 s |      84 B |  65.71 KB | 2025-06-16 First measurement.
 [MemoryDiagnoser]
 [DisassemblyDiagnoser(maxDepth: 20)]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
