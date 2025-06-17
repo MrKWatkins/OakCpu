@@ -5,5 +5,5 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Tests.Generators;
 public sealed class EmulatorFlagsMethodsGeneratorTests : TestFixture
 {
     [Test]
-    public void Generate() => EmulatorFlagsMethodsGenerator.Instance.Invoking(g => g.Generate(Z80GeneratorContext)).Should().NotThrow();
+    public void Generate() => EmulatorFlagsMethodsGenerator.Instance.Invoking(g => g.GenerateCompilationUnit(Z80GeneratorContext)).Should().NotThrow();
 }

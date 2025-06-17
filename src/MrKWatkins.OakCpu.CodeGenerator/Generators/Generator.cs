@@ -10,6 +10,16 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public abstract class Generator
 {
     protected const string ActionRequiredEnumName = "ActionRequired";
+    protected const string StepStructName = "Step";
+    protected const string StepHandlerFieldName = "Handler";
+    protected const string StepNextStepFieldName = "NextStep";
+    protected const string StepActionRequiredFieldName = "ActionRequired";
+    protected const string EmulatorParameterName = "emulator";
+    private const string StepFunctionPrefix = "Step_";
+
+    // Filthy hackery to put some newlines and indents where we want because NormalizeWhitespace will remove any normal whitespace we add.
+    protected static readonly SyntaxTrivia NewlineComment = Comment("// Newline");
+    protected static readonly SyntaxTrivia IndentComment = Comment("// Indent");
 
     private protected Generator()
     {
@@ -30,6 +40,9 @@ public abstract class Generator
 
     [Pure]
     protected static PredefinedTypeSyntax Byte => PredefinedType(Token(SyntaxKind.ByteKeyword));
+
+    [Pure]
+    protected static PredefinedTypeSyntax UShort => PredefinedType(Token(SyntaxKind.UShortKeyword));
 
     [Pure]
     protected static SyntaxToken Field => Token(SyntaxKind.FieldKeyword);
@@ -69,4 +82,13 @@ public abstract class Generator
 
     [Pure]
     protected static LiteralExpressionSyntax GenerateNumericLiteralExpression(int value) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(value));
+
+    [Pure]
+    protected static IdentifierNameSyntax EmulatorMemberIdentifier(string name) => IdentifierName($"{EmulatorParameterName}.{name}");
+
+    [Pure]
+    protected static ArgumentSyntax CreateEmulatorArgument() => Argument(IdentifierName(EmulatorParameterName));
+
+    [Pure]
+    protected static string GetStepFunctionName(Step step) => $"{StepFunctionPrefix}{step.Index}";
 }

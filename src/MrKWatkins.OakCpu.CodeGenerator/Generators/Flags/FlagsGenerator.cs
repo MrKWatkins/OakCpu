@@ -38,7 +38,7 @@ public abstract class FlagsGenerator : Generator
         yield return ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName(context.Configuration.FlagsRegister.FieldName),
+                EmulatorMemberIdentifier(context.Configuration.FlagsRegister.FieldName),
                 CastExpression(
                     context.Configuration.FlagsRegister.TypeSyntax, IdentifierName(FlagsVariableName))));
     }

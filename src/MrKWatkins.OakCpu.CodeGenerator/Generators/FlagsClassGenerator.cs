@@ -5,7 +5,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-public sealed class FlagsClassGenerator : ClassGenerator
+public sealed class FlagsClassGenerator : TypeGenerator
 {
     public static readonly FlagsClassGenerator Instance = new();
 

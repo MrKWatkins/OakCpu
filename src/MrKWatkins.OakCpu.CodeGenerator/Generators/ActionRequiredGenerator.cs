@@ -3,7 +3,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-public sealed class ActionRequiredGenerator : ClassGenerator
+public sealed class ActionRequiredGenerator : TypeGenerator
 {
     public static readonly ActionRequiredGenerator Instance = new();
 

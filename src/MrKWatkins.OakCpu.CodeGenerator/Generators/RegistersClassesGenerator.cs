@@ -5,7 +5,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-public sealed class RegistersClassesGenerator : ClassGenerator
+public sealed class RegistersClassesGenerator : TypeGenerator
 {
     public static readonly RegistersClassesGenerator Instance = new();
 

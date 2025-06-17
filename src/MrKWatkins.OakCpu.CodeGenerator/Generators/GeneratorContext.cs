@@ -43,6 +43,8 @@ public sealed class GeneratorContext
 
     public HashSet<string> RequiredUsings { get; } = new();
 
+    public Step OpcodeReadFirstStep => OpcodeRead[0];
+
     [Pure]
     public NamespaceDeclarationSyntax CreateRootNamespaceDeclaration() => SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(RootNamespace));
 

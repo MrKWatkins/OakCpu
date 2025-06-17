@@ -45,7 +45,7 @@ instructions:
       - Address = PC; PC = PC + 1; request(action.memory_read);
       - 
       - move_to_opcode(); set_opcode_step_table();
-    next_opcode: none
+    next_opcode: custom
     
   - group: Redirects
     mnemonic: FDCB Redirect
@@ -58,4 +58,4 @@ instructions:
       - Address = PC; PC = PC + 1; request(action.memory_read);
       - 
       - move_to_opcode(); set_opcode_step_table();
-    next_opcode: none
+    next_opcode: custom

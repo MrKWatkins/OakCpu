@@ -27,17 +27,17 @@ public sealed class Generator() : IncrementalGenerator(nameof(Generator))
 
     private void GenerateCode(SgfSourceProductionContext context, GeneratorContext generatorContext)
     {
-        foreach (var generator in ClassGenerator.AllGenerators)
+        foreach (var generator in TypeGenerator.AllGenerators)
         {
             try
             {
-                var compilationUnit = generator.Generate(generatorContext);
-                context.AddSource(generator.FileName, SourceText.From(compilationUnit.ToFullString(), Encoding.UTF8));
+                var source = generator.Generate(generatorContext);
+                context.AddSource(generator.FileName, SourceText.From(source, Encoding.UTF8));
             }
             catch (Exception exception)
             {
                 Logger.Error(exception, $"Error generating {generator.FileName}.");
-                context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("CS8032", "Exception", $"Exception during {nameof(ClassGenerator)} {generator.GetType().Name}: {exception}", "Build", DiagnosticSeverity.Error, true), Location.None));
+                context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("CS8032", "Exception", $"Exception during {nameof(TypeGenerator)} {generator.GetType().Name}: {exception}", "Build", DiagnosticSeverity.Error, true), Location.None));
             }
         }
     }

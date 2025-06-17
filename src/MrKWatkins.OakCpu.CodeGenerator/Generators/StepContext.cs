@@ -7,17 +7,16 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public sealed class StepContext
 {
     public StepContext(GeneratorContext context, Step step)
-        : this(context, step, new HashSet<string>(), ImmutableDictionary<string, Expression>.Empty, new List<string>(), false)
+        : this(context, step, new HashSet<string>(), ImmutableDictionary<string, Expression>.Empty, false)
     {
     }
 
-    private StepContext(GeneratorContext context, Step step, HashSet<string> initializedTemporaryVariables, ImmutableDictionary<string, Expression> argumentScope, List<string> commentsAheadOfNextStatement, bool inBooleanContext)
+    private StepContext(GeneratorContext context, Step step, HashSet<string> initializedTemporaryVariables, ImmutableDictionary<string, Expression> argumentScope, bool inBooleanContext)
     {
         Context = context;
         Step = step;
         InitializedTemporaryVariables = initializedTemporaryVariables;
         ArgumentScope = argumentScope;
-        CommentsAheadOfNextStatement = commentsAheadOfNextStatement;
         InBooleanContext = inBooleanContext;
     }
 
@@ -31,8 +30,6 @@ public sealed class StepContext
 
     public ImmutableDictionary<string, Expression> ArgumentScope { get; }
 
-    public List<string> CommentsAheadOfNextStatement { get; }
-
     public bool InBooleanContext { get; }
 
     [Pure]
@@ -40,9 +37,9 @@ public sealed class StepContext
     {
         var newScope = ArgumentScope.AddRange(parameters.Zip(arguments, (p, a) => new KeyValuePair<string, Expression>(p, a)).Where(t => !ArgumentScope.ContainsKey(t.Key)));
 
-        return new StepContext(Context, Step, InitializedTemporaryVariables, newScope, CommentsAheadOfNextStatement, InBooleanContext);
+        return new StepContext(Context, Step, InitializedTemporaryVariables, newScope, InBooleanContext);
     }
 
     [Pure]
-    public StepContext WithBooleanContext() => new(Context, Step, InitializedTemporaryVariables, ArgumentScope, CommentsAheadOfNextStatement, true);
+    public StepContext WithBooleanContext() => new(Context, Step, InitializedTemporaryVariables, ArgumentScope, true);
 }

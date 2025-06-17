@@ -3,8 +3,10 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-public abstract class EmulatorClassGenerator : ClassGenerator
+public abstract class EmulatorClassGenerator : TypeGenerator
 {
+    protected const string StepsFieldName = "Steps";
+
     private protected EmulatorClassGenerator()
     {
     }
@@ -14,4 +16,7 @@ public abstract class EmulatorClassGenerator : ClassGenerator
 
     [Pure]
     protected abstract ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration);
+
+    [Pure]
+    protected static ParameterSyntax CreateEmulatorParameter(GeneratorContext context) => Parameter(Identifier(EmulatorParameterName)).WithType(IdentifierName(GetEmulatorClassName(context)));
 }

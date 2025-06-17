@@ -129,7 +129,7 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateDataMemberAccess(DataMemberAccess dataMemberAccess) => dataMemberAccess.Identifier;
+    private static ExpressionSyntax GenerateDataMemberAccess(DataMemberAccess dataMemberAccess) => EmulatorMemberIdentifier(dataMemberAccess.DataMember.FieldName);
 
     [Pure]
     private static ExpressionSyntax GenerateBoolean(Boolean boolean) => LiteralExpression(boolean.Value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
@@ -138,7 +138,7 @@ public abstract class ExpressionGenerator : Generator
     private static ExpressionSyntax GenerateNumber(Number number) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(number.NumberString, number.Value));
 
     [Pure]
-    private static ExpressionSyntax GenerateRegisterAccess(RegisterAccess registerAccess) => registerAccess.Identifier;
+    private static ExpressionSyntax GenerateRegisterAccess(RegisterAccess registerAccess) => EmulatorMemberIdentifier(registerAccess.Register.FieldName);
 
     [Pure]
     private static ExpressionSyntax GenerateConditionAccess(StepContext context, ConditionAccess conditionAccess, bool invert = false)
@@ -146,7 +146,7 @@ public abstract class ExpressionGenerator : Generator
         var bitMask = (byte)(1 << conditionAccess.Condition.Flag.Index);
 
         // Isolate the flag bit.
-        var isolate = ParenthesizedExpression(BinaryExpression(SyntaxKind.BitwiseAndExpression, IdentifierName(context.Configuration.FlagsRegister.FieldName), GenerateBinaryLiteralExpression(bitMask)));
+        var isolate = ParenthesizedExpression(BinaryExpression(SyntaxKind.BitwiseAndExpression, EmulatorMemberIdentifier(context.Configuration.FlagsRegister.FieldName), GenerateBinaryLiteralExpression(bitMask)));
 
         // Comparison.
         var positive = invert ? conditionAccess.Condition.IsNot : !conditionAccess.Condition.IsNot;
@@ -161,7 +161,7 @@ public abstract class ExpressionGenerator : Generator
         var bitMask = (byte)(1 << flagAccess.Flag.Index);
 
         // Isolate the flag bit.
-        var expression = BinaryExpression(SyntaxKind.BitwiseAndExpression, IdentifierName(context.Configuration.FlagsRegister.FieldName), GenerateBinaryLiteralExpression(bitMask));
+        var expression = BinaryExpression(SyntaxKind.BitwiseAndExpression, EmulatorMemberIdentifier(context.Configuration.FlagsRegister.FieldName), GenerateBinaryLiteralExpression(bitMask));
 
         // If we're in a boolean context, return a bool, otherwise return an int.
         if (context.InBooleanContext)

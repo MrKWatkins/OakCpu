@@ -2,6 +2,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
+using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -14,14 +15,68 @@ public sealed class EmulatorStaticDataMembersAndConstructorGenerator : EmulatorC
     {
     }
 
-    // TODO: An automatic layout algorithm taking into account padding would be nice.
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration)
     {
-        var members = context.Configuration.OpcodeStepTables
+        var members = new List<MemberDeclarationSyntax>
+        {
+            CreateStepsField()
+        };
+
+        members.AddRange(context.Configuration.OpcodeStepTables
             .Select(CreateOpcodeStepTableField)
-            .Append(CreateStaticConstructor(context));
+            .Append(CreateStaticConstructor(context)));
 
         return classDeclaration.AddMembers(members.ToArray());
+    }
+
+    [Pure]
+    private static MemberDeclarationSyntax CreateStepsField() =>
+        FieldDeclaration(
+                VariableDeclaration(
+                        ArrayType(IdentifierName(StepStructName))
+                            .WithRankSpecifiers([ArrayRankSpecifier([OmittedArraySizeExpression()])]))
+                    .WithVariables([VariableDeclarator(Identifier(StepsFieldName))]))
+            .WithModifiers([Private, Static, ReadOnly])
+            .WithSemicolonToken(Semicolon);
+
+    [Pure]
+    private static StatementSyntax CreateInitializeStepsField(GeneratorContext context)
+    {
+        var elements = context.AllSteps.Select(step => ExpressionElement(CreateStep(context, step)).WithLeadingTrivia(NewlineComment, IndentComment)).ToArray();
+        elements[elements.Length - 1] = elements[elements.Length - 1].WithTrailingTrivia(NewlineComment);
+        var value = CollectionExpression(SeparatedList<CollectionElementSyntax>(elements)).WithLeadingTrivia(NewlineComment);
+
+        var assignment = AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(StepsFieldName), value);
+
+        return ExpressionStatement(assignment).WithTrailingTrivia(NewlineComment);
+    }
+
+    [Pure]
+    private static ImplicitObjectCreationExpressionSyntax CreateStep(GeneratorContext context, Step step)
+    {
+        ExpressionSyntax handler = IdentifierName(GetStepFunctionName(step));
+
+        var nextStep = step.NextOpcode switch
+        {
+            NextOpcodeMode.Read => 0,
+            NextOpcodeMode.Overlapped => 1,
+            NextOpcodeMode.Custom => step.Index + 1, // TODO: Error step.
+            null => step.Index + 1,
+            _ => throw new NotSupportedException($"The {nameof(NextOpcodeMode)} {step.NextOpcode} is not supported.")
+        };
+
+        return ImplicitObjectCreationExpression()
+            .WithArgumentList(
+                ArgumentList([
+                    Argument(handler),
+                    Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(nextStep))),
+                    Argument(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            // TODO: static using for ActionRequired.
+                            IdentifierName(ActionRequiredEnumName),
+                            IdentifierName(step.GetAction(context).EnumName)))
+                ]));
     }
 
     [Pure]
@@ -38,7 +93,11 @@ public sealed class EmulatorStaticDataMembersAndConstructorGenerator : EmulatorC
     [MustUseReturnValue]
     private static ConstructorDeclarationSyntax CreateStaticConstructor(GeneratorContext context)
     {
-        var statements = new List<StatementSyntax> { CreateLittleEndianStatement(context) };
+        var statements = new List<StatementSyntax>
+        {
+            CreateLittleEndianStatement(context),
+            CreateInitializeStepsField(context)
+        };
 
         // This is not totally generic. But it does support everything I need. Doesn't support:
         // - Duplicates with no prefix, i.e. different opcodes.
@@ -64,7 +123,8 @@ public sealed class EmulatorStaticDataMembersAndConstructorGenerator : EmulatorC
         // Static constructor
         return ConstructorDeclaration(GetEmulatorClassName(context))
             .WithModifiers(TokenList(Static))
-            .WithBody(Block(statements));
+            .WithBody(Block(statements))
+            .WithLeadingTrivia(NewlineComment);
     }
 
     [Pure]

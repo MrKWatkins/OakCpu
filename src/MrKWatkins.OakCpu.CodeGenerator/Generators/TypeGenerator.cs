@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -7,28 +8,34 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
-public abstract class ClassGenerator : Generator
+public abstract class TypeGenerator : Generator
 {
     protected const string EmulatorFieldName = "emulator";
 
-    private protected ClassGenerator()
+    private protected TypeGenerator()
     {
     }
 
-    public static readonly IReadOnlyList<ClassGenerator> AllGenerators = [
+    public static readonly IReadOnlyList<TypeGenerator> AllGenerators = [
         ActionRequiredGenerator.Instance,
         EmulatorFlagsMethodsGenerator.Instance,
         EmulatorInstanceDataMembersAndConstructorGenerator.Instance,
         EmulatorStaticDataMembersAndConstructorGenerator.Instance,
-        EmulatorStepGenerator.Instance,
+        EmulatorStepsGenerator.Instance,
         FlagsClassGenerator.Instance,
         InterruptsClassGenerator.Instance,
+        StepStructGenerator.Instance,
         RegistersClassesGenerator.Instance];
 
     public string FileName => GetType().Name.Substring(0, GetType().Name.Length - "Generator".Length);
 
     [Pure]
-    public CompilationUnitSyntax Generate(GeneratorContext context)
+    public string Generate(GeneratorContext context) =>
+        // Filthy hackery to put some newlines and indents where we want because NormalizeWhitespace will remove any normal whitespace we add.
+        Regex.Replace(GenerateCompilationUnit(context).ToFullString().Replace("// Newline", ""), "// Indent\r?\n\\s*", "    ");
+
+    [Pure]
+    public CompilationUnitSyntax GenerateCompilationUnit(GeneratorContext context)
     {
         context = context.WithRequiredUsings();
 

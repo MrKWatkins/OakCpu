@@ -1,0 +1,86 @@
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using MrKWatkins.OakCpu.CodeGenerator.Definitions;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using Action = System.Action;
+
+namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
+
+public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
+{
+    private const string StepMethodName = "Step";
+
+    public static readonly EmulatorStepsGenerator Instance = new();
+
+    private EmulatorStepsGenerator()
+    {
+    }
+
+    protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
+        classDeclaration
+            .AddMembers(CreateStepMethod())
+            .AddMembers(context.AllSteps.Select(step => CreateStepFunction(context, step)).ToArray());
+
+    [Pure]
+    private static MemberDeclarationSyntax CreateStepFunction(GeneratorContext context, Step step)
+    {
+        var statements = StepGenerator.GenerateStatements(context, step);
+
+        return MethodDeclaration(Void, Identifier(GetStepFunctionName(step)))
+            .WithModifiers([Private, Static])
+            .WithParameterList(ParameterList([CreateEmulatorParameter(context)]))
+            .WithBody(Block(statements))
+            .WithLeadingTrivia(Comment($"// {step.Name}"));
+    }
+
+    [Pure]
+    private static MethodDeclarationSyntax CreateStepMethod()
+    {
+        const string stepVariableName = "step";
+
+        return MethodDeclaration(
+                IdentifierName(ActionRequiredEnumName),
+                Identifier(StepMethodName))
+            .AddModifiers(Public)
+            .WithBody(Block(
+                // var node = Nodes[currentStep];
+                LocalDeclarationStatement(
+                    VariableDeclaration(IdentifierName("var"))
+                        .WithVariables([
+                            VariableDeclarator(stepVariableName)
+                                .WithInitializer(
+                                    EqualsValueClause(
+                                        ElementAccessExpression(IdentifierName(StepsFieldName))
+                                            .WithArgumentList(
+                                                BracketedArgumentList([Argument(IdentifierName(PreDefinedDataMember.CurrentStep.FieldName))]))))
+                        ])),
+
+                // currentStep = node.NextStep;
+                ExpressionStatement(
+                    AssignmentExpression(
+                        SyntaxKind.SimpleAssignmentExpression,
+                        IdentifierName(PreDefinedDataMember.CurrentStep.FieldName),
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName(stepVariableName),
+                            IdentifierName(StepNextStepFieldName)))),
+
+                // node.Handler?.Invoke(this);
+                ExpressionStatement(
+                    ConditionalAccessExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName(stepVariableName),
+                            IdentifierName(StepHandlerFieldName)),
+                        InvocationExpression(MemberBindingExpression(IdentifierName(nameof(Action.Invoke))))
+                            .WithArgumentList(ArgumentList([Argument(ThisExpression())])))),
+
+                // return node.ActionRequired;
+                ReturnStatement(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName(stepVariableName),
+                        IdentifierName(ActionRequiredEnumName)))));
+    }
+}

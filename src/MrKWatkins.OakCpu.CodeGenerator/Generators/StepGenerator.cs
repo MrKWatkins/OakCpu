@@ -3,18 +3,20 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
+using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-public abstract class StatementGenerator : Generator
+public abstract class StepGenerator : Generator
 {
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(GeneratorContext input, Step step)
+    public static IEnumerable<StatementSyntax> GenerateStatements(GeneratorContext input, Step step)
     {
         var context = new StepContext(input, step);
 
+        // Reset the step table if we've started a prefixed instruction.
         if (step.Instruction is { Prefix: not null } && step.Instruction.Steps[0] == step)
         {
             yield return GenerateSetOpcodeStepTable(input.Configuration.OpcodeStepTables.NoPrefix);
@@ -22,23 +24,29 @@ public abstract class StatementGenerator : Generator
 
         foreach (var stepStatement in step.Statements)
         {
-            foreach (var statement in GenerateStatementSyntaxes(context, stepStatement))
+            foreach (var statement in GenerateStatements(context, stepStatement))
             {
-                if (context.CommentsAheadOfNextStatement.Any())
-                {
-                    yield return statement.WithLeadingTrivia(context.CommentsAheadOfNextStatement.Select(comment => Comment($"// {comment}")));
-                    context.CommentsAheadOfNextStatement.Clear();
-                }
-                else
-                {
-                    yield return statement;
-                }
+                yield return statement;
             }
+        }
+
+        var trailingStatements = step.NextOpcode switch
+        {
+            NextOpcodeMode.Read => GenerateMoveToOpcodeRead(),
+            NextOpcodeMode.Overlapped => GenerateOverlappedOpcodeRead(context),
+            NextOpcodeMode.Custom => [],
+            null => [],
+            _ => throw new NotSupportedException($"The next opcode mode {step.NextOpcode} is not supported.")
+        };
+
+        foreach (var statement in trailingStatements)
+        {
+            yield return statement;
         }
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateStatementSyntaxes(StepContext context, Statement statement) =>
+    private static IEnumerable<StatementSyntax> GenerateStatements(StepContext context, Statement statement) =>
         statement switch
         {
             Assignment assignment => GenerateAssignment(context, assignment),
@@ -62,14 +70,6 @@ public abstract class StatementGenerator : Generator
         {
             return GenerateMoveToOpcode();
         }
-        if (callStatement.Call.Function == PreDefinedFunction.MoveToOpcodeRead)
-        {
-            return GenerateMoveToOpcodeRead();
-        }
-        if (callStatement.Call.Function == PreDefinedFunction.OverlapOpcodeRead)
-        {
-            return GenerateOverlapOpcodeRead(context);
-        }
         if (callStatement.Call.Function == PreDefinedFunction.Request)
         {
             return GenerateRequest(
@@ -86,7 +86,9 @@ public abstract class StatementGenerator : Generator
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateFlagsCall(StepContext context)
     {
-        var arguments = context.Step.Instruction!.TemporaryVariablesUsedByFlags.Select(t => Argument(IdentifierName(t)));
+        var arguments = context.Step.Instruction!.TemporaryVariablesUsedByFlags
+            .Select(t => Argument(IdentifierName(t)))
+            .Prepend(CreateEmulatorArgument());
 
         var call = InvocationExpression(IdentifierName(GetFlagsMethodName(context.Step)))
             .WithArgumentList(ArgumentList(SeparatedList(arguments)));
@@ -137,7 +139,7 @@ public abstract class StatementGenerator : Generator
 
         if (target.ToString() == value.ToString())
         {
-            context.CommentsAheadOfNextStatement.Add($"Skipping {assignment}.");
+            //context.CommentsAheadOfNextStatement.Add($"Skipping {assignment}.");
             yield break;
         }
         yield return ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, target, value));
@@ -148,11 +150,11 @@ public abstract class StatementGenerator : Generator
     {
         var condition = ExpressionGenerator.GenerateExpressionSyntax(context.WithBooleanContext(), ifStatement.Condition);
 
-        var ifBlock = Block(ifStatement.IfStatements.SelectMany(statement => GenerateStatementSyntaxes(context, statement)));
+        var ifBlock = Block(ifStatement.IfStatements.SelectMany(statement => GenerateStatements(context, statement)));
 
         if (ifStatement.ElseStatements.Any())
         {
-            var elseBlock = Block(ifStatement.ElseStatements.SelectMany(statement => GenerateStatementSyntaxes(context, statement)));
+            var elseBlock = Block(ifStatement.ElseStatements.SelectMany(statement => GenerateStatements(context, statement)));
 
             yield return IfStatement(condition, ifBlock, ElseClause(elseBlock));
         }
@@ -185,36 +187,34 @@ public abstract class StatementGenerator : Generator
         // TODO: Version without bounds checks, don't rely on the JIT.
         var getOpcode =
             ElementAccessExpression(
-                IdentifierName(PreDefinedDataMember.OpcodeStepTable.FieldName),
-                BracketedArgumentList([Argument(IdentifierName(PreDefinedDataMember.Data.FieldName))]));
+                EmulatorMemberIdentifier(PreDefinedDataMember.OpcodeStepTable.FieldName),
+                BracketedArgumentList([Argument(EmulatorMemberIdentifier(PreDefinedDataMember.Data.FieldName))]));
 
         yield return CreateSetStep(getOpcode);
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateOverlapOpcodeRead(StepContext context)
+    private static IEnumerable<StatementSyntax> GenerateOverlappedOpcodeRead(StepContext context)
     {
-        context.CommentsAheadOfNextStatement.Add("Overlapped opcode read.");
-
-        // Set step = 1 so we start on step 1 after the next Step() call.
-        yield return CreateSetStep(1);
-
-        // goto case 0 to perform step 0.
-        yield return GotoStatement(SyntaxKind.GotoCaseStatement, Token(SyntaxKind.CaseKeyword), GenerateNumericLiteralExpression(0));
+        // Execute step 0. No need to set step 1; the NextOpcode handling above will cover that.
+        yield return ExpressionStatement(
+            InvocationExpression(IdentifierName(GetStepFunctionName(context.Context.OpcodeReadFirstStep)))
+                .WithArgumentList(ArgumentList([CreateEmulatorArgument()])))
+            .WithLeadingTrivia(Comment("// Overlapped opcode read."));
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateSetOpcodeStepTable(StepContext opcodeStepTable, Call callStatementCall)
+    private static IEnumerable<StatementSyntax> GenerateSetOpcodeStepTable(StepContext context, Call callStatementCall)
     {
         if (callStatementCall.Arguments.Count == 0)
         {
-            return [GenerateSetOpcodeStepTable(opcodeStepTable.Configuration.OpcodeStepTables.NoPrefix)];
+            return [GenerateSetOpcodeStepTable(context.Configuration.OpcodeStepTables.NoPrefix)];
         }
 
         var argument = callStatementCall.Arguments[0];
         if (argument is Number number)
         {
-            return [GenerateSetOpcodeStepTable(opcodeStepTable.Configuration.OpcodeStepTables.GetForPrefix((byte)number.Value))];
+            return [GenerateSetOpcodeStepTable(context.Configuration.OpcodeStepTables.GetForPrefix((byte)number.Value))];
         }
 
         if (argument is OpcodeStepTableAccess opcodeStepTableAccess)
@@ -230,7 +230,7 @@ public abstract class StatementGenerator : Generator
         ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName(PreDefinedDataMember.OpcodeStepTable.FieldName),
+                EmulatorMemberIdentifier(PreDefinedDataMember.OpcodeStepTable.FieldName),
                 IdentifierName(opcodeStepTable.FieldName)));
 
     [Pure]
@@ -241,6 +241,6 @@ public abstract class StatementGenerator : Generator
         ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName(PreDefinedDataMember.CurrentStep.FieldName),
+                EmulatorMemberIdentifier(PreDefinedDataMember.CurrentStep.FieldName),
                 value));
 }

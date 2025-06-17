@@ -1,24 +1,20 @@
 using System.ComponentModel;
+using MrKWatkins.OakCpu.CodeGenerator.Generators;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
+using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Step
 {
-    private Step(string name, IReadOnlyList<Statement> statements)
-    {
-        if (statements.Count == 0)
-        {
-            throw new ArgumentException("Value cannot be empty.", nameof(statements));
-        }
+    private readonly Action? specifiedAction;
 
-        if (!statements.Last().IsTerminal)
-        {
-            throw new ArgumentException("The last statement must be a terminal statement.", nameof(statements));
-        }
+    private Step(string name, IReadOnlyList<Statement> statements, Action? specifiedAction = null)
+    {
         Name = name;
         Statements = statements;
+        this.specifiedAction = specifiedAction;
     }
 
     public string Name { get; }
@@ -28,6 +24,27 @@ public sealed class Step
     public ushort Index { get; private set; }
 
     public IReadOnlyList<Statement> Statements { get; }
+
+    [Pure]
+    public Action GetAction(GeneratorContext context)
+    {
+        if (NextOpcode.HasValue)
+        {
+            if (specifiedAction != null)
+            {
+                throw new InvalidOperationException($"No {PreDefinedFunction.Request.Name} function should be specified for the last step in an instruction.");
+            }
+
+            return NextOpcode == NextOpcodeMode.Overlapped ? context.OpcodeReadFirstStep.GetAction(context) : Action.None;
+        }
+
+        return specifiedAction ?? Action.None;
+    }
+
+    /// <summary>
+    /// The next opcode operation to perform after this step.
+    /// </summary>
+    public NextOpcodeMode? NextOpcode => Instruction != null && Instruction.Steps.Last() == this ? Instruction.NextOpcode : null;
 
     public override string ToString() => $"{Name} => {string.Join("; ", Statements)};";
 
@@ -53,11 +70,29 @@ public sealed class Step
     {
         var statements = Parser.ParseStatements(context, step).ToList();
 
-        var lastStep = statements.LastOrDefault();
-        if (lastStep is not { IsTerminal: true })
+        var requestStatements = statements.Where(s => s is CallStatement call && call.Call.Function == PreDefinedFunction.Request).OfType<CallStatement>().ToList();
+        switch (requestStatements.Count)
         {
-            statements.Add(new CallStatement(new Call(PreDefinedFunction.Request, [new ActionAccess(Action.None)])));
+            case 0:
+                return new Step(name, statements);
+            case > 1:
+                throw new InvalidOperationException($"The {PreDefinedFunction.Request.Name} function can only be called once per step.");
         }
-        return new Step(name, statements);
+
+        var callStatement = requestStatements[0];
+        if (callStatement != statements.Last())
+        {
+            throw new InvalidOperationException($"The {PreDefinedFunction.Request.Name} function must be the last statement in the step.");
+        }
+
+        if (callStatement.Call.Arguments.FirstOrDefault() is not ActionAccess actionAccess)
+        {
+            throw new InvalidOperationException($"The {PreDefinedFunction.Request.Name} function must have an action as the first argument.");
+        }
+
+        // Remove the call from the statements as it is handled by the code generation for the action.
+        statements.RemoveAt(statements.Count - 1);
+
+        return new Step(name, statements, actionAccess.Action);
     }
 }
