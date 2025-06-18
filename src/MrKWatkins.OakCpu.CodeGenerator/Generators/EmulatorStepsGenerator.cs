@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -26,11 +27,19 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     {
         var statements = StepGenerator.GenerateStatements(context, step);
 
-        return MethodDeclaration(Void, Identifier(GetStepFunctionName(step)))
+        var comment = Comment($"// {step.Name}");
+
+        var function = MethodDeclaration(Void, Identifier(GetStepFunctionName(step)))
             .WithModifiers([Private, Static])
             .WithParameterList(ParameterList([CreateEmulatorParameter(context)]))
-            .WithBody(Block(statements))
-            .WithLeadingTrivia(Comment($"// {step.Name}"));
+            .WithBody(Block(statements));
+
+        // Aggressively inline step 0 as it is called for overlapped reads.
+        function = step == context.OpcodeReadFirstStep
+            ? function.WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(comment)])
+            : function.WithLeadingTrivia(comment);
+
+        return function;
     }
 
     [Pure]

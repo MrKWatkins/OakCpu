@@ -122,6 +122,7 @@ public abstract class TypeGenerator : Generator
 
     [MustUseReturnValue]
     protected static AttributeSyntax CreateMethodImplAttribute(GeneratorContext context, MethodImplOptions options) => CreateMethodImplAttribute(context, options.ToString());
+
     [MustUseReturnValue]
     protected static AttributeSyntax CreateMethodImplAttribute(GeneratorContext context, string options)
     {
