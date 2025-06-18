@@ -46,6 +46,13 @@ public sealed class Step
     /// </summary>
     public NextOpcodeMode? NextOpcode => Instruction != null && Instruction.Steps.Last() == this ? Instruction.NextOpcode : null;
 
+    public bool RequiresPrefixReset => Instruction is { Prefix: not null } && Instruction.Steps[0] == this;
+
+    public bool DoesNothing => Statements.Count == 0 &&
+                               !RequiresPrefixReset &&
+                               NextOpcode != NextOpcodeMode.Read &&
+                               NextOpcode != NextOpcodeMode.Overlapped;
+
     public override string ToString() => $"{Name} => {string.Join("; ", Statements)};";
 
     public static void AssignIndexes([InstantHandle] IEnumerable<Step> steps)

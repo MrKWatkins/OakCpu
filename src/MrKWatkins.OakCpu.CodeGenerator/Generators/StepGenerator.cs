@@ -16,8 +16,13 @@ public abstract class StepGenerator : Generator
     {
         var context = new StepContext(input, step);
 
+        if (step.DoesNothing)
+        {
+            throw new InvalidOperationException("Trying to generate statements for a step that does nothing.");
+        }
+
         // Reset the step table if we've started a prefixed instruction.
-        if (step.Instruction is { Prefix: not null } && step.Instruction.Steps[0] == step)
+        if (step.RequiresPrefixReset)
         {
             yield return GenerateSetOpcodeStepTable(input.Configuration.OpcodeStepTables.NoPrefix);
         }

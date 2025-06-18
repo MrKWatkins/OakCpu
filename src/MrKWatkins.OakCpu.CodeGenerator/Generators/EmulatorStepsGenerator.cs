@@ -20,7 +20,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration
             .AddMembers(CreateStepMethod())
-            .AddMembers(context.AllSteps.Select(step => CreateStepFunction(context, step)).ToArray());
+            .AddMembers(context.AllSteps.Where(s => !s.DoesNothing).Select(step => CreateStepFunction(context, step)).ToArray());
 
     [Pure]
     private static MemberDeclarationSyntax CreateStepFunction(GeneratorContext context, Step step)

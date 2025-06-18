@@ -13,6 +13,7 @@ namespace MrKWatkins.OakCpu.Z80.Benchmarks;
 // | ZEXALL | <inc,dec> a | 1448.0 ms | 76.00 ms | 63.00 ms |      84 B |  65.71 KB | 2025-06-16 Reuse instruction steps for duplicates.
 // | ZEXALL | <inc,dec> a |  326.5 ms |  7.72 ms | 22.77 ms |      54 B |  65.71 KB | 2025-06-17 Proof of concept for the Step array approach.
 // | ZEXALL | <inc,dec> a |  297.8 ms |  5.81 ms | 10.48 ms |      84 B |  65.43 KB | 2025-06-18 After tidying and simplifying Step array approach.
+// | ZEXALL | <inc,dec> a |  237.0 ms |  4.73 ms |  9.11 ms |      54 B |  64.87 KB | 2025-06-18 Skip executing step functions for empty steps.
 [MemoryDiagnoser]
 [DisassemblyDiagnoser(maxDepth: 20)]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
