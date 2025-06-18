@@ -54,7 +54,9 @@ public sealed class EmulatorStaticDataMembersAndConstructorGenerator : EmulatorC
     [Pure]
     private static ImplicitObjectCreationExpressionSyntax CreateStep(GeneratorContext context, Step step)
     {
-        ExpressionSyntax handler = step.DoesNothing ? LiteralExpression(SyntaxKind.NullLiteralExpression) : IdentifierName(GetStepFunctionName(step));
+        ExpressionSyntax handler = step.DoesNothing
+            ? LiteralExpression(SyntaxKind.DefaultLiteralExpression)
+            : PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetStepFunctionName(step)));
 
         var nextStep = step.NextOpcode switch
         {

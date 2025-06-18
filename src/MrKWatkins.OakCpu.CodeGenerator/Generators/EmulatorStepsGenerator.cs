@@ -61,20 +61,23 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
                     AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
                         IdentifierName(PreDefinedDataMember.CurrentStep.FieldName),
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName(stepVariableName),
-                            IdentifierName(StepNextStepFieldName)))),
+                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(StepNextStepFieldName)))),
 
-                // node.Handler?.Invoke(this);
-                ExpressionStatement(
-                    ConditionalAccessExpression(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName(stepVariableName),
-                            IdentifierName(StepHandlerFieldName)),
-                        InvocationExpression(MemberBindingExpression(IdentifierName(nameof(Action.Invoke))))
-                            .WithArgumentList(ArgumentList([Argument(ThisExpression())])))),
+                // if (step.Handler != default)
+                // {
+                //     step.Handler(this);
+                // }
+                IfStatement(
+                    BinaryExpression(
+                        SyntaxKind.NotEqualsExpression,
+                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(StepHandlerFieldName)),
+                        LiteralExpression(SyntaxKind.DefaultLiteralExpression)
+                    ),
+                    Block(
+                        ExpressionStatement(
+                            InvocationExpression(
+                                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(StepHandlerFieldName)))
+                                .WithArgumentList(ArgumentList([Argument(ThisExpression())]))))),
 
                 // return node.ActionRequired;
                 ReturnStatement(

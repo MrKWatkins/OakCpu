@@ -13,13 +13,18 @@ public sealed class StepStructGenerator : TypeGenerator
 
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
     {
-        var actionType = NullableType(GenericName(Identifier(nameof(Action)))
-            .WithTypeArgumentList(TypeArgumentList([IdentifierName(GetEmulatorClassName(context))])));
+        var actionType = FunctionPointerType(
+            null,
+            FunctionPointerParameterList(
+                [
+                    FunctionPointerParameter(IdentifierName(GetEmulatorClassName(context))),
+                    FunctionPointerParameter(Void)
+                ]));
 
         var actionRequiredType = IdentifierName(ActionRequiredEnumName);
 
         return StructDeclaration(StepStructName)
-            .WithModifiers(TokenList(Internal, ReadOnly))
+            .WithModifiers(TokenList(Internal, Unsafe, ReadOnly))
             .WithParameterList(
                 ParameterList(
                 [

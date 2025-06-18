@@ -12,7 +12,7 @@ public abstract class EmulatorClassGenerator : TypeGenerator
     }
 
     protected sealed override BaseTypeDeclarationSyntax CreateType(GeneratorContext context) =>
-        PopulateClass(context, ClassDeclaration(GetEmulatorClassName(context)).AddModifiers(Public, Sealed, Partial));
+        PopulateClass(context, ClassDeclaration(GetEmulatorClassName(context)).AddModifiers(Public, Sealed, Unsafe, Partial));
 
     [Pure]
     protected abstract ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration);

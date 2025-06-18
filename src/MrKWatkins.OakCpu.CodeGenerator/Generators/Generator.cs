@@ -45,6 +45,9 @@ public abstract class Generator
     protected static PredefinedTypeSyntax UShort => PredefinedType(Token(SyntaxKind.UShortKeyword));
 
     [Pure]
+    protected static TypeSyntax Void => PredefinedType(Token(SyntaxKind.VoidKeyword));
+
+    [Pure]
     protected static SyntaxToken Field => Token(SyntaxKind.FieldKeyword);
 
     [Pure]
@@ -72,7 +75,7 @@ public abstract class Generator
     protected static SyntaxToken Static => Token(SyntaxKind.StaticKeyword);
 
     [Pure]
-    protected static TypeSyntax Void => PredefinedType(Token(SyntaxKind.VoidKeyword));
+    protected static SyntaxToken Unsafe => Token(SyntaxKind.UnsafeKeyword);
 
     [Pure]
     protected static SyntaxToken GenerateBinaryLiteral(byte value) => Literal($"0b{Convert.ToString(value, 2).PadLeft(8, '0')}", value);
