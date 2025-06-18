@@ -10,6 +10,9 @@ public abstract class Expression : AstNode, IEquatable<Expression>
 
     public TypeSyntax TypeSyntax => Type.TypeSyntax();
 
+    [Pure]
+    public Expression InlineUserDefinedFunctions(StepContext context) => InlineUserDefinedFunctions(context, this);
+
     public bool Equals(Expression? other)
     {
         if (other is null)
@@ -29,8 +32,9 @@ public abstract class Expression : AstNode, IEquatable<Expression>
 
     public override int GetHashCode() => ToString().GetHashCode();
 
-    [Pure]
-    public Expression InlineUserDefinedFunctions(StepContext context) => InlineUserDefinedFunctions(context, this);
+    public static bool operator ==(Expression? left, Expression? right) => Equals(left, right);
+
+    public static bool operator !=(Expression? left, Expression? right) => !Equals(left, right);
 
     [Pure]
     private static Expression InlineUserDefinedFunctions(StepContext context, Expression expression)

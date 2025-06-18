@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using MrKWatkins.OakCpu.CodeGenerator.Generators;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
+using MrKWatkins.OakCpu.CodeGenerator.Language.Ast.Optimization;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 
@@ -72,7 +73,7 @@ public sealed class Step
     [Pure]
     public static Step Parse(string name, ParserContext context, string? step)
     {
-        var statements = Parser.ParseStatements(context, step).ToList();
+        var statements = OptimizeStatements.Optimize(Parser.ParseStatements(context, step)).ToList();
 
         var requestStatements = statements.Where(s => s is CallStatement call && call.Call.Function == PreDefinedFunction.Request).OfType<CallStatement>().ToList();
         switch (requestStatements.Count)

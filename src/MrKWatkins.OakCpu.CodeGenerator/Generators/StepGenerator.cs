@@ -101,7 +101,6 @@ public abstract class StepGenerator : Generator
     private static IEnumerable<StatementSyntax> GenerateAssignment(StepContext context, Assignment assignment)
     {
         // TODO: AssignmentEqual if possible, i.e. A |= D rather than A = (byte)(A | D). Probably generates the same code though...
-
         var value = ExpressionGenerator.GenerateExpressionSyntax(context, assignment.Value);
 
         if (assignment.Value.Type != assignment.Target.Type)
