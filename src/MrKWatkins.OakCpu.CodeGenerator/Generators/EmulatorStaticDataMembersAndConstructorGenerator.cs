@@ -54,9 +54,23 @@ public sealed class EmulatorStaticDataMembersAndConstructorGenerator : EmulatorC
     [Pure]
     private static ImplicitObjectCreationExpressionSyntax CreateStep(GeneratorContext context, Step step)
     {
-        ExpressionSyntax handler = step.DoesNothing
-            ? LiteralExpression(SyntaxKind.DefaultLiteralExpression)
-            : PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetStepFunctionName(step)));
+        ExpressionSyntax handler;
+        if (step.DoesNothing)
+        {
+            // If we're an overlapped read and doing nothing, we still need to run step 0.
+            if (step.NextOpcode == NextOpcodeMode.Overlapped)
+            {
+                handler = PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetStepFunctionName(context.OpcodeReadFirstStep)));
+            }
+            else
+            {
+                handler = LiteralExpression(SyntaxKind.DefaultLiteralExpression);
+            }
+        }
+        else
+        {
+            handler = PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetStepFunctionName(step)));
+        }
 
         var nextStep = step.NextOpcode switch
         {

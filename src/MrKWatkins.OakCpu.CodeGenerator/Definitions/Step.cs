@@ -48,10 +48,7 @@ public sealed class Step
 
     public bool RequiresPrefixReset => Instruction is { Prefix: not null } && Instruction.Steps[0] == this;
 
-    public bool DoesNothing => Statements.Count == 0 &&
-                               !RequiresPrefixReset &&
-                               NextOpcode != NextOpcodeMode.Read &&
-                               NextOpcode != NextOpcodeMode.Overlapped;
+    public bool DoesNothing => Statements.Count == 0 && !RequiresPrefixReset;
 
     public override string ToString() => $"{Name} => {string.Join("; ", Statements)};";
 

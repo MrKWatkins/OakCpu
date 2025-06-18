@@ -16,6 +16,7 @@ namespace MrKWatkins.OakCpu.Z80.Benchmarks;
 // | ZEXALL | <inc,dec> a |  237.0 ms |  4.73 ms |  9.11 ms |      54 B |  64.87 KB | 2025-06-18 Skip executing step functions for empty steps.
 // | ZEXALL | <inc,dec> a |  207.1 ms |  4.13 ms |  7.35 ms |      54 B |  64.87 KB | 2025-06-18 Use function pointers for step handlers.
 // | ZEXALL | <inc,dec> a |  204.1 ms |  4.03 ms |  4.80 ms |      54 B |  64.87 KB | 2025-06-18 Remove some array bounds checks.
+// | ZEXALL | <inc,dec> a |  191.5 ms |  3.61 ms |  3.37 ms |      84 B |  64.87 KB | 2025-06-18 Remove some more empty steps.
 [MemoryDiagnoser]
 [DisassemblyDiagnoser(maxDepth: 20)]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
