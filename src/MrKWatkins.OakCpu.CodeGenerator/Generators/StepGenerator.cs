@@ -2,6 +2,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
+using MrKWatkins.OakCpu.CodeGenerator.Generators.Flags;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
@@ -9,6 +10,9 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
+// TODO: Remove pointless assignments at the step level so they can be treated as empty steps.
+// TODO: Do nothing for steps that are just overlapped opcode reads; just execute step 0.
+// TODO: Optimise A ^ A to 0.
 public abstract class StepGenerator : Generator
 {
     [Pure]
@@ -65,7 +69,7 @@ public abstract class StepGenerator : Generator
     {
         if (callStatement.Call.Function == PreDefinedFunction.Flags)
         {
-            return GenerateFlagsCall(context);
+            return FlagsGenerator.GenerateFlagsStatements(context);
         }
         if (callStatement.Call.Function == PreDefinedFunction.FinishInstruction)
         {
@@ -86,19 +90,6 @@ public abstract class StepGenerator : Generator
         }
 
         throw new NotSupportedException($"The function {callStatement.Call.Function} is not supported.");
-    }
-
-    [Pure]
-    private static IEnumerable<StatementSyntax> GenerateFlagsCall(StepContext context)
-    {
-        var arguments = context.Step.Instruction!.TemporaryVariablesUsedByFlags
-            .Select(t => Argument(IdentifierName(t)))
-            .Prepend(CreateEmulatorArgument());
-
-        var call = InvocationExpression(IdentifierName(GetFlagsMethodName(context.Step)))
-            .WithArgumentList(ArgumentList(SeparatedList(arguments)));
-
-        yield return ExpressionStatement(call);
     }
 
     [Pure]
@@ -123,7 +114,6 @@ public abstract class StepGenerator : Generator
 
             value = CastExpression(assignment.Target.TypeSyntax, value);
         }
-
 
         // If we're assigning to a temporary variable, initialize if necessary.
         ExpressionSyntax target;
@@ -205,7 +195,7 @@ public abstract class StepGenerator : Generator
         yield return ExpressionStatement(
             InvocationExpression(IdentifierName(GetStepFunctionName(context.Context.OpcodeReadFirstStep)))
                 .WithArgumentList(ArgumentList([CreateEmulatorArgument()])))
-            .WithLeadingTrivia(Comment("// Overlapped opcode read."));
+            .WithLeadingTrivia(NewlineComment, Comment("// Overlapped opcode read."));
     }
 
     [Pure]
