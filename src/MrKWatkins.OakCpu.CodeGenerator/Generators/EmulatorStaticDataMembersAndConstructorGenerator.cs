@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -42,13 +43,24 @@ public sealed class EmulatorStaticDataMembersAndConstructorGenerator : EmulatorC
     [Pure]
     private static StatementSyntax CreateInitializeStepsField(GeneratorContext context)
     {
-        var elements = context.AllSteps.Select(step => ExpressionElement(CreateStep(context, step)).WithLeadingTrivia(NewlineComment, IndentComment)).ToArray();
+        var stepCreations = context.AllSteps.Select(step => CreateStep(context, step)).Append(CreateErrorStep());
+
+        var elements = stepCreations.Select(step => ExpressionElement(step).WithLeadingTrivia(NewlineComment, IndentComment)).ToArray();
         elements[elements.Length - 1] = elements[elements.Length - 1].WithTrailingTrivia(NewlineComment);
+
         var value = CollectionExpression(SeparatedList<CollectionElementSyntax>(elements)).WithLeadingTrivia(NewlineComment);
 
         var assignment = AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(StepsFieldName), value);
 
         return ExpressionStatement(assignment).WithTrailingTrivia(NewlineComment);
+    }
+
+    [Pure]
+    private static ImplicitObjectCreationExpressionSyntax CreateErrorStep()
+    {
+        var handler = PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(ErrorFunctionName));
+
+        return CreateStepCreation(handler, 0, Action.None);
     }
 
     [Pure]
@@ -76,12 +88,17 @@ public sealed class EmulatorStaticDataMembersAndConstructorGenerator : EmulatorC
         {
             NextOpcodeMode.Read => 0,
             NextOpcodeMode.Overlapped => 1,
-            NextOpcodeMode.Custom => step.Index + 1, // TODO: Error step.
+            NextOpcodeMode.Custom => context.ErrorStepIndex,
             null => step.Index + 1,
             _ => throw new NotSupportedException($"The {nameof(NextOpcodeMode)} {step.NextOpcode} is not supported.")
         };
 
-        return ImplicitObjectCreationExpression()
+        return CreateStepCreation(handler, nextStep, step.GetAction(context));
+    }
+
+    [Pure]
+    private static ImplicitObjectCreationExpressionSyntax CreateStepCreation(ExpressionSyntax handler, int nextStep, Action action) =>
+        ImplicitObjectCreationExpression()
             .WithArgumentList(
                 ArgumentList([
                     Argument(handler),
@@ -91,9 +108,8 @@ public sealed class EmulatorStaticDataMembersAndConstructorGenerator : EmulatorC
                             SyntaxKind.SimpleMemberAccessExpression,
                             // TODO: static using for ActionRequired.
                             IdentifierName(ActionRequiredEnumName),
-                            IdentifierName(step.GetAction(context).EnumName)))
+                            IdentifierName(action.EnumName)))
                 ]));
-    }
 
     [Pure]
     private static MemberDeclarationSyntax CreateOpcodeStepTableField(OpcodeStepTable opcodeStepTable)
@@ -133,7 +149,7 @@ public sealed class EmulatorStaticDataMembersAndConstructorGenerator : EmulatorC
 
         foreach (var group in context.Instructions.GroupBy(context.Configuration.OpcodeStepTables.GetForInstruction))
         {
-            statements.Add(CreateOpcodeStepTableInitializationStatement(group.Key, group, duplicatesByOpcodeTable.TryGetValue(group.Key, out var duplicates) ? duplicates : []));
+            statements.Add(CreateOpcodeStepTableInitializationStatement(context, group.Key, group, duplicatesByOpcodeTable.TryGetValue(group.Key, out var duplicates) ? duplicates : []));
         }
 
         // Static constructor
@@ -198,9 +214,9 @@ public sealed class EmulatorStaticDataMembersAndConstructorGenerator : EmulatorC
     }
 
     [Pure]
-    private static StatementSyntax CreateOpcodeStepTableInitializationStatement(OpcodeStepTable opcodeStepTable, [InstantHandle] IEnumerable<Instruction> instructions, IReadOnlyList<(byte Opcode, Step Step)> duplicates)
+    private static StatementSyntax CreateOpcodeStepTableInitializationStatement(GeneratorContext context, OpcodeStepTable opcodeStepTable, [InstantHandle] IEnumerable<Instruction> instructions, IReadOnlyList<(byte Opcode, Step Step)> duplicates)
     {
-        var stepIndices = Enumerable.Repeat(65535, 256).ToArray();
+        var stepIndices = Enumerable.Repeat(context.ErrorStepIndex, 256).ToArray();
         foreach (var instruction in instructions)
         {
             stepIndices[instruction.Opcode] = instruction.Steps.First().Index;

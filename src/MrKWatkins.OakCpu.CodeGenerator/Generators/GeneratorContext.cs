@@ -45,6 +45,8 @@ public sealed class GeneratorContext
 
     public Step OpcodeReadFirstStep => OpcodeRead[0];
 
+    public int ErrorStepIndex => AllSteps.Count;
+
     [Pure]
     public NamespaceDeclarationSyntax CreateRootNamespaceDeclaration() => SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(RootNamespace));
 

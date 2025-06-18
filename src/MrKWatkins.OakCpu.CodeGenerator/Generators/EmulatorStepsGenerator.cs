@@ -19,8 +19,19 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
 
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration
-            .AddMembers(CreateStepMethod(context))
+            .AddMembers(CreateStepMethod(context), CreateErrorFunction(context))
             .AddMembers(context.AllSteps.Where(s => !s.DoesNothing).Select(step => CreateStepFunction(context, step)).ToArray());
+
+    [Pure]
+    private static MemberDeclarationSyntax CreateErrorFunction(GeneratorContext context)
+    {
+        var throwStatement = ThrowStatement(
+            ObjectCreationExpression(IdentifierName(nameof(NotSupportedException)))
+                .WithArgumentList(
+                    ArgumentList([Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Opcode not supported")))])));
+
+        return CreateFunction(context, ErrorFunctionName, [throwStatement]);
+    }
 
     [Pure]
     private static MemberDeclarationSyntax CreateStepFunction(GeneratorContext context, Step step)
@@ -29,10 +40,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
 
         var comment = Comment($"// {step.Name}");
 
-        var function = MethodDeclaration(Void, Identifier(GetStepFunctionName(step)))
-            .WithModifiers([Private, Static])
-            .WithParameterList(ParameterList([CreateEmulatorParameter(context)]))
-            .WithBody(Block(statements));
+        var function = CreateFunction(context, GetStepFunctionName(step), statements);
 
         // Aggressively inline step 0 as it is called for overlapped reads.
         function = step == context.OpcodeReadFirstStep
@@ -41,6 +49,13 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
 
         return function;
     }
+
+    [Pure]
+    private static MemberDeclarationSyntax CreateFunction(GeneratorContext context, string name, IEnumerable<StatementSyntax> statements) =>
+        MethodDeclaration(Void, Identifier(name))
+            .WithModifiers([Private, Static])
+            .WithParameterList(ParameterList([CreateEmulatorParameter(context)]))
+            .WithBody(Block(statements));
 
     [Pure]
     private static MethodDeclarationSyntax CreateStepMethod(GeneratorContext context)

@@ -15,6 +15,7 @@ public abstract class Generator
     protected const string StepNextStepFieldName = "NextStep";
     protected const string StepActionRequiredFieldName = "ActionRequired";
     protected const string EmulatorParameterName = "emulator";
+    protected const string ErrorFunctionName = "Error";
     private const string StepFunctionPrefix = "Step_";
 
     // Filthy hackery to put some newlines and indents where we want because NormalizeWhitespace will remove any normal whitespace we add.

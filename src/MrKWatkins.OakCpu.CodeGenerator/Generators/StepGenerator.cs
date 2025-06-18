@@ -10,8 +10,6 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-// TODO: Remove pointless assignments at the step level so they can be treated as empty steps.
-// TODO: Do nothing for steps that are just overlapped opcode reads; just execute step 0.
 // TODO: Optimise A ^ A to 0.
 public abstract class StepGenerator : Generator
 {
@@ -130,11 +128,6 @@ public abstract class StepGenerator : Generator
             target = ExpressionGenerator.GenerateExpressionSyntax(context, assignment.Target);
         }
 
-        if (target.ToString() == value.ToString())
-        {
-            //context.CommentsAheadOfNextStatement.Add($"Skipping {assignment}.");
-            yield break;
-        }
         yield return ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, target, value));
     }
 
