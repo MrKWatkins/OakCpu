@@ -17,7 +17,9 @@ public abstract class FlagsGenerator : Generator
         var instruction = context.Step.Instruction ?? throw new InvalidOperationException("Cannot use flags() outside of an instruction.");
 
         IReadOnlyList<FlagAction> actions = FlagAction.Create(context, instruction).ToList();
-        actions = FlagOptimization.PerformAllOptimizations(context, actions);
+
+        var commentsBeforeInitialize = new List<string> { NewlineCommentText, "// Update flags." };
+        actions = FlagOptimization.PerformAllOptimizations(context, actions, commentsBeforeInitialize);
 
         var initialized = false;
         foreach (var action in actions.OrderBy(a => a.Order))
@@ -26,7 +28,7 @@ public abstract class FlagsGenerator : Generator
             var comment = action.GenerateComment(context);
             if (!initialized)
             {
-                yield return CreateInitialize(expression, comment);
+                yield return CreateInitialize(expression, comment, commentsBeforeInitialize);
                 initialized = true;
             }
             else
@@ -43,8 +45,8 @@ public abstract class FlagsGenerator : Generator
                     context.Configuration.FlagsRegister.TypeSyntax, IdentifierName(FlagsVariableName))));
     }
 
-    private static StatementSyntax CreateInitialize(ExpressionSyntax expression, string comment) =>
-        InitializeVariableStatement(FlagsVariableName, expression).WithLeadingTrivia(NewlineComment, Comment("// Update flags.")).WithTrailingTrivia(Comment(comment));
+    private static StatementSyntax CreateInitialize(ExpressionSyntax expression, string comment, List<string> commentsBeforeInitialize) =>
+        InitializeVariableStatement(FlagsVariableName, expression).WithLeadingTrivia(commentsBeforeInitialize.Select(Comment)).WithTrailingTrivia(Comment(comment));
 
     [Pure]
     private static StatementSyntax CreateFlagsOrAssignment(ExpressionSyntax expression, string comment) =>

@@ -18,7 +18,8 @@ public abstract class Generator
     private const string StepFunctionPrefix = "Step_";
 
     // Filthy hackery to put some newlines and indents where we want because NormalizeWhitespace will remove any normal whitespace we add.
-    protected static readonly SyntaxTrivia NewlineComment = Comment("// Newline");
+    protected static readonly string NewlineCommentText = "// Newline";
+    protected static readonly SyntaxTrivia NewlineComment = Comment(NewlineCommentText);
     protected static readonly SyntaxTrivia IndentComment = Comment("// Indent");
 
     private protected Generator()
