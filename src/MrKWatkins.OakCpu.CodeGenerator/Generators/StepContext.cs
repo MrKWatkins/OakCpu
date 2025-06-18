@@ -6,23 +6,23 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public sealed class StepContext
 {
-    public StepContext(GeneratorContext context, Step step)
-        : this(context, step, new HashSet<string>(), ImmutableDictionary<string, Expression>.Empty, false)
+    public StepContext(GeneratorContext generatorContext, Step step)
+        : this(generatorContext, step, new HashSet<string>(), ImmutableDictionary<string, Expression>.Empty, false)
     {
     }
 
-    private StepContext(GeneratorContext context, Step step, HashSet<string> initializedTemporaryVariables, ImmutableDictionary<string, Expression> argumentScope, bool inBooleanContext)
+    private StepContext(GeneratorContext generatorContext, Step step, HashSet<string> initializedTemporaryVariables, ImmutableDictionary<string, Expression> argumentScope, bool inBooleanContext)
     {
-        Context = context;
+        GeneratorContext = generatorContext;
         Step = step;
         InitializedTemporaryVariables = initializedTemporaryVariables;
         ArgumentScope = argumentScope;
         InBooleanContext = inBooleanContext;
     }
 
-    public GeneratorContext Context { get; }
+    public GeneratorContext GeneratorContext { get; }
 
-    public Configuration Configuration => Context.Configuration;
+    public Configuration Configuration => GeneratorContext.Configuration;
 
     public Step Step { get; }
 
@@ -37,9 +37,9 @@ public sealed class StepContext
     {
         var newScope = ArgumentScope.AddRange(parameters.Zip(arguments, (p, a) => new KeyValuePair<string, Expression>(p, a)).Where(t => !ArgumentScope.ContainsKey(t.Key)));
 
-        return new StepContext(Context, Step, InitializedTemporaryVariables, newScope, InBooleanContext);
+        return new StepContext(GeneratorContext, Step, InitializedTemporaryVariables, newScope, InBooleanContext);
     }
 
     [Pure]
-    public StepContext WithBooleanContext() => new(Context, Step, InitializedTemporaryVariables, ArgumentScope, true);
+    public StepContext WithBooleanContext() => new(GeneratorContext, Step, InitializedTemporaryVariables, ArgumentScope, true);
 }

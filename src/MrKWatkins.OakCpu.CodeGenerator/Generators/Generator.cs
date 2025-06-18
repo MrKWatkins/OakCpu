@@ -33,7 +33,21 @@ public abstract class Generator
                     .WithInitializer(EqualsValueClause(value)))));
 
     [Pure]
-    protected static string GetFlagsMethodName(Step step) => $"Flags_{step.Index}";
+    protected static ExpressionSyntax CreateArrayGetWithoutBoundsCheck(GeneratorContext context, ExpressionSyntax array, ExpressionSyntax index)
+    {
+        context.RequiredUsings.Add("System.Runtime.CompilerServices");
+        context.RequiredUsings.Add("System.Runtime.InteropServices");
+
+        // Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(values), index);
+        return InvocationExpression(
+                MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("Unsafe"), IdentifierName("Add")))
+            .WithArgumentList(
+                ArgumentList([
+                    Argument(InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("MemoryMarshal"), IdentifierName("GetArrayDataReference")))
+                            .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(array)))))
+                        .WithRefKindKeyword(Token(SyntaxKind.RefKeyword)),
+                    Argument(index)]));
+    }
 
     [Pure]
     protected static PredefinedTypeSyntax Bool => PredefinedType(Token(SyntaxKind.BoolKeyword));

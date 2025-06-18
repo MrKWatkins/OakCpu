@@ -36,7 +36,7 @@ internal sealed class BoolExpression : FlagAction
 
     private static ExpressionSyntax GenerateBitCastFromBoolToByte(StepContext context, ExpressionSyntax value)
     {
-        context.Context.RequiredUsings.Add("System.Runtime.CompilerServices");
+        context.GeneratorContext.RequiredUsings.Add("System.Runtime.CompilerServices");
 
         return InvocationExpression(
                 MemberAccessExpression(

@@ -77,12 +77,11 @@ public abstract class StepGenerator : Generator
         }
         if (callStatement.Call.Function == PreDefinedFunction.MoveToOpcode)
         {
-            return GenerateMoveToOpcode();
+            return GenerateMoveToOpcode(context);
         }
         if (callStatement.Call.Function == PreDefinedFunction.Request)
         {
-            return GenerateRequest(
-                (callStatement.Call.Arguments.FirstOrDefault() as ActionAccess)?.Action ?? throw new InvalidOperationException("The request function must have an action as the first argument."));
+            return GenerateRequest((callStatement.Call.Arguments.FirstOrDefault() as ActionAccess)?.Action ?? throw new InvalidOperationException("The request function must have an action as the first argument."));
         }
         if (callStatement.Call.Function == PreDefinedFunction.SetOpcodeStepTable)
         {
@@ -177,13 +176,13 @@ public abstract class StepGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateMoveToOpcode()
+    private static IEnumerable<StatementSyntax> GenerateMoveToOpcode(StepContext context)
     {
         // TODO: Version without bounds checks, don't rely on the JIT.
-        var getOpcode =
-            ElementAccessExpression(
-                EmulatorMemberIdentifier(PreDefinedDataMember.OpcodeStepTable.FieldName),
-                BracketedArgumentList([Argument(EmulatorMemberIdentifier(PreDefinedDataMember.Data.FieldName))]));
+        var getOpcode = CreateArrayGetWithoutBoundsCheck(
+            context.GeneratorContext,
+            EmulatorMemberIdentifier(PreDefinedDataMember.OpcodeStepTable.FieldName),
+            EmulatorMemberIdentifier(PreDefinedDataMember.Data.FieldName));
 
         yield return CreateSetStep(getOpcode);
     }
@@ -193,7 +192,7 @@ public abstract class StepGenerator : Generator
     {
         // Execute step 0. No need to set step 1; the NextOpcode handling above will cover that.
         yield return ExpressionStatement(
-            InvocationExpression(IdentifierName(GetStepFunctionName(context.Context.OpcodeReadFirstStep)))
+            InvocationExpression(IdentifierName(GetStepFunctionName(context.GeneratorContext.OpcodeReadFirstStep)))
                 .WithArgumentList(ArgumentList([CreateEmulatorArgument()])))
             .WithLeadingTrivia(NewlineComment, Comment("// Overlapped opcode read."));
     }

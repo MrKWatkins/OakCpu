@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using Action = System.Action;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -19,7 +18,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
 
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration
-            .AddMembers(CreateStepMethod())
+            .AddMembers(CreateStepMethod(context))
             .AddMembers(context.AllSteps.Where(s => !s.DoesNothing).Select(step => CreateStepFunction(context, step)).ToArray());
 
     [Pure]
@@ -35,7 +34,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     }
 
     [Pure]
-    private static MethodDeclarationSyntax CreateStepMethod()
+    private static MethodDeclarationSyntax CreateStepMethod(GeneratorContext context)
     {
         const string stepVariableName = "step";
 
@@ -50,10 +49,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
                         .WithVariables([
                             VariableDeclarator(stepVariableName)
                                 .WithInitializer(
-                                    EqualsValueClause(
-                                        ElementAccessExpression(IdentifierName(StepsFieldName))
-                                            .WithArgumentList(
-                                                BracketedArgumentList([Argument(IdentifierName(PreDefinedDataMember.CurrentStep.FieldName))]))))
+                                    EqualsValueClause(CreateArrayGetWithoutBoundsCheck(context, IdentifierName(StepsFieldName), IdentifierName(PreDefinedDataMember.CurrentStep.FieldName))))
                         ])),
 
                 // currentStep = node.NextStep;
