@@ -125,3 +125,33 @@ instructions:
       Y: copy_from($result)
       Z: is_zero(A)
       S: copy_from($result)
+
+  - group: SBC
+    mnemonic: SBC HL, RP0
+    opcodes:
+      - opcode: 0xED 0x42
+        RP0: BC
+      - opcode: 0xED 0x52
+        RP0: DE
+      - opcode: 0xED 0x62
+        RP0: HL
+      - opcode: 0xED 0x72
+        RP0: SP
+    steps:
+      - $left = HL; $right = RP0; $result = $left - $right - flag.C; HL = $result; WZ = $left + 1; flags();
+      -
+      -
+      -
+      -
+      -
+      -
+    flags:
+      C: ($result & 0x10000) == 0x10000
+      N: 1
+      PV: did_16_bit_subtraction_overflow($left, $right, $result)
+      X: copy_from(H)
+      H: did_16_bit_subtraction_half_borrow($left, $right, $result)
+      Y: copy_from(H)
+      Z: is_zero(HL)
+      S: copy_from(H)
+

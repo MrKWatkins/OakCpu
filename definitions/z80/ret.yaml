@@ -39,4 +39,34 @@ instructions:
       - 
       - Address = SP; SP = SP + 1; request(action.memory_read);
       - W = Data; PC = WZ;
-      - 
+      -
+
+  - group: RETN
+    mnemonic: RETN
+    opcodes:
+      - opcode: 0xED 0x45
+      - opcode: 0xED 0x55
+      - opcode: 0xED 0x65
+      - opcode: 0xED 0x75
+    steps:
+      - Address = SP; SP = SP + 1; request(action.memory_read);
+      - Z = Data;
+      -
+      - Address = SP; SP = SP + 1; request(action.memory_read);
+      - W = Data; PC = WZ;
+      - IFF1 = IFF2;
+
+  - group: RETI
+    mnemonic: RETI
+    opcodes:
+      - opcode: 0xED 0x4D
+      - opcode: 0xED 0x5D
+      - opcode: 0xED 0x6D
+      - opcode: 0xED 0x7D
+    steps:
+      - Address = SP; SP = SP + 1; request(action.memory_read);
+      - Z = Data;
+      -
+      - Address = SP; SP = SP + 1; request(action.memory_read);
+      - W = Data; PC = WZ;
+      - IFF1 = IFF2;
