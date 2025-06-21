@@ -46,11 +46,11 @@ public sealed class Instruction
 
     public IReadOnlyList<(byte? Prefix, byte Opcode, Step Step)> Duplicates { get; }
 
-    public IEnumerable<string> TemporaryVariablesUsedByFlags => Flags.Values.SelectMany(s => s.Traverse().OfType<TemporaryVariableAccess>().Select(t => t.Name)).Distinct().OrderBy(n => n);
-
     [Pure]
     public static IReadOnlyList<Instruction> Create(ParserContext context, IReadOnlyList<InstructionYaml> yamls)
     {
+        VerifyNoDuplicateOpcodes(yamls);
+
         var instructions = yamls.SelectMany(y => Create(context, y)).OrderBy(i => i.OpcodeTable).ThenBy(i => i.Prefix).ThenBy(i => i.Opcode).ToList();
 
         var prefixInstructions = CreatePrefixJumpInstructions(context, instructions);
@@ -161,5 +161,18 @@ public sealed class Instruction
         }
 
         return value;
+    }
+
+    private static void VerifyNoDuplicateOpcodes(IReadOnlyList<InstructionYaml> yamls)
+    {
+        var firstDuplicates = yamls.SelectMany(y => y.Opcodes.Select(o => (y.OpcodeTable, o.PrefixByte, o.OpcodeByte))).GroupBy(x => x).FirstOrDefault(g => g.Count() > 1);
+        if (firstDuplicates != null)
+        {
+            var duplicates = firstDuplicates.Key;
+            var groupText = duplicates.OpcodeTable != null ? $"in opcode table {duplicates.OpcodeTable} " : "";
+
+            throw new InvalidOperationException(
+                $"The opcodes {groupText}are defined multiple times: {(duplicates.PrefixByte.HasValue ? $"0x{duplicates.PrefixByte.Value:X2} " : "")}0x{duplicates.OpcodeByte:X2}");
+        }
     }
 }

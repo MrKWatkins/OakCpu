@@ -81,8 +81,6 @@ instructions:
     mnemonic: SUB (HL)
     opcodes:
       - opcode: 0x96
-      - opcode: 0xDD 0x96
-      - opcode: 0xFD 0x96
     steps:
       - Address = HL; request(action.memory_read);
       - $left = A; $right = Data; $result = $left - $right; A = $result; flags();

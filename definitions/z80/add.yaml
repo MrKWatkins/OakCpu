@@ -136,8 +136,6 @@ instructions:
     mnemonic: ADD A, (HL)
     opcodes:
       - opcode: 0x86
-      - opcode: 0xDD 0x86
-      - opcode: 0xFD 0x86
     steps:
       - Address = HL; request(action.memory_read);
       - 

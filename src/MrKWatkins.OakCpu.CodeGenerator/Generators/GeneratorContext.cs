@@ -79,7 +79,6 @@ public sealed class GeneratorContext
         var opcodeRead = Step.Parse("Opcode read", context, yaml.OpcodeRead);
 
         var instructions = Instruction.Create(context, yaml.Instructions);
-        VerifyNoDuplicateOpcodes(instructions);
 
         var opcodePrefixes = instructions.Where(i => i.Prefix.HasValue).Select(i => i.Prefix!.Value).Distinct().OrderBy(p => p).ToList();
 
@@ -104,21 +103,6 @@ public sealed class GeneratorContext
         catch (Exception exception)
         {
             throw new IOException($"Could not load YAML file {Path.GetFullPath(text.Path)}.", exception);
-        }
-    }
-
-    private static void VerifyNoDuplicateOpcodes(IReadOnlyList<Instruction> instructions)
-    {
-        foreach (var group in instructions.GroupBy(i => i.OpcodeTable))
-        {
-            var duplicates = group.GroupBy(i => (i.Prefix, i.Opcode)).Where(g => g.Count() > 1).ToList();
-            if (duplicates.Count > 0)
-            {
-                var groupText = group != null ? $"in opcode table {group.Key}" : "";
-
-                throw new InvalidOperationException(
-                    $"The following opcodes {groupText} are defined multiple times: {string.Join("\n", duplicates.Select(g => $"{(g.Key.Prefix.HasValue ? $"0x{g.Key.Prefix.Value:X2} " : "")}0x{g.Key.Opcode:X2} [{string.Join(", ", g.Select(i => i.Mnemonic))}]"))}");
-            }
         }
     }
 }
