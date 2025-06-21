@@ -28,4 +28,3 @@ instructions:
       - Address = PC; PC = PC + 1; request(action.memory_read);
       - R0 = Data;
       - 
-    next_opcode: overlapped

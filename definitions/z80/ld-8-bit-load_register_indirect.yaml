@@ -13,7 +13,6 @@ instructions:
       - Address = WZ; WZ = WZ + 1; request(action.memory_read);
       - A = Data;
       - 
-    next_opcode: overlapped
 
   - group: LD
     mnemonic: LD R0, (RP0 + d)

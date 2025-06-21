@@ -1,0 +1,5 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\MrKWatkins.OakCpu.Z80.TestSuites\MrKWatkins.OakCpu.Z80.TestSuites.csproj" />
+  </ItemGroup>
+</Project>

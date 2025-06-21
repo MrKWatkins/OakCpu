@@ -2,7 +2,7 @@ using System.Buffers.Binary;
 
 namespace MrKWatkins.OakCpu.Z80.TestSuites.Program;
 
-public abstract class ProgramTestSuite<TTestCase> : TestSuite<TTestCase>
+public abstract class ProgramTestSuite<TTestCase> : TestSuite
     where TTestCase : TestCase
 {
     private readonly Lazy<IReadOnlyList<TTestCase>> lazyTestCases;
@@ -15,7 +15,7 @@ public abstract class ProgramTestSuite<TTestCase> : TestSuite<TTestCase>
 
     protected abstract ushort TestTableAddress { get; }
 
-    public sealed override IReadOnlyList<TTestCase> TestCases => lazyTestCases.Value;
+    public IReadOnlyList<TTestCase> TestCases => lazyTestCases.Value;
 
     [Pure]
     private IEnumerable<TTestCase> EnumerateTestCases()

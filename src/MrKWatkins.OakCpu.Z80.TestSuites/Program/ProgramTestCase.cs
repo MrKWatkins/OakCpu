@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace MrKWatkins.OakCpu.Z80.TestSuites.Program;
 
 public abstract class ProgramTestCase : TestCase
@@ -12,13 +10,6 @@ public abstract class ProgramTestCase : TestCase
     {
         this.testAddress = testAddress;
         this.memory = memory;
-    }
-
-    public ushort Address
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-        set;
     }
 
     public override void Execute<TTestHarness>(TextWriter? testOutput = null)
@@ -35,7 +26,7 @@ public abstract class ProgramTestCase : TestCase
         var stopAddress = StopAddress;
         while (true)
         {
-            z80.ExecuteStep();
+            z80.Step();
 
             var pc = z80.RegisterPC;
             if (pc == PrintInterceptor.PrintRoutineAddress)

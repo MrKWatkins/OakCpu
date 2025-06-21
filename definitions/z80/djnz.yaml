@@ -6,8 +6,8 @@ instructions:
     steps:
       - 
       - Address = PC; PC = PC + 1; request(action.memory_read);
-      - B = B - 1; if B == 0; finish_instruction(); endif;
-      - PC = PC + signed(Data); WZ = PC;
+      - 
+      - B = B - 1; if B == 0; finish_instruction(); else; PC = PC + signed(Data); WZ = PC; endif;
       - 
       - 
       - 

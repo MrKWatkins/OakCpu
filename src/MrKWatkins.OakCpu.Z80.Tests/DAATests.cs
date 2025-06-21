@@ -2,6 +2,7 @@ using FluentAssertions.Execution;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 
+// TODO: Make into a test suite. Remove FluentAssertions.
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public sealed class DAATests
 {

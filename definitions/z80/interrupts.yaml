@@ -58,7 +58,7 @@ instructions:
     next_opcode: overlapped
     
   - group: Interrupts
-    mnemonic: IM 1
+    mnemonic: IM 2
     opcodes:
       - opcode: 0xED 0x5E
       - opcode: 0xED 0x7E

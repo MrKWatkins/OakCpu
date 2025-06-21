@@ -63,8 +63,8 @@ instructions:
     steps:
       - Address = HL; request(action.memory_read);
       - 
-      - 
       - Data = Data + 1; flags();
+      - 
       - request(action.memory_write); # Skipping setting Address = HL as it should still contain HL. Skipping setting Data as it should still contain Data + 1.
       - 
       - 
@@ -94,8 +94,8 @@ instructions:
       -
       -
       - WZ = RP0 + signed(Data); Address = WZ; request(action.memory_read);
+      - 
       - Data = Data + 1; flags();
-      -
       -
       - request(action.memory_write);
       -

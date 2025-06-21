@@ -62,8 +62,8 @@ instructions:
       - opcode: 0x35
     steps:
       - Address = HL; request(action.memory_read);
-      - Data = Data - 1; flags();
       - 
+      - Data = Data - 1; flags();
       - 
       - request(action.memory_write); # Skipping Address = HL as it should still contain HL. Data should still contain Data + 1.
       - 
@@ -94,8 +94,8 @@ instructions:
       -
       -
       - WZ = RP0 + signed(Data); Address = WZ; request(action.memory_read);
-      - Data = Data - 1; flags();
       - 
+      - Data = Data - 1; flags();
       - 
       - request(action.memory_write);
       - 

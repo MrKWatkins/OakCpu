@@ -80,8 +80,8 @@ instructions:
         C0: C
     steps:
       - Address = PC; PC = PC + 1; request(action.memory_read);
-      - if !condition.C0; finish_instruction(); endif;
       - 
+      - if !condition.C0; finish_instruction(); endif;
       - PC = PC + signed(Data); WZ = PC;
       - 
       - 

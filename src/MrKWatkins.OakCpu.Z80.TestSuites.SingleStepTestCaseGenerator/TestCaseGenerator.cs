@@ -1,0 +1,88 @@
+using System.IO.Compression;
+using MrKWatkins.OakCpu.Z80.TestSuites.SingleStepTestCaseGenerator.Json;
+
+namespace MrKWatkins.OakCpu.Z80.TestSuites.SingleStepTestCaseGenerator;
+
+public static class TestCaseGenerator
+{
+    public static async ValueTask Generate(IReadOnlyList<TestStep> steps)
+    {
+        var name = steps[0].Name[..^5];
+        var output = Path.Combine(Directory.Output, $"{name}");
+
+        await using var stream = File.Create(output);
+        await using var compressed = new BrotliStream(stream, new BrotliCompressionOptions { Quality = 11 });
+        await using var binaryWriter = new BinaryWriter(compressed);
+        WriteSteps(binaryWriter, steps);
+
+        Console.WriteLine($"Generated test case {name} at {output}");
+    }
+
+    private static void WriteSteps(BinaryWriter binaryWriter, IReadOnlyList<TestStep> steps)
+    {
+        binaryWriter.Write7BitEncodedInt(steps.Count);
+        foreach (var step in steps)
+        {
+            WriteStep(binaryWriter, step);
+        }
+    }
+
+    private static void WriteStep(BinaryWriter binaryWriter, TestStep step)
+    {
+        WriteTestState(binaryWriter, step.Initial);
+        WriteTestState(binaryWriter, step.Final);
+        WriteCycles(binaryWriter, step.Cycles);
+    }
+
+    private static void WriteCycles(BinaryWriter binaryWriter, IReadOnlyList<Cycle> cycles)
+    {
+        binaryWriter.Write7BitEncodedInt(cycles.Count);
+        foreach (var cycle in cycles)
+        {
+            var hasDataAndPins = (byte)cycle.Pins;
+            if (cycle.Data != null)
+            {
+                hasDataAndPins |= 0b10000000;
+            }
+
+            binaryWriter.Write(cycle.Address);
+            binaryWriter.Write(cycle.Data ?? 0);
+            binaryWriter.Write(hasDataAndPins);
+        }
+    }
+
+    private static void WriteTestState(BinaryWriter binaryWriter, TestState testState)
+    {
+        binaryWriter.Write(testState.F);
+        binaryWriter.Write(testState.A);
+        binaryWriter.Write(testState.C);
+        binaryWriter.Write(testState.B);
+        binaryWriter.Write(testState.E);
+        binaryWriter.Write(testState.D);
+        binaryWriter.Write(testState.L);
+        binaryWriter.Write(testState.H);
+        binaryWriter.Write(testState.IX);
+        binaryWriter.Write(testState.IY);
+        binaryWriter.Write(testState.SP);
+        binaryWriter.Write(testState.PC);
+        binaryWriter.Write(testState.WZ);
+        binaryWriter.Write(testState.I);
+        binaryWriter.Write(testState.R);
+        binaryWriter.Write(testState.ShadowAF);
+        binaryWriter.Write(testState.ShadowBC);
+        binaryWriter.Write(testState.ShadowDE);
+        binaryWriter.Write(testState.ShadowHL);
+
+        int interrupts = testState.IFF1;
+        interrupts |= testState.IFF2 << 1;
+        interrupts |= testState.IM << 2;
+        binaryWriter.Write((byte)interrupts);
+
+        binaryWriter.Write7BitEncodedInt(testState.Ram.Length);
+        foreach (var ram in testState.Ram)
+        {
+            binaryWriter.Write((ushort)ram[0]);
+            binaryWriter.Write((byte)ram[1]);
+        }
+    }
+}

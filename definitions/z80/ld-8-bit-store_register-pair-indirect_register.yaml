@@ -10,7 +10,6 @@ instructions:
       - Address = RP0; Data = A; Z = RP0L + 1; W = A; request(action.memory_write);
       - 
       - 
-    next_opcode: overlapped
     
   - group: LD
     mnemonic: LD (HL), R0

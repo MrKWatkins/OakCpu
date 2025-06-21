@@ -64,7 +64,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
     
   - group: RLC
     mnemonic: RLC (IX + d)
@@ -90,7 +89,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
     
   - group: RLC
     mnemonic: RLC (IX + d), R0
@@ -129,7 +127,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
 
   - group: RLC
     mnemonic: RLC (IY + d)
@@ -155,7 +152,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
 
   - group: RLC
     mnemonic: RLC (IY + d), R0
@@ -194,7 +190,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
     
   - group: RLA
     mnemonic: RLA
@@ -261,7 +256,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
 
   - group: RL
     mnemonic: RL (IX + d)
@@ -287,7 +281,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
 
   - group: RL
     mnemonic: RL (IX + d), R0
@@ -326,7 +319,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
 
   - group: RL
     mnemonic: RL (IY + d)
@@ -352,7 +344,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
 
   - group: RL
     mnemonic: RL (IY + d), R0
@@ -391,7 +382,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
     
   - group: RRCA
     mnemonic: RRCA
@@ -458,7 +448,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
 
   - group: RRC
     mnemonic: RRC (IX + d)
@@ -484,7 +473,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
 
   - group: RRC
     mnemonic: RRC (IX + d), R0
@@ -523,7 +511,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
 
   - group: RRC
     mnemonic: RRC (IY + d)
@@ -549,7 +536,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
 
   - group: RRC
     mnemonic: RRC (IY + d), R0
@@ -588,7 +574,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
     
   - group: RRA
     mnemonic: RRA
@@ -655,7 +640,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
     
   - group: RR
     mnemonic: RR (IX + d)
@@ -681,7 +665,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
 
   - group: RR
     mnemonic: RR (IX + d), R0
@@ -720,7 +703,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
 
   - group: RR
     mnemonic: RR (IY + d)
@@ -746,7 +728,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
 
   - group: RR
     mnemonic: RR (IY + d), R0
@@ -785,7 +766,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
     
   - group: RRD
     mnemonic: RRD

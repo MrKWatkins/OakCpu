@@ -78,7 +78,6 @@ instructions:
       Y: copy_from($result)
       Z: is_zero(A)
       S: copy_from($result)
-    next_opcode: overlapped
     
   - group: ADC
     mnemonic: ADC A, (HL)

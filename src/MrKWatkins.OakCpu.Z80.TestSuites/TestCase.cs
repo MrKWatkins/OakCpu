@@ -12,5 +12,5 @@ public abstract class TestCase
     public abstract void Execute<TTestHarness>(TextWriter? testOutput = null)
         where TTestHarness : Z80TestHarness, new();
 
-    public override string ToString() => Name;
+    public sealed override string ToString() => Name;
 }

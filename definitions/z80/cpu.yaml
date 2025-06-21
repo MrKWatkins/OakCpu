@@ -14,7 +14,7 @@ cpu:
 opcode_read:
   - Address = PC; PC = PC + 1; request(action.opcode_read);
   - 
-  - R = (R & 0x80) | ((R + 1) & 0x7F); Address = IR;  # TODO: Visual Z80 remix implies IR goes on the bus before increment; but Fuse contention tests imply after.
+  - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);
   - move_to_opcode();
 
 instructions:    

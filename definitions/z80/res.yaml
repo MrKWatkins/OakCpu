@@ -208,7 +208,6 @@ instructions:
       - Data = Data & ~(1 << N0); request(action.memory_write);
       -
       -
-    next_opcode: overlapped
 
   - group: RES
     mnemonic: RES N0, (IX + d)

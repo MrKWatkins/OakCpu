@@ -1,7 +1,6 @@
 namespace MrKWatkins.OakCpu.Z80.TestSuites;
 
-public abstract class TestSuite<TTestCase>
-    where TTestCase : TestCase
+public abstract class TestSuite
 {
     private protected TestSuite(string name, Uri source)
     {
@@ -12,8 +11,6 @@ public abstract class TestSuite<TTestCase>
     public string Name { get; }
 
     public Uri Source { get; }
-
-    public abstract IEnumerable<TTestCase> TestCases { get; }
 
     [MustDisposeResource]
     protected Stream OpenResource(string resource) => GetType().Assembly.GetManifestResourceStream(GetType(), resource) ?? throw new InvalidOperationException($"Resource {resource} not found.");

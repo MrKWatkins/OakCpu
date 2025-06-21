@@ -208,7 +208,6 @@ instructions:
       - request(action.memory_write);
       -
       -
-    next_opcode: overlapped
 
   - group: SET
     mnemonic: SET N0, (IX + d)

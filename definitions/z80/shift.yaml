@@ -51,7 +51,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
     
   - group: SLL
     mnemonic: SLL R0
@@ -104,7 +103,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
         
   - group: SRA
     mnemonic: SRA R0
@@ -157,7 +155,6 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped
 
   - group: SRL
     mnemonic: SRL R0
@@ -210,4 +207,3 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    next_opcode: overlapped

@@ -1,14 +1,17 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using MrKWatkins.OakCpu.Z80.TestSuites.InstructionLevel;
+using MrKWatkins.OakCpu.Z80.TestSuites.Instruction;
 
 namespace MrKWatkins.OakCpu.Z80.TestSuites;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
+#pragma warning disable CA1001
 public abstract class Z80TestHarness
+#pragma warning restore CA1001
 {
     private readonly byte[] memory = new byte[65536];
     private readonly List<IOWrite> ioWrites = new();
+    private AssertionScope? assertionScope;
 
     public abstract ushort RegisterAF { get; set; }
 
@@ -110,7 +113,7 @@ public abstract class Z80TestHarness
 
     public abstract byte IM { get; set; }
 
-    public abstract bool IsHalted { get; set; }
+    public abstract bool Halted { get; set; }
 
     public ulong TStates
     {
@@ -180,16 +183,37 @@ public abstract class Z80TestHarness
     }
 
     [MustDisposeResource]
-    public virtual IDisposable CreateAssertionScope() => NullDisposable.Instance;
+    public IDisposable CreateAssertionScope(string? name = null)
+    {
+        if (assertionScope != null)
+        {
+            throw new InvalidOperationException("Cannot create a nested assertion scope.");
+        }
 
-    public abstract void AssertEqual<T>(T actual, T expected, string? message = null);
+        assertionScope = new AssertionScope(this, name);
+        return assertionScope;
+    }
+
+    public void AssertEqual<T>(T actual, T expected, string message)
+    {
+        if (!EqualityComparer<T>.Default.Equals(actual, expected))
+        {
+            if (assertionScope != null)
+            {
+                assertionScope.AddError(message);
+            }
+            else
+            {
+                AssertFail(message);
+            }
+        }
+    }
 
     public abstract void AssertFail(string message);
 
-    public abstract void ExecuteStep();
+    public abstract void Step();
 
-    [MustUseReturnValue]
-    public abstract IEnumerable<TestEvent> ExecuteStepRecordingEvents();
+    public abstract Cycle Cycle();
 
     public abstract void ExecuteInstruction();
 
@@ -205,16 +229,20 @@ public abstract class Z80TestHarness
     [Pure]
     private static ushort SetHighByte(ushort value, byte highByte) => (ushort)((value & 0xFF00) | highByte);
 
-    private sealed class NullDisposable : IDisposable
+    private sealed class AssertionScope(Z80TestHarness z80, string? name) : IDisposable
     {
-        public static readonly NullDisposable Instance = new();
+        private readonly List<string> errors = new();
 
-        private NullDisposable()
-        {
-        }
+        public void AddError(string error) => errors.Add(error);
 
         public void Dispose()
         {
+            if (errors.Any())
+            {
+                var prefix = name != null ? $"{name} failed:{Environment.NewLine}{Environment.NewLine}" : "";
+
+                z80.AssertFail(prefix + string.Join(Environment.NewLine, errors) + Environment.NewLine);
+            }
         }
     }
 }

@@ -1,13 +1,10 @@
-using FluentAssertions.Execution;
 using MrKWatkins.OakCpu.Z80.TestSuites;
-using MrKWatkins.OakCpu.Z80.TestSuites.InstructionLevel;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 
 public sealed class Z80EmulatorTestHarness : Z80TestHarness
 {
     private readonly Z80Emulator emulator = new();
-    private ulong noContentionUntil;
 
     public override ushort RegisterAF
     {
@@ -165,32 +162,26 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
         set => emulator.Interrupts.IM = value;
     }
 
-    public override bool IsHalted
+    public override bool Halted
     {
         get => emulator.Interrupts.IsHalted;
         set => emulator.Interrupts.IsHalted = value;
     }
 
-    public override IDisposable CreateAssertionScope() => new AssertionScope();
+    public override void AssertFail(string message) => Assert.Fail(message + Environment.NewLine);
 
-    public override void AssertEqual<T>(T actual, T expected, string? message = null) => actual.Should().Be(expected, message);
-
-    public override void AssertFail(string message) => Execute.Assertion.FailWith(message);
-
-    public override void ExecuteStep()
+    public override Cycle Cycle()
     {
         var actionRequired = emulator.Step();
         PerformActionRequired(actionRequired);
         TStates++;
+        return CreateCycle(actionRequired);
     }
 
-    public override IEnumerable<TestEvent> ExecuteStepRecordingEvents()
+    public override void Step()
     {
         var actionRequired = emulator.Step();
-        foreach (var testEvent in PerformActionRequiredRecordingEvents(actionRequired))
-        {
-            yield return testEvent;
-        }
+        PerformActionRequired(actionRequired);
         TStates++;
     }
 
@@ -222,7 +213,29 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
         }
     }
 
-    // TODO: Contend events are ZX Spectrum specific, can we pull them out into the Fuse only tests? Need a none event.
+    [Pure]
+    private Cycle CreateCycle(ActionRequired actionRequired)
+    {
+        switch (actionRequired)
+        {
+            case ActionRequired.None:
+                return new Cycle(CycleType.None, emulator.Address, emulator.Data);
+
+            case ActionRequired.OpcodeRead:
+                return new Cycle(CycleType.MemoryRead, emulator.Address, emulator.Data, true);
+
+            case ActionRequired.MemoryRead:
+                return new Cycle(CycleType.MemoryRead, emulator.Address, emulator.Data);
+
+            case ActionRequired.MemoryWrite:
+                return new Cycle(CycleType.MemoryWrite, emulator.Address, emulator.Data);
+
+            case ActionRequired.IoWrite:
+                return new Cycle(CycleType.IOWrite, emulator.Address, emulator.Data);
+        }
+        throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");
+    }
+
     private void PerformActionRequired(ActionRequired actionRequired)
     {
         switch (actionRequired)
@@ -230,112 +243,15 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
             case ActionRequired.OpcodeRead:
             case ActionRequired.MemoryRead:
                 emulator.Data = ReadByteFromMemory(emulator.Address);
-                break;
+                return;
 
             case ActionRequired.MemoryWrite:
                 WriteByteToMemory(emulator.Address, emulator.Data);
-                break;
+                return;
 
             case ActionRequired.IoWrite:
                 WriteIO(emulator.Address, emulator.Data);
-                break;
+                return;
         }
-    }
-
-    // TODO: Contend events are ZX Spectrum specific, can we pull them out into the Fuse only tests? Need a none event.
-    private IEnumerable<TestEvent> PerformActionRequiredRecordingEvents(ActionRequired actionRequired)
-    {
-        switch (actionRequired)
-        {
-            case ActionRequired.None:
-                if (TStates >= noContentionUntil)
-                {
-                    yield return new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data);
-                    noContentionUntil++;
-                }
-
-                break;
-
-            case ActionRequired.OpcodeRead:
-                emulator.Data = ReadByteFromMemory(emulator.Address);
-                yield return new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data);
-                yield return new TestEvent(TestEventType.OpcodeRead, TStates, emulator.Address, emulator.Data);
-                noContentionUntil += 4;
-
-                break;
-
-            case ActionRequired.MemoryRead:
-                emulator.Data = ReadByteFromMemory(emulator.Address);
-                yield return new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data);
-                yield return new TestEvent(TestEventType.MemoryRead, TStates, emulator.Address, emulator.Data);
-                noContentionUntil += 3;
-
-                break;
-
-            case ActionRequired.MemoryWrite:
-                WriteByteToMemory(emulator.Address, emulator.Data);
-                yield return new TestEvent(TestEventType.MemoryContend, TStates, emulator.Address, emulator.Data);
-                yield return new TestEvent(TestEventType.MemoryWrite, TStates, emulator.Address, emulator.Data);
-                noContentionUntil += 3;
-
-                break;
-
-            case ActionRequired.IoWrite:
-                WriteIO(emulator.Address, emulator.Data);
-                foreach (var ioEvent in IOContendEvents(TestEventType.IOWrite))
-                {
-                    yield return ioEvent;
-                }
-                noContentionUntil += 4;
-
-                break;
-
-            default:
-                throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");
-        }
-    }
-
-    [Pure]
-    private IEnumerable<TestEvent> IOContendEvents(TestEventType ioEventType)
-    {
-        // Based on https://sinclair.wiki.zxnet.co.uk/wiki/Contended_I/O.
-        var portHighByteInRange = (emulator.Address >> 8) is >= 0x40 and <= 0x7F;
-        var lowBitSet = (emulator.Address & 1) == 1;
-
-        if (portHighByteInRange)
-        {
-            if (lowBitSet)
-            {
-                return
-                [
-                    new TestEvent(TestEventType.IOContend, TStates, emulator.Address, emulator.Data),
-                    new TestEvent(ioEventType, TStates + 1, emulator.Address, emulator.Data),
-                    new TestEvent(TestEventType.IOContend, TStates + 1, emulator.Address, emulator.Data),
-                    new TestEvent(TestEventType.IOContend, TStates + 2, emulator.Address, emulator.Data),
-                    new TestEvent(TestEventType.IOContend, TStates + 3, emulator.Address, emulator.Data)
-                ];
-            }
-
-            return
-            [
-                new TestEvent(TestEventType.IOContend, TStates, emulator.Address, emulator.Data),
-                new TestEvent(ioEventType, TStates + 1, emulator.Address, emulator.Data),
-                new TestEvent(TestEventType.IOContend, TStates + 1, emulator.Address, emulator.Data)
-            ];
-        }
-
-        if (lowBitSet)
-        {
-            return
-            [
-                new TestEvent(ioEventType, TStates + 1, emulator.Address, emulator.Data),
-            ];
-        }
-
-        return
-        [
-            new TestEvent(ioEventType, TStates + 1, emulator.Address, emulator.Data),
-            new TestEvent(TestEventType.IOContend, TStates + 1, emulator.Address, emulator.Data)
-        ];
     }
 }

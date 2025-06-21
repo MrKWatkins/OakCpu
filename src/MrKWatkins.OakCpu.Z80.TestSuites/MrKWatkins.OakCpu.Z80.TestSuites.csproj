@@ -3,10 +3,14 @@
         <EmbeddedResource Include="**\*.bin" />
         <EmbeddedResource Include="**\*.rom" />
         <EmbeddedResource Include="**\*.tap" />
-        <EmbeddedResource Include="InstructionLevel\Fuse\tests.expected" />
-        <EmbeddedResource Include="InstructionLevel\Fuse\tests.in" />
+        <EmbeddedResource Include="Instruction\Fuse\tests.expected" />
+        <EmbeddedResource Include="Instruction\Fuse\tests.in" />
+        <EmbeddedResource Include="Instruction\SingleStep\TestCases\*" />
     </ItemGroup>
     <ItemGroup>
       <PackageReference Include="MrKWatkins.OakAsm.IO.ZXSpectrum" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Instruction\SingleStep\TestCases\" />
     </ItemGroup>
 </Project>
