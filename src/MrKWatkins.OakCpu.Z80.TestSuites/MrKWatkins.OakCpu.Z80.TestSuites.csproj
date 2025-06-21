@@ -6,4 +6,7 @@
         <EmbeddedResource Include="InstructionLevel\Fuse\tests.expected" />
         <EmbeddedResource Include="InstructionLevel\Fuse\tests.in" />
     </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="MrKWatkins.OakAsm.IO.ZXSpectrum" />
+    </ItemGroup>
 </Project>
