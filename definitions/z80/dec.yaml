@@ -76,7 +76,38 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: is_negative(Data)
-    next_opcode: overlapped
+    
+  - group: DEC
+    mnemonic: DEC (RP0 + d)
+    opcodes:
+      - opcode: 0xDD 0x35
+        RP0: IX
+      - opcode: 0xFD 0x35
+        RP0: IY
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - latch = Data;
+      -
+      -
+      -
+      -
+      -
+      -
+      - WZ = RP0 + signed(Data); Address = WZ; request(action.memory_read);
+      - Data = Data - 1; flags();
+      - 
+      - 
+      - request(action.memory_write);
+      - 
+      - 
+    flags:
+      N: 1
+      PV: Data == 0x7F
+      X: copy_from(Data)
+      H: (Data & 0x0F) == 0x0F
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: is_negative(Data)
 
   - group: DEC
     mnemonic: DEC RP0
