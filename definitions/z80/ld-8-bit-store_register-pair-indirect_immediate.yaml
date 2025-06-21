@@ -10,4 +10,23 @@ instructions:
       - Address = HL; request(action.memory_write);
       - 
       - 
-    next_opcode: overlapped
+  
+  - group: LD
+    mnemonic: LD (RP0 + d), n
+    opcodes:
+      - opcode: 0xDD 0x36
+        RP0: IX
+      - opcode: 0xFD 0x36
+        RP0: IY
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Latch = Data;
+      - 
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - 
+      - 
+      - 
+      - 
+      - WZ = RP0 + signed(Latch); Address = WZ; request(action.memory_write);
+      - 
+      - 

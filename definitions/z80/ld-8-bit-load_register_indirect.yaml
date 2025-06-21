@@ -14,3 +14,62 @@ instructions:
       - A = Data;
       - 
     next_opcode: overlapped
+
+  - group: LD
+    mnemonic: LD R0, (RP0 + d)
+    opcodes:
+      - opcode: 0xDD 0x46
+        R0: B
+        RP0 : IX
+      - opcode: 0xDD 0x4E
+        R0: C
+        RP0 : IX
+      - opcode: 0xDD 0x56
+        R0: D
+        RP0 : IX
+      - opcode: 0xDD 0x5E
+        R0: E
+        RP0 : IX
+      - opcode: 0xDD 0x66
+        R0: H
+        RP0 : IX
+      - opcode: 0xDD 0x6E
+        R0: L
+        RP0 : IX
+      - opcode: 0xDD 0x7E
+        R0: A
+        RP0 : IX
+        
+      - opcode: 0xFD 0x46
+        R0: B
+        RP0 : IY
+      - opcode: 0xFD 0x4E
+        R0: C
+        RP0 : IY
+      - opcode: 0xFD 0x56
+        R0: D
+        RP0 : IY
+      - opcode: 0xFD 0x5E
+        R0: E
+        RP0 : IY
+      - opcode: 0xFD 0x66
+        R0: H
+        RP0 : IY
+      - opcode: 0xFD 0x6E
+        R0: L
+        RP0 : IY
+      - opcode: 0xFD 0x7E
+        R0: A
+        RP0 : IY
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - 
+      -
+      -
+      -
+      -
+      -
+      -
+      - WZ = RP0 + signed(Data); Address = WZ; request(action.memory_read);
+      - R0 = Data;
+      -
