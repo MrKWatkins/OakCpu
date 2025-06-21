@@ -4,6 +4,12 @@ instructions:
     opcodes:
       - opcode: 0x22
         RP0: HL
+      - opcode: 0xED 0x43
+        RP0: BC
+      - opcode: 0xED 0x53
+        RP0: DE
+      - opcode: 0xED 0x63
+        RP0: HL
       - opcode: 0xED 0x73
         RP0: SP
       - opcode: 0xDD 0x22

@@ -49,7 +49,7 @@ instructions:
     next_opcode: overlapped
     
   - group: ADC
-    mnemonic: ADC A; (HL)
+    mnemonic: ADC A, (HL)
     opcodes:
       - opcode: 0x8E
     steps:
@@ -66,3 +66,32 @@ instructions:
       Z: is_zero($result)
       S: copy_from($result)
     next_opcode: overlapped
+    
+  - group: ADC
+    mnemonic: ADC HL, RP0
+    opcodes:
+      - opcode: 0xED 0x4A
+        RP0: BC
+      - opcode: 0xED 0x5A
+        RP0: DE
+      - opcode: 0xED 0x6A
+        RP0: HL
+      - opcode: 0xED 0x7A
+        RP0: SP
+    steps:
+      - $left = HL; $right = RP0; $result = $left + $right + flag.C; HL = $result; WZ = $left + 1; flags();
+      -
+      -
+      -
+      -
+      -
+      -
+    flags:
+      C: ($result & 0x10000) == 0x10000
+      N: 0
+      PV: did_16_bit_addition_overflow($left, $right, $result)
+      X: copy_from(H)
+      H: did_16_bit_addition_half_carry($left, $right, $result)
+      Y: copy_from(H)
+      Z: is_zero($result)
+      S: copy_from(H)

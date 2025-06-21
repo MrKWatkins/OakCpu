@@ -158,3 +158,31 @@ instructions:
     steps:
       - R0 = R1;
     next_opcode: overlapped
+
+  - group: LD
+    mnemonic: LD R0, A
+    opcodes:
+      - opcode: 0xED 0x47
+        R0: I
+      - opcode: 0xED 0x4F
+        R0: R
+    steps:
+      - R0 = A;
+
+  - group: LD
+    mnemonic: LD A, R0
+    opcodes:
+      - opcode: 0xED 0x57
+        R0: I
+      - opcode: 0xED 0x5F
+        R0: R
+    steps:
+      - A = R0; flags();
+    flags:
+      N: 0
+      PV: IFF2
+      X: copy_from(R0)
+      H: 0
+      Y: copy_from(R0)
+      Z: is_zero(R0)
+      S: copy_from(R0)

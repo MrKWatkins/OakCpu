@@ -4,25 +4,40 @@ functions:
     parameters: [left, right, sum]
     expression: ((sum ^ left) & (sum ^ right) & 0x80) >> 7
     
+  - name: did_16_bit_addition_overflow
+    type: i32_bool
+    parameters: [left, right, sum]
+    expression: ((sum ^ left) & (sum ^ right) & 0x8000) >> 15
+    
   - name: did_8_bit_addition_half_carry
     type: i32_bool
     parameters: [left, right, sum]
-    expression: ((left ^ right ^ sum) & 0x10) >> 4 # TODO: Collapse >> shift with << shift into one shift.
+    expression: ((left ^ right ^ sum) & 0x10) >> 4
+
+  - name: did_16_bit_addition_half_carry
+    type: i32_bool
+    parameters: [left, right, sum]
+    expression: ((left ^ sum ^ right) & 0x1000) >> 12
     
   - name: did_8_bit_subtraction_overflow
     type: i32_bool
     parameters: [left, right, difference]
     expression: ((left ^ right) & (difference ^ left) & 0x80) >> 7
     
+  - name: did_16_bit_subtraction_overflow
+    type: i32_bool
+    parameters: [left, right, difference]
+    expression: ((left ^ right) & (difference ^ left) & 0x8000) >> 15
+    
   - name: did_8_bit_subtraction_half_borrow
     type: i32_bool
     parameters: [left, right, difference]
     expression: ((left ^ right ^ difference) & 0x10) >> 4
     
-  - name: did_16_bit_addition_half_carry
+  - name: did_16_bit_subtraction_half_borrow
     type: i32_bool
-    parameters: [left, right, sum]
-    expression: ((left ^ sum ^ right) & 0x1000) >> 12 # TODO: Collapse >> shift with << shift into one shift.
+    parameters: [left, right, difference]
+    expression: ((left ^ right ^ difference) & 0x1000) >> 12
     
   - name: even_parity
     type: i32_bool
