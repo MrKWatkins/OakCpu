@@ -25,7 +25,7 @@ instructions:
       X: copy_from($result)
       H: did_8_bit_subtraction_half_borrow($left, $right, $result)
       Y: copy_from($result)
-      Z: is_zero($result)
+      Z: is_zero(A)
       S: copy_from($result)
     next_opcode: overlapped
 
@@ -38,14 +38,13 @@ instructions:
       -
       - $left = A; $right = Data; $result = $left - $right; A = $result; flags();
     flags:
-      # TODO: Can avoid if branch by shifting.
       C: ($result & 0x100) == 0x100
       N: 1
       PV: did_8_bit_subtraction_overflow($left, $right, $result)
       X: copy_from($result)
       H: did_8_bit_subtraction_half_borrow($left, $right, $result)
       Y: copy_from($result)
-      Z: is_zero($result)
+      Z: is_zero(A)
       S: copy_from($result)
     next_opcode: overlapped
 
@@ -64,6 +63,6 @@ instructions:
       X: copy_from($result)
       H: did_8_bit_subtraction_half_borrow($left, $right, $result)
       Y: copy_from($result)
-      Z: is_zero($result)
+      Z: is_zero(A)
       S: copy_from($result)
     next_opcode: overlapped

@@ -25,7 +25,7 @@ instructions:
       X: copy_from($result)
       H: did_8_bit_addition_half_carry($left, $right, $result)
       Y: copy_from($result)
-      Z: is_zero($result)
+      Z: is_zero(A) # Must take from A rather than $result as $result is an Int32 and could be not zero when A is zero.
       S: copy_from($result)
     next_opcode: overlapped
 
@@ -44,7 +44,7 @@ instructions:
       X: copy_from($result)
       H: did_8_bit_addition_half_carry($left, $right, $result)
       Y: copy_from($result)
-      Z: is_zero($result)
+      Z: is_zero(A)
       S: copy_from($result)
     next_opcode: overlapped
     
@@ -63,7 +63,7 @@ instructions:
       X: copy_from($result)
       H: did_8_bit_addition_half_carry($left, $right, $result)
       Y: copy_from($result)
-      Z: is_zero($result)
+      Z: is_zero(A)
       S: copy_from($result)
     next_opcode: overlapped
     
@@ -93,5 +93,5 @@ instructions:
       X: copy_from(H)
       H: did_16_bit_addition_half_carry($left, $right, $result)
       Y: copy_from(H)
-      Z: is_zero($result)
+      Z: is_zero(HL)
       S: copy_from(H)

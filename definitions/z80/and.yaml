@@ -19,6 +19,8 @@ instructions:
     steps:
       - A = A & R0; flags();
     flags:
+      C: 0
+      N: 0
       PV: even_parity(A)
       X: copy_from(A)
       H: 1
@@ -36,6 +38,8 @@ instructions:
       -
       - A = A & Data; flags();
     flags:
+      C: 0
+      N: 0
       PV: even_parity(A)
       X: copy_from(A)
       H: 1
@@ -54,6 +58,8 @@ instructions:
       - 
       - A = A & Data; flags();
     flags:
+      C: 0
+      N: 0
       PV: even_parity(A)
       X: copy_from(A)
       H: 1

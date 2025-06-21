@@ -25,7 +25,7 @@ instructions:
       X: copy_from($result)
       H: did_8_bit_subtraction_half_borrow($left, $right, $result)
       Y: copy_from($result)
-      Z: is_zero($result)
+      Z: is_zero(A)
       S: copy_from($result)
     next_opcode: overlapped
 
@@ -44,7 +44,7 @@ instructions:
       X: copy_from($result)
       H: did_8_bit_subtraction_half_borrow($left, $right, $result)
       Y: copy_from($result)
-      Z: is_zero($result)
+      Z: is_zero(A)
       S: copy_from($result)
     next_opcode: overlapped
 
@@ -63,6 +63,6 @@ instructions:
       X: copy_from($result)
       H: did_8_bit_subtraction_half_borrow($left, $right, $result)
       Y: copy_from($result)
-      Z: is_zero($result)
+      Z: is_zero(A)
       S: copy_from($result)
     next_opcode: overlapped

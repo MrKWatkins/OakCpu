@@ -39,6 +39,7 @@ instructions:
       X: copy_from(R0)
       H: 0
       Y: copy_from(R0)
+      Z: is_zero(R0)
       S: copy_from(R0)
     next_opcode: overlapped
   
@@ -235,6 +236,7 @@ instructions:
       X: copy_from(R0)
       H: 0
       Y: copy_from(R0)
+      Z: is_zero(R0)
       S: copy_from(R0)
     next_opcode: overlapped
 
@@ -257,6 +259,7 @@ instructions:
       X: copy_from(Data)
       H: 0
       Y: copy_from(Data)
+      Z: is_zero(Data)
       S: copy_from(Data)
     next_opcode: overlapped
 
@@ -430,6 +433,7 @@ instructions:
       X: copy_from(R0)
       H: 0
       Y: copy_from(R0)
+      Z: is_zero(R0)
       S: copy_from(R0)
     next_opcode: overlapped
 
@@ -452,6 +456,7 @@ instructions:
       X: copy_from(Data)
       H: 0
       Y: copy_from(Data)
+      Z: is_zero(Data)
       S: copy_from(Data)
     next_opcode: overlapped
 
@@ -625,6 +630,7 @@ instructions:
       X: copy_from(R0)
       H: 0
       Y: copy_from(R0)
+      Z: is_zero(R0)
       S: copy_from(R0)
     next_opcode: overlapped
 
@@ -647,6 +653,7 @@ instructions:
       X: copy_from(Data)
       H: 0
       Y: copy_from(Data)
+      Z: is_zero(Data)
       S: copy_from(Data)
     next_opcode: overlapped
     

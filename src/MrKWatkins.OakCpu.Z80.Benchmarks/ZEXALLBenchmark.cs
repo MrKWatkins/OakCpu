@@ -1,4 +1,5 @@
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
 using MrKWatkins.OakCpu.Z80.Tests;
 using MrKWatkins.OakCpu.Z80.TestSuites.Program.ZEXALL;
 
@@ -17,14 +18,21 @@ namespace MrKWatkins.OakCpu.Z80.Benchmarks;
 // | ZEXALL | <inc,dec> a |  207.1 ms |  4.13 ms |  7.35 ms |      54 B |  64.87 KB | 2025-06-18 Use function pointers for step handlers.
 // | ZEXALL | <inc,dec> a |  204.1 ms |  4.03 ms |  4.80 ms |      54 B |  64.87 KB | 2025-06-18 Remove some array bounds checks.
 // | ZEXALL | <inc,dec> a |  191.5 ms |  3.61 ms |  3.37 ms |      84 B |  64.87 KB | 2025-06-18 Remove some more empty steps.
+//
+// Switched to aluop a,nn to match OakEmu, now that the test passes.
+//
+// | Method | Test       | Mean    | Error    | StdDev   | ZX Speed |  Allocated |
+// |------- |----------- |--------:|---------:|---------:|---------:|-----------:|
+// | ZEXALL | aluop a,nn | 1.714 s | 0.0087 s | 0.0081 s |   x92.58 |    2.38 MB |   OakEmu for reference.
+// | ZEXALL | aluop a,nn | 1.842 s | 0.0362 s | 0.0483 s |   x86.14 |   65.71 KB |
 [MemoryDiagnoser]
-[DisassemblyDiagnoser(maxDepth: 20)]
+[Config(typeof(Config))]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public class ZEXALLBenchmark
 {
     private ZEXALLTestCase testCase = null!;
 
-    [Params("<inc,dec> a")]
+    [Params("aluop a,nn")]
     // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
     public string Test { get; set; } = null!;
 
@@ -38,5 +46,14 @@ public class ZEXALLBenchmark
     public void ZEXALL()
     {
         testCase.Execute<Z80EmulatorTestHarness>();
+    }
+
+    private class Config : ManualConfig
+    {
+        public Config()
+        {
+            // T-States taken from the output of the test case in the TestSuites project.
+            AddColumn(new ZXSpectrumSpeedColumn(562_613_742));
+        }
     }
 }
