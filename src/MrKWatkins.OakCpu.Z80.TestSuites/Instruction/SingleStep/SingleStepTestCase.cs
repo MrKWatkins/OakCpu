@@ -22,7 +22,7 @@ public sealed class SingleStepTestCase : InstructionTestCase
         testOutput?.Write('.');
 
         // TODO: Avoid creating each time.
-        var z80 = CreateZ80<TTestHarness>();
+        var z80 = CreateZ80<TTestHarness>(step.Input);
 
         step.Input.Setup(z80);
 

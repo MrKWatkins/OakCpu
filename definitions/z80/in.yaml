@@ -1,0 +1,15 @@
+instructions:
+  - group: IN
+    mnemonic: IN A, (n)
+    opcodes:
+      - opcode: 0xDB
+      - opcode: 0xDD 0xDB
+      - opcode: 0xFD 0xDB
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Z = Data; W = A;
+      -
+      - Address = WZ; Data = A;
+      - request(action.io_read);
+      - A = Data; WZ = WZ + 1;
+      -

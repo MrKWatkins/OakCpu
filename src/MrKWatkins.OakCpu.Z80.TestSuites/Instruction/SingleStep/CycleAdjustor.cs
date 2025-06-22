@@ -44,11 +44,11 @@ public static class CycleAdjustor
     {
         foreach (var (previous, current, next) in EnumerateCycles(cycles))
         {
-            if (next?.Type is CycleType.MemoryRead or CycleType.MemoryWrite or CycleType.IOWrite)
+            if (IsNotTypeNone(next))
             {
                 yield return new Cycle(next.Type, current.Index, current.Address, next.Data);
             }
-            else if (current.Type is CycleType.MemoryRead or CycleType.MemoryWrite or CycleType.IOWrite)
+            else if (IsNotTypeNone(current))
             {
                 if (next == null)
                 {
@@ -66,6 +66,9 @@ public static class CycleAdjustor
             }
         }
     }
+
+    [Pure]
+    private static bool IsNotTypeNone([NotNullWhen(true)] Cycle? cycle) => cycle != null && cycle.Type != CycleType.None;
 
     [Pure]
     private static IEnumerable<(Cycle? Previous, Cycle Current, Cycle? Next)> EnumerateCycles(IEnumerable<Cycle> cycles)

@@ -8,6 +8,8 @@ public sealed class FuseTestCase : InstructionTestCase
         Input = input;
         Expected = expected;
 
+        Input.IOReads = expected.Events.Where(r => r.Type == FuseEventType.PortRead).Select(r => new IOEvent(r.Address, r.Data ?? 0)).ToList();
+
         // For Fuse, we just test memory and IO events. We ignore empty cycles because we have no way to get the Address value (IR) for None cycles after an opcode read.
         // We could infer some from the MemoryContends, but not all, plus Fuse puts IR on the address bus after incrementing R; it should be before.
         Expected.Cycles = CycleBuilder.BuildCycles(expected.Events, MemoryCycleMethod).ToList();
@@ -19,7 +21,7 @@ public sealed class FuseTestCase : InstructionTestCase
 
     public override void Execute<TTestHarness>(TextWriter? testOutput = null)
     {
-        var z80 = CreateZ80<TTestHarness>();
+        var z80 = CreateZ80<TTestHarness>(Input);
 
         Input.Setup(z80);
 

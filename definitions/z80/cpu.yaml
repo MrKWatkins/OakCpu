@@ -1,5 +1,6 @@
 cpu:
   name: Z80
+  # TODO: Capitalise IO in the C#.
   actions:
     - opcode_read
     - memory_read

@@ -212,6 +212,29 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
         }
     }
 
+    private void PerformActionRequired(ActionRequired actionRequired)
+    {
+        switch (actionRequired)
+        {
+            case ActionRequired.OpcodeRead:
+            case ActionRequired.MemoryRead:
+                emulator.Data = ReadByteFromMemory(emulator.Address);
+                return;
+
+            case ActionRequired.MemoryWrite:
+                WriteByteToMemory(emulator.Address, emulator.Data);
+                return;
+
+            case ActionRequired.IoRead:
+                emulator.Data = IOReader.Read(emulator.Address);
+                return;
+
+            case ActionRequired.IoWrite:
+                IOWriter.Write(emulator.Address, emulator.Data);
+                return;
+        }
+    }
+
     [Pure]
     private Cycle CreateCycle(ActionRequired actionRequired)
     {
@@ -229,28 +252,12 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
             case ActionRequired.MemoryWrite:
                 return new Cycle(CycleType.MemoryWrite, TStates, emulator.Address, emulator.Data);
 
+            case ActionRequired.IoRead:
+                return new Cycle(CycleType.IORead, TStates, emulator.Address, emulator.Data);
+
             case ActionRequired.IoWrite:
                 return new Cycle(CycleType.IOWrite, TStates, emulator.Address, emulator.Data);
         }
         throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");
-    }
-
-    private void PerformActionRequired(ActionRequired actionRequired)
-    {
-        switch (actionRequired)
-        {
-            case ActionRequired.OpcodeRead:
-            case ActionRequired.MemoryRead:
-                emulator.Data = ReadByteFromMemory(emulator.Address);
-                return;
-
-            case ActionRequired.MemoryWrite:
-                WriteByteToMemory(emulator.Address, emulator.Data);
-                return;
-
-            case ActionRequired.IoWrite:
-                IOWriter.Write(emulator.Address, emulator.Data);
-                return;
-        }
     }
 }
