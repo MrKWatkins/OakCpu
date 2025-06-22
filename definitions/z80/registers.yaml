@@ -92,7 +92,7 @@ registers:
       name: Z
       type: u8
 
-  # TODO: Is this really a register or a latch?
+  # Arguably this is a latch rather than a register. But the same could be said of WZ.
   - name: Q
     type: u8
 

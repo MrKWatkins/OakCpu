@@ -11,7 +11,8 @@ public sealed class SingleStepTestSuite : InstructionTestSuite<SingleStepTestCas
     {
     }
 
-    protected override InstructionTestSuiteOptions DefaultOptions { get; } = new() { AssertionsToRun = Assertions.All & ~Assertions.Halted };
+    // TODO: Implement Q.
+    public override InstructionTestSuiteOptions DefaultOptions { get; } = new() { AssertionsToRun = Assertions.All & ~Assertions.Halted & ~Assertions.Q };
 
     public override IEnumerable<SingleStepTestCase> GetTestCases(InstructionTestSuiteOptions options)
     {

@@ -42,6 +42,7 @@ public sealed class TestState
     [JsonPropertyName("r")]
     public byte R { get; init; }
 
+    // EI refers to if Enable Interrupt was the last-emulated instruction.
     [JsonPropertyName("ei")]
     public byte EI { get; init; }
 
@@ -69,9 +70,11 @@ public sealed class TestState
     [JsonPropertyName("im")]
     public byte IM { get; init; }
 
+    // Used to track specific behavior during interrupt depending on if CMOS or not and previously executed instructions.
     [JsonPropertyName("p")]
     public byte P { get; init; }
 
+    // Used to track if the last-modified opcode modified flag registers.
     [JsonPropertyName("q")]
     public byte Q { get; init; }
 
@@ -82,5 +85,16 @@ public sealed class TestState
     public byte IFF2 { get; init; }
 
     [JsonPropertyName("ram")]
-    public int[][] Ram { get; init; } = null!;
+    public Ram[] Ram { get; init; } = null!;
+
+    public byte Interrupts
+    {
+        get
+        {
+            int interrupts = IFF1;
+            interrupts |= IFF2 << 1;
+            interrupts |= IM << 2;
+            return (byte)interrupts;
+        }
+    }
 }

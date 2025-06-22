@@ -25,5 +25,5 @@ public sealed class SingleStepTests
     public void SingleStepTest(SingleStepTestCase testCase) => testCase.Execute<Z80EmulatorTestHarness>(TestContext.Progress);
 
     [Pure]
-    public static IEnumerable<TestCaseData> TestCases() => SingleStepTestSuite.Instance.GetTestCases(new InstructionTestSuiteOptions { AssertionsToRunOverrides = AssertionsToRunOverrides }).ToTestCaseData();
+    public static IEnumerable<TestCaseData> TestCases() => SingleStepTestSuite.Instance.GetTestCases(AssertionsToRunOverrides).ToTestCaseData();
 }

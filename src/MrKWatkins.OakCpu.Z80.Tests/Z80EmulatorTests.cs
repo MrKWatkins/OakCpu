@@ -5,12 +5,12 @@ public sealed class Z80EmulatorTests
 {
     static Z80EmulatorTests()
     {
+#pragma warning disable CA1065
         if (!BitConverter.IsLittleEndian)
         {
-#pragma warning disable CA1065
             throw new NotSupportedException("Only little endian systems are supported.");
-#pragma warning restore CA1065
         }
+#pragma warning restore CA1065
     }
 
     [Test]

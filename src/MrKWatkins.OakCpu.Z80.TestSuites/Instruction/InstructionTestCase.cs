@@ -13,7 +13,6 @@ public abstract class InstructionTestCase : TestCase
 
     public MemoryCycleMethod MemoryCycleMethod { get; }
 
-#pragma warning disable CA1002
     protected static void AdjustForOverlappedRead(Z80TestHarness z80, List<Cycle> cycles)
     {
         // If the last cycle was a MemoryRead, then we've had an overlapped read. The SingleStep tests assume instruction level
@@ -24,7 +23,6 @@ public abstract class InstructionTestCase : TestCase
             cycles.RemoveAt(cycles.Count - 1);
         }
     }
-#pragma warning restore CA1002
 
     protected void AssertCycles(Z80TestHarness z80, IReadOnlyList<Cycle> expectedCycles, IReadOnlyList<Cycle> actualCycles)
     {

@@ -13,7 +13,6 @@ public sealed class FuseTestCase : InstructionTestCase
 
     public Expected Expected { get; }
 
-
     public override void Execute<TTestHarness>(TextWriter? testOutput = null)
     {
         var z80 = new TTestHarness();

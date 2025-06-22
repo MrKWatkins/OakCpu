@@ -83,6 +83,8 @@ public abstract class Z80TestHarness
 
     public abstract byte RegisterR { get; set; }
 
+    public abstract byte RegisterQ { get; set; }
+
     public abstract ushort ShadowRegisterAF { get; set; }
 
     public abstract ushort ShadowRegisterBC { get; set; }

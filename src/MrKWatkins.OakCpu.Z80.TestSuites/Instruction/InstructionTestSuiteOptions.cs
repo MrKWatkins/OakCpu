@@ -2,7 +2,7 @@ using System.Collections.Frozen;
 
 namespace MrKWatkins.OakCpu.Z80.TestSuites.Instruction;
 
-public sealed class InstructionTestSuiteOptions
+public sealed record InstructionTestSuiteOptions
 {
     public Assertions AssertionsToRun { get; init; } = Assertions.All;
 

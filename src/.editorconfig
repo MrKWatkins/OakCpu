@@ -100,7 +100,7 @@ dotnet_diagnostic.CA1000.severity = none
 dotnet_diagnostic.CA1001.severity = error
 
 # CA1002: Do not expose generic lists
-dotnet_diagnostic.CA1002.severity = error
+dotnet_diagnostic.CA1002.severity = none
 
 # CA1003: Use generic event handler instances
 dotnet_diagnostic.CA1003.severity = error
@@ -142,7 +142,7 @@ dotnet_diagnostic.CA1024.severity = error
 dotnet_diagnostic.CA1027.severity = error
 
 # CA1028: Enum Storage should be Int32
-dotnet_diagnostic.CA1028.severity = error
+dotnet_diagnostic.CA1028.severity = none
 
 # CA1030: Use events where appropriate
 dotnet_diagnostic.CA1030.severity = none
@@ -295,7 +295,7 @@ dotnet_diagnostic.CA1501.severity = none
 dotnet_diagnostic.CA1502.severity = none
 
 # CA1505: Avoid unmaintainable code
-dotnet_diagnostic.CA1505.severity = error
+dotnet_diagnostic.CA1505.severity = none
 
 # CA1506: Avoid excessive class coupling
 dotnet_diagnostic.CA1506.severity = error
@@ -577,7 +577,7 @@ dotnet_diagnostic.CA2215.severity = error
 dotnet_diagnostic.CA2216.severity = error
 
 # CA2217: Do not mark enums with FlagsAttribute
-dotnet_diagnostic.CA2217.severity = error
+dotnet_diagnostic.CA2217.severity = none
 
 # CA2218: Override GetHashCode on overriding Equals
 dotnet_diagnostic.CA2218.severity = error

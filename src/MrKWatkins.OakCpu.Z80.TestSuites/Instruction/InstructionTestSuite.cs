@@ -8,10 +8,14 @@ public abstract class InstructionTestSuite<TTestCase> : TestSuite
     {
     }
 
-    protected virtual InstructionTestSuiteOptions DefaultOptions { get; } = new();
+    public abstract InstructionTestSuiteOptions DefaultOptions { get; }
 
     [Pure]
     public IEnumerable<TTestCase> GetTestCases() => GetTestCases(DefaultOptions);
+
+    [Pure]
+    public IEnumerable<TTestCase> GetTestCases(IReadOnlyDictionary<string, Assertions> assertionsToRunOverrides) =>
+        GetTestCases(DefaultOptions with { AssertionsToRunOverrides = assertionsToRunOverrides });
 
     [Pure]
     public abstract IEnumerable<TTestCase> GetTestCases(InstructionTestSuiteOptions options);

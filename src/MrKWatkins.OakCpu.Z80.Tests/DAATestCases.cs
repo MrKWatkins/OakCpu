@@ -1,6 +1,5 @@
 namespace MrKWatkins.OakCpu.Z80.Tests;
 
-#pragma warning disable CA1505
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public sealed class DAATestCases
 {
@@ -2061,5 +2060,4 @@ public sealed class DAATestCases
             yield return new TestCaseData(true, true, true, (byte)0xFF, true, false, (byte)0x99);
         }
     }
-#pragma warning restore CA1505
 }

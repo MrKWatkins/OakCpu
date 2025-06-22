@@ -3,6 +3,9 @@ using MrKWatkins.OakCpu.Z80.TestSuites.SingleStepTestCaseGenerator.Json;
 
 namespace MrKWatkins.OakCpu.Z80.TestSuites.SingleStepTestCaseGenerator;
 
+// Tried using a delta from the initial state for the final state as most of it doesn't change. Stored whether a field had changed or not
+// in a bit field, then just wrote the changed data. The raw size was reduced quite a bit, but after Brotli compression it actually came out
+// slightly larger. I'm guessing this is because Brotli can copy large sections of the data in one rather than doing it field by field.
 public static class TestCaseGenerator
 {
     public static async ValueTask Generate(IReadOnlyList<TestStep> steps)
@@ -68,21 +71,23 @@ public static class TestCaseGenerator
         binaryWriter.Write(testState.WZ);
         binaryWriter.Write(testState.I);
         binaryWriter.Write(testState.R);
+        binaryWriter.Write(testState.Q);
         binaryWriter.Write(testState.ShadowAF);
         binaryWriter.Write(testState.ShadowBC);
         binaryWriter.Write(testState.ShadowDE);
         binaryWriter.Write(testState.ShadowHL);
+        binaryWriter.Write(testState.Interrupts);
 
-        int interrupts = testState.IFF1;
-        interrupts |= testState.IFF2 << 1;
-        interrupts |= testState.IM << 2;
-        binaryWriter.Write((byte)interrupts);
+        WriteRam(binaryWriter, testState);
+    }
 
+    private static void WriteRam(BinaryWriter binaryWriter, TestState testState)
+    {
         binaryWriter.Write7BitEncodedInt(testState.Ram.Length);
         foreach (var ram in testState.Ram)
         {
-            binaryWriter.Write((ushort)ram[0]);
-            binaryWriter.Write((byte)ram[1]);
+            binaryWriter.Write(ram.Address);
+            binaryWriter.Write(ram.Value);
         }
     }
 }

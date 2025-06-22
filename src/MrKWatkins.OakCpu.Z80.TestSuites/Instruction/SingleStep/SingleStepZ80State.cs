@@ -21,6 +21,7 @@ public sealed class SingleStepZ80State : Z80State
             RegisterWZ = reader.ReadUInt16(),
             RegisterI = reader.ReadByte(),
             RegisterR = reader.ReadByte(),
+            RegisterQ = reader.ReadByte(),
             ShadowRegisterAF = reader.ReadUInt16(),
             ShadowRegisterBC = reader.ReadUInt16(),
             ShadowRegisterDE = reader.ReadUInt16(),

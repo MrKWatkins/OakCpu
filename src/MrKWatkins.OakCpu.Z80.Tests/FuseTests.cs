@@ -24,5 +24,5 @@ public sealed class FuseTests
     public void FuseTest(FuseTestCase testCase) => testCase.Execute<Z80EmulatorTestHarness>();
 
     [Pure]
-    public static IEnumerable<TestCaseData> TestCases() => FuseTestSuite.Instance.GetTestCases(new InstructionTestSuiteOptions { AssertionsToRunOverrides = AssertionsToRunOverrides }).ToTestCaseData();
+    public static IEnumerable<TestCaseData> TestCases() => FuseTestSuite.Instance.GetTestCases(AssertionsToRunOverrides).ToTestCaseData();
 }

@@ -34,6 +34,8 @@ public abstract class Z80State
 
     public byte RegisterR { get; private protected  set; }
 
+    public byte RegisterQ { get; private protected  set; }
+
     public bool FlagC => (RegisterAF & 0b00000001) != 0;
 
     public bool FlagN => (RegisterAF & 0b00000010) != 0;
@@ -66,13 +68,14 @@ public abstract class Z80State
         z80.RegisterBC = RegisterBC;
         z80.RegisterDE = RegisterDE;
         z80.RegisterHL = RegisterHL;
-        z80.RegisterI = RegisterI;
-        z80.RegisterR = RegisterR;
         z80.RegisterPC = RegisterPC;
         z80.RegisterSP = RegisterSP;
         z80.RegisterIX = RegisterIX;
         z80.RegisterIY = RegisterIY;
         z80.RegisterWZ = RegisterWZ;
+        z80.RegisterI = RegisterI;
+        z80.RegisterR = RegisterR;
+        z80.RegisterQ = RegisterQ;
         z80.ShadowRegisterAF = ShadowRegisterAF;
         z80.ShadowRegisterBC = ShadowRegisterBC;
         z80.ShadowRegisterDE = ShadowRegisterDE;
@@ -108,6 +111,7 @@ public abstract class Z80State
         AssertEqual(assertionsToRun, z80, Assertions.WZ, z80.RegisterWZ, RegisterWZ, $"Register WZ should be 0x{RegisterWZ:X4} but was 0x{z80.RegisterWZ:X4}");
         AssertEqual(assertionsToRun, z80, Assertions.I, z80.RegisterI, RegisterI, $"Register I should be 0x{RegisterI:X2} but was 0x{z80.RegisterI:X2}");
         AssertEqual(assertionsToRun, z80, Assertions.R, z80.RegisterR, RegisterR, $"Register R should be 0x{RegisterAF:X2} but was 0x{z80.RegisterAF:X2}");
+        AssertEqual(assertionsToRun, z80, Assertions.Q, z80.RegisterQ, RegisterQ, $"Register Q should be 0x{RegisterQ:X2} but was 0x{z80.RegisterQ:X2}");
         AssertEqual(assertionsToRun, z80, Assertions.ShadowAF, z80.ShadowRegisterAF, ShadowRegisterAF, $"Register AF' should be 0x{ShadowRegisterAF:X4} but was 0x{z80.ShadowRegisterAF:X4}");
         AssertEqual(assertionsToRun, z80, Assertions.ShadowBC, z80.ShadowRegisterBC, ShadowRegisterBC, $"Register BC' should be 0x{ShadowRegisterBC:X4} but was 0x{z80.ShadowRegisterBC:X4}");
         AssertEqual(assertionsToRun, z80, Assertions.ShadowDE, z80.ShadowRegisterDE, ShadowRegisterDE, $"Register DE' should be 0x{ShadowRegisterDE:X4} but was 0x{z80.ShadowRegisterDE:X4}");

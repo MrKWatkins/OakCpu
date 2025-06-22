@@ -9,6 +9,8 @@ public sealed class FuseTestSuite : InstructionTestSuite<FuseTestCase>
     {
     }
 
+    public override InstructionTestSuiteOptions DefaultOptions { get; } = new() { AssertionsToRun = Assertions.All & ~Assertions.Q };
+
     public override IEnumerable<FuseTestCase> GetTestCases(InstructionTestSuiteOptions options)
     {
         var inputs = ParseInput();

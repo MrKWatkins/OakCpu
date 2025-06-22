@@ -72,6 +72,12 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
         set => emulator.Registers.R = value;
     }
 
+    public override byte RegisterQ
+    {
+        get => emulator.Registers.Q;
+        set => emulator.Registers.Q = value;
+    }
+
     public override ushort ShadowRegisterAF
     {
         get => emulator.Registers.Shadow.AF;

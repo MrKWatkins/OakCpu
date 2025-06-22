@@ -1,6 +1,5 @@
 namespace MrKWatkins.OakCpu.Z80.TestSuites.Instruction.Fuse;
 
-#pragma warning disable CA1028
 public enum FuseEventType : byte
 {
     MemoryContend,
@@ -10,4 +9,3 @@ public enum FuseEventType : byte
     PortContend,
     PortRead,
 }
-#pragma warning restore CA1028

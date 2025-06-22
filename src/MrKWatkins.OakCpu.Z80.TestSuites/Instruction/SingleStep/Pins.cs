@@ -1,6 +1,5 @@
 namespace MrKWatkins.OakCpu.Z80.TestSuites.Instruction.SingleStep;
 
-#pragma warning disable CA1028
 [Flags]
 public enum Pins : byte
 {
@@ -14,4 +13,3 @@ public enum Pins : byte
     IORead = Read | IO,
     IOWrite = Write | IO
 }
-#pragma warning restore CA1028
