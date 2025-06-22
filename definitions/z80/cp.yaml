@@ -63,6 +63,8 @@ instructions:
     mnemonic: CP n
     opcodes:
       - opcode: 0xFE
+      - opcode: 0xDD 0xFE
+      - opcode: 0xFD 0xFE
     steps:
       - Address = PC; PC = PC + 1; request(action.memory_read);
       - $left = A; $right = Data; $result = $left - $right; flags();

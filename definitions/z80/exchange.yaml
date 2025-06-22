@@ -3,6 +3,8 @@ instructions:
     mnemonic: EXX
     opcodes:
       - opcode: 0xD9
+      - opcode: 0xDD 0xD9
+      - opcode: 0xFD 0xD9
     steps:
       - |
         $temp = BC'; BC' = BC; BC = $temp;
@@ -14,6 +16,8 @@ instructions:
     mnemonic: EX AF; AF'
     opcodes:
       - opcode: 0x08
+      - opcode: 0xDD 0x08
+      - opcode: 0xFD 0x08
     steps:
       - $temp = AF'; AF' = AF; AF = $temp;
     next_opcode: overlapped
@@ -22,6 +26,8 @@ instructions:
     mnemonic: EX DE; HL
     opcodes:
       - opcode: 0xEB
+      - opcode: 0xDD 0xEB
+      - opcode: 0xFD 0xEB
     steps:
       - $temp = DE; DE = HL; HL = $temp;
     next_opcode: overlapped

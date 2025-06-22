@@ -3,6 +3,8 @@ instructions:
     mnemonic: SCF
     opcodes:
       - opcode: 0x37
+      - opcode: 0xDD 0x37
+      - opcode: 0xFD 0x37
     steps:
       - $xy = (Q ^ F) | A; flags();
     flags:
@@ -17,6 +19,8 @@ instructions:
     mnemonic: CCF
     opcodes:
       - opcode: 0x3F
+      - opcode: 0xDD 0x3F
+      - opcode: 0xFD 0x3F
     steps:
       - $xy = (Q ^ F) | A; flags();
     flags:

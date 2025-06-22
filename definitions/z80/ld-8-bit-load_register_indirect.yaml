@@ -3,6 +3,8 @@ instructions:
     mnemonic: LD A, (nn)
     opcodes:
       - opcode: 0x3A
+      - opcode: 0xDD 0x3A
+      - opcode: 0xFD 0x3A
     steps:
       - Address = PC; PC = PC + 1; request(action.memory_read);
       - Z = Data;

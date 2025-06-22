@@ -3,6 +3,8 @@ instructions:
     mnemonic: RLCA
     opcodes:
       - opcode: 0x07
+      - opcode: 0xDD 0x07
+      - opcode: 0xFD 0x07
     steps:
       - $temp = A; A = (A << 1) | (A >> 7); flags();
     flags:
@@ -195,6 +197,8 @@ instructions:
     mnemonic: RLA
     opcodes:
       - opcode: 0x17
+      - opcode: 0xDD 0x17
+      - opcode: 0xFD 0x17
     steps:
       - $temp = A; A = (A << 1) | flag.C; flags();
     flags:
@@ -387,6 +391,8 @@ instructions:
     mnemonic: RRCA
     opcodes:
       - opcode: 0x0F
+      - opcode: 0xDD 0x0F
+      - opcode: 0xFD 0x0F
     steps:
       - $temp = A; A = (A >> 1) | (A << 7); flags();
     flags:
@@ -579,6 +585,8 @@ instructions:
     mnemonic: RRA
     opcodes:
       - opcode: 0x1F
+      - opcode: 0xDD 0x1F
+      - opcode: 0xFD 0x1F
     steps:
       - $temp = A; A = (A >> 1) | (flag.C << 7); flags();
     flags:

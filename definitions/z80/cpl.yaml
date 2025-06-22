@@ -3,6 +3,8 @@ instructions:
     mnemonic: CPL
     opcodes:
       - opcode: 0x2F
+      - opcode: 0xDD 0x2F
+      - opcode: 0xFD 0x2F
     steps:
       - A = ~A; flags();
     flags:

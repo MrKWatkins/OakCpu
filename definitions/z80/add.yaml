@@ -117,6 +117,8 @@ instructions:
     mnemonic: ADD A, n
     opcodes:
       - opcode: 0xC6
+      - opcode: 0xDD 0xC6
+      - opcode: 0xFD 0xC6
     steps:
       - Address = PC; PC = PC + 1; request(action.memory_read);
       -

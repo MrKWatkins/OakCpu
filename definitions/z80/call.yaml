@@ -3,6 +3,8 @@ instructions:
     mnemonic: CALL nn
     opcodes:
       - opcode: 0xCD
+      - opcode: 0xDD 0xCD
+      - opcode: 0xFD 0xCD
 
     steps:
       - Address = PC; PC = PC + 1; request(action.memory_read);
@@ -37,6 +39,40 @@ instructions:
       - opcode: 0xF4
         C0: P
       - opcode: 0xFC
+        C0: M
+        
+      - opcode: 0xDD 0xC4
+        C0: NZ
+      - opcode: 0xDD 0xCC
+        C0: Z
+      - opcode: 0xDD 0xD4
+        C0: NC
+      - opcode: 0xDD 0xDC
+        C0: C
+      - opcode: 0xDD 0xE4
+        C0: PO
+      - opcode: 0xDD 0xEC
+        C0: PE
+      - opcode: 0xDD 0xF4
+        C0: P
+      - opcode: 0xDD 0xFC
+        C0: M
+        
+      - opcode: 0xFD 0xC4
+        C0: NZ
+      - opcode: 0xFD 0xCC
+        C0: Z
+      - opcode: 0xFD 0xD4
+        C0: NC
+      - opcode: 0xFD 0xDC
+        C0: C
+      - opcode: 0xFD 0xE4
+        C0: PO
+      - opcode: 0xFD 0xEC
+        C0: PE
+      - opcode: 0xFD 0xF4
+        C0: P
+      - opcode: 0xFD 0xFC
         C0: M
 
     steps:

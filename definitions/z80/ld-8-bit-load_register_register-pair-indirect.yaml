@@ -4,7 +4,15 @@ instructions:
     opcodes:
       - opcode: 0x0A
         RP0: BC
+      - opcode: 0xDD 0x0A
+        RP0: BC
+      - opcode: 0xFD 0x0A
+        RP0: BC
       - opcode: 0x1A
+        RP0: DE
+      - opcode: 0xDD 0x1A
+        RP0: DE
+      - opcode: 0xFD 0x1A
         RP0: DE
     steps:
       - Address = RP0; request(action.memory_read);

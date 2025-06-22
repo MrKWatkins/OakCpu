@@ -10,10 +10,24 @@ instructions:
         RP0: HL
       - opcode: 0xF5
         RP0: AF
+        
+      - opcode: 0xDD 0xC5
+        RP0: BC
+      - opcode: 0xDD 0xD5
+        RP0: DE
       - opcode: 0xDD 0xE5
         RP0: IX
+      - opcode: 0xDD 0xF5
+        RP0: AF
+        
+      - opcode: 0xFD 0xC5
+        RP0: BC
+      - opcode: 0xFD 0xD5
+        RP0: DE
       - opcode: 0xFD 0xE5
         RP0: IY
+      - opcode: 0xFD 0xF5
+        RP0: AF
 
     steps:
       - 

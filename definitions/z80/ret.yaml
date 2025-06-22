@@ -3,7 +3,8 @@ instructions:
     mnemonic: RET
     opcodes:
       - opcode: 0xC9
-
+      - opcode: 0xDD 0xC9
+      - opcode: 0xFD 0xC9
     steps:
       - Address = SP; SP = SP + 1; request(action.memory_read);
       - Z = Data;
@@ -30,6 +31,40 @@ instructions:
       - opcode: 0xF0
         C0: P
       - opcode: 0xF8
+        C0: M
+        
+      - opcode: 0xDD 0xC0
+        C0: NZ
+      - opcode: 0xDD 0xC8
+        C0: Z
+      - opcode: 0xDD 0xD0
+        C0: NC
+      - opcode: 0xDD 0xD8
+        C0: C
+      - opcode: 0xDD 0xE0
+        C0: PO
+      - opcode: 0xDD 0xE8
+        C0: PE
+      - opcode: 0xDD 0xF0
+        C0: P
+      - opcode: 0xDD 0xF8
+        C0: M
+        
+      - opcode: 0xFD 0xC0
+        C0: NZ
+      - opcode: 0xFD 0xC8
+        C0: Z
+      - opcode: 0xFD 0xD0
+        C0: NC
+      - opcode: 0xFD 0xD8
+        C0: C
+      - opcode: 0xFD 0xE0
+        C0: PO
+      - opcode: 0xFD 0xE8
+        C0: PE
+      - opcode: 0xFD 0xF0
+        C0: P
+      - opcode: 0xFD 0xF8
         C0: M
 
     steps:

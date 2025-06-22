@@ -118,11 +118,25 @@ instructions:
         RP0: DE
       - opcode: 0x2B
         RP0: HL
+      - opcode: 0x3B
+        RP0: SP
+        
+      - opcode: 0xDD 0x0B
+        RP0: BC
+      - opcode: 0xDD 0x1B
+        RP0: DE
       - opcode: 0xDD 0x2B
         RP0: IX
+      - opcode: 0xDD 0x3B
+        RP0: SP
+        
+      - opcode: 0xFD 0x0B
+        RP0: BC
+      - opcode: 0xFD 0x1B
+        RP0: DE
       - opcode: 0xFD 0x2B
         RP0: IY
-      - opcode: 0x3B
+      - opcode: 0xFD 0x3B
         RP0: SP
     steps:
       - RP0 = RP0 - 1;

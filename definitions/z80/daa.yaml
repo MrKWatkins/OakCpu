@@ -3,6 +3,8 @@ instructions:
     mnemonic: DAA
     opcodes:
       - opcode: 0x27
+      - opcode: 0xDD 0x27
+      - opcode: 0xFD 0x27
     steps:
       - |
         $low_a = A & 0x0F;

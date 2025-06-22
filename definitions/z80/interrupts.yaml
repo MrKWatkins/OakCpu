@@ -17,6 +17,8 @@ instructions:
     mnemonic: HALT
     opcodes:
       - opcode: 0x76
+      - opcode: 0xDD 0x76
+      - opcode: 0xFD 0x76
     steps:
       - is_halted = true;
     next_opcode: overlapped
@@ -25,6 +27,8 @@ instructions:
     mnemonic: DI
     opcodes:
       - opcode: 0xF3
+      - opcode: 0xDD 0xF3
+      - opcode: 0xFD 0xF3
     steps:
       - IFF1 = false; IFF2 = false;
     next_opcode: overlapped
@@ -33,6 +37,8 @@ instructions:
     mnemonic: EI
     opcodes:
       - opcode: 0xFB
+      - opcode: 0xDD 0xFB
+      - opcode: 0xFD 0xFB
     steps:
       - IFF1 = true; IFF2 = true;
     next_opcode: overlapped
