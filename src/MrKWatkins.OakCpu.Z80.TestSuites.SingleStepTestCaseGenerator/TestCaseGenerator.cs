@@ -35,6 +35,18 @@ public static class TestCaseGenerator
         WriteTestState(binaryWriter, step.Initial);
         WriteTestState(binaryWriter, step.Final);
         WriteCycles(binaryWriter, step.Cycles);
+        WritePorts(binaryWriter, step.Ports);
+    }
+
+    private static void WritePorts(BinaryWriter binaryWriter, IReadOnlyList<Port> ports)
+    {
+        binaryWriter.Write7BitEncodedInt(ports.Count);
+        foreach (var port in ports)
+        {
+            binaryWriter.Write(port.Address);
+            binaryWriter.Write(port.Value);
+            binaryWriter.Write((byte)port.Type);
+        }
     }
 
     private static void WriteCycles(BinaryWriter binaryWriter, IReadOnlyList<Cycle> cycles)

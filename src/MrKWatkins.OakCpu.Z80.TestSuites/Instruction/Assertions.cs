@@ -25,7 +25,7 @@ public enum Assertions
     ShadowBC = 1 << 13,
     ShadowDE = 1 << 14,
     ShadowHL = 1 << 15,
-    RegistersExceptWZAndQ = AF | BC | DE | HL | IX | IY | PC | SP | I | R | ShadowAF| ShadowBC | ShadowDE | ShadowHL,
+    RegistersExceptWZAndQ = AF | BC | DE | HL | IX | IY | PC | SP | I | R | ShadowAF | ShadowBC | ShadowDE | ShadowHL,
     RegistersExceptQ = RegistersExceptWZAndQ | WZ,
     Registers = RegistersExceptQ | Q,
 

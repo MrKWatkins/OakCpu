@@ -4,7 +4,7 @@ internal static class EnumerableExtensions
 {
     [Pure]
     internal static IEnumerable<(T? Previous, T Current, T? Next)> EnumerateWindow<T>(this IEnumerable<T> source)
-        where T: struct
+        where T : struct
     {
         using var enumerator = source.GetEnumerator();
         enumerator.MoveNext();

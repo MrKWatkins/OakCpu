@@ -3,7 +3,7 @@ namespace MrKWatkins.OakCpu.Z80.TestSuites.Instruction.Fuse;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public readonly struct FuseEvent
 {
-    private FuseEvent(FuseEventType type, int tStatesAfter, ushort address, byte? data)
+    private FuseEvent(FuseEventType type, ulong tStatesAfter, ushort address, byte? data)
     {
         Type = type;
         TStatesAfter = tStatesAfter;
@@ -13,7 +13,7 @@ public readonly struct FuseEvent
 
     public FuseEventType Type { get; }
 
-    public int TStatesAfter { get; }
+    public ulong TStatesAfter { get; }
 
     public ushort Address { get; }
 
@@ -27,7 +27,7 @@ public readonly struct FuseEvent
         var components = line.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         var type = components[1].ToEventType();
-        var time = int.Parse(components[0]);
+        var time = ulong.Parse(components[0]);
         var address = components[2].ToWord();
         byte? data = components.Length == 4 ? components[3].ToByte() : null;
 

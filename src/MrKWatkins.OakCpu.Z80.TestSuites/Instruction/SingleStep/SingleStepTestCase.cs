@@ -22,28 +22,25 @@ public sealed class SingleStepTestCase : InstructionTestCase
         testOutput?.Write('.');
 
         // TODO: Avoid creating each time.
-        var z80 = new TTestHarness();
+        var z80 = CreateZ80<TTestHarness>();
 
         step.Input.Setup(z80);
 
-        // TODO: Avoid creating each time.
-        var cycles = new List<Cycle>(step.TStates);
         while (z80.TStates <= (ulong)step.TStates)
         {
-            cycles.AddRange(z80.Cycle());
+            z80.Step();
         }
 
-        AdjustForOverlappedRead(z80, cycles);
+        AdjustForOverlappedRead(z80);
 
-        Assert(step, z80, cycles);
+        Assert(step, z80);
     }
 
-    private void Assert(Step step, Z80TestHarness z80, IReadOnlyList<Cycle> cycles)
+    private void Assert(Step step, Z80TestHarness z80)
     {
         using (z80.CreateAssertionScope($"Step {step.Index}"))
         {
             step.Expected.Assert(AssertionsToRun, z80);
-            AssertCycles(z80, step.Cycles, cycles);
         }
     }
 }

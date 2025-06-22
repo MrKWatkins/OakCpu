@@ -35,7 +35,8 @@ public sealed class RaxoftTestCase : ProgramTestCase
         // CHAN_OPEN routine; needs interrupts. Return instead.
         z80.WriteByteToMemory(0x1601, 0xC9);
 
-        // TODO: 0XBF is expected on port 0xFE.
+        // 0xBF is expected on port 0xFE.
+        z80.SetIO(new NullIO(0xBF));
     }
 
     private protected override PrintInterceptor CreatePrintInterceptor(Z80TestHarness z80, ResultWatchingOutput output) => new ZXSpectrumPrintInterceptor(z80, output);

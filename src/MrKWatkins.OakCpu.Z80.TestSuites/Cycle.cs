@@ -1,8 +1,10 @@
 namespace MrKWatkins.OakCpu.Z80.TestSuites;
 
-public readonly struct Cycle(CycleType type, ushort address, byte? data, bool isOpcodeRead = false)
+public sealed class Cycle(CycleType type, ulong index, ushort address, byte? data, bool isOpcodeRead = false)
 {
     public CycleType Type { get; } = type;
+
+    public ulong Index { get; } = index;
 
     public ushort Address { get; } = address;
 

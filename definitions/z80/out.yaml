@@ -3,11 +3,13 @@ instructions:
     mnemonic: OUT (n), A
     opcodes:
       - opcode: 0xD3
+      - opcode: 0xDD 0xD3
+      - opcode: 0xFD 0xD3
     steps:
       - Address = PC; PC = PC + 1; request(action.memory_read);
       - Z = Data; W = A;
       - 
-      - Address = WZ; Data = A; request(action.io_write);
+      - Address = WZ; Data = A;
+      - request(action.io_write);
       - Z = Z + 1;
-      -
       -

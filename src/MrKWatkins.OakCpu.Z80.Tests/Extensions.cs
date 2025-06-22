@@ -6,6 +6,6 @@ public static class Extensions
 {
     [Pure]
     public static IEnumerable<TestCaseData> ToTestCaseData<TTestCase>(this IEnumerable<TTestCase> testCases)
-        where TTestCase: TestCase
+        where TTestCase : TestCase
         => testCases.Select(x => new TestCaseData(x));
 }

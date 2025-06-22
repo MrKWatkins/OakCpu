@@ -1,4 +1,4 @@
-﻿using MrKWatkins.OakCpu.Z80;
+using MrKWatkins.OakCpu.Z80;
 
 var emulator = new Z80Emulator();
 for (var f = 0; f < 5; f++)

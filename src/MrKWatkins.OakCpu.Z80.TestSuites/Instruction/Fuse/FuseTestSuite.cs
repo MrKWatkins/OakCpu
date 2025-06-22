@@ -23,7 +23,7 @@ public sealed class FuseTestSuite : InstructionTestSuite<FuseTestCase>
     }
 
     [Pure]
-    private IReadOnlyDictionary<string, Input> ParseInput()
+    private IReadOnlyDictionary<string, Z80InputState> ParseInput()
     {
         using var stream = OpenResource("tests.in");
         using var reader = new StreamReader(stream);
@@ -32,9 +32,9 @@ public sealed class FuseTestSuite : InstructionTestSuite<FuseTestCase>
     }
 
     [Pure]
-    private static IReadOnlyDictionary<string, Input> ParseInput(StreamReader reader)
+    private static IReadOnlyDictionary<string, Z80InputState> ParseInput(StreamReader reader)
     {
-        var input = new Dictionary<string, Input>();
+        var inputs = new Dictionary<string, Z80InputState>();
         while (reader.ReadLine() is { } name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -42,13 +42,15 @@ public sealed class FuseTestSuite : InstructionTestSuite<FuseTestCase>
                 continue;
             }
 
-            input.Add(name, Input.Parse(reader));
+            var input = new Z80InputState();
+            inputs.Add(name, input);
+            Parse(input, reader.ReadLine()!, reader);
         }
-        return input;
+        return inputs;
     }
 
     [Pure]
-    private IReadOnlyDictionary<string, Expected> ParseExpected()
+    private IReadOnlyDictionary<string, FuseZ80ExpectedState> ParseExpected()
     {
         using var stream = OpenResource("tests.expected");
         using var reader = new StreamReader(stream);
@@ -57,9 +59,9 @@ public sealed class FuseTestSuite : InstructionTestSuite<FuseTestCase>
     }
 
     [Pure]
-    private static IReadOnlyDictionary<string, Expected> ParseExpected(StreamReader reader)
+    private static IReadOnlyDictionary<string, FuseZ80ExpectedState> ParseExpected(StreamReader reader)
     {
-        var expected = new Dictionary<string, Expected>();
+        var expecteds = new Dictionary<string, FuseZ80ExpectedState>();
         while (reader.ReadLine() is { } name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -67,8 +69,89 @@ public sealed class FuseTestSuite : InstructionTestSuite<FuseTestCase>
                 continue;
             }
 
-            expected.Add(name, Expected.Parse(reader));
+            var events = new List<FuseEvent>();
+            string line;
+            while (true)
+            {
+                line = reader.ReadLine()!;
+                if (!char.IsWhiteSpace(line[0]))
+                {
+                    break;
+                }
+
+                events.Add(FuseEvent.Parse(line));
+            }
+
+            var expected = new FuseZ80ExpectedState(events);
+            expecteds.Add(name, expected);
+            Parse(expected, line, reader);
         }
-        return expected;
+        return expecteds;
     }
+
+    private static void Parse(Z80State state, string firstLine, StreamReader reader)
+    {
+        ParseRegisters(state, firstLine);
+        ParseInterrupts(state, reader.ReadLine()!);
+
+        var memory = new List<MemoryState>();
+        while (reader.ReadLine() is { } line)
+        {
+            if (string.IsNullOrWhiteSpace(line) || line == "-1")
+            {
+                break;
+            }
+
+            memory.AddRange(ParseMemory(line));
+        }
+
+        state.Memory = memory;
+    }
+
+    private static void ParseRegisters(Z80State state, string line)
+    {
+        var registers = line.Split(' ');
+        state.RegisterAF = registers[0].ToWord();
+        state.RegisterBC = registers[1].ToWord();
+        state.RegisterDE = registers[2].ToWord();
+        state.RegisterHL = registers[3].ToWord();
+        state.ShadowRegisterAF = registers[4].ToWord();
+        state.ShadowRegisterBC = registers[5].ToWord();
+        state.ShadowRegisterDE = registers[6].ToWord();
+        state.ShadowRegisterHL = registers[7].ToWord();
+        state.RegisterIX = registers[8].ToWord();
+        state.RegisterIY = registers[9].ToWord();
+        state.RegisterSP = registers[10].ToWord();
+        state.RegisterPC = registers[11].ToWord();
+        state.RegisterWZ = registers[12].ToWord();
+    }
+
+    private static void ParseInterrupts(Z80State state, string line)
+    {
+        var interrupts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        state.RegisterI = interrupts[0].ToByte();
+        state.RegisterR = interrupts[1].ToByte();
+        state.IFF1 = interrupts[2].ToBool();
+        state.IFF2 = interrupts[3].ToBool();
+        state.IM = interrupts[4].ToByte();
+        state.Halted = interrupts[5].ToBool();
+
+        if (state is Z80ExpectedState expected)
+        {
+            expected.TStates = ulong.Parse(interrupts[6]);
+        }
+    }
+
+    [Pure]
+    private static IEnumerable<MemoryState> ParseMemory(string line)
+    {
+        var data = line.Split(' ');
+        var address = data[0].ToWord();
+        foreach (var @byte in data[1..^1].Select(d => d.ToByte()))
+        {
+            yield return new MemoryState(address, @byte);
+            address++;
+        }
+    }
+
 }

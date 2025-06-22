@@ -1,6 +1,4 @@
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using MrKWatkins.OakCpu.Z80.TestSuites.Instruction;
 
 namespace MrKWatkins.OakCpu.Z80.TestSuites;
 
@@ -10,7 +8,6 @@ public abstract class Z80TestHarness
 #pragma warning restore CA1001
 {
     private readonly byte[] memory = new byte[65536];
-    private readonly List<IOWrite> ioWrites = new();
     private AssertionScope? assertionScope;
 
     public abstract ushort RegisterAF { get; set; }
@@ -149,40 +146,42 @@ public abstract class Z80TestHarness
 
     public void WriteWordToMemory(ushort address, ushort value)
     {
-        WriteByteToMemory(address, (byte) value);
+        WriteByteToMemory(address, (byte)value);
 
         address++;
         WriteByteToMemory(address, (byte)(value >> 8));
     }
 
-    public virtual byte? DefaultIORead { get; set; }
+    public IIOReader IOReader { get; set; } = new NullIO();
 
-    public Queue<IORead> ExpectedIOReads { get; } = new();
+    public IIOWriter IOWriter { get; set; } = new NullIO();
 
-    [Pure]
-    public byte ReadIO(ushort port)
+    public void SetIO<TIO>(TIO io)
+        where TIO : IIOReader, IIOWriter
     {
-        if (DefaultIORead.HasValue)
-        {
-            return DefaultIORead.Value;
-        }
-
-        if (ExpectedIOReads.TryDequeue(out var read))
-        {
-            AssertEqual(port, read.Port, $"expected read of port {port}.");
-            return read.Data;
-        }
-
-        AssertFail($"Unexpected IO read of port {port}.");
-        throw new UnreachableException();
+        IOReader = io;
+        IOWriter = io;
     }
 
-    public IReadOnlyList<IOWrite> IOWrites => ioWrites;
-
-    public void WriteIO(ushort port, byte value)
+    public bool RecordCycles
     {
-        ioWrites.Add(new IOWrite(port, value));
+        get => MutableCycles != null;
+        set
+        {
+            if (value)
+            {
+                MutableCycles ??= [];
+            }
+            else
+            {
+                MutableCycles = null;
+            }
+        }
     }
+
+    protected internal List<Cycle>? MutableCycles { get; private set; }
+
+    public IReadOnlyList<Cycle> Cycles => MutableCycles ?? throw new InvalidOperationException("Cycles are not being recorded.");
 
     [MustDisposeResource]
     public IDisposable CreateAssertionScope(string? name = null)
@@ -214,8 +213,6 @@ public abstract class Z80TestHarness
     public abstract void AssertFail(string message);
 
     public abstract void Step();
-
-    public abstract Cycle Cycle();
 
     public abstract void ExecuteInstruction();
 

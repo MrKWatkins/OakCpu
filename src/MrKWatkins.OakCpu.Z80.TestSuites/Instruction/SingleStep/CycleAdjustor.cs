@@ -22,15 +22,15 @@ public static class CycleAdjustor
         {
             if (next?.Type is CycleType.MemoryRead or CycleType.MemoryWrite)
             {
-                yield return new Cycle(next.Value.Type, current.Address, next.Value.Data);
+                yield return new Cycle(next.Type, current.Index, current.Address, next.Data);
             }
             else if (current.Type is CycleType.MemoryRead)
             {
-                yield return new Cycle(CycleType.MemoryRead, current.Address, next?.Data);
+                yield return new Cycle(CycleType.MemoryRead, current.Index, current.Address, next?.Data);
             }
             else if (previous?.Type is CycleType.MemoryRead)
             {
-                yield return new Cycle(CycleType.None, current.Address, previous.Value.Data);
+                yield return new Cycle(CycleType.None, current.Index, current.Address, previous.Data);
             }
             else
             {
@@ -44,21 +44,21 @@ public static class CycleAdjustor
     {
         foreach (var (previous, current, next) in EnumerateCycles(cycles))
         {
-            if (next?.Type is CycleType.MemoryRead or CycleType.MemoryWrite)
+            if (next?.Type is CycleType.MemoryRead or CycleType.MemoryWrite or CycleType.IOWrite)
             {
-                yield return new Cycle(next.Value.Type, current.Address, next.Value.Data);
+                yield return new Cycle(next.Type, current.Index, current.Address, next.Data);
             }
-            else if (current.Type is CycleType.MemoryRead or CycleType.MemoryWrite)
+            else if (current.Type is CycleType.MemoryRead or CycleType.MemoryWrite or CycleType.IOWrite)
             {
                 if (next == null)
                 {
                     throw new InvalidOperationException("Instruction ended with a memory read or write cycle.");
                 }
-                yield return new Cycle(CycleType.None, current.Address, next.Value.Data);
+                yield return new Cycle(CycleType.None, current.Index, current.Address, next.Data);
             }
             else if (previous?.Type is CycleType.MemoryRead)
             {
-                yield return new Cycle(CycleType.None, current.Address, previous.Value.Data);
+                yield return new Cycle(CycleType.None, current.Index, current.Address, previous.Data);
             }
             else
             {

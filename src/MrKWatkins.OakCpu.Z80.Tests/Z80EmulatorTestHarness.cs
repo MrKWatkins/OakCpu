@@ -176,18 +176,11 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
 
     public override void AssertFail(string message) => Assert.Fail(message + Environment.NewLine);
 
-    public override Cycle Cycle()
-    {
-        var actionRequired = emulator.Step();
-        PerformActionRequired(actionRequired);
-        TStates++;
-        return CreateCycle(actionRequired);
-    }
-
     public override void Step()
     {
         var actionRequired = emulator.Step();
         PerformActionRequired(actionRequired);
+        MutableCycles?.Add(CreateCycle(actionRequired));
         TStates++;
     }
 
@@ -225,19 +218,19 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
         switch (actionRequired)
         {
             case ActionRequired.None:
-                return new Cycle(CycleType.None, emulator.Address, emulator.Data);
+                return new Cycle(CycleType.None, TStates, emulator.Address, emulator.Data);
 
             case ActionRequired.OpcodeRead:
-                return new Cycle(CycleType.MemoryRead, emulator.Address, emulator.Data, true);
+                return new Cycle(CycleType.MemoryRead, TStates, emulator.Address, emulator.Data, true);
 
             case ActionRequired.MemoryRead:
-                return new Cycle(CycleType.MemoryRead, emulator.Address, emulator.Data);
+                return new Cycle(CycleType.MemoryRead, TStates, emulator.Address, emulator.Data);
 
             case ActionRequired.MemoryWrite:
-                return new Cycle(CycleType.MemoryWrite, emulator.Address, emulator.Data);
+                return new Cycle(CycleType.MemoryWrite, TStates, emulator.Address, emulator.Data);
 
             case ActionRequired.IoWrite:
-                return new Cycle(CycleType.IOWrite, emulator.Address, emulator.Data);
+                return new Cycle(CycleType.IOWrite, TStates, emulator.Address, emulator.Data);
         }
         throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");
     }
@@ -256,7 +249,7 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
                 return;
 
             case ActionRequired.IoWrite:
-                WriteIO(emulator.Address, emulator.Data);
+                IOWriter.Write(emulator.Address, emulator.Data);
                 return;
         }
     }
