@@ -74,6 +74,14 @@ public abstract class ExpressionGenerator : Generator
     [Pure]
     private static ExpressionSyntax GeneratePreDefinedFunctionCallExpressionSyntax(StepContext context, Call call)
     {
+        if (call.Function == PreDefinedFunction.InstructionUpdatesFlags)
+        {
+            return GenerateInstructionUpdatesFlagsExpressionSyntax(context);
+        }
+        if (call.Function == PreDefinedFunction.IsZero)
+        {
+            return GenerateIsZeroExpressionSyntax(context, call.Arguments[0]);
+        }
         if (call.Function == PreDefinedFunction.PopCount)
         {
             return GeneratePopCountExpressionSyntax(context, call.Arguments[0]);
@@ -82,25 +90,21 @@ public abstract class ExpressionGenerator : Generator
         {
             return GenerateSignedExpressionSyntax(context, call.Arguments[0]);
         }
-        if (call.Function == PreDefinedFunction.IsZero)
-        {
-            return GenerateIsZeroStatement(context, call.Arguments[0]);
-        }
 
         throw new NotSupportedException($"The function {call.Function} is not supported.");
     }
 
     [Pure]
     private static ExpressionSyntax GeneratePopCountExpressionSyntax(StepContext context, Expression argument) =>
-            InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("System.Numerics.BitOperations"),
-                        IdentifierName("PopCount")))
-                .WithArgumentList(
-                    ArgumentList(
-                        SingletonSeparatedList(
-                            Argument(GenerateExpressionSyntax(context, argument)))));
+        InvocationExpression(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName("System.Numerics.BitOperations"),
+                    IdentifierName("PopCount")))
+            .WithArgumentList(
+                ArgumentList(
+                    SingletonSeparatedList(
+                        Argument(GenerateExpressionSyntax(context, argument)))));
 
     [Pure]
     private static ExpressionSyntax GenerateSignedExpressionSyntax(StepContext context, Expression argument)
@@ -114,7 +118,11 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateIsZeroStatement(StepContext context, Expression argument) =>
+    private static ExpressionSyntax GenerateInstructionUpdatesFlagsExpressionSyntax(StepContext context) =>
+        LiteralExpression(context.Step.Instruction?.UpdatesFlags == true ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
+
+    [Pure]
+    private static ExpressionSyntax GenerateIsZeroExpressionSyntax(StepContext context, Expression argument) =>
         BinaryExpression(SyntaxKind.EqualsExpression, GenerateExpressionSyntax(context, argument), GenerateNumericLiteralExpression(0));
 
     [Pure]

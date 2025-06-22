@@ -17,6 +17,8 @@ opcode_read:
   - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);
   - move_to_opcode();
 
+on_instruction_complete: if instruction_updates_flags(); Q = F; else; Q = 0; endif;
+
 instructions:    
   - group: Redirects
     mnemonic: DDCB Redirect

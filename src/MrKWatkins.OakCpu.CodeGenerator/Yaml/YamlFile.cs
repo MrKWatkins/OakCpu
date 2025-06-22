@@ -49,12 +49,15 @@ public sealed partial class YamlFile
         private set => functions = value;
     }
 
+    public string? OnInstructionComplete { get; private set; }
+
     [Pure]
     public static YamlFile Combine(params IEnumerable<YamlFile> files)
     {
         // TODO: Validation on all this.
         CpuYaml? cpu = null;
         InterruptsYaml? interrupts = null;
+        string? onInstructionComplete = null;
         var registers = new List<RegisterYaml>();
         var opcodeRead = new List<string?>();
         var flags = new List<FlagYaml>();
@@ -64,6 +67,7 @@ public sealed partial class YamlFile
         {
             cpu ??= file.Cpu;
             interrupts ??= file.Interrupts;
+            onInstructionComplete ??= file.OnInstructionComplete;
             opcodeRead.AddRange(file.OpcodeRead);
             registers.AddRange(file.Registers);
             flags.AddRange(file.Flags);
@@ -74,6 +78,7 @@ public sealed partial class YamlFile
         {
             Cpu = cpu ?? throw new InvalidOperationException("No cpu definition found."),
             Interrupts = interrupts ?? throw new InvalidOperationException("No interrupts definition found."),
+            OnInstructionComplete = onInstructionComplete,
             OpcodeRead = opcodeRead,
             Registers = registers,
             Flags = flags,

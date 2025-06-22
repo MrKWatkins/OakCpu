@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using MrKWatkins.OakCpu.CodeGenerator.Generators;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
-using MrKWatkins.OakCpu.CodeGenerator.Language.Ast.Optimization;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 
@@ -68,12 +67,16 @@ public sealed class Step
 
     [Pure]
     public static IReadOnlyList<Step> Parse(string baseName, ParserContext context, IReadOnlyList<string?> steps) =>
-        steps.Select((s, i) => Parse($"{baseName} [{i}]", context, s)).ToList();
+        steps.Select((s, i) => Parse($"{baseName} [{i}]", context, s, false)).ToList();
 
     [Pure]
-    public static Step Parse(string name, ParserContext context, string? step)
+    public static Step Parse(string name, ParserContext context, string? step, bool isLastStep)
     {
-        var statements = OptimizeStatements.Optimize(Parser.ParseStatements(context, step)).ToList();
+        var statements = Parser.ParseStatements(context, step);
+        if (isLastStep)
+        {
+            statements.AddRange(context.OnInstructionComplete);
+        }
 
         var requestStatements = statements.Where(s => s is CallStatement call && call.Call.Function == PreDefinedFunction.Request).OfType<CallStatement>().ToList();
         switch (requestStatements.Count)
@@ -85,18 +88,13 @@ public sealed class Step
         }
 
         var callStatement = requestStatements[0];
-        if (callStatement != statements.Last())
-        {
-            throw new InvalidOperationException($"The {PreDefinedFunction.Request.Name} function must be the last statement in the step.");
-        }
-
         if (callStatement.Call.Arguments.FirstOrDefault() is not ActionAccess actionAccess)
         {
             throw new InvalidOperationException($"The {PreDefinedFunction.Request.Name} function must have an action as the first argument.");
         }
 
         // Remove the call from the statements as it is handled by the code generation for the action.
-        statements.RemoveAt(statements.Count - 1);
+        statements.Remove(callStatement);
 
         return new Step(name, statements, actionAccess.Action);
     }

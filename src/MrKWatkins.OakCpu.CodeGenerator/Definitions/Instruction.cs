@@ -46,6 +46,8 @@ public sealed class Instruction
 
     public IReadOnlyList<(byte? Prefix, byte Opcode, Step Step)> Duplicates { get; }
 
+    public bool UpdatesFlags => Flags.Any();
+
     [Pure]
     public static IReadOnlyList<Instruction> Create(ParserContext context, IReadOnlyList<InstructionYaml> yamls)
     {
@@ -77,7 +79,9 @@ public sealed class Instruction
                 {
                     var step = Substitute(context, opcodeYaml, expressions);
 
-                    return Step.Parse($"{tablePrefix}{opcodeYaml.Opcode}: {mnemonic} [{index}]", context, step);
+                    var isLastStep = index == yaml.Steps.Count - 1;
+
+                    return Step.Parse($"{tablePrefix}{opcodeYaml.Opcode}: {mnemonic} [{index}]", context, step, isLastStep);
                 })
                 .ToList();
 

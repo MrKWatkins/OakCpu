@@ -71,7 +71,7 @@ public abstract class StepGenerator : Generator
         }
         if (callStatement.Call.Function == PreDefinedFunction.FinishInstruction)
         {
-            return GenerateFinishInstruction();
+            return GenerateFinishInstruction(context);
         }
         if (callStatement.Call.Function == PreDefinedFunction.MoveToOpcode)
         {
@@ -90,14 +90,25 @@ public abstract class StepGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateFinishInstruction()
+    private static IEnumerable<StatementSyntax> GenerateFinishInstruction(StepContext context)
     {
+        foreach (var statement in context.GeneratorContext.OnInstructionComplete.SelectMany(s => GenerateStatements(context, s)))
+        {
+            yield return statement;
+        }
+
         yield return CreateSetStep(0).WithLeadingTrivia(Comment("// Finish instruction."));
     }
 
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateAssignment(StepContext context, Assignment assignment)
     {
+        // Skip self-assignments.
+        if (assignment.Target == assignment.Value)
+        {
+            yield break;
+        }
+
         // TODO: AssignmentEqual if possible, i.e. A |= D rather than A = (byte)(A | D). Probably generates the same code though...
         var value = ExpressionGenerator.GenerateExpressionSyntax(context, assignment.Value);
 
@@ -136,18 +147,19 @@ public abstract class StepGenerator : Generator
     {
         var condition = ExpressionGenerator.GenerateExpressionSyntax(context.WithBooleanContext(), ifStatement.Condition);
 
-        var ifBlock = Block(ifStatement.IfStatements.SelectMany(statement => GenerateStatements(context, statement)));
+        var ifStatements = ifStatement.IfStatements.SelectMany(statement => GenerateStatements(context, statement));
+        var elseStatements = ifStatement.ElseStatements.SelectMany(statement => GenerateStatements(context, statement));
 
-        if (ifStatement.ElseStatements.Any())
+        // We might have true or false for the condition, which we can optimise.
+        if (condition is LiteralExpressionSyntax literal)
         {
-            var elseBlock = Block(ifStatement.ElseStatements.SelectMany(statement => GenerateStatements(context, statement)));
+            var constant = (bool)literal.Token.Value!;
+            return constant ? ifStatements : elseStatements;
+        }
 
-            yield return IfStatement(condition, ifBlock, ElseClause(elseBlock));
-        }
-        else
-        {
-            yield return IfStatement(condition, ifBlock);
-        }
+        return ifStatement.ElseStatements.Any()
+            ? [IfStatement(condition, Block(ifStatements), ElseClause(Block(elseStatements)))]
+            : [IfStatement(condition, Block(ifStatements))];
     }
 
     [Pure]

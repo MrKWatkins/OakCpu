@@ -14,7 +14,7 @@ public static class Parser
     private const int UnaryBindingPower = int.MaxValue;
 
     [Pure]
-    public static IReadOnlyList<Statement> ParseStatements(ParserContext context, string? input)
+    public static List<Statement> ParseStatements(ParserContext context, string? input)
     {
         if (string.IsNullOrWhiteSpace(input))
         {

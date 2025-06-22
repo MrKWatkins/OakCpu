@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
+using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 using VYaml.Serialization;
@@ -13,13 +14,14 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public sealed class GeneratorContext
 {
-    private GeneratorContext(string rootNamespace, Configuration configuration, Cpu cpu, Interrupts interrupts, IReadOnlyList<Step> opcodeRead, IReadOnlyList<Instruction> instructions, IReadOnlyList<byte> opcodePrefixes, IReadOnlyList<Step> allSteps)
+    private GeneratorContext(string rootNamespace, Configuration configuration, Cpu cpu, Interrupts interrupts, IReadOnlyList<Step> opcodeRead, IReadOnlyList<Statement> onInstructionComplete, IReadOnlyList<Instruction> instructions, IReadOnlyList<byte> opcodePrefixes, IReadOnlyList<Step> allSteps)
     {
         RootNamespace = rootNamespace;
         Configuration = configuration;
         Cpu = cpu;
         Interrupts = interrupts;
         OpcodeRead = opcodeRead;
+        OnInstructionComplete = onInstructionComplete;
         Instructions = instructions;
         OpcodePrefixes = opcodePrefixes;
         AllSteps = allSteps;
@@ -34,6 +36,8 @@ public sealed class GeneratorContext
     public Interrupts Interrupts { get; }
 
     public IReadOnlyList<Step> OpcodeRead { get; }
+
+    public IReadOnlyList<Statement> OnInstructionComplete { get; }
 
     public IReadOnlyList<Instruction> Instructions { get; }
 
@@ -76,6 +80,8 @@ public sealed class GeneratorContext
 
         var context = new ParserContext(configuration);
 
+        context = context.WithOnInstructionComplete(Parser.ParseStatements(context, yaml.OnInstructionComplete));
+
         var opcodeRead = Step.Parse("Opcode read", context, yaml.OpcodeRead);
 
         var instructions = Instruction.Create(context, yaml.Instructions);
@@ -86,11 +92,11 @@ public sealed class GeneratorContext
         var allSteps = opcodeRead.Concat(instructions.SelectMany(i => i.Steps)).ToList();
         Step.AssignIndexes(allSteps);
 
-        return new GeneratorContext(rootNamespace, configuration, Cpu.Create(yaml.Cpu), Interrupts.Create(yaml.Interrupts), opcodeRead, instructions, opcodePrefixes, allSteps);
+        return new GeneratorContext(rootNamespace, configuration, Cpu.Create(yaml.Cpu), Interrupts.Create(yaml.Interrupts), opcodeRead, context.OnInstructionComplete, instructions, opcodePrefixes, allSteps);
     }
 
     [Pure]
-    internal GeneratorContext WithRequiredUsings() => new(RootNamespace, Configuration, Cpu, Interrupts, OpcodeRead, Instructions, OpcodePrefixes, AllSteps);
+    internal GeneratorContext WithRequiredUsings() => new(RootNamespace, Configuration, Cpu, Interrupts, OpcodeRead, OnInstructionComplete, Instructions, OpcodePrefixes, AllSteps);
 
     [Pure]
     private static YamlFile LoadYaml(AdditionalText text)
