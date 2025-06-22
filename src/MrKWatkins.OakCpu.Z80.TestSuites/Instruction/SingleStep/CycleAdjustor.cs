@@ -50,7 +50,11 @@ public static class CycleAdjustor
             }
             else if (current.Type is CycleType.MemoryRead or CycleType.MemoryWrite)
             {
-                yield return new Cycle(CycleType.None, current.Address, next!.Value.Data);
+                if (next == null)
+                {
+                    throw new InvalidOperationException("Instruction ended with a memory read or write cycle.");
+                }
+                yield return new Cycle(CycleType.None, current.Address, next.Value.Data);
             }
             else if (previous?.Type is CycleType.MemoryRead)
             {
