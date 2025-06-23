@@ -16,7 +16,7 @@ public abstract class DataMember
         FieldVisibility = fieldVisibility;
         IsArray = isArray;
         FieldName = name.ToLowerCamelCaseFromSnakeCase();
-        PropertyName = FieldName.ToUpperCamelCaseFromSnakeCase();
+        PropertyName = Name.ToUpperCamelCaseFromSnakeCase();
         GetterVisibility = getterVisibility;
         SetterVisibility = setterVisibility;
     }

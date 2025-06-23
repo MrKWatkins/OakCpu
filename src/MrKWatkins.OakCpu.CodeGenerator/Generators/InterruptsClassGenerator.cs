@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -34,17 +35,17 @@ public sealed class InterruptsClassGenerator : TypeGenerator
 
     [Pure]
     private static IEnumerable<PropertyDeclarationSyntax> CreateInterruptProperties(GeneratorContext context) =>
-        context.Interrupts.Properties
-            .OrderBy(p => p)
-            .Select(p => CreateInterruptProperty(context, p, context.Configuration.UserDefinedDataMembers[p]));
+        context.Interrupts.Properties.Values
+            .OrderBy(p => p.PropertyName)
+            .Select(p => CreateInterruptProperty(context, p));
 
     [Pure]
-    private static PropertyDeclarationSyntax CreateInterruptProperty(GeneratorContext context, string property, UserDefinedDataMember field)
+    private static PropertyDeclarationSyntax CreateInterruptProperty(GeneratorContext context, UserDefinedDataMember property)
     {
         var memberAccessExpression = MemberAccessExpression(
             SyntaxKind.SimpleMemberAccessExpression,
             IdentifierName(EmulatorFieldName),
-            IdentifierName(field.FieldName));
+            IdentifierName(property.FieldName));
 
         var getExpression = memberAccessExpression;
 
@@ -53,7 +54,7 @@ public sealed class InterruptsClassGenerator : TypeGenerator
             memberAccessExpression,
             IdentifierName("value"));
 
-        return CreateGetSetProperty(context, field.TypeSyntax, property.ToUpperCamelCaseFromSnakeCase(), getExpression, setExpression);
+        return CreateGetSetProperty(context, property.TypeSyntax, property.PropertyName, getExpression, setExpression);
     }
 
     [Pure]
@@ -71,6 +72,7 @@ public sealed class InterruptsClassGenerator : TypeGenerator
                     SingletonSeparatedList(
                         Parameter(Identifier(EmulatorFieldName))
                             .WithType(GetEmulatorClassIdentifier(context)))))
-            .WithBody(Block(statements.ToArray()));
+            .WithBody(Block(statements.ToArray()))
+            .WithLeadingTrivia(NewlineComment);
     }
 }

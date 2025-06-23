@@ -12,4 +12,8 @@ public sealed class UserDefinedDataMember : DataMember
     [Pure]
     public static IEnumerable<UserDefinedDataMember> Create([InstantHandle] IEnumerable<FieldYaml> yamls, Visibility visibility) =>
         yamls.Select(y => new UserDefinedDataMember(y.Name, y.Type, visibility));
+
+    [Pure]
+    public static IEnumerable<UserDefinedDataMember> Create([InstantHandle] IEnumerable<InterruptPropertyYaml> yamls, Visibility visibility) =>
+        yamls.Select(y => new UserDefinedDataMember(y.Name, y.Type, visibility));
 }

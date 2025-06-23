@@ -2,6 +2,7 @@ interrupts:
   properties:
     - name: IM
       type: u8
+      mode: true
       
     - name: IFF1
       type: bool
@@ -11,6 +12,16 @@ interrupts:
     
     - name: is_halted
       type: bool
+      
+      # Not bothering with NMI.
+    - name: interrupt
+      type: bool
+      trigger: true
+  
+  mode:
+    number: 0
+    steps:
+      - 
 
 instructions:
   - group: Interrupts

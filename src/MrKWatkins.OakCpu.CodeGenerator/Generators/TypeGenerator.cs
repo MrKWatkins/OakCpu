@@ -69,9 +69,11 @@ public abstract class TypeGenerator : Generator
                 AccessorList(
                 [
                     AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                        .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)])])
+                        .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
                         .WithSemicolonToken(Semicolon)
-                ]));
+                        .WithTrailingTrivia(NewlineComment, IndentComment)
+                ])
+                .WithLeadingTrivia(NewlineComment));
 
     [Pure]
     protected static PropertyDeclarationSyntax CreateGetSetProperty(GeneratorContext context, TypeSyntax type, string propertyName, ExpressionSyntax getExpression, ExpressionSyntax setExpression) =>
@@ -79,17 +81,19 @@ public abstract class TypeGenerator : Generator
             .WithModifiers(TokenList(Public))
             .WithAccessorList(
                 AccessorList(List(
-                [
-                    AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                        .WithExpressionBody(ArrowExpressionClause(getExpression))
-                        .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)])])
-                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+                    [
+                        AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                            .WithExpressionBody(ArrowExpressionClause(getExpression))
+                            .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
 
-                    AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-                        .WithExpressionBody(ArrowExpressionClause(setExpression))
-                        .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)])])
-                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                ])));
+                        AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                            .WithExpressionBody(ArrowExpressionClause(setExpression))
+                            .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                            .WithTrailingTrivia(NewlineComment, IndentComment)
+                    ]))
+                    .WithLeadingTrivia(NewlineComment).WithTrailingTrivia(NewlineComment, NewlineComment));
     [Pure]
     protected static FieldDeclarationSyntax CreateEmulatorField(GeneratorContext context) =>
         FieldDeclaration(

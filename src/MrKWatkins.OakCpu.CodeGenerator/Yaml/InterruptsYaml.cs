@@ -5,13 +5,13 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Yaml;
 [YamlObject]
 public sealed partial class InterruptsYaml
 {
-    private IReadOnlyList<FieldYaml>? properties;
+    private IReadOnlyList<InterruptPropertyYaml>? properties;
 
     private InterruptsYaml()
     {
     }
 
-    public IReadOnlyList<FieldYaml> Properties
+    public IReadOnlyList<InterruptPropertyYaml> Properties
     {
         get => properties ?? [];
         private set => properties = value;

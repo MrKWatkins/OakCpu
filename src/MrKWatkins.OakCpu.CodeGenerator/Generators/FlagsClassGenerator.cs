@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -87,6 +88,7 @@ public sealed class FlagsClassGenerator : TypeGenerator
                     SingletonSeparatedList(
                         Parameter(Identifier(EmulatorFieldName))
                             .WithType(GetEmulatorClassIdentifier(context)))))
-            .WithBody(Block(statements));
+            .WithBody(Block(statements))
+            .WithLeadingTrivia(NewlineComment);
     }
 }

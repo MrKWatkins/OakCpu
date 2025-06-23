@@ -75,7 +75,8 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
 
         return ConstructorDeclaration(GetEmulatorClassName(context))
             .WithModifiers(TokenList(Public))
-            .WithBody(Block(statements));
+            .WithBody(Block(statements))
+            .WithLeadingTrivia(NewlineComment);
     }
 
     [Pure]
@@ -103,7 +104,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         {
             AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
                 .WithExpressionBody(ArrowExpressionClause(fieldAccessExpression))
-                .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)])])
+                .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
                 .WithSemicolonToken(Semicolon)
         };
 
@@ -117,7 +118,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
             var setter =
                 AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
                     .WithExpressionBody(ArrowExpressionClause(setExpression))
-                    .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)])])
+                    .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
                     .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 
             if (member.SetterVisibility != member.GetterVisibility)
@@ -169,7 +170,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         var variable = VariableDeclaration(type).WithVariables(SingletonSeparatedList(variableDeclarator));
 
         return FieldDeclaration(variable)
-            .AddAttributeLists(AttributeList(SingletonSeparatedList(attribute)))
+            .AddAttributeLists(AttributeList(SingletonSeparatedList(attribute)).WithLeadingTrivia(NewlineComment))
             .AddModifiers(modifiers.ToArray());
     }
 

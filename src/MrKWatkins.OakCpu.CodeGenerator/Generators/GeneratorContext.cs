@@ -92,7 +92,7 @@ public sealed class GeneratorContext
         var allSteps = opcodeRead.Concat(instructions.SelectMany(i => i.Steps)).ToList();
         Step.AssignIndexes(allSteps);
 
-        return new GeneratorContext(rootNamespace, configuration, Cpu.Create(yaml.Cpu), Interrupts.Create(yaml.Interrupts), opcodeRead, context.OnInstructionComplete, instructions, opcodePrefixes, allSteps);
+        return new GeneratorContext(rootNamespace, configuration, Cpu.Create(yaml.Cpu), Interrupts.Create(configuration, yaml.Interrupts), opcodeRead, context.OnInstructionComplete, instructions, opcodePrefixes, allSteps);
     }
 
     [Pure]

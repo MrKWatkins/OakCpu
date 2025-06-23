@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -93,7 +94,8 @@ public sealed class RegistersClassesGenerator : TypeGenerator
                     SingletonSeparatedList(
                         Parameter(Identifier(EmulatorFieldName))
                             .WithType(GetEmulatorClassIdentifier(context)))))
-            .WithBody(Block(statements.ToArray()));
+            .WithBody(Block(statements.ToArray()))
+            .WithLeadingTrivia(NewlineComment);
     }
 
     [Pure]
