@@ -4,28 +4,18 @@ using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
-public sealed class Instruction
+public sealed class Instruction : StepSequence
 {
     private Instruction(string group, string mnemonic, string? opcodeTable, byte? prefix, byte opcode, NextOpcodeMode nextOpcode, IReadOnlyList<Step> steps, IReadOnlyDictionary<string, Expression> flags, IReadOnlyList<(byte? Prefix, byte Opcode, Step Step)> duplicates)
+        : base(steps, nextOpcode)
     {
-        if (steps.Count == 0)
-        {
-            throw new ArgumentException("Value cannot be empty.", nameof(steps));
-        }
         Group = group;
         Mnemonic = mnemonic;
         OpcodeTable = opcodeTable;
         Prefix = prefix;
         Opcode = opcode;
-        NextOpcode = nextOpcode;
-        Steps = steps;
         Flags = flags;
         Duplicates = duplicates;
-
-        foreach (var step in steps)
-        {
-            step.Instruction = this;
-        }
     }
 
     public string Group { get; }
@@ -37,10 +27,6 @@ public sealed class Instruction
     public byte? Prefix { get; }
 
     public byte Opcode { get; }
-
-    public NextOpcodeMode NextOpcode { get; }
-
-    public IReadOnlyList<Step> Steps { get; }
 
     public IReadOnlyDictionary<string, Expression> Flags { get; }
 
@@ -79,9 +65,9 @@ public sealed class Instruction
                 {
                     var step = Substitute(context, opcodeYaml, expressions);
 
-                    var isLastStep = index == yaml.Steps.Count - 1;
+                    var requiresCompleteInstruction = yaml.NextOpcode != NextOpcodeMode.Custom && index == yaml.Steps.Count - 1;
 
-                    return Step.Parse($"{tablePrefix}{opcodeYaml.Opcode}: {mnemonic} [{index}]", context, step, isLastStep);
+                    return Step.Parse($"{tablePrefix}{opcodeYaml.Opcode}: {mnemonic} [{index}]", context, step, requiresCompleteInstruction);
                 })
                 .ToList();
 

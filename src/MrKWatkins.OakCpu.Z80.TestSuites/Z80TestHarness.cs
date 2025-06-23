@@ -114,15 +114,27 @@ public abstract class Z80TestHarness
 
     public abstract bool Halted { get; set; }
 
+    public abstract bool Interrupt { get; set; }
+
     public ulong TStates
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected set;
+        set;
     }
 
-    public void CopyIntoMemory(ReadOnlySpan<byte> source) => source.CopyTo(memory);
+    [OverloadResolutionPriority(1)]
+    public void CopyIntoMemory(ushort address, ReadOnlySpan<byte> source) => source.CopyTo(memory.AsSpan(address));
+
+    public void CopyIntoMemory(ushort address, IReadOnlyList<byte> source)
+    {
+        foreach (var @byte in source)
+        {
+            memory[address] = @byte;
+            address++;
+        }
+    }
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -211,6 +223,14 @@ public abstract class Z80TestHarness
     }
 
     public abstract void AssertFail(string message);
+
+    public void Step(ulong tStates)
+    {
+        while (TStates <= tStates)
+        {
+            Step();
+        }
+    }
 
     public abstract void Step();
 

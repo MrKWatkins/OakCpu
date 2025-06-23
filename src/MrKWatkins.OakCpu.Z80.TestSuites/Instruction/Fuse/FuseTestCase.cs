@@ -2,7 +2,7 @@ namespace MrKWatkins.OakCpu.Z80.TestSuites.Instruction.Fuse;
 
 public sealed class FuseTestCase : InstructionTestCase
 {
-    internal FuseTestCase(string name, InstructionTestSuiteOptions options, Z80InputState input, FuseZ80ExpectedState expected)
+    internal FuseTestCase(string name, InstructionTestSuiteOptions options, FuseZ80InputState input, FuseZ80ExpectedState expected)
         : base(name, options)
     {
         Input = input;
@@ -15,7 +15,7 @@ public sealed class FuseTestCase : InstructionTestCase
         Expected.Cycles = CycleBuilder.BuildCycles(expected.Events, MemoryCycleMethod).ToList();
     }
 
-    public Z80InputState Input { get; }
+    public FuseZ80InputState Input { get; }
 
     public FuseZ80ExpectedState Expected { get; }
 
@@ -25,9 +25,9 @@ public sealed class FuseTestCase : InstructionTestCase
 
         Input.Setup(z80);
 
-        while (z80.TStates <= Expected.TStates)
+        while (z80.TStates <= Input.MinimumTStatesToRun)
         {
-            z80.Step();
+            z80.ExecuteInstruction();
         }
 
         AdjustForOverlappedRead(z80);

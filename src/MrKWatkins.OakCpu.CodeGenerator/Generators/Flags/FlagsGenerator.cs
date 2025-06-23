@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Actions;
 using MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Optimization;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -12,9 +13,12 @@ public abstract class FlagsGenerator : Generator
     private const string FlagsVariableName = "flags";
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateFlagsStatements(StepContext context)
+    public static IEnumerable<StatementSyntax> GenerateFlagsStatements(StatementGeneratorContext context)
     {
-        var instruction = context.Step.Instruction ?? throw new InvalidOperationException("Cannot use flags() outside of an instruction.");
+        if (context.Step?.Sequence is not Instruction instruction)
+        {
+            throw new InvalidOperationException("Cannot use flags() outside of an instruction.");
+        }
 
         IReadOnlyList<FlagAction> actions = FlagAction.Create(context, instruction).ToList();
 

@@ -15,7 +15,7 @@ public abstract class ProgramTestCase : TestCase
     public override void Execute<TTestHarness>(TextWriter? testOutput = null)
     {
         var z80 = new TTestHarness();
-        z80.CopyIntoMemory(memory);
+        z80.CopyIntoMemory(0x0000, memory);
         InitializeZ80(z80);
         SetTestCase(z80);
 

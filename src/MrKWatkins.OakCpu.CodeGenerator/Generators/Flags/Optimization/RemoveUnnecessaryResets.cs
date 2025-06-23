@@ -4,7 +4,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Optimization;
 
 internal sealed class RemoveUnnecessaryResets : FlagOptimization
 {
-    protected override IEnumerable<FlagAction> Optimize(StepContext context, IReadOnlyList<FlagAction> actions, List<string> extraComments)
+    protected override IEnumerable<FlagAction> Optimize(StatementGeneratorContext context, IReadOnlyList<FlagAction> actions, List<string> extraComments)
     {
         // If we are just resetting flags, and we have copy_froms, then we can remove the reset and initialize directly from the first copy_from().
         // Must run *after* CombineConstants!

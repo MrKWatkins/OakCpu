@@ -170,8 +170,14 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
 
     public override bool Halted
     {
-        get => emulator.Interrupts.IsHalted;
-        set => emulator.Interrupts.IsHalted = value;
+        get => emulator.Interrupts.Halted;
+        set => emulator.Interrupts.Halted = value;
+    }
+
+    public override bool Interrupt
+    {
+        get => emulator.Interrupts.Interrupt;
+        set => emulator.Interrupts.Interrupt = value;
     }
 
     public override void AssertFail(string message) => Assert.Fail(message + Environment.NewLine);
@@ -186,29 +192,10 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
 
     public override void ExecuteInstruction()
     {
-        var instructionInProgress = false;
-        while (true)
+        emulator.InstructionComplete = false;
+        while (!emulator.InstructionComplete)
         {
-            if (emulator.CurrentStep > 1)
-            {
-                instructionInProgress = true;
-            }
-            else if (instructionInProgress)
-            {
-                // If we're at step 1, then we've had an overlapped read. Instruction level tests won't include this,
-                // so we need to restore the PC to before the opcode read and remove any events associated with it.
-                if (emulator.CurrentStep == 1)
-                {
-                    emulator.Registers.PC--;
-                    TStates--;
-                }
-
-                break;
-            }
-
-            var actionRequired = emulator.Step();
-            PerformActionRequired(actionRequired);
-            TStates++;
+            Step();
         }
     }
 

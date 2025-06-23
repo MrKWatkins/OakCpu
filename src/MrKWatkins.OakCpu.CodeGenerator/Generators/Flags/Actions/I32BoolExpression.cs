@@ -33,7 +33,7 @@ internal sealed class I32BoolExpression : FlagAction
 
     internal override int Order => 2;
 
-    internal override ExpressionSyntax GenerateExpression(StepContext context)
+    internal override ExpressionSyntax GenerateExpression(StatementGeneratorContext context)
     {
         var expressionSyntax = ExpressionGenerator.GenerateExpressionSyntax(context, Expression);
 
@@ -45,7 +45,7 @@ internal sealed class I32BoolExpression : FlagAction
         };
     }
 
-    internal override string GenerateComment(StepContext context) => $"// Set {FlagsNames(Flags)} if {OriginalExpression} is true.";
+    internal override string GenerateComment(StatementGeneratorContext context) => $"// Set {FlagsNames(Flags)} if {OriginalExpression} is true.";
 
     [Pure]
     internal static FlagAction? CreateOrNull(Flag flag, Expression expression) =>

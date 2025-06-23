@@ -5,7 +5,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Optimization;
 
 internal sealed class CombineConstants : CombineOptimization<Constant>
 {
-    private protected override IEnumerable<Constant> Combine(StepContext context, IReadOnlyList<Constant> constants)
+    private protected override IEnumerable<Constant> Combine(StatementGeneratorContext context, IReadOnlyList<Constant> constants)
     {
         if (constants.Count == 0)
         {

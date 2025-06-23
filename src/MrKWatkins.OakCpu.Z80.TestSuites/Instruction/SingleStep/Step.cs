@@ -17,9 +17,6 @@ public sealed class Step
 
     public Z80ExpectedState Expected { get; }
 
-    // ReSharper disable once InconsistentNaming
-    public int TStates => Expected.Cycles.Count;
-
     [Pure]
     internal static IEnumerable<Step> Load(SingleStepTestCase testCase)
     {
@@ -42,6 +39,7 @@ public sealed class Step
 
         var expected = LoadZ80State<Z80ExpectedState>(reader);
         expected.Cycles = CycleAdjustor.AdjustTo(testCase.MemoryCycleMethod, LoadCycles(reader)).ToArray();
+        expected.TStates = (ulong)expected.Cycles.Count;
 
         var (ioReads, ioWrites) = LoadPorts(reader);
 

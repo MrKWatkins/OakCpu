@@ -26,10 +26,7 @@ public sealed class SingleStepTestCase : InstructionTestCase
 
         step.Input.Setup(z80);
 
-        while (z80.TStates <= (ulong)step.TStates)
-        {
-            z80.Step();
-        }
+        z80.ExecuteInstruction();
 
         AdjustForOverlappedRead(z80);
 

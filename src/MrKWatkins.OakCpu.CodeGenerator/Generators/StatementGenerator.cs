@@ -11,12 +11,12 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 // TODO: Optimise A ^ A to 0.
-public abstract class StepGenerator : Generator
+public abstract class StatementGenerator : Generator
 {
     [Pure]
     public static IEnumerable<StatementSyntax> GenerateStatements(GeneratorContext input, Step step)
     {
-        var context = new StepContext(input, step);
+        var context = new StatementGeneratorContext(input, step);
 
         if (step.DoesNothing)
         {
@@ -53,7 +53,15 @@ public abstract class StepGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateStatements(StepContext context, Statement statement) =>
+    public static IEnumerable<StatementSyntax> GenerateStatements(GeneratorContext context, IEnumerable<Statement> statements)
+    {
+        var statementContext = new StatementGeneratorContext(context, null);
+
+        return statements.SelectMany(statement => GenerateStatements(statementContext, statement));
+    }
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateStatements(StatementGeneratorContext context, Statement statement) =>
         statement switch
         {
             Assignment assignment => GenerateAssignment(context, assignment),
@@ -63,15 +71,27 @@ public abstract class StepGenerator : Generator
         };
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateCall(StepContext context, CallStatement callStatement)
+    private static IEnumerable<StatementSyntax> GenerateCall(StatementGeneratorContext context, CallStatement callStatement)
     {
         if (callStatement.Call.Function == PreDefinedFunction.Flags)
         {
             return FlagsGenerator.GenerateFlagsStatements(context);
         }
-        if (callStatement.Call.Function == PreDefinedFunction.FinishInstruction)
+        if (callStatement.Call.Function == PreDefinedFunction.InstructionComplete)
         {
-            return GenerateFinishInstruction(context);
+            return GenerateInstructionComplete(context);
+        }
+        if (callStatement.Call.Function == PreDefinedFunction.Handled)
+        {
+            return GenerateHandled(context);
+        }
+        if (callStatement.Call.Function == PreDefinedFunction.HandleInterrupts)
+        {
+            return GenerateHandleInterrupts();
+        }
+        if (callStatement.Call.Function == PreDefinedFunction.MoveToInterruptMode)
+        {
+            return GenerateMoveToInterruptMode(context, callStatement.Call);
         }
         if (callStatement.Call.Function == PreDefinedFunction.MoveToOpcode)
         {
@@ -90,7 +110,37 @@ public abstract class StepGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateFinishInstruction(StepContext context)
+    // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
+    private static IEnumerable<StatementSyntax> GenerateHandled(StatementGeneratorContext context)
+    {
+        if (context.Step != null)
+        {
+            throw new InvalidOperationException("Cannot use handled() inside an instruction.");
+        }
+
+        yield return ExpressionStatement(
+            AssignmentExpression(
+                SyntaxKind.SimpleAssignmentExpression, IdentifierName(ActionRequiredParameterName),
+                MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(ActionRequiredEnumName), IdentifierName(Action.None.EnumName))));
+
+        yield return ReturnStatement(LiteralExpression(SyntaxKind.TrueLiteralExpression));
+    }
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateHandleInterrupts()
+    {
+        yield return IfStatement(
+                InvocationExpression(IdentifierName(HandleInterruptsMethodName))
+                    .WithArgumentList(ArgumentList(SeparatedList([
+                        Argument(IdentifierName(EmulatorParameterName)),
+                        Argument(IdentifierName(ActionRequiredParameterName)).WithRefKindKeyword(Ref)
+                    ]))),
+                Block(ReturnStatement()))
+            .WithLeadingTrivia(NewlineComment);
+    }
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateInstructionComplete(StatementGeneratorContext context)
     {
         foreach (var statement in context.GeneratorContext.OnInstructionComplete.SelectMany(s => GenerateStatements(context, s)))
         {
@@ -101,7 +151,7 @@ public abstract class StepGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateAssignment(StepContext context, Assignment assignment)
+    private static IEnumerable<StatementSyntax> GenerateAssignment(StatementGeneratorContext context, Assignment assignment)
     {
         // Skip self-assignments.
         if (assignment.Target == assignment.Value)
@@ -143,7 +193,7 @@ public abstract class StepGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateIf(StepContext context, IfStatement ifStatement)
+    private static IEnumerable<StatementSyntax> GenerateIf(StatementGeneratorContext context, IfStatement ifStatement)
     {
         var condition = ExpressionGenerator.GenerateExpressionSyntax(context.WithBooleanContext(), ifStatement.Condition);
 
@@ -180,9 +230,24 @@ public abstract class StepGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateMoveToOpcode(StepContext context)
+    private static IEnumerable<StatementSyntax> GenerateMoveToInterruptMode(StatementGeneratorContext context, Call call)
     {
-        // TODO: Version without bounds checks, don't rely on the JIT.
+        if (call.Arguments.Count != 1)
+        {
+            throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToInterruptMode} must have exactly one argument.");
+        }
+
+        var getOpcode = CreateArrayGetWithoutBoundsCheck(
+            context.GeneratorContext,
+            IdentifierName(InterruptModeStepTableFieldName),
+            ExpressionGenerator.GenerateExpressionSyntax(context, call.Arguments[0]));
+
+        yield return CreateSetStep(getOpcode);
+    }
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateMoveToOpcode(StatementGeneratorContext context)
+    {
         var getOpcode = CreateArrayGetWithoutBoundsCheck(
             context.GeneratorContext,
             EmulatorMemberIdentifier(PreDefinedDataMember.OpcodeStepTable.FieldName),
@@ -192,17 +257,21 @@ public abstract class StepGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateOverlappedOpcodeRead(StepContext context)
+    private static IEnumerable<StatementSyntax> GenerateOverlappedOpcodeRead(StatementGeneratorContext context)
     {
         // Execute step 0. No need to set step 1; the NextOpcode handling above will cover that.
         yield return ExpressionStatement(
             InvocationExpression(IdentifierName(GetStepFunctionName(context.GeneratorContext.OpcodeReadFirstStep)))
-                .WithArgumentList(ArgumentList([CreateEmulatorArgument()])))
+                .WithArgumentList(ArgumentList(
+                [
+                    CreateEmulatorArgument(),
+                    Argument(RefExpression(IdentifierName(ActionRequiredParameterName)))
+                ])))
             .WithLeadingTrivia(NewlineComment, Comment("// Overlapped opcode read."));
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateSetOpcodeStepTable(StepContext context, Call callStatementCall)
+    private static IEnumerable<StatementSyntax> GenerateSetOpcodeStepTable(StatementGeneratorContext context, Call callStatementCall)
     {
         if (callStatementCall.Arguments.Count == 0)
         {

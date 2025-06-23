@@ -9,8 +9,9 @@ public class Z80ExpectedState : Z80State
     // ReSharper disable once InconsistentNaming
     public ulong TStates { get; internal set; }
 
-    public virtual void Assert(Assertions assertionsToRun, Z80TestHarness z80)
+    public void Assert(Assertions assertionsToRun, Z80TestHarness z80)
     {
+        AssertEqual(assertionsToRun, z80, Assertions.TStates, z80.TStates, TStates, $"T-States should be {TStates} but was {z80.TStates}");
         AssertRegisters(assertionsToRun, z80);
         AssertFlags(assertionsToRun, z80);
         AssertInterrupts(assertionsToRun, z80);

@@ -21,13 +21,13 @@ internal abstract class FlagAction : Generator
     internal abstract int Order { get; }
 
     [Pure]
-    internal abstract ExpressionSyntax GenerateExpression(StepContext context);
+    internal abstract ExpressionSyntax GenerateExpression(StatementGeneratorContext context);
 
     [Pure]
-    internal abstract string GenerateComment(StepContext context);
+    internal abstract string GenerateComment(StatementGeneratorContext context);
 
     [Pure]
-    public static IEnumerable<FlagAction> Create(StepContext context, Instruction instruction)
+    public static IEnumerable<FlagAction> Create(StatementGeneratorContext context, Instruction instruction)
     {
         foreach (var kvp in instruction.Flags)
         {

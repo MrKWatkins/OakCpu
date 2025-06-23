@@ -4,14 +4,14 @@ using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-public sealed class StepContext
+public sealed class StatementGeneratorContext
 {
-    public StepContext(GeneratorContext generatorContext, Step step)
+    public StatementGeneratorContext(GeneratorContext generatorContext, Step? step)
         : this(generatorContext, step, new HashSet<string>(), ImmutableDictionary<string, Expression>.Empty, false)
     {
     }
 
-    private StepContext(GeneratorContext generatorContext, Step step, HashSet<string> initializedTemporaryVariables, ImmutableDictionary<string, Expression> argumentScope, bool inBooleanContext)
+    private StatementGeneratorContext(GeneratorContext generatorContext, Step? step, HashSet<string> initializedTemporaryVariables, ImmutableDictionary<string, Expression> argumentScope, bool inBooleanContext)
     {
         GeneratorContext = generatorContext;
         Step = step;
@@ -24,7 +24,7 @@ public sealed class StepContext
 
     public Configuration Configuration => GeneratorContext.Configuration;
 
-    public Step Step { get; }
+    public Step? Step { get; }
 
     public HashSet<string> InitializedTemporaryVariables { get; }
 
@@ -33,13 +33,13 @@ public sealed class StepContext
     public bool InBooleanContext { get; }
 
     [Pure]
-    public StepContext WithArguments(IEnumerable<string> parameters, IEnumerable<Expression> arguments)
+    public StatementGeneratorContext WithArguments(IEnumerable<string> parameters, IEnumerable<Expression> arguments)
     {
         var newScope = ArgumentScope.AddRange(parameters.Zip(arguments, (p, a) => new KeyValuePair<string, Expression>(p, a)).Where(t => !ArgumentScope.ContainsKey(t.Key)));
 
-        return new StepContext(GeneratorContext, Step, InitializedTemporaryVariables, newScope, InBooleanContext);
+        return new StatementGeneratorContext(GeneratorContext, Step, InitializedTemporaryVariables, newScope, InBooleanContext);
     }
 
     [Pure]
-    public StepContext WithBooleanContext() => new(GeneratorContext, Step, InitializedTemporaryVariables, ArgumentScope, true);
+    public StatementGeneratorContext WithBooleanContext() => new(GeneratorContext, Step, InitializedTemporaryVariables, ArgumentScope, true);
 }

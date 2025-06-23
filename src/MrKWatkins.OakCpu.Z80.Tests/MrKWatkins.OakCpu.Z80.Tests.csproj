@@ -3,4 +3,7 @@
     <ProjectReference Include="..\MrKWatkins.OakCpu.Z80\MrKWatkins.OakCpu.Z80.csproj" />
     <ProjectReference Include="..\MrKWatkins.OakCpu.Z80.TestSuites\MrKWatkins.OakCpu.Z80.TestSuites.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MrKWatkins.OakAsm.Z80" />
+  </ItemGroup>
 </Project>

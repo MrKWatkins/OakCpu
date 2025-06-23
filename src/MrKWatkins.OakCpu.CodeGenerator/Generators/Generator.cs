@@ -15,7 +15,10 @@ public abstract class Generator
     protected const string StepNextStepFieldName = "NextStep";
     protected const string StepActionRequiredFieldName = "ActionRequired";
     protected const string EmulatorParameterName = "emulator";
+    protected const string ActionRequiredParameterName = "actionRequired";
     protected const string ErrorFunctionName = "Error";
+    protected const string HandleInterruptsMethodName = "HandleInterrupts";
+    protected const string InterruptModeStepTableFieldName = "InterruptModeStepTable";
     private const string StepFunctionPrefix = "Step_";
 
     // Filthy hackery to put some newlines and indents where we want because NormalizeWhitespace will remove any normal whitespace we add.
@@ -80,6 +83,9 @@ public abstract class Generator
 
     [Pure]
     protected static SyntaxToken ReadOnly => Token(SyntaxKind.ReadOnlyKeyword);
+
+    [Pure]
+    protected static SyntaxToken Ref => Token(SyntaxKind.RefKeyword);
 
     [Pure]
     protected static SyntaxToken Sealed => Token(SyntaxKind.SealedKeyword);

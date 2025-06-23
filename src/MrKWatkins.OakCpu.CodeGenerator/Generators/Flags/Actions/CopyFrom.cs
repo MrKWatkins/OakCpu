@@ -28,13 +28,13 @@ internal sealed class CopyFrom : FlagAction
 
     internal override int Order => 1;
 
-    internal override ExpressionSyntax GenerateExpression(StepContext context) =>
+    internal override ExpressionSyntax GenerateExpression(StatementGeneratorContext context) =>
         BinaryExpression(
             SyntaxKind.BitwiseAndExpression,
             ExpressionGenerator.GenerateExpressionSyntax(context, Argument),
             GenerateBinaryLiteralExpression(BitMask));
 
-    internal override string GenerateComment(StepContext context) => $"// Copy {FlagsNames(Flags)} from {Argument}.";
+    internal override string GenerateComment(StatementGeneratorContext context) => $"// Copy {FlagsNames(Flags)} from {Argument}.";
 
     [Pure]
     internal static FlagAction? CreateOrNull(Flag flag, Expression expression) =>

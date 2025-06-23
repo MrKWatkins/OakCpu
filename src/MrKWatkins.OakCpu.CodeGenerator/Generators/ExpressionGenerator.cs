@@ -11,7 +11,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public abstract class ExpressionGenerator : Generator
 {
     [Pure]
-    public static ExpressionSyntax GenerateExpressionSyntax(StepContext context, Expression expression) => expression switch
+    public static ExpressionSyntax GenerateExpressionSyntax(StatementGeneratorContext context, Expression expression) => expression switch
     {
         ArgumentAccess argumentAccess => GenerateArgumentAccess(context, argumentAccess),
         BinaryOperation binaryOperation => GenerateBinaryOperation(context, binaryOperation),
@@ -28,11 +28,11 @@ public abstract class ExpressionGenerator : Generator
     };
 
     [Pure]
-    private static ExpressionSyntax GenerateBinaryOperation(StepContext context, BinaryOperation binaryOperation)
+    private static ExpressionSyntax GenerateBinaryOperation(StatementGeneratorContext context, BinaryOperation binaryOperation)
     {
         if (context.InBooleanContext && binaryOperation.Operator.Type != DataType.Bool)
         {
-            throw new InvalidOperationException($"Cannot use the Boolean operator {binaryOperation.Operator.Symbol} outside of a Boolean context.");
+            throw new InvalidOperationException($"Cannot use the non-Boolean operator {binaryOperation.Operator.Symbol} in a Boolean context.");
         }
 
         var left = GenerateExpressionSyntax(context, binaryOperation.Left);
@@ -51,7 +51,7 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateCall(StepContext context, Call call)
+    private static ExpressionSyntax GenerateCall(StatementGeneratorContext context, Call call)
     {
         if (call.Function is PreDefinedFunction)
         {
@@ -62,7 +62,7 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateUserDefinedFunctionCallExpressionSyntax(StepContext context, Call call)
+    private static ExpressionSyntax GenerateUserDefinedFunctionCallExpressionSyntax(StatementGeneratorContext context, Call call)
     {
         var function = (UserDefinedFunction)call.Function;
 
@@ -72,7 +72,7 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GeneratePreDefinedFunctionCallExpressionSyntax(StepContext context, Call call)
+    private static ExpressionSyntax GeneratePreDefinedFunctionCallExpressionSyntax(StatementGeneratorContext context, Call call)
     {
         if (call.Function == PreDefinedFunction.InstructionUpdatesFlags)
         {
@@ -95,7 +95,7 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GeneratePopCountExpressionSyntax(StepContext context, Expression argument) =>
+    private static ExpressionSyntax GeneratePopCountExpressionSyntax(StatementGeneratorContext context, Expression argument) =>
         InvocationExpression(
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
@@ -107,7 +107,7 @@ public abstract class ExpressionGenerator : Generator
                         Argument(GenerateExpressionSyntax(context, argument)))));
 
     [Pure]
-    private static ExpressionSyntax GenerateSignedExpressionSyntax(StepContext context, Expression argument)
+    private static ExpressionSyntax GenerateSignedExpressionSyntax(StatementGeneratorContext context, Expression argument)
     {
         var expression = GenerateExpressionSyntax(context, argument);
         if (argument is not Access)
@@ -118,15 +118,21 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateInstructionUpdatesFlagsExpressionSyntax(StepContext context) =>
-        LiteralExpression(context.Step.Instruction?.UpdatesFlags == true ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
+    private static ExpressionSyntax GenerateInstructionUpdatesFlagsExpressionSyntax(StatementGeneratorContext context)
+    {
+        if (context.Step?.Sequence is not Instruction instruction)
+        {
+            throw new InvalidOperationException("Cannot use flags() outside of an instruction.");
+        }
+        return LiteralExpression(instruction.UpdatesFlags ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
+    }
 
     [Pure]
-    private static ExpressionSyntax GenerateIsZeroExpressionSyntax(StepContext context, Expression argument) =>
+    private static ExpressionSyntax GenerateIsZeroExpressionSyntax(StatementGeneratorContext context, Expression argument) =>
         BinaryExpression(SyntaxKind.EqualsExpression, GenerateExpressionSyntax(context, argument), GenerateNumericLiteralExpression(0));
 
     [Pure]
-    private static ExpressionSyntax GenerateArgumentAccess(StepContext context, ArgumentAccess argumentAccess)
+    private static ExpressionSyntax GenerateArgumentAccess(StatementGeneratorContext context, ArgumentAccess argumentAccess)
     {
         if (!context.ArgumentScope.TryGetValue(argumentAccess.Name, out var expression))
         {
@@ -149,7 +155,7 @@ public abstract class ExpressionGenerator : Generator
     private static ExpressionSyntax GenerateRegisterAccess(RegisterAccess registerAccess) => EmulatorMemberIdentifier(registerAccess.Register.FieldName);
 
     [Pure]
-    private static ExpressionSyntax GenerateConditionAccess(StepContext context, ConditionAccess conditionAccess, bool invert = false)
+    private static ExpressionSyntax GenerateConditionAccess(StatementGeneratorContext context, ConditionAccess conditionAccess, bool invert = false)
     {
         var bitMask = (byte)(1 << conditionAccess.Condition.Flag.Index);
 
@@ -164,7 +170,7 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateFlagAccess(StepContext context, FlagAccess flagAccess)
+    private static ExpressionSyntax GenerateFlagAccess(StatementGeneratorContext context, FlagAccess flagAccess)
     {
         var bitMask = (byte)(1 << flagAccess.Flag.Index);
 
@@ -190,7 +196,7 @@ public abstract class ExpressionGenerator : Generator
 
     [Pure]
     // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-    private static ExpressionSyntax GenerateTemporaryVariableAccess(StepContext context, TemporaryVariableAccess temporaryVariableAccess)
+    private static ExpressionSyntax GenerateTemporaryVariableAccess(StatementGeneratorContext context, TemporaryVariableAccess temporaryVariableAccess)
     {
         if (!context.InitializedTemporaryVariables.Contains(temporaryVariableAccess.Name))
         {
@@ -201,7 +207,7 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateUnaryOperation(StepContext context, UnaryOperation unaryOperation)
+    private static ExpressionSyntax GenerateUnaryOperation(StatementGeneratorContext context, UnaryOperation unaryOperation)
     {
         // Special case for !condition.
         if (unaryOperation.Expression is ConditionAccess conditionAccess)

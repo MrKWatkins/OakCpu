@@ -36,7 +36,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     [Pure]
     private static MemberDeclarationSyntax CreateStepFunction(GeneratorContext context, Step step)
     {
-        var statements = StepGenerator.GenerateStatements(context, step);
+        var statements = StatementGenerator.GenerateStatements(context, step);
 
         var comment = Comment($"// {step.Name}");
 
@@ -54,7 +54,11 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     private static MemberDeclarationSyntax CreateFunction(GeneratorContext context, string name, IEnumerable<StatementSyntax> statements) =>
         MethodDeclaration(Void, Identifier(name))
             .WithModifiers([Private, Static])
-            .WithParameterList(ParameterList([CreateEmulatorParameter(context)]))
+            .WithParameterList(ParameterList(
+            [
+                CreateEmulatorParameter(context),
+                Parameter(Identifier(ActionRequiredParameterName)).WithType(IdentifierName(ActionRequiredEnumName)).WithModifiers([Ref])
+            ]))
             .WithBody(Block(statements));
 
     [Pure]
@@ -83,9 +87,18 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
                         IdentifierName(PreDefinedDataMember.CurrentStep.FieldName),
                         MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(StepNextStepFieldName)))),
 
+                // var actionRequired = node.ActionRequired;
+                LocalDeclarationStatement(
+                    VariableDeclaration(IdentifierName("var"))
+                        .WithVariables([
+                            VariableDeclarator(ActionRequiredParameterName)
+                                .WithInitializer(
+                                    EqualsValueClause(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(ActionRequiredEnumName))))
+                        ])),
+
                 // if (step.Handler != default)
                 // {
-                //     step.Handler(this);
+                //     step.Handler(this, ref actionRequired);
                 // }
                 IfStatement(
                     BinaryExpression(
@@ -97,13 +110,13 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
                         ExpressionStatement(
                             InvocationExpression(
                                     MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(StepHandlerFieldName)))
-                                .WithArgumentList(ArgumentList([Argument(ThisExpression())]))))),
+                                .WithArgumentList(ArgumentList(
+                                    [
+                                        Argument(ThisExpression()),
+                                        Argument(RefExpression(IdentifierName(ActionRequiredParameterName)))
+                                    ]))))),
 
                 // return node.ActionRequired;
-                ReturnStatement(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName(stepVariableName),
-                        IdentifierName(ActionRequiredEnumName)))));
+                ReturnStatement(IdentifierName(ActionRequiredParameterName))));
     }
 }

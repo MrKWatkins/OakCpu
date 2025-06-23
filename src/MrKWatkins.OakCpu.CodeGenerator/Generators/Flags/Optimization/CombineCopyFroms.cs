@@ -6,7 +6,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Optimization;
 
 internal sealed class CombineCopyFroms : CombineOptimization<CopyFrom>
 {
-    private protected override IEnumerable<CopyFrom> Combine(StepContext context, IReadOnlyList<CopyFrom> copyFroms)
+    private protected override IEnumerable<CopyFrom> Combine(StatementGeneratorContext context, IReadOnlyList<CopyFrom> copyFroms)
     {
         var grouped = copyFroms.GroupBy(c => c.Argument).ToList();
         return grouped.Count == copyFroms.Count ? copyFroms : Combine(grouped);

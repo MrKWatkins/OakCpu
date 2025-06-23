@@ -3,7 +3,7 @@ namespace MrKWatkins.OakCpu.Z80.TestSuites.Instruction;
 // TODO: Make general version for all tests. Maybe make more granular, e.g. to register/flag level.
 [Flags]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
-public enum Assertions
+public enum Assertions : ulong
 {
     None = 0,
 
@@ -55,8 +55,10 @@ public enum Assertions
 
     Memory = 1 << 30,
 
-    Cycles = 1 << 31,
+    Cycles = 1UL << 31,
 
-    AllExceptCycles = Registers | Flags | IO | Interrupts | Memory,
+    TStates = 1UL << 32,
+
+    AllExceptCycles = Registers | Flags | IO | Interrupts | Memory | TStates,
     All = AllExceptCycles | Cycles
 }

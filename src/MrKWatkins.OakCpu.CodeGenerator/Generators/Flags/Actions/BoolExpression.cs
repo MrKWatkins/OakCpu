@@ -19,7 +19,7 @@ internal sealed class BoolExpression : FlagAction
 
     internal override int Order => 2;
 
-    internal override ExpressionSyntax GenerateExpression(StepContext context)
+    internal override ExpressionSyntax GenerateExpression(StatementGeneratorContext context)
     {
         var boolExpression = ExpressionGenerator.GenerateExpressionSyntax(context, Expression);
 
@@ -33,7 +33,7 @@ internal sealed class BoolExpression : FlagAction
         return shift != 0 ? BinaryExpression(SyntaxKind.LeftShiftExpression, ParenthesizedExpression(byteExpression), GenerateNumericLiteralExpression(shift)) : byteExpression;
     }
 
-    private static ExpressionSyntax GenerateBitCastFromBoolToByte(StepContext context, ExpressionSyntax value)
+    private static ExpressionSyntax GenerateBitCastFromBoolToByte(StatementGeneratorContext context, ExpressionSyntax value)
     {
         context.GeneratorContext.RequiredUsings.Add("System.Runtime.CompilerServices");
 
@@ -47,7 +47,7 @@ internal sealed class BoolExpression : FlagAction
     }
 
 
-    internal override string GenerateComment(StepContext context) => $"// Set {FlagsNames(Flags)} if {Expression} is true.";
+    internal override string GenerateComment(StatementGeneratorContext context) => $"// Set {FlagsNames(Flags)} if {Expression} is true.";
 
     [Pure]
     internal static FlagAction? CreateOrNull(Flag flag, Expression expression) =>

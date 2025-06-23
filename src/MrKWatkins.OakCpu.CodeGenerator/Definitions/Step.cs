@@ -19,7 +19,7 @@ public sealed class Step
 
     public string Name { get; }
 
-    public Instruction? Instruction { get; internal set; }
+    public StepSequence? Sequence { get; internal set; }
 
     public ushort Index { get; private set; }
 
@@ -28,25 +28,25 @@ public sealed class Step
     [Pure]
     public Action GetAction(GeneratorContext context)
     {
-        if (NextOpcode.HasValue)
+        if (NextOpcode is null or NextOpcodeMode.Custom)
         {
-            if (specifiedAction != null)
-            {
-                throw new InvalidOperationException($"No {PreDefinedFunction.Request.Name} function should be specified for the last step in an instruction.");
-            }
-
-            return NextOpcode == NextOpcodeMode.Overlapped ? context.OpcodeReadFirstStep.GetAction(context) : Action.None;
+            return specifiedAction ?? Action.None;
         }
 
-        return specifiedAction ?? Action.None;
+        if (specifiedAction != null)
+        {
+            throw new InvalidOperationException($"No {PreDefinedFunction.Request.Name} function should be specified for the last step in an instruction, unless the next_opcode mode is set to custom.");
+        }
+
+        return NextOpcode == NextOpcodeMode.Overlapped ? context.OpcodeReadFirstStep.GetAction(context) : Action.None;
     }
 
     /// <summary>
     /// The next opcode operation to perform after this step.
     /// </summary>
-    public NextOpcodeMode? NextOpcode => Instruction != null && Instruction.Steps.Last() == this ? Instruction.NextOpcode : null;
+    public NextOpcodeMode? NextOpcode => Sequence != null && Sequence.Steps.Last() == this ? Sequence.NextOpcode : null;
 
-    public bool RequiresPrefixReset => Instruction is { Prefix: not null } && Instruction.Steps[0] == this;
+    public bool RequiresPrefixReset => Sequence is Instruction { Prefix: not null } && Sequence.Steps[0] == this;
 
     public bool DoesNothing => Statements.Count == 0 && !RequiresPrefixReset;
 
@@ -70,10 +70,10 @@ public sealed class Step
         steps.Select((s, i) => Parse($"{baseName} [{i}]", context, s, false)).ToList();
 
     [Pure]
-    public static Step Parse(string name, ParserContext context, string? step, bool isLastStep)
+    public static Step Parse(string name, ParserContext context, string? step, bool requiresCompleteInstruction)
     {
         var statements = Parser.ParseStatements(context, step);
-        if (isLastStep)
+        if (requiresCompleteInstruction)
         {
             statements.AddRange(context.OnInstructionComplete);
         }

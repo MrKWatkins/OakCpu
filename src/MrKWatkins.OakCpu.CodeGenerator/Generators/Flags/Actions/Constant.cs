@@ -22,9 +22,9 @@ internal sealed class Constant : FlagAction
 
     internal override int Order => 0;
 
-    internal override ExpressionSyntax GenerateExpression(StepContext context) => GenerateBinaryLiteralExpression(BitMask);
+    internal override ExpressionSyntax GenerateExpression(StatementGeneratorContext context) => GenerateBinaryLiteralExpression(BitMask);
 
-    internal override string GenerateComment(StepContext context)
+    internal override string GenerateComment(StatementGeneratorContext context)
     {
         var sets = new List<Flag>();
         var resets = new List<Flag>();

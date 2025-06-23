@@ -11,14 +11,30 @@ cpu:
   fields:
     - name: latch
       type: u8
+      
+    - name: instruction_complete
+      type: bool
+      getter: true
+      setter: true
 
 opcode_read:
-  - Address = PC; PC = PC + 1; request(action.opcode_read);
+  # PC moves to the next instruction after a HALT. The next opcode is then repeatedly read, but PC is not advanced and the instruction is not executed 
+  # until the CPU is no longer halted. See http://www.primrosebank.net/computers/z80/z80_special_reset.htm for details.
+  - Address = PC; if !halted; PC = PC + 1; endif; request(action.opcode_read);
   - 
   - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);
-  - move_to_opcode();
+  - if halted; Q = 0; instruction_complete = true; current_step = 0; handle_interrupts(); else; move_to_opcode(); endif;
 
-on_instruction_complete: if instruction_updates_flags(); Q = F; else; Q = 0; endif;
+on_instruction_complete: |
+  if instruction_updates_flags();
+    Q = F;
+  else;
+    Q = 0;
+  endif;
+  
+  instruction_complete = true;
+  
+  handle_interrupts();
 
 instructions:    
   - group: Redirects

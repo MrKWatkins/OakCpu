@@ -8,11 +8,11 @@ using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-public sealed class EmulatorStaticDataMembersAndConstructorGenerator : EmulatorClassGenerator
+public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerator
 {
-    public static readonly EmulatorStaticDataMembersAndConstructorGenerator Instance = new();
+    public static readonly EmulatorStepsInitializationGenerator Instance = new();
 
-    private EmulatorStaticDataMembersAndConstructorGenerator()
+    private EmulatorStepsInitializationGenerator()
     {
     }
 

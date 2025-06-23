@@ -88,11 +88,13 @@ public sealed class GeneratorContext
 
         var opcodePrefixes = instructions.Where(i => i.Prefix.HasValue).Select(i => i.Prefix!.Value).Distinct().OrderBy(p => p).ToList();
 
+        var interrupts = Interrupts.Create(context, yaml.Interrupts);
+
         // Steps need to keep their order within an instruction or all hell breaks loose.
-        var allSteps = opcodeRead.Concat(instructions.SelectMany(i => i.Steps)).ToList();
+        var allSteps = opcodeRead.Concat(interrupts.AllSteps).Concat(instructions.SelectMany(i => i.Steps)).ToList();
         Step.AssignIndexes(allSteps);
 
-        return new GeneratorContext(rootNamespace, configuration, Cpu.Create(yaml.Cpu), Interrupts.Create(configuration, yaml.Interrupts), opcodeRead, context.OnInstructionComplete, instructions, opcodePrefixes, allSteps);
+        return new GeneratorContext(rootNamespace, configuration, Cpu.Create(yaml.Cpu), interrupts, opcodeRead, context.OnInstructionComplete, instructions, opcodePrefixes, allSteps);
     }
 
     [Pure]

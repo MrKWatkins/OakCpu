@@ -2,26 +2,77 @@ interrupts:
   properties:
     - name: IM
       type: u8
-      mode: true
       
     - name: IFF1
       type: bool
-      
+
     - name: IFF2
       type: bool
     
-    - name: is_halted
+    - name: halted
       type: bool
       
       # Not bothering with NMI.
     - name: interrupt
       type: bool
-      trigger: true
   
-  mode:
-    number: 0
-    steps:
-      - 
+  handle: |
+    if interrupt && IFF1;
+      if halted;
+        halted = false;
+        PC = PC + 1;
+      endif;
+      
+      move_to_interrupt_mode(IM);
+      interrupt = false;
+      handled();
+    endif;
+
+  modes:
+    - number: 0
+      steps:
+        - IFF1 = false; IFF2 = false;
+        - request(action.io_read);
+        - 
+        - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);
+        - move_to_opcode();
+      next_opcode: custom
+      
+    - number: 1
+      steps:
+        - IFF1 = false; IFF2 = false;
+        - request(action.io_read);
+        - 
+        - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);
+        -
+        -
+        - SP = SP - 1; Address = SP; Data = PCH; request(action.memory_write);
+        -
+        -
+        - SP = SP - 1; Address = SP; Data = PCL; PC = 0x38; WZ = 0x38; request(action.memory_write);
+        -
+        -
+    
+    - number: 2
+      steps:
+        - IFF1 = false; IFF2 = false;
+        - request(action.io_read);
+        - latch = Data;
+        - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);
+        -
+        -
+        - SP = SP - 1; Address = SP; Data = PCH; request(action.memory_write);
+        -
+        -
+        - SP = SP - 1; Address = SP; Data = PCL; Z = latch; W = I; request(action.memory_write);
+        -
+        -
+        - Address = WZ; WZ = WZ + 1; request(action.memory_read);
+        - latch = Data;
+        -
+        - Address = WZ; request(action.memory_read);
+        - W = Data; Z = latch; PC = WZ;
+        - 
 
 instructions:
   - group: Interrupts
@@ -31,7 +82,9 @@ instructions:
       - opcode: 0xDD 0x76
       - opcode: 0xFD 0x76
     steps:
-      - is_halted = true;
+      # PC moves to the next instruction after a HALT. The next opcode is then repeatedly read, but PC is not advanced and the instruction is not executed 
+      # until the CPU is no longer halted. See http://www.primrosebank.net/computers/z80/z80_special_reset.htm for details.
+      - halted = true;
     next_opcode: overlapped
     
   - group: Interrupts
@@ -51,8 +104,10 @@ instructions:
       - opcode: 0xDD 0xFB
       - opcode: 0xFD 0xFB
     steps:
-      - IFF1 = true; IFF2 = true;
-    next_opcode: overlapped
+      # Use custom so the standard on_instruction_complete (which handles interrupts) *isn't* executed. This is to prevent interrupts firing inside EI.
+      # We then have to manually include the reset of Q, instruction_complete = true and overlapped memory read. 
+      - IFF1 = true; IFF2 = true; Q = 0; instruction_complete = true; Address = PC; PC = PC + 1; current_step = 1; request(action.opcode_read);
+    next_opcode: custom
     
   - group: Interrupts
     mnemonic: IM 0

@@ -5,7 +5,7 @@ public sealed class PreDefinedDataMember : DataMember
     public static readonly PreDefinedDataMember OpcodeStepTable = new("opcode_step_table", DataType.U16, isArray: true);
     public static readonly PreDefinedDataMember Address = new("address", DataType.U16, getterVisibility: Visibility.Public);
     public static readonly PreDefinedDataMember Data = new("data", DataType.U8, getterVisibility: Visibility.Public, setterVisibility: Visibility.Public);
-    public static readonly PreDefinedDataMember CurrentStep = new("current_step", DataType.U16, getterVisibility: Visibility.Internal);
+    public static readonly PreDefinedDataMember CurrentStep = new("current_step", DataType.U16);
 
     public static readonly IReadOnlyDictionary<string, PreDefinedDataMember> All = new Dictionary<string, PreDefinedDataMember>(StringComparer.OrdinalIgnoreCase)
     {

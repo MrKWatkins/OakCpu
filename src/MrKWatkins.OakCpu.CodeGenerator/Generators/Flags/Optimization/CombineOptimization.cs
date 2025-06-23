@@ -5,7 +5,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Optimization;
 internal abstract class CombineOptimization<TAction> : FlagOptimization
     where TAction : FlagAction
 {
-    protected sealed override IEnumerable<FlagAction> Optimize(StepContext context, IReadOnlyList<FlagAction> actions, List<string> extraComments)
+    protected sealed override IEnumerable<FlagAction> Optimize(StatementGeneratorContext context, IReadOnlyList<FlagAction> actions, List<string> extraComments)
     {
         var actionsToCombine = new List<TAction>();
         foreach (var action in actions)
@@ -30,5 +30,5 @@ internal abstract class CombineOptimization<TAction> : FlagOptimization
     }
 
     [Pure]
-    private protected abstract IEnumerable<TAction> Combine(StepContext context, IReadOnlyList<TAction> actions);
+    private protected abstract IEnumerable<TAction> Combine(StatementGeneratorContext context, IReadOnlyList<TAction> actions);
 }

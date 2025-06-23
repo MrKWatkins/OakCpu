@@ -19,7 +19,8 @@ public abstract class TypeGenerator : Generator
     public static readonly IReadOnlyList<TypeGenerator> AllGenerators = [
         ActionRequiredGenerator.Instance,
         EmulatorInstanceDataMembersAndConstructorGenerator.Instance,
-        EmulatorStaticDataMembersAndConstructorGenerator.Instance,
+        EmulatorInterruptsGenerator.Instance,
+        EmulatorStepsInitializationGenerator.Instance,
         EmulatorStepsGenerator.Instance,
         FlagsClassGenerator.Instance,
         InterruptsClassGenerator.Instance,

@@ -23,8 +23,9 @@ namespace MrKWatkins.OakCpu.Z80.Benchmarks;
 //
 // | Method | Test       | Mean    | Error    | StdDev   | ZX Speed |  Allocated |
 // |------- |----------- |--------:|---------:|---------:|---------:|-----------:|
-// | ZEXALL | aluop a,nn | 1.714 s | 0.0087 s | 0.0081 s |   x92.58 |    2.38 MB |   OakEmu for reference.
-// | ZEXALL | aluop a,nn | 1.842 s | 0.0362 s | 0.0483 s |   x86.14 |   65.71 KB |
+// | ZEXALL | aluop a,nn | 1.714 s | 0.0087 s | 0.0081 s |   x92.58 |    2.38 MB | OakEmu for reference.
+// | ZEXALL | aluop a,nn | 1.842 s | 0.0362 s | 0.0483 s |   x86.14 |   65.71 KB | 2025-06-21 After fixing various flags.
+// | ZEXALL | aluop a,nn | 2.167 s | 0.0425 s | 0.0489 s |   x73.23 |   65.69 KB | 2025-06-21 After Q and interrupts.
 [MemoryDiagnoser]
 [Config(typeof(Config))]
 [SuppressMessage("ReSharper", "InconsistentNaming")]

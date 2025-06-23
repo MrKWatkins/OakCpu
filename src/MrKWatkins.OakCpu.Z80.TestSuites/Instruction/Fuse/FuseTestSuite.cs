@@ -23,7 +23,7 @@ public sealed class FuseTestSuite : InstructionTestSuite<FuseTestCase>
     }
 
     [Pure]
-    private IReadOnlyDictionary<string, Z80InputState> ParseInput()
+    private IReadOnlyDictionary<string, FuseZ80InputState> ParseInput()
     {
         using var stream = OpenResource("tests.in");
         using var reader = new StreamReader(stream);
@@ -32,9 +32,9 @@ public sealed class FuseTestSuite : InstructionTestSuite<FuseTestCase>
     }
 
     [Pure]
-    private static IReadOnlyDictionary<string, Z80InputState> ParseInput(StreamReader reader)
+    private static IReadOnlyDictionary<string, FuseZ80InputState> ParseInput(StreamReader reader)
     {
-        var inputs = new Dictionary<string, Z80InputState>();
+        var inputs = new Dictionary<string, FuseZ80InputState>();
         while (reader.ReadLine() is { } name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -42,7 +42,7 @@ public sealed class FuseTestSuite : InstructionTestSuite<FuseTestCase>
                 continue;
             }
 
-            var input = new Z80InputState();
+            var input = new FuseZ80InputState();
             inputs.Add(name, input);
             Parse(input, reader.ReadLine()!, reader);
         }
@@ -135,10 +135,15 @@ public sealed class FuseTestSuite : InstructionTestSuite<FuseTestCase>
         state.IFF2 = interrupts[3].ToBool();
         state.IM = interrupts[4].ToByte();
         state.Halted = interrupts[5].ToBool();
+        var tStates = ulong.Parse(interrupts[6]);
 
         if (state is Z80ExpectedState expected)
         {
-            expected.TStates = ulong.Parse(interrupts[6]);
+            expected.TStates = tStates;
+        }
+        else
+        {
+            ((FuseZ80InputState)state).MinimumTStatesToRun = tStates;
         }
     }
 

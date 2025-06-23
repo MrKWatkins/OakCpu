@@ -81,7 +81,7 @@ instructions:
       -
       - Address = PC; PC = PC + 1; request(action.memory_read);
       - W = Data;
-      - if !condition.C0; finish_instruction(); endif;
+      - if !condition.C0; instruction_complete(); endif;
       -
       - SP = SP - 1; Address = SP; Data = PCH; request(action.memory_write);
       -

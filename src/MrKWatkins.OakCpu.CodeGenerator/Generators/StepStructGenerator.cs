@@ -18,6 +18,7 @@ public sealed class StepStructGenerator : TypeGenerator
             FunctionPointerParameterList(
                 [
                     FunctionPointerParameter(IdentifierName(GetEmulatorClassName(context))),
+                    FunctionPointerParameter(IdentifierName(ActionRequiredEnumName)).WithModifiers([Ref]),
                     FunctionPointerParameter(Void)
                 ]));
 

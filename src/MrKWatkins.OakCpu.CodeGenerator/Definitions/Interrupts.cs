@@ -1,30 +1,33 @@
+using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
+using MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Interrupts
 {
-    private Interrupts(IReadOnlyDictionary<string, UserDefinedDataMember> properties, UserDefinedDataMember mode, UserDefinedDataMember trigger)
+    private Interrupts(IReadOnlyDictionary<string, UserDefinedDataMember> properties, IReadOnlyList<Statement> handle, IReadOnlyList<InterruptMode> modes)
     {
         Properties = properties;
-        Mode = mode;
-        Trigger = trigger;
+        Handle = handle;
+        Modes = modes;
     }
 
     public IReadOnlyDictionary<string, UserDefinedDataMember> Properties { get; }
 
-    public UserDefinedDataMember Mode { get; }
+    public IReadOnlyList<Statement> Handle { get; }
 
-    public UserDefinedDataMember Trigger { get; }
+    public IReadOnlyList<InterruptMode> Modes { get; }
+
+    public IEnumerable<Step> AllSteps => Modes.SelectMany(m => m.Steps);
 
     [Pure]
-    public static Interrupts Create(Configuration configuration, InterruptsYaml yaml)
+    public static Interrupts Create(ParserContext context, InterruptsYaml yaml)
     {
-        var properties = yaml.Properties.ToDictionary(p => p.Name, p => configuration.UserDefinedDataMembers[p.Name]);
+        var properties = yaml.Properties.ToDictionary(p => p.Name, p => context.Configuration.UserDefinedDataMembers[p.Name]);
 
-        var mode = yaml.Properties.SingleOrDefault(p => p.Mode) ?? throw new InvalidOperationException("No interrupt mode property.");
-        var trigger = yaml.Properties.SingleOrDefault(p => p.Trigger) ?? throw new InvalidOperationException("No interrupt trigger property.");
+        var handle = Parser.ParseStatements(context, yaml.Handle);
 
-        return new Interrupts(properties, configuration.UserDefinedDataMembers[mode.Name], configuration.UserDefinedDataMembers[trigger.Name]);
+        return new Interrupts(properties, handle, yaml.Modes.Select(mode => InterruptMode.Create(context, mode)).ToList());
     }
 }

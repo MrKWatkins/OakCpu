@@ -11,7 +11,7 @@ public abstract class Expression : AstNode, IEquatable<Expression>
     public TypeSyntax TypeSyntax => Type.TypeSyntax();
 
     [Pure]
-    public Expression InlineUserDefinedFunctions(StepContext context) => InlineUserDefinedFunctions(context, this);
+    public Expression InlineUserDefinedFunctions(StatementGeneratorContext context) => InlineUserDefinedFunctions(context, this);
 
     public bool Equals(Expression? other)
     {
@@ -37,7 +37,7 @@ public abstract class Expression : AstNode, IEquatable<Expression>
     public static bool operator !=(Expression? left, Expression? right) => !Equals(left, right);
 
     [Pure]
-    private static Expression InlineUserDefinedFunctions(StepContext context, Expression expression)
+    private static Expression InlineUserDefinedFunctions(StatementGeneratorContext context, Expression expression)
     {
         switch (expression)
         {
