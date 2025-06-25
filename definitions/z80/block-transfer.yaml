@@ -1,4 +1,24 @@
 instructions:
+  - group: LDI
+    mnemonic: LDI
+    opcodes:
+      - opcode: 0xED 0xA0
+    steps:
+      - Address = HL; HL = HL + 1; request(action.memory_read);
+      -
+      -
+      - Address = DE; DE = DE + 1; request(action.memory_write);
+      - 
+      - 
+      - 
+      - $result = A + Data; BC = BC - 1; flags();
+    flags:
+      N: 0
+      PV: BC != 0;
+      X: ($result & 0x08) != 0
+      H: 0
+      Y: ($result & 0x02) != 0
+      
   - group: LDIR
     mnemonic: LDIR
     opcodes:
@@ -31,6 +51,26 @@ instructions:
       X: $x != 0
       H: 0
       Y: $y != 0
+      
+  - group: LDD
+    mnemonic: LDD
+    opcodes:
+      - opcode: 0xED 0xA8
+    steps:
+      - Address = HL; HL = HL - 1; request(action.memory_read);
+      -
+      -
+      - Address = DE; DE = DE - 1; request(action.memory_write);
+      -
+      -
+      -
+      - $result = A + Data; BC = BC - 1; flags();
+    flags:
+      N: 0
+      PV: BC != 0;
+      X: ($result & 0x08) != 0
+      H: 0
+      Y: ($result & 0x02) != 0
       
   - group: LDDR
     mnemonic: LDDR
