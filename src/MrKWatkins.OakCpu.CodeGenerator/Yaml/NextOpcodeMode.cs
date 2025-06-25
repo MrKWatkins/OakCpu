@@ -13,7 +13,12 @@ public enum NextOpcodeMode
     Overlapped,
 
     /// <summary>
-    /// Custom handling; the user needs to handle setting the next step.
+    /// Custom handling; the user needs to handle setting the next step. Will redirect to the error step if not handled.
     /// </summary>
-    Custom
+    Custom,
+
+    /// <summary>
+    /// Sets the next step to the start of the step sequence.
+    /// </summary>
+    Loop
 }

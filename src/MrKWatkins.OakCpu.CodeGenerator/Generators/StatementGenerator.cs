@@ -39,9 +39,10 @@ public abstract class StatementGenerator : Generator
 
         var trailingStatements = step.NextOpcode switch
         {
-            NextOpcodeMode.Read => GenerateMoveToOpcodeRead(),
+            NextOpcodeMode.Read => GenerateMoveToOpcodeRead(context),
             NextOpcodeMode.Overlapped => GenerateOverlappedOpcodeRead(context),
             NextOpcodeMode.Custom => [],
+            NextOpcodeMode.Loop => [],
             null => [],
             _ => throw new NotSupportedException($"The next opcode mode {step.NextOpcode} is not supported.")
         };
@@ -84,6 +85,10 @@ public abstract class StatementGenerator : Generator
         if (callStatement.Call.Function == PreDefinedFunction.Handled)
         {
             return GenerateHandled(context);
+        }
+        if (callStatement.Call.Function == PreDefinedFunction.MoveToHaltedCycle)
+        {
+            return GenerateMoveToHaltedCycle(context);
         }
         if (callStatement.Call.Function == PreDefinedFunction.HandleInterrupts)
         {
@@ -147,7 +152,7 @@ public abstract class StatementGenerator : Generator
             yield return statement;
         }
 
-        yield return CreateSetStep(0).WithLeadingTrivia(Comment("// Finish instruction."));
+        yield return CreateSetStep(context.GeneratorContext.OpcodeRead.FirstStep).WithLeadingTrivia(Comment("// Finish instruction."));
     }
 
     [Pure]
@@ -224,9 +229,18 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateMoveToOpcodeRead()
+    private static IEnumerable<StatementSyntax> GenerateMoveToOpcodeRead(StatementGeneratorContext context)
     {
-        yield return CreateSetStep(0);
+        yield return CreateSetStep(context.GeneratorContext.OpcodeRead.FirstStep);
+    }
+
+    // TODO: Could we make more generic, i.e. if overlapped do this? Only bother if needed for other chips.
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateMoveToHaltedCycle(StatementGeneratorContext context)
+    {
+        // Need to overlap the first step of the halted cycle.
+        yield return CreateSetStep(context.GeneratorContext.Interrupts.HaltedCycle.Steps[1]).WithLeadingTrivia(Comment("// Move to halted cycle."));
+        yield return GenerateCallStep(context.GeneratorContext.Interrupts.HaltedCycle.FirstStep);
     }
 
     [Pure]
@@ -259,16 +273,20 @@ public abstract class StatementGenerator : Generator
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateOverlappedOpcodeRead(StatementGeneratorContext context)
     {
-        // Execute step 0. No need to set step 1; the NextOpcode handling above will cover that.
-        yield return ExpressionStatement(
-            InvocationExpression(IdentifierName(GetStepFunctionName(context.GeneratorContext.OpcodeReadFirstStep)))
+        // Execute step 0. No need to set step 1; the NextOpcode handling will cover that.
+        yield return GenerateCallStep(context.GeneratorContext.OpcodeRead.FirstStep)
+            .WithLeadingTrivia(NewlineComment, Comment("// Overlapped opcode read."));
+    }
+
+    [Pure]
+    private static StatementSyntax GenerateCallStep(Step step) =>
+        ExpressionStatement(
+            InvocationExpression(IdentifierName(GetStepFunctionName(step)))
                 .WithArgumentList(ArgumentList(
                 [
                     CreateEmulatorArgument(),
                     Argument(RefExpression(IdentifierName(ActionRequiredParameterName)))
-                ])))
-            .WithLeadingTrivia(NewlineComment, Comment("// Overlapped opcode read."));
-    }
+                ])));
 
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateSetOpcodeStepTable(StatementGeneratorContext context, Call callStatementCall)
@@ -301,7 +319,7 @@ public abstract class StatementGenerator : Generator
                 IdentifierName(opcodeStepTable.FieldName)));
 
     [Pure]
-    private static StatementSyntax CreateSetStep(int step) => CreateSetStep(GenerateNumericLiteralExpression(step));
+    private static StatementSyntax CreateSetStep(Step step) => CreateSetStep(GenerateNumericLiteralExpression(step.Index));
 
     [Pure]
     private static StatementSyntax CreateSetStep(ExpressionSyntax value) =>

@@ -14,7 +14,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public sealed class GeneratorContext
 {
-    private GeneratorContext(string rootNamespace, Configuration configuration, Cpu cpu, Interrupts interrupts, IReadOnlyList<Step> opcodeRead, IReadOnlyList<Statement> onInstructionComplete, IReadOnlyList<Instruction> instructions, IReadOnlyList<byte> opcodePrefixes, IReadOnlyList<Step> allSteps)
+    private GeneratorContext(string rootNamespace, Configuration configuration, Cpu cpu, Interrupts interrupts, OpcodeRead opcodeRead, IReadOnlyList<Statement> onInstructionComplete, IReadOnlyList<Instruction> instructions, IReadOnlyDictionary<byte, PrefixJump> prefixJumps, IReadOnlyList<Step> allSteps)
     {
         RootNamespace = rootNamespace;
         Configuration = configuration;
@@ -23,7 +23,7 @@ public sealed class GeneratorContext
         OpcodeRead = opcodeRead;
         OnInstructionComplete = onInstructionComplete;
         Instructions = instructions;
-        OpcodePrefixes = opcodePrefixes;
+        PrefixJumps = prefixJumps;
         AllSteps = allSteps;
     }
 
@@ -35,19 +35,17 @@ public sealed class GeneratorContext
 
     public Interrupts Interrupts { get; }
 
-    public IReadOnlyList<Step> OpcodeRead { get; }
+    public OpcodeRead OpcodeRead { get; }
 
     public IReadOnlyList<Statement> OnInstructionComplete { get; }
 
     public IReadOnlyList<Instruction> Instructions { get; }
 
-    public IReadOnlyList<byte> OpcodePrefixes { get; }
+    public IReadOnlyDictionary<byte, PrefixJump> PrefixJumps { get; }
 
     public IReadOnlyList<Step> AllSteps { get; }
 
     public HashSet<string> RequiredUsings { get; } = new();
-
-    public Step OpcodeReadFirstStep => OpcodeRead[0];
 
     public int ErrorStepIndex => AllSteps.Count;
 
@@ -82,23 +80,26 @@ public sealed class GeneratorContext
 
         context = context.WithOnInstructionComplete(Parser.ParseStatements(context, yaml.OnInstructionComplete));
 
-        var opcodeRead = Step.Parse("Opcode read", context, yaml.OpcodeRead);
+        var opcodeRead = OpcodeRead.Create(context, yaml);
 
         var instructions = Instruction.Create(context, yaml.Instructions);
 
-        var opcodePrefixes = instructions.Where(i => i.Prefix.HasValue).Select(i => i.Prefix!.Value).Distinct().OrderBy(p => p).ToList();
+        var prefixJumps = PrefixJump.Create(context, instructions);
 
         var interrupts = Interrupts.Create(context, yaml.Interrupts);
 
         // Steps need to keep their order within an instruction or all hell breaks loose.
-        var allSteps = opcodeRead.Concat(interrupts.AllSteps).Concat(instructions.SelectMany(i => i.Steps)).ToList();
+        var allSteps = opcodeRead
+            .Concat(prefixJumps.Values.SelectMany(p => p.Steps))
+            .Concat(interrupts.AllSteps)
+            .Concat(instructions.SelectMany(i => i.Steps)).ToList();
         Step.AssignIndexes(allSteps);
 
-        return new GeneratorContext(rootNamespace, configuration, Cpu.Create(yaml.Cpu), interrupts, opcodeRead, context.OnInstructionComplete, instructions, opcodePrefixes, allSteps);
+        return new GeneratorContext(rootNamespace, configuration, Cpu.Create(yaml.Cpu), interrupts, opcodeRead, context.OnInstructionComplete, instructions, prefixJumps, allSteps);
     }
 
     [Pure]
-    internal GeneratorContext WithRequiredUsings() => new(RootNamespace, Configuration, Cpu, Interrupts, OpcodeRead, OnInstructionComplete, Instructions, OpcodePrefixes, AllSteps);
+    internal GeneratorContext WithRequiredUsings() => new(RootNamespace, Configuration, Cpu, Interrupts, OpcodeRead, OnInstructionComplete, Instructions, PrefixJumps, AllSteps);
 
     [Pure]
     private static YamlFile LoadYaml(AdditionalText text)

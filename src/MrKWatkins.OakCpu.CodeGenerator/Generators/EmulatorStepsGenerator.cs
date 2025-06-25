@@ -43,7 +43,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
         var function = CreateFunction(context, GetStepFunctionName(step), statements);
 
         // Aggressively inline step 0 as it is called for overlapped reads.
-        function = step == context.OpcodeReadFirstStep
+        function = step == context.OpcodeRead.FirstStep
             ? function.WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(comment)])
             : function.WithLeadingTrivia(comment);
 

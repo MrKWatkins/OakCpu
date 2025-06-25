@@ -9,8 +9,9 @@ namespace MrKWatkins.OakCpu.Z80.Tests;
 // TODO: Make into a test suite. Remove FluentAssertions.
 // TODO: Review exact timings using Visual Z80 Remix.
 // TODO: Interrupts after an overlapped opcode - should we run the first step of the handler? Probably. Confirm with Visual Z80 Remix.
+// TODO: Test resume from HALT is in the right place.
 // Some of these tests are based on https://github.com/floooh/chips-test/blob/master/tests/z80-int.c.
-public sealed class Interrupts
+public sealed class InterruptsTests
 {
     [Test]
     public void Mode0()
@@ -543,7 +544,7 @@ public sealed class Interrupts
     [Test]
     public void InterruptsResetsHalted()
     {
-        var z80 = new Z80EmulatorTestHarness { RecordCycles = true };
+        var z80 = new Z80EmulatorTestHarness { RecordCycles = true, RegisterSP = 0x0100 };
 
         Load(z80,
         [
@@ -554,17 +555,25 @@ public sealed class Interrupts
             RST20()
         ]);
 
+        Load(z80,
+        [
+            ORG(0x0038),
+            RETI()
+        ]);
+
         // EI + IM 1 + HALT
-        z80.Step(15);
+        z80.Step(14);
+        z80.Step();
         z80.RegisterPC.Should().Be(0x0004);
         z80.RegisterR.Should().Be(0x04);
 
-        // HALT - set Halted. RST 0x20 - Overlapped opcode read.
+        // HALT - set Halted. RST 0x20 - Overlapped halted cycle.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
-        z80.Halted.Should().BeTrue();
 
         // RST 0x20 read. PC should not advance.
         z80.RegisterPC.Should().Be(0x0004);
+        z80.Halted.Should().BeTrue();
+
         StepAndAssertEvent(z80, CycleType.None);
 
         // Trigger an interrupt.
@@ -601,6 +610,38 @@ public sealed class Interrupts
 
         // Jumped to address 0x0038.
         z80.RegisterPC.Should().Be(0x0038);
+
+
+        // RETI - Read opcode.
+        StepAndAssertEvent(z80, CycleType.MemoryRead);
+        StepAndAssertEvent(z80, CycleType.None);
+        StepAndAssertEvent(z80, CycleType.None);
+        StepAndAssertEvent(z80, CycleType.None);
+
+        // Start reading RETI second byte.
+        StepAndAssertEvent(z80, CycleType.MemoryRead);
+        StepAndAssertEvent(z80, CycleType.None);
+        StepAndAssertEvent(z80, CycleType.None);
+        StepAndAssertEvent(z80, CycleType.None);
+
+        // RETI - Pop first byte off stack.
+        StepAndAssertEvent(z80, CycleType.MemoryRead);
+        StepAndAssertEvent(z80, CycleType.None);
+        StepAndAssertEvent(z80, CycleType.None);
+
+        // RETI - Pop second byte off stack.
+        StepAndAssertEvent(z80, CycleType.MemoryRead);
+        StepAndAssertEvent(z80, CycleType.None);
+        StepAndAssertEvent(z80, CycleType.None);
+        z80.RegisterPC.Should().Be(0x0004);
+        z80.IFF1.Should().BeFalse();
+        z80.IFF2.Should().BeFalse();
+
+        // RST 0x20 - Overlapped opcode read.
+        StepAndAssertEvent(z80, CycleType.MemoryRead);
+
+        // PC should be advancing again.
+        z80.RegisterPC.Should().Be(0x0005);
     }
 
     private static void StepAndAssertEvent(Z80EmulatorTestHarness z80, CycleType type)

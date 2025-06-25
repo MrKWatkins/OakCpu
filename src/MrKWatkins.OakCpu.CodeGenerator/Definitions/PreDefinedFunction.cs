@@ -10,6 +10,7 @@ public sealed class PreDefinedFunction : Function
     public static readonly PreDefinedFunction InstructionUpdatesFlags = new("instruction_updates_flags", DataType.Bool, []);
     // TODO: Should this be is_byte_zero? I.e. only check the value casted to a byte rather than the full int value.
     public static readonly PreDefinedFunction IsZero = new("is_zero", DataType.Bool, ["value"]);
+    public static readonly PreDefinedFunction MoveToHaltedCycle = new("move_to_halted_cycle", DataType.Void, []);
     public static readonly PreDefinedFunction MoveToInterruptMode = new("move_to_interrupt_mode", DataType.Void, ["mode"]);
     public static readonly PreDefinedFunction MoveToOpcode = new("move_to_opcode", DataType.Void, []);
     public static readonly PreDefinedFunction PopCount = new("pop_count", DataType.U8, ["value"]);
@@ -26,6 +27,7 @@ public sealed class PreDefinedFunction : Function
         { InstructionComplete.Name, InstructionComplete },
         { InstructionUpdatesFlags.Name, InstructionUpdatesFlags },
         { IsZero.Name, IsZero },
+        { MoveToHaltedCycle.Name, MoveToHaltedCycle },
         { MoveToInterruptMode.Name, MoveToInterruptMode },
         { MoveToOpcode.Name, MoveToOpcode },
         { PopCount.Name, PopCount },

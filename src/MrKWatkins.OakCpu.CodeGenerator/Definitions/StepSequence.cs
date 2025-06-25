@@ -1,8 +1,9 @@
+using System.Collections;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
-public abstract class StepSequence
+public abstract class StepSequence : IEnumerable<Step>
 {
     private protected StepSequence(IReadOnlyList<Step> steps, NextOpcodeMode nextOpcode)
     {
@@ -20,7 +21,13 @@ public abstract class StepSequence
         }
     }
 
+    public Step FirstStep => Steps[0];
+
     public IReadOnlyList<Step> Steps { get; }
 
     public NextOpcodeMode NextOpcode { get; }
+
+    public IEnumerator<Step> GetEnumerator() => Steps.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

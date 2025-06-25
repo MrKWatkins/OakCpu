@@ -18,15 +18,21 @@ interrupts:
   
   handle: |
     if interrupt && IFF1;
-      if halted;
-        halted = false;
-        PC = PC + 1;
-      endif;
-      
+      halted = false;     
       move_to_interrupt_mode(IM);
       interrupt = false;
       handled();
     endif;
+  
+  # Move to a separate cycle of opcodes after a HALT. This is to avoid the overhead of checking for halted in opcode_read.
+  halted_cycle:
+    # PC moves to the next instruction after a HALT. The next opcode is then repeatedly read, but PC is not advanced and the instruction is not executed 
+    # until the CPU is no longer halted. See http://www.primrosebank.net/computers/z80/z80_special_reset.htm for details.
+    - Address = PC; request(action.opcode_read);
+    -
+    - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);
+    # No need to reset Q as it was reset by the HALT that started the cycle.
+    - instruction_complete = true; handle_interrupts();
 
   modes:
     - number: 0
@@ -84,8 +90,10 @@ instructions:
     steps:
       # PC moves to the next instruction after a HALT. The next opcode is then repeatedly read, but PC is not advanced and the instruction is not executed 
       # until the CPU is no longer halted. See http://www.primrosebank.net/computers/z80/z80_special_reset.htm for details.
-      - halted = true;
-    next_opcode: overlapped
+      # We use a special cycle for this to avoid the overhead of having to check halted during a normal opcode read cycle.
+      # TODO: Annoying we have to have the memory_read here. Can we make more generic too? Arbitrary custom cycles for stuff like halted? Arbitrary sets of custom cycles for stuff like modes?
+      - Q = 0; instruction_complete = true; halted = true; handle_interrupts(); move_to_halted_cycle(); request(action.opcode_read);
+    next_opcode: custom
     
   - group: Interrupts
     mnemonic: DI

@@ -19,7 +19,7 @@ public sealed class Step
 
     public string Name { get; }
 
-    public StepSequence? Sequence { get; internal set; }
+    public StepSequence Sequence { get; internal set; } = null!;
 
     public ushort Index { get; private set; }
 
@@ -38,13 +38,13 @@ public sealed class Step
             throw new InvalidOperationException($"No {PreDefinedFunction.Request.Name} function should be specified for the last step in an instruction, unless the next_opcode mode is set to custom.");
         }
 
-        return NextOpcode == NextOpcodeMode.Overlapped ? context.OpcodeReadFirstStep.GetAction(context) : Action.None;
+        return NextOpcode == NextOpcodeMode.Overlapped ? context.OpcodeRead.FirstStep.GetAction(context) : Action.None;
     }
 
     /// <summary>
     /// The next opcode operation to perform after this step.
     /// </summary>
-    public NextOpcodeMode? NextOpcode => Sequence != null && Sequence.Steps.Last() == this ? Sequence.NextOpcode : null;
+    public NextOpcodeMode? NextOpcode => Sequence.Steps.Last() == this ? Sequence.NextOpcode : null;
 
     public bool RequiresPrefixReset => Sequence is Instruction { Prefix: not null } && Sequence.Steps[0] == this;
 

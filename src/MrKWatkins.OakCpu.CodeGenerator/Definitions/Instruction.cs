@@ -39,11 +39,7 @@ public sealed class Instruction : StepSequence
     {
         VerifyNoDuplicateOpcodes(yamls);
 
-        var instructions = yamls.SelectMany(y => Create(context, y)).OrderBy(i => i.OpcodeTable).ThenBy(i => i.Prefix).ThenBy(i => i.Opcode).ToList();
-
-        var prefixInstructions = CreatePrefixJumpInstructions(context, instructions);
-
-        return prefixInstructions.Concat(instructions).ToList();
+        return yamls.SelectMany(y => Create(context, y)).OrderBy(i => i.OpcodeTable).ThenBy(i => i.Prefix).ThenBy(i => i.Opcode).ToList();
     }
 
     [Pure]
@@ -76,17 +72,6 @@ public sealed class Instruction : StepSequence
             var flags = yaml.Flags.ToDictionary(kvp => kvp.Key, kvp => Parser.ParseExpression(context, Substitute(context, opcodeYaml, kvp.Value)));
 
             yield return new Instruction(yaml.Group, mnemonic, yaml.OpcodeTable, opcodeYaml.PrefixByte, opcodeYaml.OpcodeByte, yaml.NextOpcode, steps, flags, duplicates);
-        }
-    }
-
-    [Pure]
-    private static IEnumerable<Instruction> CreatePrefixJumpInstructions(ParserContext context, IReadOnlyList<Instruction> instructions)
-    {
-        foreach (var prefix in instructions.Where(i => i.Prefix.HasValue).Select(i => i.Prefix!.Value).Distinct().OrderBy(p => p))
-        {
-            var steps = Step.Parse($"Read opcode after prefix 0x{prefix:X2}", context, [$"{PreDefinedFunction.SetOpcodeStepTable.Name}({prefix});"]);
-
-            yield return new Instruction("Prefixes", $"Prefix 0x{prefix:X2}", null, null, prefix, NextOpcodeMode.Overlapped, steps, new Dictionary<string, Expression>(), []);
         }
     }
 

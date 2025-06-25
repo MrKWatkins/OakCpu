@@ -72,7 +72,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
             // If we're an overlapped read and doing nothing, we still need to run step 0.
             if (step.NextOpcode == NextOpcodeMode.Overlapped)
             {
-                handler = PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetStepFunctionName(context.OpcodeReadFirstStep)));
+                handler = PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetStepFunctionName(context.OpcodeRead.FirstStep)));
             }
             else
             {
@@ -89,6 +89,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
             NextOpcodeMode.Read => 0,
             NextOpcodeMode.Overlapped => 1,
             NextOpcodeMode.Custom => context.ErrorStepIndex,
+            NextOpcodeMode.Loop => step.Sequence.FirstStep.Index,
             null => step.Index + 1,
             _ => throw new NotSupportedException($"The {nameof(NextOpcodeMode)} {step.NextOpcode} is not supported.")
         };
@@ -217,9 +218,18 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     private static StatementSyntax CreateOpcodeStepTableInitializationStatement(GeneratorContext context, OpcodeStepTable opcodeStepTable, [InstantHandle] IEnumerable<Instruction> instructions, IReadOnlyList<(byte Opcode, Step Step)> duplicates)
     {
         var stepIndices = Enumerable.Repeat(context.ErrorStepIndex, 256).ToArray();
+
+        if (opcodeStepTable == OpcodeStepTable.NoPrefix)
+        {
+            foreach (var prefixJump in context.PrefixJumps.Values)
+            {
+                stepIndices[prefixJump.Prefix] = prefixJump.FirstStep.Index;
+            }
+        }
+
         foreach (var instruction in instructions)
         {
-            stepIndices[instruction.Opcode] = instruction.Steps.First().Index;
+            stepIndices[instruction.Opcode] = instruction.FirstStep.Index;
         }
 
         foreach (var duplicate in duplicates)
