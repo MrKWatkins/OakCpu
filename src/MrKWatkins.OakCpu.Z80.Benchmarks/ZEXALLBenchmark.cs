@@ -27,6 +27,7 @@ namespace MrKWatkins.OakCpu.Z80.Benchmarks;
 // | ZEXALL | aluop a,nn | 1.842 s | 0.0362 s | 0.0483 s |   x86.14 |   65.71 KB | 2025-06-21 After fixing various flags.
 // | ZEXALL | aluop a,nn | 2.167 s | 0.0425 s | 0.0489 s |   x73.23 |   65.69 KB | 2025-06-24 After Q and interrupts.
 // | ZEXALL | aluop a,nn | 2.132 s | 0.0420 s | 0.0789 s |   x74.43 |   65.69 KB | 2025-06-25 After adding a separate halt cycle.
+// | ZEXALL | aluop a,nn | 2.068 s | 0.0257 s | 0.0240 s |   x76.74 |   65.69 KB | 2025-06-25 After fixing LDIR. (Does that mean it's now doing fewer cycles? Error has dropped a lot. Or just variation in the benchmark? Who knows...)
 [MemoryDiagnoser]
 [Config(typeof(Config))]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
