@@ -31,3 +31,36 @@ instructions:
       X: $x != 0
       H: 0
       Y: $y != 0
+      
+  - group: LDDR
+    mnemonic: LDDR
+    opcodes:
+      - opcode: 0xED 0xB8
+    steps:
+      - Address = HL; HL = HL - 1; request(action.memory_read);
+      -
+      -
+      - Address = DE; DE = DE - 1; request(action.memory_write);
+      - 
+      - 
+      - 
+      - |
+        $result = A + Data;
+        BC = BC - 1;
+        if BC == 0;
+          $x = $result & 0x08;
+          $y = $result & 0x02;
+          flags();
+          instruction_complete();
+        endif;
+      - 
+      - PC = PC - 1; WZ = PC; PC = PC - 1; $x = PCH & 0x08; $y = PCH & 0x20; flags();
+      - 
+      - 
+      - 
+    flags:
+      N: 0
+      PV: BC != 0;
+      X: $x != 0
+      H: 0
+      Y: $y != 0
