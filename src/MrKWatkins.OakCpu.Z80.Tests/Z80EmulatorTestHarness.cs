@@ -8,98 +8,98 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
 
     public override ushort RegisterAF
     {
-        get => emulator.Registers.AF;
-        set => emulator.Registers.AF = value;
+        get => emulator.AF;
+        set => emulator.AF = value;
     }
 
     public override ushort RegisterBC
     {
-        get => emulator.Registers.BC;
-        set => emulator.Registers.BC = value;
+        get => emulator.BC;
+        set => emulator.BC = value;
     }
 
     public override ushort RegisterDE
     {
-        get => emulator.Registers.DE;
-        set => emulator.Registers.DE = value;
+        get => emulator.DE;
+        set => emulator.DE = value;
     }
 
     public override ushort RegisterHL
     {
-        get => emulator.Registers.HL;
-        set => emulator.Registers.HL = value;
+        get => emulator.HL;
+        set => emulator.HL = value;
     }
 
     public override ushort RegisterIX
     {
-        get => emulator.Registers.IX;
-        set => emulator.Registers.IX = value;
+        get => emulator.IX;
+        set => emulator.IX = value;
     }
 
     public override ushort RegisterIY
     {
-        get => emulator.Registers.IY;
-        set => emulator.Registers.IY = value;
+        get => emulator.IY;
+        set => emulator.IY = value;
     }
 
     public override ushort RegisterSP
     {
-        get => emulator.Registers.SP;
-        set => emulator.Registers.SP = value;
+        get => emulator.SP;
+        set => emulator.SP = value;
     }
 
     public override ushort RegisterPC
     {
-        get => emulator.Registers.PC;
-        set => emulator.Registers.PC = value;
+        get => emulator.PC;
+        set => emulator.PC = value;
     }
 
     public override ushort RegisterWZ
     {
-        get => emulator.Registers.WZ;
-        set => emulator.Registers.WZ = value;
+        get => emulator.WZ;
+        set => emulator.WZ = value;
     }
 
     public override byte RegisterI
     {
-        get => emulator.Registers.I;
-        set => emulator.Registers.I = value;
+        get => emulator.I;
+        set => emulator.I = value;
     }
 
     public override byte RegisterR
     {
-        get => emulator.Registers.R;
-        set => emulator.Registers.R = value;
+        get => emulator.R;
+        set => emulator.R = value;
     }
 
     public override byte RegisterQ
     {
-        get => emulator.Registers.Q;
-        set => emulator.Registers.Q = value;
+        get => emulator.Q;
+        set => emulator.Q = value;
     }
 
     public override ushort ShadowRegisterAF
     {
-        get => emulator.Registers.Shadow.AF;
-        set => emulator.Registers.Shadow.AF = value;
+        get => emulator.Shadow_AF;
+        set => emulator.Shadow_AF = value;
     }
 
     public override ushort ShadowRegisterBC
     {
-        get => emulator.Registers.Shadow.BC;
-        set => emulator.Registers.Shadow.BC = value;
+        get => emulator.Shadow_BC;
+        set => emulator.Shadow_BC = value;
     }
 
     public override ushort ShadowRegisterDE
     {
-        get => emulator.Registers.Shadow.DE;
-        set => emulator.Registers.Shadow.DE = value;
+        get => emulator.Shadow_DE;
+        set => emulator.Shadow_DE = value;
     }
 
     public override ushort ShadowRegisterHL
     {
-        get => emulator.Registers.Shadow.HL;
-        set => emulator.Registers.Shadow.HL = value;
+        get => emulator.Shadow_HL;
+        set => emulator.Shadow_HL = value;
     }
 
     public override bool FlagC
@@ -152,32 +152,32 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
 
     public override bool IFF1
     {
-        get => emulator.Interrupts.IFF1;
-        set => emulator.Interrupts.IFF1 = value;
+        get => emulator.iff1;
+        set => emulator.iff1 = value;
     }
 
     public override bool IFF2
     {
-        get => emulator.Interrupts.IFF2;
-        set => emulator.Interrupts.IFF2 = value;
+        get => emulator.iff2;
+        set => emulator.iff2 = value;
     }
 
     public override byte IM
     {
-        get => emulator.Interrupts.IM;
-        set => emulator.Interrupts.IM = value;
+        get => emulator.im;
+        set => emulator.im = value;
     }
 
     public override bool Halted
     {
-        get => emulator.Interrupts.Halted;
-        set => emulator.Interrupts.Halted = value;
+        get => emulator.halted;
+        set => emulator.halted = value;
     }
 
     public override bool Interrupt
     {
-        get => emulator.Interrupts.Interrupt;
-        set => emulator.Interrupts.Interrupt = value;
+        get => emulator.interrupt;
+        set => emulator.interrupt = value;
     }
 
     public override void AssertFail(string message) => Assert.Fail(message + Environment.NewLine);

@@ -202,8 +202,16 @@ public abstract class StatementGenerator : Generator
     {
         var condition = ExpressionGenerator.GenerateExpressionSyntax(context.WithBooleanContext(), ifStatement.Condition);
 
-        var ifStatements = ifStatement.IfStatements.SelectMany(statement => GenerateStatements(context, statement));
-        var elseStatements = ifStatement.ElseStatements.SelectMany(statement => GenerateStatements(context, statement));
+        if (context.Step?.Sequence is Instruction instruction && instruction.Mnemonic == "LDIR")
+        {
+
+        }
+
+        var ifContext = context.WithChildVariableScope();
+        var ifStatements = ifStatement.IfStatements.SelectMany(statement => GenerateStatements(ifContext, statement));
+
+        var elseContext = context.WithChildVariableScope();
+        var elseStatements = ifStatement.ElseStatements.SelectMany(statement => GenerateStatements(elseContext, statement));
 
         // We might have true or false for the condition, which we can optimise.
         if (condition is LiteralExpressionSyntax literal)

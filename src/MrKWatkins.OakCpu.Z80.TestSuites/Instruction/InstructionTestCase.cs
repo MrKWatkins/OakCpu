@@ -26,11 +26,14 @@ public abstract class InstructionTestCase : TestCase
     {
         // If the last cycle was a MemoryRead, then we've had an overlapped read. The instruction tests (obviously) assume instruction level
         // execution so won't take this into account. We need to adjust the PC and change the event to a None.
-        if (z80.MutableCycles?.Last().IsOpcodeRead == true)
+        if (LastCycleWasOverlappedRead(z80))
         {
             z80.TStates--;
             z80.RegisterPC--;
-            z80.MutableCycles.RemoveAt(z80.MutableCycles.Count - 1);
+            z80.MutableCycles!.RemoveAt(z80.MutableCycles.Count - 1);
         }
     }
+
+    [Pure]
+    protected static bool LastCycleWasOverlappedRead(Z80TestHarness z80) => z80.MutableCycles?.LastOrDefault()?.IsOpcodeRead == true;
 }

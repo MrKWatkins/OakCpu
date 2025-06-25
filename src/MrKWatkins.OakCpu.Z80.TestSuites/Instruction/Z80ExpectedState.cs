@@ -32,7 +32,7 @@ public class Z80ExpectedState : Z80State
         AssertEqual(assertionsToRun, z80, Assertions.IY, z80.RegisterIY, RegisterIY, $"Register IY should be 0x{RegisterIY:X4} but was 0x{z80.RegisterIY:X4}");
         AssertEqual(assertionsToRun, z80, Assertions.WZ, z80.RegisterWZ, RegisterWZ, $"Register WZ should be 0x{RegisterWZ:X4} but was 0x{z80.RegisterWZ:X4}");
         AssertEqual(assertionsToRun, z80, Assertions.I, z80.RegisterI, RegisterI, $"Register I should be 0x{RegisterI:X2} but was 0x{z80.RegisterI:X2}");
-        AssertEqual(assertionsToRun, z80, Assertions.R, z80.RegisterR, RegisterR, $"Register R should be 0x{RegisterAF:X2} but was 0x{z80.RegisterAF:X2}");
+        AssertEqual(assertionsToRun, z80, Assertions.R, z80.RegisterR, RegisterR, $"Register R should be 0x{RegisterR:X2} but was 0x{z80.RegisterR:X2}");
         AssertEqual(assertionsToRun, z80, Assertions.Q, z80.RegisterQ, RegisterQ, $"Register Q should be 0x{RegisterQ:X2} but was 0x{z80.RegisterQ:X2}");
         AssertEqual(assertionsToRun, z80, Assertions.ShadowAF, z80.ShadowRegisterAF, ShadowRegisterAF, $"Register AF' should be 0x{ShadowRegisterAF:X4} but was 0x{z80.ShadowRegisterAF:X4}");
         AssertEqual(assertionsToRun, z80, Assertions.ShadowBC, z80.ShadowRegisterBC, ShadowRegisterBC, $"Register BC' should be 0x{ShadowRegisterBC:X4} but was 0x{z80.ShadowRegisterBC:X4}");

@@ -11,18 +11,23 @@ instructions:
       - 
       - 
       - 
-      - $result = A + Data; BC = BC - 1; flags(); if BC == 0; instruction_complete(); endif;
+      - |
+        $result = A + Data;
+        BC = BC - 1;
+        if BC == 0;
+          $x = $result & 0x08;
+          $y = $result & 0x02;
+          flags();
+          instruction_complete();
+        endif;
       - 
-      - PC = PC - 1; WZ = PC; PC = PC - 1;
-      - 
+      - PC = PC - 1; WZ = PC; PC = PC - 1; $x = PCH & 0x08; $y = PCH & 0x20; flags();
       - 
       - 
       - 
     flags:
-      # TODO: Set X and Y from PC 11/13.
       N: 0
       PV: BC != 0;
-      X: ($result & 0x08) == 0x08
+      X: $x != 0
       H: 0
-      Y: ($result & 0x02) == 0x02
-    next_opcode: overlapped
+      Y: $y != 0

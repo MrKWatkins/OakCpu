@@ -25,9 +25,23 @@ public sealed class FuseTestCase : InstructionTestCase
 
         Input.Setup(z80);
 
-        while (z80.TStates <= Input.MinimumTStatesToRun)
+        while (true)
         {
             z80.ExecuteInstruction();
+
+            // Break when we've run the minimum T-states. If we've just had an overlapped read, then we need to adjust TStates by 1.
+            var tStates = z80.TStates;
+            if (LastCycleWasOverlappedRead(z80))
+            {
+                tStates--;
+
+            }
+
+            if (tStates >= Input.MinimumTStatesToRun)
+            {
+                break;
+            }
+
         }
 
         AdjustForOverlappedRead(z80);
