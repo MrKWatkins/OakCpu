@@ -30,5 +30,5 @@ public sealed class RaxoftTests
     public void Memptr(RaxoftTestCase testCase) => testCase.Execute<Z80EmulatorTestHarness>(TestContext.Progress);
 
     [Pure]
-    public static IEnumerable<RaxoftTestCase> TestCases(RaxoftTestType type, RaxoftTestVersion version) => RaxoftTestSuite.Get(type, version).TestCases;
+    public static IEnumerable<TestCaseData> TestCases(RaxoftTestType type, RaxoftTestVersion version) => RaxoftTestSuite.Get(type, version).TestCases.ToTestCaseData();
 }
