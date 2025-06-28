@@ -23,8 +23,12 @@ public sealed class FuseTests
         ["76"] = DefaultExceptPC,
 
         // The following tests disagree with the Single Step tests.
+        // TODO: Use the netlist simulator to work out which one is actually correct.
         ["edb9_2"] = FuseTestSuite.DefaultAssertions & ~Assertions.X & ~Assertions.F,
-        ["edb2_1"] = FuseTestSuite.DefaultAssertions & ~Assertions.PV & ~Assertions.X & ~Assertions.F & ~Assertions.WZ
+        ["edb2_1"] = FuseTestSuite.DefaultAssertions & ~Assertions.PV & ~Assertions.X & ~Assertions.F & ~Assertions.WZ,
+        ["edb3_1"] = FuseTestSuite.DefaultAssertions & ~Assertions.PV & ~Assertions.H & ~Assertions.F & ~Assertions.WZ,
+        ["edba_1"] = FuseTestSuite.DefaultAssertions & ~Assertions.WZ,
+        ["edbb_1"] = FuseTestSuite.DefaultAssertions & ~Assertions.PV & ~Assertions.H & ~Assertions.F & ~Assertions.WZ
     };
 
     [TestCaseSource(nameof(TestCases))]
