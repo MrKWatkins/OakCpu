@@ -22,8 +22,9 @@ public sealed class FuseTests
         // Fuse does not move onto the next instruction on HALT so PC will differ. However, PC should move. See https://github.com/redcode/Z80/wiki/Z80-Special-Reset#halt-and-the-special-reset.
         ["76"] = DefaultExceptPC,
 
-        // Fuse disagrees with the Single Step tests over the X flag.
-        ["edb9_2"] = FuseTestSuite.DefaultAssertions & ~Assertions.X & ~Assertions.F
+        // The following tests disagree with the Single Step tests.
+        ["edb9_2"] = FuseTestSuite.DefaultAssertions & ~Assertions.X & ~Assertions.F,
+        ["edb2_1"] = FuseTestSuite.DefaultAssertions & ~Assertions.PV & ~Assertions.X & ~Assertions.F & ~Assertions.WZ
     };
 
     [TestCaseSource(nameof(TestCases))]

@@ -30,11 +30,6 @@ public abstract class ExpressionGenerator : Generator
     [Pure]
     private static ExpressionSyntax GenerateBinaryOperation(StatementGeneratorContext context, BinaryOperation binaryOperation)
     {
-        if (context.InBooleanContext && binaryOperation.Operator.Type != DataType.Bool)
-        {
-            throw new InvalidOperationException($"Cannot use the non-Boolean operator {binaryOperation.Operator.Symbol} in a Boolean context.");
-        }
-
         var left = GenerateExpressionSyntax(context, binaryOperation.Left);
         if (binaryOperation.Left is BinaryOperation leftBinary && leftBinary.Operator.Precedence < binaryOperation.Operator.Precedence)
         {
@@ -100,7 +95,7 @@ public abstract class ExpressionGenerator : Generator
         var argumentExpression = GenerateExpressionSyntax(context, argument);
         if (argument.Type != PreDefinedFunction.PopCount.Type)
         {
-            argumentExpression = CastExpression(PreDefinedFunction.PopCount.TypeSyntax, argumentExpression);
+            argumentExpression = CastExpression(PreDefinedFunction.PopCount.TypeSyntax, ParenthesizedExpression(argumentExpression));
         }
 
         return InvocationExpression(

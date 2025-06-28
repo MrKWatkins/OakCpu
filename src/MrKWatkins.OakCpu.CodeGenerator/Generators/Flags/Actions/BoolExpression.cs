@@ -25,12 +25,13 @@ internal sealed class BoolExpression : FlagAction
 
         // Benchmark suggests CMOV via a ternary should be twice as fast, but using it in the emulator made it slightly slower.
         // TODO: Revisit.
-        // return ConditionalExpression(boolExpression, GenerateBinaryLiteralExpression(Flags[0].BitMask), GenerateBinaryLiteralExpression(0));
         var byteExpression = GenerateBitCastFromBoolToByte(context, boolExpression);
 
         var shift = Flags[0].Index;
 
-        return shift != 0 ? BinaryExpression(SyntaxKind.LeftShiftExpression, ParenthesizedExpression(byteExpression), GenerateNumericLiteralExpression(shift)) : byteExpression;
+        return shift != 0
+            ? BinaryExpression(SyntaxKind.LeftShiftExpression, ParenthesizedExpression(byteExpression), GenerateNumericLiteralExpression(shift))
+            : byteExpression;
     }
 
     private static ExpressionSyntax GenerateBitCastFromBoolToByte(StatementGeneratorContext context, ExpressionSyntax value)
@@ -47,7 +48,7 @@ internal sealed class BoolExpression : FlagAction
     }
 
 
-    internal override string GenerateComment(StatementGeneratorContext context) => $"// Set {FlagsNames(Flags)} if {Expression} is true.";
+    internal override string GenerateComment() => $"// Set {FlagsNames(Flags)} if {Expression} is true.";
 
     [Pure]
     internal static FlagAction? CreateOrNull(Flag flag, Expression expression) =>

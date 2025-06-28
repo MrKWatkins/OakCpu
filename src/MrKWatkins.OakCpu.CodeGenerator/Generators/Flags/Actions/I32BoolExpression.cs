@@ -45,7 +45,7 @@ internal sealed class I32BoolExpression : FlagAction
         };
     }
 
-    internal override string GenerateComment(StatementGeneratorContext context) => $"// Set {FlagsNames(Flags)} if {OriginalExpression} is true.";
+    internal override string GenerateComment() => $"// Set {FlagsNames(Flags)} if {OriginalExpression} is true.";
 
     [Pure]
     internal static FlagAction? CreateOrNull(Flag flag, Expression expression) =>

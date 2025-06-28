@@ -1,3 +1,5 @@
+# TODO: Use bool temps for flags variables in the $xy instructions.
+# TODO: get_bit function.
 cpu:
   name: Z80
   # TODO: Capitalise IO in the C#.

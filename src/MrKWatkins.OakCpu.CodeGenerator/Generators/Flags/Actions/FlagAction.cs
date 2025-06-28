@@ -24,7 +24,7 @@ internal abstract class FlagAction : Generator
     internal abstract ExpressionSyntax GenerateExpression(StatementGeneratorContext context);
 
     [Pure]
-    internal abstract string GenerateComment(StatementGeneratorContext context);
+    internal abstract string GenerateComment();
 
     [Pure]
     public static IEnumerable<FlagAction> Create(StatementGeneratorContext context, Instruction instruction)

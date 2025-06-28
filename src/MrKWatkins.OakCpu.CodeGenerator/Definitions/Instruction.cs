@@ -71,7 +71,56 @@ public sealed class Instruction : StepSequence
 
             var flags = yaml.Flags.ToDictionary(kvp => kvp.Key, kvp => Parser.ParseExpression(context, Substitute(context, opcodeYaml, kvp.Value)));
 
+            ResolveTypesInFlagsExpressions(steps, flags);
+
             yield return new Instruction(yaml.Group, mnemonic, yaml.OpcodeTable, opcodeYaml.PrefixByte, opcodeYaml.OpcodeByte, yaml.NextOpcode, steps, flags, duplicates);
+        }
+    }
+
+    private static void ResolveTypesInFlagsExpressions(IReadOnlyList<Step> steps, IReadOnlyDictionary<string, Expression> flags)
+    {
+        if (flags.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var step in steps)
+        {
+            ResolveTypesInFlagsExpressions(step, flags);
+        }
+    }
+    private static void ResolveTypesInFlagsExpressions(Step steps, IReadOnlyDictionary<string, Expression> flags)
+    {
+        var variables = new Dictionary<string, TemporaryVariable>();
+        foreach (var node in steps.Statements.SelectMany(s => s.Traverse()))
+        {
+            if (node is IReferencesTemporaryVariable referencesTemporaryVariable)
+            {
+                variables[referencesTemporaryVariable.Variable.Name] = referencesTemporaryVariable.Variable;
+            }
+            else if (node is CallStatement call && call.Call.Function == PreDefinedFunction.Flags)
+            {
+                // When calling the flag all temps needed should have been defined. TODO: Should be doing something different to handle if/else branches correctly, i.e. a scoped walk.
+                ResolveTypesInFlagsExpressions(variables, flags);
+                return;
+            }
+        }
+    }
+
+    private static void ResolveTypesInFlagsExpressions(IReadOnlyDictionary<string, TemporaryVariable> temporaryVariables, IReadOnlyDictionary<string, Expression> flags)
+    {
+        foreach (var kvp in flags)
+        {
+            var flag = kvp.Key;
+
+            foreach (var variableReference in kvp.Value.Traverse().OfType<IReferencesTemporaryVariable>())
+            {
+                if (!temporaryVariables.TryGetValue(variableReference.Variable.Name, out var variable))
+                {
+                    throw new InvalidOperationException($"The temporary variable {variableReference.Variable.Name} referenced by flag {flag} has not been defined.");
+                }
+                variableReference.Variable.Type = variable.Type;
+            }
         }
     }
 

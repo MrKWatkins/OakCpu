@@ -29,7 +29,7 @@ public abstract class FlagsGenerator : Generator
         foreach (var action in actions.OrderBy(a => a.Order))
         {
             var expression = action.GenerateExpression(context);
-            var comment = action.GenerateComment(context);
+            var comment = action.GenerateComment();
             if (!initialized)
             {
                 yield return CreateInitialize(expression, comment, commentsBeforeInitialize);
@@ -50,7 +50,7 @@ public abstract class FlagsGenerator : Generator
     }
 
     private static StatementSyntax CreateInitialize(ExpressionSyntax expression, string comment, List<string> commentsBeforeInitialize) =>
-        InitializeVariableStatement(FlagsVariableName, expression).WithLeadingTrivia(commentsBeforeInitialize.Select(Comment)).WithTrailingTrivia(Comment(comment));
+        InitializeVariableStatement(FlagsVariableName, expression, Int).WithLeadingTrivia(commentsBeforeInitialize.Select(Comment)).WithTrailingTrivia(Comment(comment));
 
     [Pure]
     private static StatementSyntax CreateFlagsOrAssignment(ExpressionSyntax expression, string comment) =>

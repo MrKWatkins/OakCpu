@@ -42,7 +42,7 @@ functions:
   - name: even_parity
     type: i32_bool
     parameters: [value]
-    expression: ~pop_count(value) & 1
+    expression: ~pop_count(value) & 0x01
     
   - name: is_negative
     type: i32_bool

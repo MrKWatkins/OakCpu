@@ -34,7 +34,7 @@ internal sealed class CopyFrom : FlagAction
             ExpressionGenerator.GenerateExpressionSyntax(context, Argument),
             GenerateBinaryLiteralExpression(BitMask));
 
-    internal override string GenerateComment(StatementGeneratorContext context) => $"// Copy {FlagsNames(Flags)} from {Argument}.";
+    internal override string GenerateComment() => $"// Copy {FlagsNames(Flags)} from {Argument}.";
 
     [Pure]
     internal static FlagAction? CreateOrNull(Flag flag, Expression expression) =>

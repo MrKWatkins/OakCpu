@@ -14,7 +14,7 @@ internal sealed class RemoveUnnecessaryResets : FlagOptimization
             return actions;
         }
 
-        extraComments.Add(constant.GenerateComment(context));
+        extraComments.Add(constant.GenerateComment());
 
         return actions.Where(a => a != constant);
     }

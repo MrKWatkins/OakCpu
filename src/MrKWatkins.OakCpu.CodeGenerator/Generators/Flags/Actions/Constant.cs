@@ -24,7 +24,7 @@ internal sealed class Constant : FlagAction
 
     internal override ExpressionSyntax GenerateExpression(StatementGeneratorContext context) => GenerateBinaryLiteralExpression(BitMask);
 
-    internal override string GenerateComment(StatementGeneratorContext context)
+    internal override string GenerateComment()
     {
         var sets = new List<Flag>();
         var resets = new List<Flag>();

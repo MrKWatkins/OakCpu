@@ -26,7 +26,7 @@ public static class Parser
 
         try
         {
-            return ParseStatements(context, lexer).ToList();
+            return ParseStatements(context.WithChildVariableScope(), lexer).ToList();
         }
         catch (Exception exception)
         {
@@ -57,6 +57,7 @@ public static class Parser
                 IfStatement ifStatement => ParseIfStatements(context, lexer, ifStatement),
                 Statement statement => statement,
                 Call { Function.Type: DataType.Void } call => new CallStatement(call),
+                TemporaryVariableAccess temporaryVariableAccess => new TemporaryVariableDeclarationStatement(temporaryVariableAccess.Variable),
                 _ => throw new InvalidOperationException($"Expression \"{parsed}\" did not parse to a statement.")
             };
         }
@@ -68,7 +69,7 @@ public static class Parser
         var ifStatements = new List<Statement>();
         var elseStatements = new List<Statement>();
         var statements = ifStatements;
-        foreach (var statement in ParseStatements(context, lexer))
+        foreach (var statement in ParseStatements(context.WithChildVariableScope(), lexer))
         {
             switch (statement)
             {
@@ -103,7 +104,7 @@ public static class Parser
         {
             using var reader = new StringReader(input);
             var lexer = new Lexer(reader);
-            return Parse<Expression>(context, lexer, 0);
+            return Parse<Expression>(context.WithChildVariableScope(), lexer, 0);
         }
         catch (Exception exception)
         {
@@ -235,7 +236,7 @@ public static class Parser
 
         if (identifier.StartsWith("$"))
         {
-            return new TemporaryVariableAccess(identifier.Substring(1));
+            return new TemporaryVariableAccess(DeclareOrReferenceTemporaryVariable(context, identifier.Substring(1)));
         }
 
         if (identifier.StartsWith("flag.") && context.Configuration.Flags.TryGetValue(identifier.Substring(5), out var flag))
@@ -295,4 +296,16 @@ public static class Parser
 
     [Pure]
     private static FormatException CreateUnexpectedTokenException(Token token) => new($"Unexpected token {token.GetType().Name} {token} at index {token.StartIndex}.");
+
+    [MustUseReturnValue]
+    private static TemporaryVariable DeclareOrReferenceTemporaryVariable(ParserContext context, string name)
+    {
+        if (!context.TemporaryVariables.TryGetValue(name, out var variable))
+        {
+             variable = new TemporaryVariable(name);
+             context.TemporaryVariables.Add(name, variable);
+        }
+
+        return variable;
+    }
 }

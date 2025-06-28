@@ -68,6 +68,7 @@ public abstract class StatementGenerator : Generator
             Assignment assignment => GenerateAssignment(context, assignment),
             IfStatement ifStatement => GenerateIf(context, ifStatement),
             CallStatement callStatement => GenerateCall(context, callStatement),
+            TemporaryVariableDeclarationStatement temporaryVariableDeclaration => GenerateTemporaryVariableDeclaration(context, temporaryVariableDeclaration.Variable),
             _ => throw new NotSupportedException($"The statement type {statement.GetType().Name} is not supported.")
         };
 
@@ -112,6 +113,18 @@ public abstract class StatementGenerator : Generator
         }
 
         throw new NotSupportedException($"The function {callStatement.Call.Function} is not supported.");
+    }
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateTemporaryVariableDeclaration(StatementGeneratorContext context, TemporaryVariable temporaryVariable)
+    {
+        if (!context.InitializedTemporaryVariables.Add(temporaryVariable.Name))
+        {
+            throw new InvalidOperationException($"The temporary variable {temporaryVariable.Name} has already been initialized.");
+        }
+
+        yield return LocalDeclarationStatement(VariableDeclaration(temporaryVariable.Type.TypeSyntax())
+            .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(temporaryVariable.Name)))));
     }
 
     [Pure]
@@ -201,11 +214,6 @@ public abstract class StatementGenerator : Generator
     private static IEnumerable<StatementSyntax> GenerateIf(StatementGeneratorContext context, IfStatement ifStatement)
     {
         var condition = ExpressionGenerator.GenerateExpressionSyntax(context.WithBooleanContext(), ifStatement.Condition);
-
-        if (context.Step?.Sequence is Instruction instruction && instruction.Mnemonic == "LDIR")
-        {
-
-        }
 
         var ifContext = context.WithChildVariableScope();
         var ifStatements = ifStatement.IfStatements.SelectMany(statement => GenerateStatements(ifContext, statement));

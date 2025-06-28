@@ -31,8 +31,11 @@ public abstract class Generator
     }
 
     [Pure]
-    protected static StatementSyntax InitializeVariableStatement(string variable, ExpressionSyntax value) =>
-        LocalDeclarationStatement(VariableDeclaration(IdentifierName("var"))
+    protected static StatementSyntax InitializeVariableStatement(string variable, ExpressionSyntax value) => InitializeVariableStatement(variable, value, IdentifierName("var"));
+
+    [Pure]
+    protected static StatementSyntax InitializeVariableStatement(string variable, ExpressionSyntax value, TypeSyntax type) =>
+        LocalDeclarationStatement(VariableDeclaration(type)
             .WithVariables(SingletonSeparatedList(
                 VariableDeclarator(Identifier(variable))
                     .WithInitializer(EqualsValueClause(value)))));
@@ -59,6 +62,9 @@ public abstract class Generator
 
     [Pure]
     protected static PredefinedTypeSyntax Byte => PredefinedType(Token(SyntaxKind.ByteKeyword));
+
+    [Pure]
+    protected static PredefinedTypeSyntax Int => PredefinedType(Token(SyntaxKind.IntKeyword));
 
     [Pure]
     protected static PredefinedTypeSyntax UShort => PredefinedType(Token(SyntaxKind.UShortKeyword));

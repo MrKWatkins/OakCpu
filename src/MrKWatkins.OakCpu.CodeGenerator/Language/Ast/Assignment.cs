@@ -6,18 +6,19 @@ public sealed class Assignment : Statement
 {
     internal Assignment(AstNode target, AstNode value)
     {
-        if (target is not Access)
+        Target = target as Access ?? throw new ArgumentException($"Value must be an {nameof(Access)}, not a {target.GetType().Name}.", nameof(target));
+        Value = value as Expression ?? throw new ArgumentException($"Value must be an {nameof(Expression)}, not a {value.GetType().Name}.", nameof(value));
+
+        if (target is TemporaryVariableAccess temporaryVariableAccess)
         {
-            throw new ArgumentException($"Target must be an {nameof(Access)}, not a {target.GetType().Name}.", nameof(target));
+            temporaryVariableAccess.Variable.Type = Value.Type;
         }
-        Target = target as Expression ?? throw new ArgumentException($"Value must be a {nameof(Expression)}, not a {target.GetType().Name}.", nameof(target));
-        Value = value as Expression ?? throw new ArgumentException($"Value must be a {nameof(Expression)}, not a {value.GetType().Name}.", nameof(value));
     }
 
     /// <summary>
     /// The target side of the assignment.
     /// </summary>
-    public Expression Target { get; }
+    public Access Target { get; }
 
     /// <summary>
     /// The value to assign.
