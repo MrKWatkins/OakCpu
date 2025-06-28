@@ -7,7 +7,9 @@ namespace MrKWatkins.OakCpu.Z80.Tests;
 [Parallelizable(ParallelScope.All)]
 public sealed class SingleStepTests
 {
-    private const Assertions DefaultExceptCycles = Assertions.All & ~Assertions.Halted & ~Assertions.Cycles;
+    private const Assertions Default = Assertions.All & ~Assertions.Halted;
+    private const Assertions DefaultExceptCycles = Default & ~Assertions.Cycles;
+    private const Assertions DefaultExceptPC =Default & ~Assertions.PC;
 
     private static readonly IReadOnlyDictionary<string, Assertions> AssertionsToRunOverrides = new Dictionary<string, Assertions>
     {
@@ -19,6 +21,11 @@ public sealed class SingleStepTests
         ["FD E3"] = DefaultExceptCycles,        // EX (SP), IY
         ["ED 67"] = DefaultExceptCycles,        // RRD
         ["ED 6F"] = DefaultExceptCycles,        // RLD
+
+        // Single step tests do not move onto the next instruction on HALT so PC will differ. However, PC should move. See https://github.com/redcode/Z80/wiki/Z80-Special-Reset#halt-and-the-special-reset.
+        ["76"] = DefaultExceptPC,
+        ["DD 76"] = DefaultExceptPC,
+        ["FD 76"] = DefaultExceptPC
     };
 
     [TestCaseSource(nameof(TestCases))]

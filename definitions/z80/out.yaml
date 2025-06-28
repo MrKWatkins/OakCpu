@@ -13,3 +13,37 @@ instructions:
       - request(action.io_write);
       - Z = Z + 1;
       -
+
+  - group: OUT
+    mnemonic: OUT R0, (C)
+    opcodes:
+      - opcode: 0xED 0x41
+        R0: B
+      - opcode: 0xED 0x49
+        R0: C
+      - opcode: 0xED 0x51
+        R0: D
+      - opcode: 0xED 0x59
+        R0: E
+      - opcode: 0xED 0x61
+        R0: H
+      - opcode: 0xED 0x69
+        R0: L
+      - opcode: 0xED 0x79
+        R0: A
+    steps:
+      - Address = BC; Data = R0;
+      - request(action.io_write);
+      - WZ = BC + 1;
+      - 
+
+  - group: OUT
+    mnemonic: OUT (C)
+    opcodes:
+      - opcode: 0xED 0x71
+    steps:
+      - Address = BC; Data = 0x00;
+      - request(action.io_write);
+      - WZ = BC + 1;
+      - 
+        

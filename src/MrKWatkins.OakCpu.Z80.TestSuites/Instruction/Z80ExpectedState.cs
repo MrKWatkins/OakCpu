@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace MrKWatkins.OakCpu.Z80.TestSuites.Instruction;
 
 public class Z80ExpectedState : Z80State
@@ -136,7 +138,7 @@ public class Z80ExpectedState : Z80State
 
     private static char FormatFlag(bool flag) => flag ? '1' : '0';
 
-    protected static void AssertEqual<T>(Assertions assertionsToRun, Z80TestHarness z80, Assertions assertionsCategory, T actual, T expected, string message)
+    private static void AssertEqual<T>(Assertions assertionsToRun, Z80TestHarness z80, Assertions assertionsCategory, T actual, T expected, DefaultInterpolatedStringHandler message)
     {
         if (assertionsToRun.HasFlag(assertionsCategory))
         {

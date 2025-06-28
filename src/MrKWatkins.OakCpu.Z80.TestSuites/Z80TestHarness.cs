@@ -207,17 +207,17 @@ public abstract class Z80TestHarness
         return assertionScope;
     }
 
-    public void AssertEqual<T>(T actual, T expected, string message)
+    public void AssertEqual<T>(T actual, T expected, DefaultInterpolatedStringHandler message)
     {
         if (!EqualityComparer<T>.Default.Equals(actual, expected))
         {
             if (assertionScope != null)
             {
-                assertionScope.AddError(message);
+                assertionScope.AddError(message.ToString());
             }
             else
             {
-                AssertFail(message);
+                AssertFail(message.ToString());
             }
         }
     }
