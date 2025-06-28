@@ -1,0 +1,139 @@
+instructions:
+  - group: CPI
+    mnemonic: CPI
+    opcodes:
+      - opcode: 0xED 0xA1
+    steps:
+      - Address = HL; HL = HL + 1; request(action.memory_read);
+      -
+      -
+      - 
+      -
+      -
+      -
+      - |
+        BC = BC - 1;
+        WZ = WZ + 1;
+        $left = A;
+        $right = Data;
+        $result = $left - $right;
+        $h = did_8_bit_subtraction_half_borrow($left, $right, $result);
+        $xy = $result - $h;
+        $x = $xy & 0x08;
+        $y = $xy & 0x02;
+        flags();
+    flags:
+      N: 1
+      PV: BC != 0
+      X: $x != 0
+      H: $h != 0
+      Y: $y != 0
+      Z: is_zero($result)
+      S: copy_from($result)
+      
+  - group: CPIR
+    mnemonic: CPIR
+    opcodes:
+      - opcode: 0xED 0xB1
+    steps:
+      - Address = HL; HL = HL + 1; request(action.memory_read);
+      -
+      -
+      - 
+      -
+      -
+      -
+      - |
+        BC = BC - 1;
+        WZ = WZ + 1;
+        latch = A - Data;
+        if latch == 0 || BC == 0;
+          $xy = latch - did_8_bit_subtraction_half_borrow(A, Data, latch);
+          $x = $xy & 0x08;
+          $y = $xy & 0x02;
+          flags();
+          instruction_complete();
+        endif;
+      -
+      - PC = PC - 1; WZ = PC; PC = PC - 1; $x = PCH & 0x08; $y = PCH & 0x20; flags();
+      -
+      -
+      -
+    flags:
+      N: 1
+      PV: BC != 0
+      X: $x != 0
+      H: did_8_bit_subtraction_half_borrow(A, Data, latch);
+      Y: $y != 0
+      Z: is_zero(latch)
+      S: copy_from(latch)
+      
+  - group: CPD
+    mnemonic: CPD
+    opcodes:
+      - opcode: 0xED 0xA9
+    steps:
+      - Address = HL; HL = HL - 1; request(action.memory_read);
+      -
+      -
+      - 
+      -
+      -
+      -
+      - |
+        BC = BC - 1;
+        WZ = WZ - 1;
+        $left = A;
+        $right = Data;
+        $result = $left - $right;
+        $h = did_8_bit_subtraction_half_borrow($left, $right, $result);
+        $xy = $result - $h;
+        $x = $xy & 0x08;
+        $y = $xy & 0x02;
+        flags();
+    flags:
+      N: 1
+      PV: BC != 0
+      X: $x != 0
+      H: $h != 0
+      Y: $y != 0
+      Z: is_zero($result)
+      S: copy_from($result)
+
+  - group: CPDR
+    mnemonic: CPDR
+    opcodes:
+      - opcode: 0xED 0xB9
+    steps:
+      - Address = HL; HL = HL - 1; request(action.memory_read);
+      -
+      -
+      -
+      -
+      -
+      -
+      - |
+        BC = BC - 1;
+        WZ = WZ - 1;
+        latch = A - Data;
+        if latch == 0 || BC == 0;
+          $xy = latch - did_8_bit_subtraction_half_borrow(A, Data, latch);
+          $x = $xy & 0x08;
+          $y = $xy & 0x02;
+          flags();
+          instruction_complete();
+        endif;
+      -
+      - PC = PC - 1; WZ = PC; PC = PC - 1; $x = PCH & 0x08; $y = PCH & 0x20; flags();
+      -
+      -
+      -
+    flags:
+      N: 1
+      PV: BC != 0
+      X: $x != 0
+      H: did_8_bit_subtraction_half_borrow(A, Data, latch);
+      Y: $y != 0
+      Z: is_zero(latch)
+      S: copy_from(latch)
+      
