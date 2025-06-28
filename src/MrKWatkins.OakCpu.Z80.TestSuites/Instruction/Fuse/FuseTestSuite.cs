@@ -2,6 +2,7 @@ namespace MrKWatkins.OakCpu.Z80.TestSuites.Instruction.Fuse;
 
 public sealed class FuseTestSuite : InstructionTestSuite<FuseTestCase>
 {
+    public const Assertions DefaultAssertions = Assertions.All & ~Assertions.Q;
     public static readonly FuseTestSuite Instance = new();
 
     private FuseTestSuite()
@@ -9,7 +10,7 @@ public sealed class FuseTestSuite : InstructionTestSuite<FuseTestCase>
     {
     }
 
-    public override InstructionTestSuiteOptions DefaultOptions { get; } = new() { AssertionsToRun = Assertions.All & ~Assertions.Q };
+    public override InstructionTestSuiteOptions DefaultOptions { get; } = new() { AssertionsToRun = DefaultAssertions };
 
     public override IEnumerable<FuseTestCase> GetTestCases(InstructionTestSuiteOptions options)
     {

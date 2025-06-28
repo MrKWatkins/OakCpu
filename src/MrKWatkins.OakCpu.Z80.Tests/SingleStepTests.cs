@@ -7,9 +7,8 @@ namespace MrKWatkins.OakCpu.Z80.Tests;
 [Parallelizable(ParallelScope.All)]
 public sealed class SingleStepTests
 {
-    private const Assertions Default = Assertions.All & ~Assertions.Halted;
-    private const Assertions DefaultExceptCycles = Default & ~Assertions.Cycles;
-    private const Assertions DefaultExceptPC =Default & ~Assertions.PC;
+    private const Assertions DefaultExceptCycles = SingleStepTestSuite.DefaultAssertions & ~Assertions.Cycles;
+    private const Assertions DefaultExceptPC = SingleStepTestSuite.DefaultAssertions & ~Assertions.PC;
 
     private static readonly IReadOnlyDictionary<string, Assertions> AssertionsToRunOverrides = new Dictionary<string, Assertions>
     {

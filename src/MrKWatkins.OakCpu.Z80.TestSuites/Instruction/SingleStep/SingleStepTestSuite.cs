@@ -2,6 +2,7 @@ namespace MrKWatkins.OakCpu.Z80.TestSuites.Instruction.SingleStep;
 
 public sealed class SingleStepTestSuite : InstructionTestSuite<SingleStepTestCase>
 {
+    public const Assertions DefaultAssertions = Assertions.All & ~Assertions.Halted;
     internal const string ResourcePrefix = "MrKWatkins.OakCpu.Z80.TestSuites.Instruction.SingleStep.TestCases.";
 
     public static readonly SingleStepTestSuite Instance = new();
@@ -11,7 +12,7 @@ public sealed class SingleStepTestSuite : InstructionTestSuite<SingleStepTestCas
     {
     }
 
-    public override InstructionTestSuiteOptions DefaultOptions { get; } = new() { AssertionsToRun = Assertions.All & ~Assertions.Halted };
+    public override InstructionTestSuiteOptions DefaultOptions { get; } = new() { AssertionsToRun = DefaultAssertions };
 
     public override IEnumerable<SingleStepTestCase> GetTestCases(InstructionTestSuiteOptions options)
     {

@@ -6,6 +6,10 @@ public abstract class Z80State
 {
     public ushort RegisterAF { get; internal set; }
 
+    public byte RegisterA => (byte)(RegisterAF >> 8);
+
+    public byte RegisterF => (byte)(RegisterAF & 0xFF);
+
     public ushort RegisterBC { get; internal set; }
 
     public ushort RegisterDE { get; internal set; }

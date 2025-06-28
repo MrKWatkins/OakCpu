@@ -24,7 +24,8 @@ public class Z80ExpectedState : Z80State
 
     private void AssertRegisters(Assertions assertionsToRun, Z80TestHarness z80)
     {
-        AssertEqual(assertionsToRun, z80, Assertions.AF, z80.RegisterAF, RegisterAF, $"Register AF should be 0x{RegisterAF:X4} but was 0x{z80.RegisterAF:X4}");
+        AssertEqual(assertionsToRun, z80, Assertions.A, z80.RegisterA, RegisterA, $"Register A should be 0x{RegisterA:X2} but was 0x{z80.RegisterA:X2}");
+        AssertEqual(assertionsToRun, z80, Assertions.F, z80.RegisterF, RegisterF, $"Register F should be 0x{RegisterF:X2} but was 0x{z80.RegisterF:X2}");
         AssertEqual(assertionsToRun, z80, Assertions.BC, z80.RegisterBC, RegisterBC, $"Register BC should be 0x{RegisterBC:X4} but was 0x{z80.RegisterBC:X4}");
         AssertEqual(assertionsToRun, z80, Assertions.DE, z80.RegisterDE, RegisterDE, $"Register DE should be 0x{RegisterDE:X4} but was 0x{z80.RegisterDE:X4}");
         AssertEqual(assertionsToRun, z80, Assertions.HL, z80.RegisterHL, RegisterHL, $"Register HL should be 0x{RegisterHL:X4} but was 0x{z80.RegisterHL:X4}");
