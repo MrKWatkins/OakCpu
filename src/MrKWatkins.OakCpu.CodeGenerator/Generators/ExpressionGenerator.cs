@@ -95,8 +95,15 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GeneratePopCountExpressionSyntax(StatementGeneratorContext context, Expression argument) =>
-        InvocationExpression(
+    private static ExpressionSyntax GeneratePopCountExpressionSyntax(StatementGeneratorContext context, Expression argument)
+    {
+        var argumentExpression = GenerateExpressionSyntax(context, argument);
+        if (argument.Type != PreDefinedFunction.PopCount.Type)
+        {
+            argumentExpression = CastExpression(PreDefinedFunction.PopCount.TypeSyntax, argumentExpression);
+        }
+
+        return InvocationExpression(
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     IdentifierName("System.Numerics.BitOperations"),
@@ -104,7 +111,8 @@ public abstract class ExpressionGenerator : Generator
             .WithArgumentList(
                 ArgumentList(
                     SingletonSeparatedList(
-                        Argument(GenerateExpressionSyntax(context, argument)))));
+                        Argument(argumentExpression))));
+    }
 
     [Pure]
     private static ExpressionSyntax GenerateSignedExpressionSyntax(StatementGeneratorContext context, Expression argument)
