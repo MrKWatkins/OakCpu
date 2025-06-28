@@ -51,7 +51,133 @@ instructions:
       Y: copy_from(Data)
       Z: is_zero(Data)
       S: copy_from(Data)
-    
+
+  - group: SLA
+    mnemonic: SLA (IX + d)
+    opcode_table: DDCB
+    opcodes:
+      - opcode: 0x26
+    steps:
+      -
+      -
+      - WZ = IX + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = Data << 1; flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: ($temp & 0x80) == 0x80
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+
+  - group: SLA
+    mnemonic: SLA (IX + d), R0
+    opcode_table: DDCB
+    opcodes:
+      - opcode: 0x20
+        R0: B
+      - opcode: 0x21
+        R0: C
+      - opcode: 0x22
+        R0: D
+      - opcode: 0x23
+        R0: E
+      - opcode: 0x24
+        R0: H
+      - opcode: 0x25
+        R0: L
+      - opcode: 0x27
+        R0: A
+    steps:
+      -
+      -
+      - WZ = IX + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = Data << 1; R0 = Data; flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: ($temp & 0x80) == 0x80
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+
+  - group: SLA
+    mnemonic: SLA (IY + d)
+    opcode_table: FDCB
+    opcodes:
+      - opcode: 0x26
+    steps:
+      -
+      -
+      - WZ = IY + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = Data << 1; flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: ($temp & 0x80) == 0x80
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+
+  - group: SLA
+    mnemonic: SLA (IY + d), R0
+    opcode_table: FDCB
+    opcodes:
+      - opcode: 0x20
+        R0: B
+      - opcode: 0x21
+        R0: C
+      - opcode: 0x22
+        R0: D
+      - opcode: 0x23
+        R0: E
+      - opcode: 0x24
+        R0: H
+      - opcode: 0x25
+        R0: L
+      - opcode: 0x27
+        R0: A
+    steps:
+      -
+      -
+      - WZ = IY + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = Data << 1; R0 = Data; flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: ($temp & 0x80) == 0x80
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+
   - group: SLL
     mnemonic: SLL R0
     opcodes:
@@ -92,6 +218,132 @@ instructions:
       -
       - $temp = Data; Data = (Data << 1) | 0x01; flags();
       - request(action.memory_write); # Skipping setting Address = HL as it should still contain HL. Skipping setting Data as it should still contain Data + 1.
+      -
+      -
+    flags:
+      C: ($temp & 0x80) == 0x80
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+
+  - group: SLL
+    mnemonic: SLL (IX + d)
+    opcode_table: DDCB
+    opcodes:
+      - opcode: 0x36
+    steps:
+      -
+      -
+      - WZ = IX + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = (Data << 1) | 0x01; flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: ($temp & 0x80) == 0x80
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+
+  - group: SLL
+    mnemonic: SLL (IX + d), R0
+    opcode_table: DDCB
+    opcodes:
+      - opcode: 0x30
+        R0: B
+      - opcode: 0x31
+        R0: C
+      - opcode: 0x32
+        R0: D
+      - opcode: 0x33
+        R0: E
+      - opcode: 0x34
+        R0: H
+      - opcode: 0x35
+        R0: L
+      - opcode: 0x37
+        R0: A
+    steps:
+      -
+      -
+      - WZ = IX + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = (Data << 1) | 0x01; R0 = Data; flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: ($temp & 0x80) == 0x80
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+        
+  - group: SLL
+    mnemonic: SLL (IY + d)
+    opcode_table: FDCB
+    opcodes:
+      - opcode: 0x36
+    steps:
+      -
+      -
+      - WZ = IY + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = (Data << 1) | 0x01; flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: ($temp & 0x80) == 0x80
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+
+  - group: SLL
+    mnemonic: SLL (IY + d), R0
+    opcode_table: FDCB
+    opcodes:
+      - opcode: 0x30
+        R0: B
+      - opcode: 0x31
+        R0: C
+      - opcode: 0x32
+        R0: D
+      - opcode: 0x33
+        R0: E
+      - opcode: 0x34
+        R0: H
+      - opcode: 0x35
+        R0: L
+      - opcode: 0x37
+        R0: A
+    steps:
+      -
+      -
+      - WZ = IY + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = (Data << 1) | 0x01; R0 = Data; flags();
+      - request(action.memory_write);
       -
       -
     flags:
@@ -156,6 +408,132 @@ instructions:
       Z: is_zero(Data)
       S: copy_from(Data)
 
+  - group: SRA
+    mnemonic: SRA (IX + d)
+    opcode_table: DDCB
+    opcodes:
+      - opcode: 0x2E
+    steps:
+      -
+      -
+      - WZ = IX + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = (Data >> 1) | (Data & 0x80); flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: copy_from($temp)
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+
+  - group: SRA
+    mnemonic: SRA (IX + d), R0
+    opcode_table: DDCB
+    opcodes:
+      - opcode: 0x28
+        R0: B
+      - opcode: 0x29
+        R0: C
+      - opcode: 0x2A
+        R0: D
+      - opcode: 0x2B
+        R0: E
+      - opcode: 0x2C
+        R0: H
+      - opcode: 0x2D
+        R0: L
+      - opcode: 0x2F
+        R0: A
+    steps:
+      -
+      -
+      - WZ = IX + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = (Data >> 1) | (Data & 0x80); R0 = Data; flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: copy_from($temp)
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+
+  - group: SRA
+    mnemonic: SRA (IY + d)
+    opcode_table: FDCB
+    opcodes:
+      - opcode: 0x2E
+    steps:
+      -
+      -
+      - WZ = IY + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = (Data >> 1) | (Data & 0x80); flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: copy_from($temp)
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+
+  - group: SRA
+    mnemonic: SRA (IY + d), R0
+    opcode_table: FDCB
+    opcodes:
+      - opcode: 0x28
+        R0: B
+      - opcode: 0x29
+        R0: C
+      - opcode: 0x2A
+        R0: D
+      - opcode: 0x2B
+        R0: E
+      - opcode: 0x2C
+        R0: H
+      - opcode: 0x2D
+        R0: L
+      - opcode: 0x2F
+        R0: A
+    steps:
+      -
+      -
+      - WZ = IY + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = (Data >> 1) | (Data & 0x80); R0 = Data; flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: copy_from($temp)
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+
   - group: SRL
     mnemonic: SRL R0
     opcodes:
@@ -196,6 +574,132 @@ instructions:
       -
       - $temp = Data; Data = (Data >> 1) & 0x7F; flags();
       - request(action.memory_write); # Skipping setting Address = HL as it should still contain HL. Skipping setting Data as it should still contain Data + 1.
+      -
+      -
+    flags:
+      C: copy_from($temp)
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+
+  - group: SRL
+    mnemonic: SRL (IX + d)
+    opcode_table: DDCB
+    opcodes:
+      - opcode: 0x3E
+    steps:
+      -
+      -
+      - WZ = IX + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = (Data >> 1) & 0x7F; flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: copy_from($temp)
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+
+  - group: SRL
+    mnemonic: SRL (IX + d), R0
+    opcode_table: DDCB
+    opcodes:
+      - opcode: 0x38
+        R0: B
+      - opcode: 0x39
+        R0: C
+      - opcode: 0x3A
+        R0: D
+      - opcode: 0x3B
+        R0: E
+      - opcode: 0x3C
+        R0: H
+      - opcode: 0x3D
+        R0: L
+      - opcode: 0x3F
+        R0: A
+    steps:
+      -
+      -
+      - WZ = IX + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = (Data >> 1) & 0x7F; R0 = Data; flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: copy_from($temp)
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+      
+  - group: SRL
+    mnemonic: SRL (IY + d)
+    opcode_table: FDCB
+    opcodes:
+      - opcode: 0x3E
+    steps:
+      -
+      -
+      - WZ = IY + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = (Data >> 1) & 0x7F; flags();
+      - request(action.memory_write);
+      -
+      -
+    flags:
+      C: copy_from($temp)
+      N: 0
+      PV: even_parity(Data)
+      X: copy_from(Data)
+      H: 0
+      Y: copy_from(Data)
+      Z: is_zero(Data)
+      S: copy_from(Data)
+
+  - group: SRL
+    mnemonic: SRL (IY + d), R0
+    opcode_table: FDCB
+    opcodes:
+      - opcode: 0x38
+        R0: B
+      - opcode: 0x39
+        R0: C
+      - opcode: 0x3A
+        R0: D
+      - opcode: 0x3B
+        R0: E
+      - opcode: 0x3C
+        R0: H
+      - opcode: 0x3D
+        R0: L
+      - opcode: 0x3F
+        R0: A
+    steps:
+      -
+      -
+      - WZ = IY + signed(latch); Address = WZ; request(action.memory_read);
+      -
+      -
+      - $temp = Data; Data = (Data >> 1) & 0x7F; R0 = Data; flags();
+      - request(action.memory_write);
       -
       -
     flags:
