@@ -9,7 +9,7 @@ public sealed class ZEXALLTestCase : ProgramTestCase
 
     private protected override ushort StopAddress => 0x0000;
 
-    private protected override ushort TestTableAddress => 0x013A;
+    private protected override ushort TestTableStartAddress => 0x013A;
 
     private protected override string PassedString => "OK";
 

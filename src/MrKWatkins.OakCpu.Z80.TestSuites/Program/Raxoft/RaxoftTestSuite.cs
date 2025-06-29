@@ -33,19 +33,19 @@ public sealed class RaxoftTestSuite : ProgramTestSuite<RaxoftTestCase>
         }
     }
 
-    protected override ushort TestTableAddress => Type switch
+    protected override ushort TestTableStartAddress => Type switch
     {
         RaxoftTestType.Ccf => 0x887F,
         _ => 0x887A
     };
 
-    protected override RaxoftTestCase CreateTestCase(byte[] memory, ushort testAddress) => new(GetTestCaseName(memory, testAddress), testAddress, memory, Type);
+    protected override RaxoftTestCase CreateTestCase(byte[] memory, ushort testTableAddress, ushort testAddress) => new(GetTestCaseName(memory, testAddress), testAddress, memory, TestTableStartAddress);
 
     [Pure]
-    private string GetTestCaseName(byte[] memory, ushort testCaseAddress)
+    private string GetTestCaseName(byte[] memory, ushort testAddress)
     {
         // The name starts at the end of the test and is a null terminated string.
-        var address = testCaseAddress + NameOffset;
+        var address = testAddress + NameOffset;
         var name = new StringBuilder();
 
         while (true)

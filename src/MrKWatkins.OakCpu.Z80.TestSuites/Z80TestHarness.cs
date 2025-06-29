@@ -154,7 +154,13 @@ public abstract class Z80TestHarness
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual void WriteByteToMemory(ushort address, byte value) => memory[address] = value;
+    public virtual void WriteByteToMemory(ushort address, byte value)
+    {
+        if (address > TopOfRomArea)
+        {
+            memory[address] = value;
+        }
+    }
 
     public void WriteWordToMemory(ushort address, ushort value)
     {
@@ -163,6 +169,8 @@ public abstract class Z80TestHarness
         address++;
         WriteByteToMemory(address, (byte)(value >> 8));
     }
+
+    public int TopOfRomArea { get; set; } = int.MinValue;
 
     public IIOReader IOReader { get; set; } = new NullIO();
 

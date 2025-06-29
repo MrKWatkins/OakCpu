@@ -31,9 +31,9 @@ public sealed class ZEXALLTestSuite : ProgramTestSuite<ZEXALLTestCase>
         _ = stream.Read(memory.AsSpan(StartAddress));
     }
 
-    protected override ushort TestTableAddress => 0x013A;
+    protected override ushort TestTableStartAddress => 0x013A;
 
-    protected override ZEXALLTestCase CreateTestCase(byte[] memory, ushort testAddress) => new(GetTestCaseName(memory, testAddress), testAddress, memory);
+    protected override ZEXALLTestCase CreateTestCase(byte[] memory, ushort testTableAddress, ushort testAddress) => new(GetTestCaseName(memory, testAddress), testAddress, memory);
 
     [Pure]
     private static string GetTestCaseName(byte[] memory, ushort testCaseAddress)

@@ -3,21 +3,16 @@ namespace MrKWatkins.OakCpu.Z80.TestSuites.Program.Raxoft;
 public sealed class RaxoftTestCase : ProgramTestCase
 {
     private const ushort StartAddress = 0x8000;
-    private readonly RaxoftTestType type;
 
-    internal RaxoftTestCase(string name, ushort testAddress, byte[] memory, RaxoftTestType type)
+    internal RaxoftTestCase(string name, ushort testAddress, byte[] memory, ushort testTableStartAddress)
         : base(name, testAddress, memory)
     {
-        this.type = type;
+        TestTableStartAddress = testTableStartAddress;
     }
 
     private protected override ushort StopAddress => 0x0000;
 
-    private protected override ushort TestTableAddress => type switch
-    {
-        RaxoftTestType.Ccf => 0x887F,
-        _ => 0x887A
-    };
+    private protected override ushort TestTableStartAddress { get; }
 
     private protected override string PassedString => "OK";
 

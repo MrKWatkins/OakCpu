@@ -13,7 +13,7 @@ public abstract class ProgramTestSuite<TTestCase> : TestSuite
         lazyTestCases = new Lazy<IReadOnlyList<TTestCase>>(() => EnumerateTestCases().ToList());
     }
 
-    protected abstract ushort TestTableAddress { get; }
+    protected abstract ushort TestTableStartAddress { get; }
 
     public IReadOnlyList<TTestCase> TestCases => lazyTestCases.Value;
 
@@ -24,7 +24,7 @@ public abstract class ProgramTestSuite<TTestCase> : TestSuite
         LoadProgram(memory);
 
         // The test table consists of a series of pointers to the actual test cases, followed by 0x0000;
-        var testTableAddress = TestTableAddress;
+        var testTableAddress = TestTableStartAddress;
         while (true)
         {
             var testAddress = BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(testTableAddress));
@@ -33,13 +33,13 @@ public abstract class ProgramTestSuite<TTestCase> : TestSuite
                 break;
             }
 
-            yield return CreateTestCase(memory, testAddress);
+            yield return CreateTestCase(memory, testTableAddress, testAddress);
             testTableAddress = MoveToNextTestCaseInTable(memory, testTableAddress);
         }
     }
 
     [Pure]
-    protected abstract TTestCase CreateTestCase(byte[] memory, ushort testAddress);
+    protected abstract TTestCase CreateTestCase(byte[] memory, ushort testTableAddress, ushort testAddress);
 
     [Pure]
     protected virtual ushort MoveToNextTestCaseInTable(byte[] memory, ushort testTableAddress) => (ushort)(testTableAddress + 2);
