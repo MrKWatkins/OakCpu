@@ -32,7 +32,7 @@ public sealed class FuseTests
     };
 
     [TestCaseSource(nameof(TestCases))]
-    public void FuseTest(FuseTestCase testCase) => testCase.Execute<Z80EmulatorTestHarness>();
+    public void Fuse(FuseTestCase testCase) => testCase.Execute<Z80EmulatorTestHarness>();
 
     [Pure]
     public static IEnumerable<TestCaseData> TestCases() => FuseTestSuite.Instance.GetTestCases(AssertionsToRunOverrides).ToTestCaseData();

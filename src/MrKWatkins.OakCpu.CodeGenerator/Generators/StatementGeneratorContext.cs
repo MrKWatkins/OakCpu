@@ -44,5 +44,5 @@ public sealed class StatementGeneratorContext
     public StatementGeneratorContext WithBooleanContext() => new(GeneratorContext, Step, InitializedTemporaryVariables, ArgumentScope, true);
 
     [Pure]
-    public StatementGeneratorContext WithChildVariableScope() => new(GeneratorContext, Step, [..InitializedTemporaryVariables], ArgumentScope, InBooleanContext);
+    public StatementGeneratorContext WithChildVariableScope() => new(GeneratorContext, Step, [.. InitializedTemporaryVariables], ArgumentScope, InBooleanContext);
 }

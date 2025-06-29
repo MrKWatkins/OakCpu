@@ -1,32 +1,12 @@
-using FluentAssertions.Execution;
+using MrKWatkins.OakCpu.Z80.TestSuites.Instruction.DAA;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 
-// TODO: Make into a test suite. Remove FluentAssertions.
-[SuppressMessage("ReSharper", "InconsistentNaming")]
 public sealed class DAATests
 {
-    [TestCaseSource(typeof(DAATestCases), nameof(DAATestCases.TestCases))]
-    public void Execute(bool n, bool c, bool h, byte a, bool expectedC, bool expectedH, byte expectedA)
-    {
-        var emulator = new Z80EmulatorTestHarness
-        {
-            FlagN = n,
-            FlagC = c,
-            FlagH = h,
-            RegisterA = a
-        };
+    [TestCaseSource(nameof(TestCases))]
+    public void DAA(DAATestCase testCase) => testCase.Execute<Z80EmulatorTestHarness>();
 
-        emulator.WriteByteToMemory(0x0000, 0x27);
-
-        emulator.ExecuteInstruction();
-
-        using (new AssertionScope())
-        {
-            emulator.FlagN.Should().Be(n);
-            emulator.FlagC.Should().Be(expectedC);
-            emulator.FlagH.Should().Be(expectedH);
-            emulator.RegisterA.Should().Be(expectedA);
-        }
-    }
+    [Pure]
+    public static IEnumerable<TestCaseData> TestCases() => DAATestSuite.Instance.GetTestCases().ToTestCaseData();
 }

@@ -302,8 +302,8 @@ public static class Parser
     {
         if (!context.TemporaryVariables.TryGetValue(name, out var variable))
         {
-             variable = new TemporaryVariable(name);
-             context.TemporaryVariables.Add(name, variable);
+            variable = new TemporaryVariable(name);
+            context.TemporaryVariables.Add(name, variable);
         }
 
         return variable;
