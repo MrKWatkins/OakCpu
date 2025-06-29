@@ -10,7 +10,7 @@ internal sealed class ZXSpectrumPrintInterceptor : PrintInterceptor
     {
     }
 
-    private protected override void HandlePrintRoutine()
+    internal override void HandlePrintRoutine()
     {
         var character = Z80.RegisterA;
         switch (state)

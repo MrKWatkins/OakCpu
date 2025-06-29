@@ -39,5 +39,5 @@ public sealed class RaxoftTestCase : ProgramTestCase
         z80.SetIO(new NullIO(0xBF));
     }
 
-    private protected override PrintInterceptor CreatePrintInterceptor(Z80TestHarness z80, ResultWatchingOutput output) => new ZXSpectrumPrintInterceptor(z80, output);
+    private protected override PrintInterceptor OverridePrintRoutine(Z80TestHarness z80, ResultWatchingOutput output) => new ZXSpectrumPrintInterceptor(z80, output);
 }

@@ -7,7 +7,7 @@ internal sealed class CPMPrintInterceptor : PrintInterceptor
     {
     }
 
-    private protected override void HandlePrintRoutine()
+    internal override void HandlePrintRoutine()
     {
         switch (Z80.RegisterC)
         {

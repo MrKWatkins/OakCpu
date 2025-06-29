@@ -395,12 +395,12 @@ public sealed class InterruptsTests
 
         // DI - Reset flags. NOP - Overlapped opcode read.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
-        z80.RegisterPC.Should().Be(0x0002);
         z80.IFF1.Should().BeFalse();
         z80.IFF2.Should().BeFalse();
 
         // NOP.
         StepAndAssertEvent(z80, CycleType.None);
+        z80.RegisterPC.Should().Be(0x0002);
 
         // Trigger an interrupt.
         z80.Interrupt = true;
@@ -411,6 +411,7 @@ public sealed class InterruptsTests
 
         // No interrupt, second NOP.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
+        StepAndAssertEvent(z80, CycleType.None);
         z80.RegisterPC.Should().Be(0x0003);
     }
 
@@ -511,8 +512,8 @@ public sealed class InterruptsTests
 
         // HALT.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
-        z80.RegisterPC.Should().Be(0x0001);
         StepAndAssertEvent(z80, CycleType.None);
+        z80.RegisterPC.Should().Be(0x0001);
         StepAndAssertEvent(z80, CycleType.None);
         z80.RegisterR.Should().Be(0x01);
         StepAndAssertEvent(z80, CycleType.None);
@@ -641,6 +642,7 @@ public sealed class InterruptsTests
         StepAndAssertEvent(z80, CycleType.MemoryRead);
 
         // PC should be advancing again.
+        StepAndAssertEvent(z80, CycleType.None);
         z80.RegisterPC.Should().Be(0x0005);
     }
 

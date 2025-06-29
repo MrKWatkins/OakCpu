@@ -8,21 +8,12 @@ internal abstract class PrintInterceptor
     {
         Z80 = z80;
         Output = output;
+        z80.WriteByteToMemory(PrintRoutineAddress, 0xC9);
     }
 
     public Z80TestHarness Z80 { get; }
 
     public ResultWatchingOutput Output { get; }
 
-    internal void PrintRoutineCalled(Z80TestHarness z80)
-    {
-        HandlePrintRoutine();
-
-        // RET.
-        var address = z80.ReadWordFromMemory(z80.RegisterSP);
-        z80.RegisterSP += 2;
-        z80.RegisterPC = address;
-    }
-
-    private protected abstract void HandlePrintRoutine();
+    internal abstract void HandlePrintRoutine();
 }

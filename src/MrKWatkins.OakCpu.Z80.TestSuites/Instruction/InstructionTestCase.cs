@@ -24,12 +24,12 @@ public abstract class InstructionTestCase : TestCase
 
     protected static void AdjustForOverlappedRead(Z80TestHarness z80)
     {
-        // If the last cycle was a MemoryRead, then we've had an overlapped read. The instruction tests (obviously) assume instruction level
-        // execution so won't take this into account. We need to adjust the PC and change the event to a None.
+        // If the last cycle was a MemoryRead, then we've had an overlapped read. The instruction tests (obviously) assume instruction level execution so won't
+        // take this into account. We need to change the event to a None, however we do not need to adjust PC as we do that in the second opcode read step.
+        // TODO: Optionally adjust PC for other stepped emulators who might not do this.
         if (LastCycleWasOverlappedRead(z80))
         {
             z80.TStates--;
-            z80.RegisterPC--;
             z80.MutableCycles!.RemoveAt(z80.MutableCycles.Count - 1);
         }
     }

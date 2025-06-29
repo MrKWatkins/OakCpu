@@ -234,7 +234,7 @@ public abstract class Z80TestHarness
 
     public abstract void Step();
 
-    public abstract void ExecuteInstruction();
+    public abstract void ExecuteInstruction(TextWriter? debug = null);
 
     [Pure]
     private static byte GetLowByte(ushort value) => (byte)(value >> 8); // Little endian, so the lowest byte is first in memory, i.e. the first byte in the short.

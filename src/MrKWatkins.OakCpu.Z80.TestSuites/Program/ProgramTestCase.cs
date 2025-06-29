@@ -12,31 +12,34 @@ public abstract class ProgramTestCase : TestCase
         this.memory = memory;
     }
 
-    public override void Execute<TTestHarness>(TextWriter? testOutput = null)
+    public sealed override void Execute<TTestHarness>(TextWriter? testOutput = null) => Execute<TTestHarness>(testOutput);
+
+    public void Execute<TTestHarness>(TextWriter? testOutput = null, TextWriter? debugOutput = null)
+        where TTestHarness : Z80TestHarness, new()
     {
-        var z80 = new TTestHarness();
+        var z80 = new TTestHarness { RegisterSP = 0xFFFE };
         z80.CopyIntoMemory(0x0000, memory);
         InitializeZ80(z80);
         SetTestCase(z80);
 
         var resultWatcher = new ResultWatchingOutput(testOutput, PassedString, ErrorString, SkippedString);
-        var printInterceptor = CreatePrintInterceptor(z80, resultWatcher);
+        var printInterceptor = OverridePrintRoutine(z80, resultWatcher);
 
-        // TODO: TState limit.
+        // TODO: T-state limit.
         var stopAddress = StopAddress;
         while (true)
         {
-            z80.Step();
-
             var pc = z80.RegisterPC;
             if (pc == PrintInterceptor.PrintRoutineAddress)
             {
-                printInterceptor.PrintRoutineCalled(z80);
+                printInterceptor.HandlePrintRoutine();
             }
             else if (pc == stopAddress)
             {
                 break;
             }
+
+            z80.ExecuteInstruction(debugOutput);
         }
 
         switch (resultWatcher.Result)
@@ -73,5 +76,5 @@ public abstract class ProgramTestCase : TestCase
     private protected abstract void InitializeZ80(Z80TestHarness z80);
 
     [Pure]
-    private protected abstract PrintInterceptor CreatePrintInterceptor(Z80TestHarness z80, ResultWatchingOutput output);
+    private protected abstract PrintInterceptor OverridePrintRoutine(Z80TestHarness z80, ResultWatchingOutput output);
 }

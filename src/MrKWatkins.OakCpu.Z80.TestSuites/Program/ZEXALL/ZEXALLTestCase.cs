@@ -27,5 +27,5 @@ public sealed class ZEXALLTestCase : ProgramTestCase
         z80.WriteByteToMemory(0x0038, 0xC9);
     }
 
-    private protected override PrintInterceptor CreatePrintInterceptor(Z80TestHarness z80, ResultWatchingOutput output) => new CPMPrintInterceptor(z80, output);
+    private protected override PrintInterceptor OverridePrintRoutine(Z80TestHarness z80, ResultWatchingOutput output) => new CPMPrintInterceptor(z80, output);
 }

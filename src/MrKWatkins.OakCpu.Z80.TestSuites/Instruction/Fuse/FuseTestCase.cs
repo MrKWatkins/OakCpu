@@ -41,7 +41,6 @@ public sealed class FuseTestCase : InstructionTestCase
             {
                 break;
             }
-
         }
 
         AdjustForOverlappedRead(z80);

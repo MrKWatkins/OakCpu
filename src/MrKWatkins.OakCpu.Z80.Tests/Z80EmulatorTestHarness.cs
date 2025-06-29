@@ -190,8 +190,9 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
         TStates++;
     }
 
-    public override void ExecuteInstruction()
+    public override void ExecuteInstruction(TextWriter? debug = null)
     {
+        Z80Debugging.WriteDebugInformation(this, debug);
         emulator.InstructionComplete = false;
         while (!emulator.InstructionComplete)
         {

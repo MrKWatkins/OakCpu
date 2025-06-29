@@ -114,7 +114,7 @@ instructions:
     steps:
       # Use custom so the standard on_instruction_complete (which handles interrupts) *isn't* executed. This is to prevent interrupts firing inside EI.
       # We then have to manually include the reset of Q, instruction_complete = true and overlapped memory read. 
-      - IFF1 = true; IFF2 = true; Q = 0; instruction_complete = true; Address = PC; PC = PC + 1; current_step = 1; request(action.opcode_read);
+      - IFF1 = true; IFF2 = true; Q = 0; instruction_complete = true; Address = PC; current_step = 1; request(action.opcode_read);
     next_opcode: custom
     
   - group: Interrupts
