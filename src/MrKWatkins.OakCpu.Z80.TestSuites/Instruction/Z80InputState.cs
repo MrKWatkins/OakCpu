@@ -28,7 +28,7 @@ public class Z80InputState : Z80State
 
         foreach (var memory in Memory)
         {
-            z80.WriteByteToMemory(memory.Address, memory.Value);
+            z80.SetByteInMemory(memory.Address, memory.Value);
         }
     }
 }

@@ -2,9 +2,12 @@ using MrKWatkins.OakCpu.Z80.TestSuites;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 
-public sealed class Z80EmulatorTestHarness : Z80TestHarness
+public sealed class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80TestHarness
 {
-    private readonly Z80Emulator emulator = new();
+    public Z80EmulatorTestHarness()
+        : this(new Z80Emulator())
+    {
+    }
 
     public override ushort RegisterAF
     {
@@ -206,11 +209,11 @@ public sealed class Z80EmulatorTestHarness : Z80TestHarness
         {
             case ActionRequired.OpcodeRead:
             case ActionRequired.MemoryRead:
-                emulator.Data = ReadByteFromMemory(emulator.Address);
+                emulator.Data = MemoryRead(emulator.Address);
                 return;
 
             case ActionRequired.MemoryWrite:
-                WriteByteToMemory(emulator.Address, emulator.Data);
+                MemoryWrite(emulator.Address, emulator.Data);
                 return;
 
             case ActionRequired.IoRead:

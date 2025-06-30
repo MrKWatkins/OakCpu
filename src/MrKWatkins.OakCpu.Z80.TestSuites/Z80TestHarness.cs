@@ -2,6 +2,9 @@ using System.Runtime.CompilerServices;
 
 namespace MrKWatkins.OakCpu.Z80.TestSuites;
 
+/// <summary>
+/// Base class for a Z80 emulator test harness. Implement this class to use it with the test suites.
+/// </summary>
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 #pragma warning disable CA1001
 public abstract class Z80TestHarness
@@ -124,10 +127,29 @@ public abstract class Z80TestHarness
         set;
     }
 
-    [OverloadResolutionPriority(1)]
-    public void CopyIntoMemory(ushort address, ReadOnlySpan<byte> source) => source.CopyTo(memory.AsSpan(address));
+    /// <summary>
+    /// Performs a memory read for the emulator.
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte MemoryRead(ushort address) => memory[address];
 
-    public void CopyIntoMemory(ushort address, IReadOnlyList<byte> source)
+    /// <summary>
+    /// Performs a memory write for the emulator. Takes <see cref="TopOfRomArea" /> into account and will not overwrite memory in the ROM area.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void MemoryWrite(ushort address, byte value)
+    {
+        if (address > TopOfRomArea)
+        {
+            memory[address] = value;
+        }
+    }
+
+    [OverloadResolutionPriority(1)]
+    public void CopyToMemory(ushort address, ReadOnlySpan<byte> source) => source.CopyTo(memory.AsSpan(address));
+
+    public void CopyToMemory(ushort address, IReadOnlyList<byte> source)
     {
         foreach (var @byte in source)
         {
@@ -137,37 +159,38 @@ public abstract class Z80TestHarness
     }
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte ReadByteFromMemory(ushort address) => memory[address];
+    public ushort GetByteFromMemory(ushort address) => memory[address];
 
+    /// <summary>
+    /// Gets a word in little endian format from memory.
+    /// </summary>
     [Pure]
-    public ushort ReadWordFromMemory(ushort address)
+    public ushort GetWordFromMemory(ushort address)
     {
         // Read the two bytes separately and assemble rather than use something like BinaryPrimitives.ReadUInt16LittleEndian.
         // This enables us to cope with wraparound from 0xFFFF -> 0x0000 by using the overflow on ushort.
-        var lsb = ReadByteFromMemory(address);
+        var lsb = GetByteFromMemory(address);
 
         address++;
-        var msb = ReadByteFromMemory(address);
+        var msb = GetByteFromMemory(address);
 
         return (ushort)((msb << 8) | lsb);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual void WriteByteToMemory(ushort address, byte value)
-    {
-        if (address > TopOfRomArea)
-        {
-            memory[address] = value;
-        }
-    }
+    /// <summary>
+    /// Sets a byte in memory. Does not take <see cref="TopOfRomArea" /> into account so it will update the ROM area.
+    /// </summary>
+    public void SetByteInMemory(ushort address, byte value) => memory[address] = value;
 
-    public void WriteWordToMemory(ushort address, ushort value)
+    /// <summary>
+    /// Sets a word in little endian format in memory. Does not take <see cref="TopOfRomArea" /> into account so it will update the ROM area.
+    /// </summary>
+    public void SetWordInMemory(ushort address, ushort value)
     {
-        WriteByteToMemory(address, (byte)value);
+        SetByteInMemory(address, (byte)value);
 
         address++;
-        WriteByteToMemory(address, (byte)(value >> 8));
+        SetByteInMemory(address, (byte)(value >> 8));
     }
 
     public int TopOfRomArea { get; set; } = int.MinValue;

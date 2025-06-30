@@ -59,11 +59,11 @@ public sealed class OpcodeStepTables : IEnumerable<OpcodeStepTable>
     public IEnumerator<OpcodeStepTable> GetEnumerator()
     {
         yield return NoPrefix;
-        foreach (var prefix in Prefixes.Values)
+        foreach (var prefix in Prefixes.Values.OrderBy(p => p.Prefix))
         {
             yield return prefix;
         }
-        foreach (var custom in Custom.Values)
+        foreach (var custom in Custom.Values.OrderBy(p => p.CustomName))
         {
             yield return custom;
         }

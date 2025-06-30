@@ -48,7 +48,7 @@ public sealed class RegistersClassesGenerator : TypeGenerator
     [Pure]
     private static IEnumerable<PropertyDeclarationSyntax> CreateRegisterProperties(GeneratorContext context, string? category) =>
         context.Configuration.Registers.Values
-            .Where(r => r.Category == category)
+            .Where(r => r.HasRegisterClassProperty && r.Category == category)
             .OrderBy(r => r.Name)
             .Select(r => CreateRegisterProperty(context, r));
 

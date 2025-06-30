@@ -66,22 +66,9 @@ registers:
   - name: PC
     type: u16
     program_counter: true
-    # TODO: Autogenerate high and low members if not specified. No need for the type to be specified.
-    high:
-      name: PCH
-      type: u8
-    low:
-      name: PCL
-      type: u8
 
   - name: SP
     type: u16
-    high:
-      name: SPH
-      type: u8
-    low:
-      name: SPL
-      type: u8
 
   - name: WZ
     type: u16

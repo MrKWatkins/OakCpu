@@ -20,6 +20,7 @@ public abstract class TypeGenerator : Generator
         ActionRequiredGenerator.Instance,
         EmulatorInstanceDataMembersAndConstructorGenerator.Instance,
         EmulatorInterruptsGenerator.Instance,
+        EmulatorSerializationGenerator.Instance,
         EmulatorStepsInitializationGenerator.Instance,
         EmulatorStepsGenerator.Instance,
         FlagsClassGenerator.Instance,

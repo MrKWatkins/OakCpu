@@ -10,12 +10,8 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="MrKWatkins.OakAsm.Disassembly.Z80" />
+        <PackageReference Include="MrKWatkins.OakAsm.Formatting" />
         <PackageReference Include="MrKWatkins.OakAsm.IO.ZXSpectrum" />
         <PackageReference Include="MrKWatkins.OakAsm.Z80" />
-    </ItemGroup>
-    <ItemGroup>
-      <Reference Include="MrKWatkins.OakAsm.Formatting">
-        <HintPath>..\..\..\..\..\home\mrkwatkins\.nuget\packages\mrkwatkins.oakasm.formatting\0.6.54\lib\net9.0\MrKWatkins.OakAsm.Formatting.dll</HintPath>
-      </Reference>
     </ItemGroup>
 </Project>

@@ -17,16 +17,18 @@ public abstract class ProgramTestCase : TestCase
     public void Execute<TTestHarness>(TextWriter? testOutput = null, TextWriter? debugOutput = null)
         where TTestHarness : Z80TestHarness, new()
     {
-        var z80 = new TTestHarness { RegisterSP = 0xFFFE };
-        z80.CopyIntoMemory(0x0000, memory);
+        var z80 = new TTestHarness
+        {
+            RegisterSP = 0xFFFE,
+            TopOfRomArea = TopOfRomArea
+        };
+
+        z80.CopyToMemory(0x0000, memory);
         InitializeZ80(z80);
         SetupTestCase(z80);
 
         var resultWatcher = new ResultWatchingOutput(testOutput, PassedString, ErrorString, SkippedString);
         var printInterceptor = OverridePrintRoutine(z80, resultWatcher);
-
-        // After all the setup that might tweak the memory, we can set the ROM area.
-        z80.TopOfRomArea = TopOfRomArea;
 
         // TODO: T-state limit.
         var stopAddress = StopAddress;
@@ -60,10 +62,10 @@ public abstract class ProgramTestCase : TestCase
     protected virtual void SetupTestCase(Z80TestHarness z80)
     {
         // Write the address of the test at the start of the test table.
-        z80.WriteWordToMemory(TestTableStartAddress, testAddress);
+        z80.SetWordInMemory(TestTableStartAddress, testAddress);
 
         // Write the 0x0000 terminator afterwards.
-        z80.WriteWordToMemory((ushort)(TestTableStartAddress + 2), 0x0000);
+        z80.SetWordInMemory((ushort)(TestTableStartAddress + 2), 0x0000);
     }
 
     private protected abstract ushort StopAddress { get; }
