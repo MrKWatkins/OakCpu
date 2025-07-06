@@ -1,4 +1,4 @@
-using MrKWatkins.OakCpu.Z80.TestSuites;
+using MrKWatkins.EmulatorTestSuites.Z80;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 

@@ -1,4 +1,4 @@
-using MrKWatkins.OakCpu.Z80.TestSuites.Instruction.DAA;
+using MrKWatkins.EmulatorTestSuites.Z80.Instruction.DAA;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 

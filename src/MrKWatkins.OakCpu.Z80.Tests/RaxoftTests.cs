@@ -1,4 +1,4 @@
-using MrKWatkins.OakCpu.Z80.TestSuites.Program.Raxoft;
+using MrKWatkins.EmulatorTestSuites.Z80.Program.Raxoft;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 

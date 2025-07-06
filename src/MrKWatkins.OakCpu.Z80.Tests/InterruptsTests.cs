@@ -1,7 +1,7 @@
+using MrKWatkins.EmulatorTestSuites.Z80;
 using MrKWatkins.OakAsm.Ast;
 using MrKWatkins.OakAsm.IO;
 using MrKWatkins.OakAsm.Z80;
-using MrKWatkins.OakCpu.Z80.TestSuites;
 using static MrKWatkins.OakAsm.Z80.Z80Assembly;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;

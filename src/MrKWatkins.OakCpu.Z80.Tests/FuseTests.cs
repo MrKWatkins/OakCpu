@@ -1,5 +1,5 @@
-using MrKWatkins.OakCpu.Z80.TestSuites.Instruction;
-using MrKWatkins.OakCpu.Z80.TestSuites.Instruction.Fuse;
+using MrKWatkins.EmulatorTestSuites.Z80.Instruction;
+using MrKWatkins.EmulatorTestSuites.Z80.Instruction.Fuse;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 

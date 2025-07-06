@@ -1,4 +1,4 @@
-using MrKWatkins.OakCpu.Z80.TestSuites.Program.ZEXALL;
+using MrKWatkins.EmulatorTestSuites.Z80.Program.ZEXALL;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 

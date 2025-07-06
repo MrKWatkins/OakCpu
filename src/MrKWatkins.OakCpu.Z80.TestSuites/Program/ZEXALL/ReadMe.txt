@@ -1,1 +1,0 @@
-The ZEXALL test suite by Frank D. Cringle. See https://github.com/agn453/ZEXALL for more details and licence information.

@@ -4,9 +4,9 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="BenchmarkDotNet" />
+        <PackageReference Include="MrKWatkins.EmulatorTestSuites.Z80" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\MrKWatkins.OakCpu.Z80.TestSuites\MrKWatkins.OakCpu.Z80.TestSuites.csproj" />
       <ProjectReference Include="..\MrKWatkins.OakCpu.Z80.Tests\MrKWatkins.OakCpu.Z80.Tests.csproj" />
     </ItemGroup>
 </Project>
