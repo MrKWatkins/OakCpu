@@ -7,11 +7,11 @@ public sealed class YamlFileTests : TestFixture
 {
     [TestCaseSource(nameof(YamlFileTestCases))]
     [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
-    public async Task Deserialize(string path)
+    public void Deserialize(string path)
     {
-        await using var stream = File.OpenRead(path);
+        var bytes = File.ReadAllBytes(path);
 
-        await FluentActions.Invoking(async () => await YamlSerializer.DeserializeAsync<YamlFile>(stream, YamlOptions.Instance)).Should().NotThrowAsync();
+        AssertThat.Invoking(() => _ = YamlSerializer.Deserialize<YamlFile>(bytes, YamlOptions.Instance)).Should().NotThrow();
     }
 
     [Pure]

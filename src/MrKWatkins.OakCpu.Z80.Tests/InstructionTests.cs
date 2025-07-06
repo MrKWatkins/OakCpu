@@ -23,15 +23,15 @@ public sealed class InstructionTests
         emulator.ExecuteInstruction(TestContext.Progress);
 
         // PC should have moved 2 bytes and Q reset.
-        emulator.RegisterPC.Should().Be(0x8337);
-        emulator.RegisterQ.Should().Be(0x00);
+        emulator.RegisterPC.Should().Equal(0x8337);
+        emulator.RegisterQ.Should().Equal(0x00);
 
         // Execute CCF.
         emulator.ExecuteInstruction(TestContext.Progress);
 
         // PC should have moved 1 byte, flags and Q should have been updated.
-        emulator.RegisterPC.Should().Be(0x8338);
-        emulator.RegisterAF.Should().Be(0xA3F4);
-        emulator.RegisterQ.Should().Be(0xF4);
+        emulator.RegisterPC.Should().Equal(0x8338);
+        emulator.RegisterAF.Should().Equal(0xA3F4);
+        emulator.RegisterQ.Should().Equal(0xF4);
     }
 }

@@ -45,8 +45,8 @@ public sealed class InterruptsTests
         z80.Step(21);
         z80.IFF1.Should().BeTrue();
         z80.IFF2.Should().BeTrue();
-        z80.IM.Should().Be(0);
-        z80.RegisterSP.Should().Be(0x1122);
+        z80.IM.Should().Equal(0);
+        z80.RegisterSP.Should().Equal(0x1122);
 
         // NOP
         StepAndAssertEvent(z80, CycleType.MemoryRead);
@@ -57,9 +57,9 @@ public sealed class InterruptsTests
 
         // Refresh cycle in NOP.
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterR.Should().Be(0x05);
+        z80.RegisterR.Should().Equal(0x05);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterPC.Should().Be(0x0007);
+        z80.RegisterPC.Should().Equal(0x0007);
 
         // Interrupt handling starts here.
         StepAndAssertEvent(z80, CycleType.None);
@@ -71,7 +71,7 @@ public sealed class InterruptsTests
 
         // Refresh cycle in interrupt handler.
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterR.Should().Be(0x06);
+        z80.RegisterR.Should().Equal(0x06);
         StepAndAssertEvent(z80, CycleType.None);
 
         // RST 0x38 - Start.
@@ -86,10 +86,10 @@ public sealed class InterruptsTests
         StepAndAssertEvent(z80, CycleType.MemoryWrite);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterSP.Should().Be(0x1120);
+        z80.RegisterSP.Should().Equal(0x1120);
 
         // Jumped to address 0x0038.
-        z80.RegisterPC.Should().Be(0x0038);
+        z80.RegisterPC.Should().Equal(0x0038);
 
         // LD A, 0x33 - Read opcode.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
@@ -104,7 +104,7 @@ public sealed class InterruptsTests
 
         // LD A, 0x33 - update A. RETI - Overlapped opcode read.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
-        z80.RegisterA.Should().Be(0x33);
+        z80.RegisterA.Should().Equal(0x33);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
@@ -124,8 +124,8 @@ public sealed class InterruptsTests
         StepAndAssertEvent(z80, CycleType.MemoryRead);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterSP.Should().Be(0x1122);
-        z80.RegisterPC.Should().Be(0x0007);
+        z80.RegisterSP.Should().Equal(0x1122);
+        z80.RegisterPC.Should().Equal(0x0007);
         z80.IFF1.Should().BeFalse();
         z80.IFF2.Should().BeFalse();
     }
@@ -162,7 +162,7 @@ public sealed class InterruptsTests
         StepAndAssertEvent(z80, CycleType.MemoryRead);
         z80.IFF1.Should().BeTrue();
         z80.IFF2.Should().BeTrue();
-        z80.IM.Should().Be(1);
+        z80.IM.Should().Equal(1);
 
         // NOP
         StepAndAssertEvent(z80, CycleType.None);
@@ -172,9 +172,9 @@ public sealed class InterruptsTests
 
         // Refresh cycle in NOP.
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterR.Should().Be(0x04);
+        z80.RegisterR.Should().Equal(0x04);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterPC.Should().Be(0x0004);
+        z80.RegisterPC.Should().Equal(0x0004);
 
         // Interrupt handling starts here.
         StepAndAssertEvent(z80, CycleType.None);
@@ -186,7 +186,7 @@ public sealed class InterruptsTests
 
         // Refresh cycle in interrupt handler.
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterR.Should().Be(0x05);
+        z80.RegisterR.Should().Equal(0x05);
         StepAndAssertEvent(z80, CycleType.None);
 
         // RST 0x38 - Start.
@@ -201,10 +201,10 @@ public sealed class InterruptsTests
         StepAndAssertEvent(z80, CycleType.MemoryWrite);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterSP.Should().Be(0x00FE);
+        z80.RegisterSP.Should().Equal(0x00FE);
 
         // Jumped to address 0x0038.
-        z80.RegisterPC.Should().Be(0x0038);
+        z80.RegisterPC.Should().Equal(0x0038);
 
         // LD A, 0x33 - Read opcode.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
@@ -219,7 +219,7 @@ public sealed class InterruptsTests
 
         // LD A, 0x33 - update A. RETI - Overlapped opcode read.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
-        z80.RegisterA.Should().Be(0x33);
+        z80.RegisterA.Should().Equal(0x33);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
@@ -239,8 +239,8 @@ public sealed class InterruptsTests
         StepAndAssertEvent(z80, CycleType.MemoryRead);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterSP.Should().Be(0x0100);
-        z80.RegisterPC.Should().Be(0x0004);
+        z80.RegisterSP.Should().Equal(0x0100);
+        z80.RegisterPC.Should().Equal(0x0004);
         z80.IFF1.Should().BeFalse();
         z80.IFF2.Should().BeFalse();
     }
@@ -276,9 +276,9 @@ public sealed class InterruptsTests
         z80.Step(27);
         z80.IFF1.Should().BeTrue();
         z80.IFF2.Should().BeTrue();
-        z80.IM.Should().Be(2);
-        z80.RegisterI.Should().Be(0x01);
-        z80.RegisterPC.Should().Be(0x0007);
+        z80.IM.Should().Equal(2);
+        z80.RegisterI.Should().Equal(0x01);
+        z80.RegisterPC.Should().Equal(0x0007);
 
         // NOP - Read opcode.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
@@ -289,7 +289,7 @@ public sealed class InterruptsTests
 
         // Refresh cycle in NOP.
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterR.Should().Be(0x07);
+        z80.RegisterR.Should().Equal(0x07);
         StepAndAssertEvent(z80, CycleType.None);
 
         // Interrupt handling starts here.
@@ -302,7 +302,7 @@ public sealed class InterruptsTests
 
         // Refresh cycle in interrupt handler.
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterR.Should().Be(0x08);
+        z80.RegisterR.Should().Equal(0x08);
         StepAndAssertEvent(z80, CycleType.None);
 
         // Extra cycle.
@@ -317,11 +317,11 @@ public sealed class InterruptsTests
         StepAndAssertEvent(z80, CycleType.MemoryWrite);
 
         // WZ should be set to the jump address. (0x01E0)
-        z80.RegisterWZ.Should().Be(0x01E0);
+        z80.RegisterWZ.Should().Equal(0x01E0);
 
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterSP.Should().Be(0x00FE);
+        z80.RegisterSP.Should().Equal(0x00FE);
 
         // Read PCL.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
@@ -334,8 +334,8 @@ public sealed class InterruptsTests
         StepAndAssertEvent(z80, CycleType.None);
 
         // Jumped to address 0x000D.
-        z80.RegisterPC.Should().Be(0x000D);
-        z80.RegisterWZ.Should().Be(0x000D);
+        z80.RegisterPC.Should().Equal(0x000D);
+        z80.RegisterWZ.Should().Equal(0x000D);
 
         // LD A, 0x33 - Read opcode.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
@@ -350,7 +350,7 @@ public sealed class InterruptsTests
 
         // LD A, 0x33 - update A. RETI - Overlapped opcode read.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
-        z80.RegisterA.Should().Be(0x33);
+        z80.RegisterA.Should().Equal(0x33);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
@@ -370,8 +370,8 @@ public sealed class InterruptsTests
         StepAndAssertEvent(z80, CycleType.MemoryRead);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterSP.Should().Be(0x0100);
-        z80.RegisterPC.Should().Be(0x0008);
+        z80.RegisterSP.Should().Equal(0x0100);
+        z80.RegisterPC.Should().Equal(0x0008);
         z80.IFF1.Should().BeFalse();
         z80.IFF2.Should().BeFalse();
     }
@@ -391,7 +391,7 @@ public sealed class InterruptsTests
 
         // DI.
         z80.Step(3);
-        z80.RegisterPC.Should().Be(0x0001);
+        z80.RegisterPC.Should().Equal(0x0001);
 
         // DI - Reset flags. NOP - Overlapped opcode read.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
@@ -400,7 +400,7 @@ public sealed class InterruptsTests
 
         // NOP.
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterPC.Should().Be(0x0002);
+        z80.RegisterPC.Should().Equal(0x0002);
 
         // Trigger an interrupt.
         z80.Interrupt = true;
@@ -412,7 +412,7 @@ public sealed class InterruptsTests
         // No interrupt, second NOP.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterPC.Should().Be(0x0003);
+        z80.RegisterPC.Should().Equal(0x0003);
     }
 
     [Test]
@@ -437,7 +437,7 @@ public sealed class InterruptsTests
         StepAndAssertEvent(z80, CycleType.MemoryRead);
         z80.IFF1.Should().BeTrue();
         z80.IFF2.Should().BeTrue();
-        z80.IM.Should().Be(1);
+        z80.IM.Should().Equal(1);
 
         // EI
         StepAndAssertEvent(z80, CycleType.None);
@@ -447,23 +447,23 @@ public sealed class InterruptsTests
 
         // Refresh cycle in EI.
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterR.Should().Be(0x04);
+        z80.RegisterR.Should().Equal(0x04);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterPC.Should().Be(0x0004);
+        z80.RegisterPC.Should().Equal(0x0004);
 
         // No interrupt handling. Second EI.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterPC.Should().Be(0x0005);
+        z80.RegisterPC.Should().Equal(0x0005);
 
         // No interrupt handling. Third EI.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterPC.Should().Be(0x0006);
+        z80.RegisterPC.Should().Equal(0x0006);
 
         // Interrupt handling starts here.
         StepAndAssertEvent(z80, CycleType.None);
@@ -475,7 +475,7 @@ public sealed class InterruptsTests
 
         // Refresh cycle in interrupt handler.
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterR.Should().Be(0x07);
+        z80.RegisterR.Should().Equal(0x07);
         StepAndAssertEvent(z80, CycleType.None);
 
         // RST 0x38 - Start.
@@ -490,10 +490,10 @@ public sealed class InterruptsTests
         StepAndAssertEvent(z80, CycleType.MemoryWrite);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterSP.Should().Be(0x00FE);
+        z80.RegisterSP.Should().Equal(0x00FE);
 
         // Jumped to address 0x0038.
-        z80.RegisterPC.Should().Be(0x0038);
+        z80.RegisterPC.Should().Equal(0x0038);
     }
 
     // PC moves to the next instruction after a HALT. The next opcode is then repeatedly read, but PC is not advanced and the instruction is not executed
@@ -513,9 +513,9 @@ public sealed class InterruptsTests
         // HALT.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterPC.Should().Be(0x0001);
+        z80.RegisterPC.Should().Equal(0x0001);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterR.Should().Be(0x01);
+        z80.RegisterR.Should().Equal(0x01);
         StepAndAssertEvent(z80, CycleType.None);
 
         // HALT - set Halted. RST 0x20 - Overlapped opcode read.
@@ -523,23 +523,23 @@ public sealed class InterruptsTests
         z80.Halted.Should().BeTrue();
 
         // RST 0x20 read. PC should not advance.
-        z80.RegisterPC.Should().Be(0x0001);
+        z80.RegisterPC.Should().Equal(0x0001);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterR.Should().Be(0x02);
+        z80.RegisterR.Should().Equal(0x02);
         StepAndAssertEvent(z80, CycleType.None);
 
         // RST 0x20 read again.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
-        z80.RegisterPC.Should().Be(0x0001);
+        z80.RegisterPC.Should().Equal(0x0001);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterR.Should().Be(0x03);
+        z80.RegisterR.Should().Equal(0x03);
         StepAndAssertEvent(z80, CycleType.None);
 
         // ...And so on.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
-        z80.RegisterPC.Should().Be(0x0001);
+        z80.RegisterPC.Should().Equal(0x0001);
     }
 
     [Test]
@@ -565,14 +565,14 @@ public sealed class InterruptsTests
         // EI + IM 1 + HALT
         z80.Step(14);
         z80.Step();
-        z80.RegisterPC.Should().Be(0x0004);
-        z80.RegisterR.Should().Be(0x04);
+        z80.RegisterPC.Should().Equal(0x0004);
+        z80.RegisterR.Should().Equal(0x04);
 
         // HALT - set Halted. RST 0x20 - Overlapped halted cycle.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
 
         // RST 0x20 read. PC should not advance.
-        z80.RegisterPC.Should().Be(0x0004);
+        z80.RegisterPC.Should().Equal(0x0004);
         z80.Halted.Should().BeTrue();
 
         StepAndAssertEvent(z80, CycleType.None);
@@ -581,7 +581,7 @@ public sealed class InterruptsTests
         z80.Interrupt = true;
 
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterR.Should().Be(0x05);
+        z80.RegisterR.Should().Equal(0x05);
         StepAndAssertEvent(z80, CycleType.None);
 
         // Interrupt handling starts here.
@@ -593,7 +593,7 @@ public sealed class InterruptsTests
 
         // Refresh cycle in interrupt handler.
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterR.Should().Be(0x06);
+        z80.RegisterR.Should().Equal(0x06);
         StepAndAssertEvent(z80, CycleType.None);
 
         // RST 0x38 - Start.
@@ -610,7 +610,7 @@ public sealed class InterruptsTests
         StepAndAssertEvent(z80, CycleType.None);
 
         // Jumped to address 0x0038.
-        z80.RegisterPC.Should().Be(0x0038);
+        z80.RegisterPC.Should().Equal(0x0038);
 
 
         // RETI - Read opcode.
@@ -634,7 +634,7 @@ public sealed class InterruptsTests
         StepAndAssertEvent(z80, CycleType.MemoryRead);
         StepAndAssertEvent(z80, CycleType.None);
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterPC.Should().Be(0x0004);
+        z80.RegisterPC.Should().Equal(0x0004);
         z80.IFF1.Should().BeFalse();
         z80.IFF2.Should().BeFalse();
 
@@ -643,7 +643,7 @@ public sealed class InterruptsTests
 
         // PC should be advancing again.
         StepAndAssertEvent(z80, CycleType.None);
-        z80.RegisterPC.Should().Be(0x0005);
+        z80.RegisterPC.Should().Equal(0x0005);
     }
 
     private static void StepAndAssertEvent(Z80EmulatorTestHarness z80, CycleType type)
@@ -652,7 +652,7 @@ public sealed class InterruptsTests
         AssertEvent(z80, type);
     }
 
-    private static void AssertEvent(Z80EmulatorTestHarness z80, CycleType type) => z80.Cycles.Last().Type.Should().Be(type);
+    private static void AssertEvent(Z80EmulatorTestHarness z80, CycleType type) => z80.Cycles.Last().Type.Should().Equal(type);
 
     private static void Load(Z80EmulatorTestHarness z80, [InstantHandle] IEnumerable<OakAsmNode> code)
     {

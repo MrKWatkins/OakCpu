@@ -1,5 +1,4 @@
 using System.Collections;
-using FluentAssertions.Equivalency;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Lexing;
 using Number = MrKWatkins.OakCpu.CodeGenerator.Language.Lexing.Number;
@@ -14,22 +13,22 @@ public sealed class LexerTests
         using var reader = new StringReader("x");
         var lexer = new Lexer(reader);
 
-        lexer.Peek().Should().BeEquivalentTo(new Identifier(0, "x"), Options);
-        lexer.Peek().Should().BeEquivalentTo(new Identifier(0, "x"), Options);
+        lexer.Peek().Should().Equal(new Identifier(0, "x"));
+        lexer.Peek().Should().Equal(new Identifier(0, "x"));
         lexer.IsFinished.Should().BeFalse();
 
-        lexer.Read().Should().BeEquivalentTo(new Identifier(0, "x"), Options);
+        lexer.Read().Should().Equal(new Identifier(0, "x"));
         lexer.IsFinished.Should().BeFalse();
 
-        lexer.Peek().Should().BeEquivalentTo(new EndOfInput(1), Options);
-        lexer.Peek().Should().BeEquivalentTo(new EndOfInput(1), Options);
+        lexer.Peek().Should().Equal(new EndOfInput(1));
+        lexer.Peek().Should().Equal(new EndOfInput(1));
         lexer.IsFinished.Should().BeFalse();
 
-        lexer.Read().Should().BeEquivalentTo(new EndOfInput(1), Options);
+        lexer.Read().Should().Equal(new EndOfInput(1));
         lexer.IsFinished.Should().BeTrue();
 
-        lexer.Invoking(l => l.Peek()).Should().Throw<InvalidOperationException>().WithMessage("Input has already been consumed.");
-        lexer.Invoking(l => l.Read()).Should().Throw<InvalidOperationException>().WithMessage("Input has already been consumed.");
+        lexer.Invoking(l => l.Peek()).Should().Throw<InvalidOperationException>().That.Should().HaveMessage("Input has already been consumed.");
+        lexer.Invoking(l => l.Read()).Should().Throw<InvalidOperationException>().That.Should().HaveMessage("Input has already been consumed.");
     }
 
     [Test]
@@ -38,7 +37,7 @@ public sealed class LexerTests
         using var reader = new StringReader("[");
         var lexer = new Lexer(reader);
 
-        lexer.Invoking(l => l.Peek()).Should().Throw<InvalidOperationException>().WithMessage("Unexpected character '['.");
+        lexer.Invoking(l => l.Peek()).Should().Throw<InvalidOperationException>().That.Should().HaveMessage("Unexpected character '['.");
     }
 
     [Test]
@@ -47,7 +46,7 @@ public sealed class LexerTests
         using var reader = new StringReader("[");
         var lexer = new Lexer(reader);
 
-        lexer.Invoking(l => l.Read()).Should().Throw<InvalidOperationException>().WithMessage("Unexpected character '['.");
+        lexer.Invoking(l => l.Read()).Should().Throw<InvalidOperationException>().That.Should().HaveMessage("Unexpected character '['.");
     }
 
     [TestCaseSource(nameof(EnumerateTestCases))]
@@ -57,7 +56,7 @@ public sealed class LexerTests
         var lexer = new Lexer(reader);
 
         var actualTokens = lexer.ToList();
-        actualTokens.Should().BeEquivalentTo(expectedTokens, Options);
+        actualTokens.Should().SequenceEqual(expectedTokens);
     }
 
     [TestCaseSource(nameof(EnumerateTestCases))]
@@ -74,7 +73,7 @@ public sealed class LexerTests
         {
             actualTokens.Add(enumerator.Current);
         }
-        actualTokens.Should().BeEquivalentTo(expectedTokens, Options);
+        actualTokens.Should().SequenceEqual(expectedTokens);
     }
 
     [Pure]
@@ -106,7 +105,4 @@ public sealed class LexerTests
 
         yield return Create("(x + 4)", new OpenBracket(0), new Identifier(1, "x"), new BinaryOperator(3, Operator.Add), new Number(5, 1, 4), new CloseBracket(6), new EndOfInput(7));
     }
-
-    [Pure]
-    private static EquivalencyAssertionOptions<T> Options<T>(EquivalencyAssertionOptions<T> options) => options.WithStrictOrdering().RespectingRuntimeTypes().ComparingRecordsByValue();
 }

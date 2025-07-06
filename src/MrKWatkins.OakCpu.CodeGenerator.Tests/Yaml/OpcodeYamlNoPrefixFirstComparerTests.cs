@@ -19,6 +19,6 @@ public sealed class OpcodeYamlNoPrefixFirstComparerTests
         var x = new OpcodeYaml { Opcode = opcodeX };
         var y = new OpcodeYaml { Opcode = opcodeY };
 
-        OpcodeYamlNoPrefixFirstComparer.Instance.Compare(x, y).Should().Be(expected);
+        OpcodeYamlNoPrefixFirstComparer.Instance.Compare(x, y).Should().Equal(expected);
     }
 }

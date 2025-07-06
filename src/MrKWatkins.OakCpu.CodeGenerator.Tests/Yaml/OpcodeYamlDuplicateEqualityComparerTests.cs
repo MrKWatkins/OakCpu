@@ -5,7 +5,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Tests.Yaml;
 public sealed class OpcodeYamlDuplicateEqualityComparerTests
 {
     [TestCaseSource(nameof(TestCases))]
-    public void Equals(OpcodeYaml x, OpcodeYaml y, bool equal) => OpcodeYamlDuplicateEqualityComparer.Instance.Equals(x, y).Should().Be(equal);
+    public void Equals(OpcodeYaml x, OpcodeYaml y, bool equal) => OpcodeYamlDuplicateEqualityComparer.Instance.Equals(x, y).Should().Equal(equal);
 
     [Pure]
     public static IEnumerable<TestCaseData> TestCases()

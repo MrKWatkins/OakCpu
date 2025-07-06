@@ -2,21 +2,15 @@
 
     <PropertyGroup>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <!-- TODO: Remove! -->
-        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-        <!-- TODO: Remove! -->
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     </PropertyGroup>
 
     <ItemGroup>
         <CompilerVisibleProperty Include="RootNamespace" />
-    </ItemGroup>
 
-    <ItemGroup>
+        <AdditionalFiles Include="..\..\definitions\z80\*.yaml" Link="definitions\*.yaml" />
+
         <ProjectReference Include="..\MrKWatkins.OakCpu.SourceGenerator\MrKWatkins.OakCpu.SourceGenerator.csproj"
-                        PrivateAssets="all" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    </ItemGroup>
-    <ItemGroup>
-        <AdditionalFiles Include="..\..\definitions\z80\*.yaml" />
+                          PrivateAssets="all" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 </Project>

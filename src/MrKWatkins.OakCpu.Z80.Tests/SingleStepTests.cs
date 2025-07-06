@@ -7,10 +7,10 @@ namespace MrKWatkins.OakCpu.Z80.Tests;
 [Parallelizable(ParallelScope.All)]
 public sealed class SingleStepTests
 {
-    private const Assertions DefaultExceptCycles = SingleStepTestSuite.DefaultAssertions & ~Assertions.Cycles;
-    private const Assertions DefaultExceptPC = SingleStepTestSuite.DefaultAssertions & ~Assertions.PC;
+    private const TestAssertions DefaultExceptCycles = SingleStepTestSuite.DefaultAssertions & ~TestAssertions.Cycles;
+    private const TestAssertions DefaultExceptPC = SingleStepTestSuite.DefaultAssertions & ~TestAssertions.PC;
 
-    private static readonly IReadOnlyDictionary<string, Assertions> AssertionsToRunOverrides = new Dictionary<string, Assertions>
+    private static readonly IReadOnlyDictionary<string, TestAssertions> TestAssertionsToRunOverrides = new Dictionary<string, TestAssertions>
     {
         // SingleStep disagrees with Fuse and the netlist simulator for the following instructions: (https://github.com/SingleStepTests/z80/issues/3)
         ["DD 36"] = DefaultExceptCycles,        // LD (IY + d), n
@@ -31,5 +31,5 @@ public sealed class SingleStepTests
     public void SingleStepTest(SingleStepTestCase testCase) => testCase.Execute<Z80EmulatorTestHarness>(TestContext.Progress);
 
     [Pure]
-    public static IEnumerable<TestCaseData> TestCases() => SingleStepTestSuite.Instance.GetTestCases(AssertionsToRunOverrides).ToTestCaseData();
+    public static IEnumerable<TestCaseData> TestCases() => SingleStepTestSuite.Instance.GetTestCases(TestAssertionsToRunOverrides).ToTestCaseData();
 }

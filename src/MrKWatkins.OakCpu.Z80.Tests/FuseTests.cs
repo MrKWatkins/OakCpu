@@ -7,10 +7,10 @@ namespace MrKWatkins.OakCpu.Z80.Tests;
 [Parallelizable(ParallelScope.All)]
 public sealed class FuseTests
 {
-    private const Assertions DefaultExceptCycles = FuseTestSuite.DefaultAssertions & ~Assertions.Cycles;
-    private const Assertions DefaultExceptPC = FuseTestSuite.DefaultAssertions & ~Assertions.PC;
+    private const TestAssertions DefaultExceptCycles = FuseTestSuite.DefaultAssertions & ~TestAssertions.Cycles;
+    private const TestAssertions DefaultExceptPC = FuseTestSuite.DefaultAssertions & ~TestAssertions.PC;
 
-    private static readonly IReadOnlyDictionary<string, Assertions> AssertionsToRunOverrides = new Dictionary<string, Assertions>
+    private static readonly IReadOnlyDictionary<string, TestAssertions> TestAssertionsToRunOverrides = new Dictionary<string, TestAssertions>
     {
         // Fuse skips the read of the offset when there is no jump. This means it is missing a MemoryRead event in the test. https://sourceforge.net/p/fuse-emulator/bugs/512/
         ["10"] = DefaultExceptCycles,        // DJNZ
@@ -24,16 +24,16 @@ public sealed class FuseTests
 
         // The following tests disagree with the Single Step tests.
         // TODO: Use the netlist simulator to work out which one is actually correct.
-        ["edb9_2"] = FuseTestSuite.DefaultAssertions & ~Assertions.X & ~Assertions.F,
-        ["edb2_1"] = FuseTestSuite.DefaultAssertions & ~Assertions.PV & ~Assertions.X & ~Assertions.F & ~Assertions.WZ,
-        ["edb3_1"] = FuseTestSuite.DefaultAssertions & ~Assertions.PV & ~Assertions.H & ~Assertions.F & ~Assertions.WZ,
-        ["edba_1"] = FuseTestSuite.DefaultAssertions & ~Assertions.WZ,
-        ["edbb_1"] = FuseTestSuite.DefaultAssertions & ~Assertions.PV & ~Assertions.H & ~Assertions.F & ~Assertions.WZ
+        ["edb9_2"] = FuseTestSuite.DefaultAssertions & ~TestAssertions.X & ~TestAssertions.F,
+        ["edb2_1"] = FuseTestSuite.DefaultAssertions & ~TestAssertions.PV & ~TestAssertions.X & ~TestAssertions.F & ~TestAssertions.WZ,
+        ["edb3_1"] = FuseTestSuite.DefaultAssertions & ~TestAssertions.PV & ~TestAssertions.H & ~TestAssertions.F & ~TestAssertions.WZ,
+        ["edba_1"] = FuseTestSuite.DefaultAssertions & ~TestAssertions.WZ,
+        ["edbb_1"] = FuseTestSuite.DefaultAssertions & ~TestAssertions.PV & ~TestAssertions.H & ~TestAssertions.F & ~TestAssertions.WZ
     };
 
     [TestCaseSource(nameof(TestCases))]
     public void Fuse(FuseTestCase testCase) => testCase.Execute<Z80EmulatorTestHarness>();
 
     [Pure]
-    public static IEnumerable<TestCaseData> TestCases() => FuseTestSuite.Instance.GetTestCases(AssertionsToRunOverrides).ToTestCaseData();
+    public static IEnumerable<TestCaseData> TestCases() => FuseTestSuite.Instance.GetTestCases(TestAssertionsToRunOverrides).ToTestCaseData();
 }

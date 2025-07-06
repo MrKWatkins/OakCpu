@@ -16,12 +16,15 @@ public sealed class ParserTests
     {
         var context = CreateContext();
         var statements = Parser.ParseStatements(context, statementsText);
-        statements.Select(s => s.ToString()).Should().BeEquivalentTo(expectedParsedExpressions);
+        statements.Select(s => s.ToString()).Should().SequenceEqual(expectedParsedExpressions);
     }
 
     [TestCase("RP0 ^ RP1 ^ (RP0 + RP1)", "RP0 ^ RP1 ^ RP0 + RP1")]
     public void ParseExpression(string expressionText, string expectedParsedExpression)
     {
+        var context = CreateContext();
+        var expression = Parser.ParseExpression(context, expressionText);
+        expression.ToString().Should().Equal(expectedParsedExpression);
     }
 
     [Pure]
