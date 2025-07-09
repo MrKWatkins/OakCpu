@@ -2,8 +2,10 @@ using MrKWatkins.EmulatorTestSuites.Z80;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 
-public sealed class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80TestHarness
+public sealed class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80SteppableTestHarness
 {
+    private readonly byte[] memory = new byte[65536];
+
     public Z80EmulatorTestHarness()
         : this(new Z80Emulator())
     {
@@ -105,54 +107,6 @@ public sealed class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80TestHarnes
         set => emulator.Shadow_HL = value;
     }
 
-    public override bool FlagC
-    {
-        get => emulator.Flags.C;
-        set => emulator.Flags.C = value;
-    }
-
-    public override bool FlagN
-    {
-        get => emulator.Flags.N;
-        set => emulator.Flags.N = value;
-    }
-
-    public override bool FlagPV
-    {
-        get => emulator.Flags.PV;
-        set => emulator.Flags.PV = value;
-    }
-
-    public override bool FlagX
-    {
-        get => emulator.Flags.X;
-        set => emulator.Flags.X = value;
-    }
-
-    public override bool FlagH
-    {
-        get => emulator.Flags.H;
-        set => emulator.Flags.H = value;
-    }
-
-    public override bool FlagY
-    {
-        get => emulator.Flags.Y;
-        set => emulator.Flags.Y = value;
-    }
-
-    public override bool FlagZ
-    {
-        get => emulator.Flags.Z;
-        set => emulator.Flags.Z = value;
-    }
-
-    public override bool FlagS
-    {
-        get => emulator.Flags.S;
-        set => emulator.Flags.S = value;
-    }
-
     public override bool IFF1
     {
         get => emulator.iff1;
@@ -183,6 +137,10 @@ public sealed class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80TestHarnes
         set => emulator.interrupt = value;
     }
 
+    public override byte GetByteFromMemory(ushort address) => memory[address];
+
+    public override void SetByteInMemory(ushort address, byte value) => memory[address] = value;
+
     public override void AssertFail(string message) => Assert.Fail(message + Environment.NewLine);
 
     public override void Step()
@@ -193,9 +151,8 @@ public sealed class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80TestHarnes
         TStates++;
     }
 
-    public override void ExecuteInstruction(TextWriter? debug = null)
+    public override void ExecuteInstruction()
     {
-        Z80Debugging.WriteDebugInformation(this, debug);
         emulator.InstructionComplete = false;
         while (!emulator.InstructionComplete)
         {
