@@ -1,0 +1,127 @@
+instructions:
+  - group: 8-Bit Arithmetic
+    mnemonic: OR R0
+    opcodes:
+      - opcode: 0xB0
+        R0: B
+      - opcode: 0xB1
+        R0: C
+      - opcode: 0xB2
+        R0: D
+      - opcode: 0xB3
+        R0: E
+      - opcode: 0xB4
+        R0: H
+      - opcode: 0xB5
+        R0: L
+      - opcode: 0xB7
+        R0: A
+        
+      - opcode: 0xDD 0xB0
+        R0: B
+      - opcode: 0xDD 0xB1
+        R0: C
+      - opcode: 0xDD 0xB2
+        R0: D
+      - opcode: 0xDD 0xB3
+        R0: E
+      - opcode: 0xDD 0xB4
+        R0: IXH
+      - opcode: 0xDD 0xB5
+        R0: IXL
+      - opcode: 0xDD 0xB7
+        R0: A
+        
+      - opcode: 0xFD 0xB0
+        R0: B
+      - opcode: 0xFD 0xB1
+        R0: C
+      - opcode: 0xFD 0xB2
+        R0: D
+      - opcode: 0xFD 0xB3
+        R0: E
+      - opcode: 0xFD 0xB4
+        R0: IYH
+      - opcode: 0xFD 0xB5
+        R0: IYL
+      - opcode: 0xFD 0xB7
+        R0: A
+    steps:
+      - A = A | R0; flags();
+    flags:
+      C: 0
+      N: 0
+      PV: even_parity(A)
+      X: copy_from(A)
+      H: 0
+      Y: copy_from(A)
+      Z: is_zero(A)
+      S: copy_from(A)
+    next_opcode: overlapped
+
+  - group: 8-Bit Arithmetic
+    mnemonic: OR n
+    opcodes:
+      - opcode: 0xF6
+      - opcode: 0xDD 0xF6
+      - opcode: 0xFD 0xF6
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - A = A | Data; flags();
+      - 
+    flags:
+      C: 0
+      N: 0
+      PV: even_parity(A)
+      X: copy_from(A)
+      H: 0
+      Y: copy_from(A)
+      Z: is_zero(A)
+      S: copy_from(A)
+    
+  - group: 8-Bit Arithmetic
+    mnemonic: OR (HL)
+    opcodes:
+      - opcode: 0xB6
+    steps:
+      - Address = HL; request(action.memory_read);
+      - A = A | Data; flags();
+      - 
+    flags:
+      C: 0
+      N: 0
+      PV: even_parity(A)
+      X: copy_from(A)
+      H: 0
+      Y: copy_from(A)
+      Z: is_zero(A)
+      S: copy_from(A)
+
+  - group: 8-Bit Arithmetic
+    mnemonic: OR (RP0 + n)
+    opcodes:
+      - opcode: 0xDD 0xB6
+        RP0: IX
+      - opcode: 0xFD 0xB6
+        RP0: IY
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      -
+      -
+      -
+      -
+      -
+      -
+      -
+      - WZ = RP0 + signed(Data); Address = WZ; request(action.memory_read);
+      - A = A | Data; flags();
+      -
+    flags:
+      C: 0
+      N: 0
+      PV: even_parity(A)
+      X: copy_from(A)
+      H: 0
+      Y: copy_from(A)
+      Z: is_zero(A)
+      S: copy_from(A)

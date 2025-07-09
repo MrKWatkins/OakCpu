@@ -1,0 +1,15 @@
+instructions:
+  - group: Call and Return
+    mnemonic: RETN
+    opcodes:
+      - opcode: 0xED 0x45
+      - opcode: 0xED 0x55
+      - opcode: 0xED 0x65
+      - opcode: 0xED 0x75
+    steps:
+      - Address = SP; SP = SP + 1; request(action.memory_read);
+      - Z = Data;
+      -
+      - Address = SP; SP = SP + 1; request(action.memory_read);
+      - W = Data; PC = WZ;
+      - IFF1 = IFF2;

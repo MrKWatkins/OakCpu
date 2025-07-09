@@ -1,0 +1,26 @@
+instructions:
+  - group: Input and Output
+    mnemonic: OUTD
+    opcodes:
+      - opcode: 0xED 0xAB
+    steps:
+      -
+      - Address = HL; HL = HL - 1; request(action.memory_read);
+      - B = B - 1;
+      - 
+      - Address = BC; 
+      - request(action.io_write);
+      - WZ = BC - 1;
+      - |
+        $temp = Data + (L & 0xFF);
+        $pv = (($temp & 0x07) ^ B);
+        flags();
+    flags:
+      C: $temp > 0xFF
+      N: is_negative(Data)
+      PV: even_parity($pv)
+      X: copy_from(B)
+      H: $temp > 0xFF
+      Y: copy_from(B)
+      Z: B == 0
+      S: is_negative(B)

@@ -1,0 +1,16 @@
+instructions:
+  - group: Rotate and Shift
+    mnemonic: RRCA
+    opcodes:
+      - opcode: 0x0F
+      - opcode: 0xDD 0x0F
+      - opcode: 0xFD 0x0F
+    steps:
+      - $temp = A; A = (A >> 1) | (A << 7); flags();
+    flags:
+      C: copy_from($temp)
+      N: 0
+      X: copy_from(A)
+      H: 0
+      Y: copy_from(A)
+    next_opcode: overlapped

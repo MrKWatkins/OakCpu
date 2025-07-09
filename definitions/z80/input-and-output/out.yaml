@@ -1,0 +1,49 @@
+instructions:
+  - group: Input and Output
+    mnemonic: OUT (n), A
+    opcodes:
+      - opcode: 0xD3
+      - opcode: 0xDD 0xD3
+      - opcode: 0xFD 0xD3
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Z = Data; W = A;
+      - 
+      - Address = WZ; Data = A;
+      - request(action.io_write);
+      - Z = Z + 1;
+      -
+
+  - group: Input and Output
+    mnemonic: OUT R0, (C)
+    opcodes:
+      - opcode: 0xED 0x41
+        R0: B
+      - opcode: 0xED 0x49
+        R0: C
+      - opcode: 0xED 0x51
+        R0: D
+      - opcode: 0xED 0x59
+        R0: E
+      - opcode: 0xED 0x61
+        R0: H
+      - opcode: 0xED 0x69
+        R0: L
+      - opcode: 0xED 0x79
+        R0: A
+    steps:
+      - Address = BC; Data = R0;
+      - request(action.io_write);
+      - WZ = BC + 1;
+      - 
+
+  - group: Input and Output
+    mnemonic: OUT (C)
+    opcodes:
+      - opcode: 0xED 0x71
+    steps:
+      - Address = BC; Data = 0x00;
+      - request(action.io_write);
+      - WZ = BC + 1;
+      - 
+        

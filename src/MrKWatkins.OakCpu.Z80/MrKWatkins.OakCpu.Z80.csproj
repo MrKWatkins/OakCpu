@@ -8,7 +8,7 @@
     <ItemGroup>
         <CompilerVisibleProperty Include="RootNamespace" />
 
-        <AdditionalFiles Include="..\..\definitions\z80\*.yaml" Link="definitions\*.yaml" />
+        <AdditionalFiles Include="..\..\definitions\z80\**\*.yaml" LinkBase="definitions" />
 
         <ProjectReference Include="..\MrKWatkins.OakCpu.SourceGenerator\MrKWatkins.OakCpu.SourceGenerator.csproj"
                           PrivateAssets="all" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />

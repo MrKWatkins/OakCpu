@@ -1,0 +1,16 @@
+instructions:
+  - group: General-Purpose Arithmetic and CPU Control
+    mnemonic: SCF
+    opcodes:
+      - opcode: 0x37
+      - opcode: 0xDD 0x37
+      - opcode: 0xFD 0x37
+    steps:
+      - $xy = (Q ^ F) | A; flags();
+    flags:
+      C: 1
+      N: 0
+      X: copy_from($xy)
+      H: 0
+      Y: copy_from($xy)
+    next_opcode: overlapped

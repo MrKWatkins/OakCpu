@@ -17,56 +17,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "definitions", "definitions"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "z80", "z80", "{4C2E5424-BCEA-47D9-82A3-D9894FDFAC41}"
 	ProjectSection(SolutionItems) = preProject
-		..\definitions\z80\registers.yaml = ..\definitions\z80\registers.yaml
-		..\definitions\z80\flags.yaml = ..\definitions\z80\flags.yaml
 		..\definitions\z80\cpu.yaml = ..\definitions\z80\cpu.yaml
-		..\definitions\z80\or.yaml = ..\definitions\z80\or.yaml
+		..\definitions\z80\flags.yaml = ..\definitions\z80\flags.yaml
 		..\definitions\z80\functions.yaml = ..\definitions\z80\functions.yaml
-		..\definitions\z80\and.yaml = ..\definitions\z80\and.yaml
-		..\definitions\z80\xor.yaml = ..\definitions\z80\xor.yaml
-		..\definitions\z80\inc.yaml = ..\definitions\z80\inc.yaml
-		..\definitions\z80\dec.yaml = ..\definitions\z80\dec.yaml
-		..\definitions\z80\rotate.yaml = ..\definitions\z80\rotate.yaml
-		..\definitions\z80\exchange.yaml = ..\definitions\z80\exchange.yaml
-		..\definitions\z80\add.yaml = ..\definitions\z80\add.yaml
-		..\definitions\z80\djnz.yaml = ..\definitions\z80\djnz.yaml
-		..\definitions\z80\jumps.yaml = ..\definitions\z80\jumps.yaml
-		..\definitions\z80\ld-8-bit-copy_register_register.yaml = ..\definitions\z80\ld-8-bit-copy_register_register.yaml
-		..\definitions\z80\ld-8-bit-load_register_immediate.yaml = ..\definitions\z80\ld-8-bit-load_register_immediate.yaml
-		..\definitions\z80\ld-8-bit-store_register-pair-indirect_register.yaml = ..\definitions\z80\ld-8-bit-store_register-pair-indirect_register.yaml
-		..\definitions\z80\ld-16-bit-load_register-pair_immediate.yaml = ..\definitions\z80\ld-16-bit-load_register-pair_immediate.yaml
-		..\definitions\z80\ld-16-bit-load_register-pair_indirect.yaml = ..\definitions\z80\ld-16-bit-load_register-pair_indirect.yaml
-		..\definitions\z80\ld-16-bit-store_indirect_register-pair.yaml = ..\definitions\z80\ld-16-bit-store_indirect_register-pair.yaml
-		..\definitions\z80\ld-8-bit-store_register-pair-indirect_immediate.yaml = ..\definitions\z80\ld-8-bit-store_register-pair-indirect_immediate.yaml
-		..\definitions\z80\ld-8-bit-store_indirect_register.yaml = ..\definitions\z80\ld-8-bit-store_indirect_register.yaml
-		..\definitions\z80\ld-8-bit-load_register_indirect.yaml = ..\definitions\z80\ld-8-bit-load_register_indirect.yaml
-		..\definitions\z80\ld-8-bit-load_register_register-pair-indirect.yaml = ..\definitions\z80\ld-8-bit-load_register_register-pair-indirect.yaml
-		..\definitions\z80\cpl.yaml = ..\definitions\z80\cpl.yaml
-		..\definitions\z80\adc.yaml = ..\definitions\z80\adc.yaml
-		..\definitions\z80\sub.yaml = ..\definitions\z80\sub.yaml
-		..\definitions\z80\sbc.yaml = ..\definitions\z80\sbc.yaml
-		..\definitions\z80\cp.yaml = ..\definitions\z80\cp.yaml
-		..\definitions\z80\ret.yaml = ..\definitions\z80\ret.yaml
-		..\definitions\z80\pop.yaml = ..\definitions\z80\pop.yaml
-		..\definitions\z80\push.yaml = ..\definitions\z80\push.yaml
-		..\definitions\z80\daa.yaml = ..\definitions\z80\daa.yaml
-		..\definitions\z80\call.yaml = ..\definitions\z80\call.yaml
-		..\definitions\z80\rst.yaml = ..\definitions\z80\rst.yaml
-		..\definitions\z80\res.yaml = ..\definitions\z80\res.yaml
-		..\definitions\z80\set.yaml = ..\definitions\z80\set.yaml
-		..\definitions\z80\shift.yaml = ..\definitions\z80\shift.yaml
-		..\definitions\z80\bit.yaml = ..\definitions\z80\bit.yaml
-		..\definitions\z80\nop.yaml = ..\definitions\z80\nop.yaml
 		..\definitions\z80\interrupts.yaml = ..\definitions\z80\interrupts.yaml
-		..\definitions\z80\ld-16-bit-copy_register-pair_register-pair.yaml = ..\definitions\z80\ld-16-bit-copy_register-pair_register-pair.yaml
-		..\definitions\z80\out.yaml = ..\definitions\z80\out.yaml
-		..\definitions\z80\neg.yaml = ..\definitions\z80\neg.yaml
-		..\definitions\z80\cf.yaml = ..\definitions\z80\cf.yaml
-		..\definitions\z80\in.yaml = ..\definitions\z80\in.yaml
-		..\definitions\z80\block-transfer.yaml = ..\definitions\z80\block-transfer.yaml
-		..\definitions\z80\block-search.yaml = ..\definitions\z80\block-search.yaml
-		..\definitions\z80\block-input.yaml = ..\definitions\z80\block-input.yaml
-		..\definitions\z80\block-output.yaml = ..\definitions\z80\block-output.yaml
+		..\definitions\z80\registers.yaml = ..\definitions\z80\registers.yaml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrKWatkins.OakCpu.Z80.Tests", "MrKWatkins.OakCpu.Z80.Tests\MrKWatkins.OakCpu.Z80.Tests.csproj", "{C0E307B6-B1E3-421A-99C7-62804DAE1A39}"
@@ -88,6 +43,131 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrKWatkins.OakCpu.Z80.Benchmarks", "MrKWatkins.OakCpu.Z80.Benchmarks\MrKWatkins.OakCpu.Z80.Benchmarks.csproj", "{6DB10592-77D9-42C7-9659-ACE1DA57DBD8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrKWatkins.OakCpu.Z80.Disassemble", "MrKWatkins.OakCpu.Z80.Disassemble\MrKWatkins.OakCpu.Z80.Disassemble.csproj", "{493D39D5-AC5C-4EBD-AADC-A3E2D5E9A86F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "8-bit-arithmetic", "8-bit-arithmetic", "{A47A6EEC-AEF6-41CF-AD3C-A5C80845A97C}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\z80\8-bit-arithmetic\adc.yaml = ..\definitions\z80\8-bit-arithmetic\adc.yaml
+		..\definitions\z80\8-bit-arithmetic\add.yaml = ..\definitions\z80\8-bit-arithmetic\add.yaml
+		..\definitions\z80\8-bit-arithmetic\and.yaml = ..\definitions\z80\8-bit-arithmetic\and.yaml
+		..\definitions\z80\8-bit-arithmetic\cp.yaml = ..\definitions\z80\8-bit-arithmetic\cp.yaml
+		..\definitions\z80\8-bit-arithmetic\dec.yaml = ..\definitions\z80\8-bit-arithmetic\dec.yaml
+		..\definitions\z80\8-bit-arithmetic\inc.yaml = ..\definitions\z80\8-bit-arithmetic\inc.yaml
+		..\definitions\z80\8-bit-arithmetic\or.yaml = ..\definitions\z80\8-bit-arithmetic\or.yaml
+		..\definitions\z80\8-bit-arithmetic\sbc.yaml = ..\definitions\z80\8-bit-arithmetic\sbc.yaml
+		..\definitions\z80\8-bit-arithmetic\sub.yaml = ..\definitions\z80\8-bit-arithmetic\sub.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "8-bit-load", "8-bit-load", "{2AEF37CE-1AD2-4761-AA1A-A2558CF8071B}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\z80\8-bit-load\ld-8-bit-store_register-pair-indirect_register.yaml = ..\definitions\z80\8-bit-load\ld-8-bit-store_register-pair-indirect_register.yaml
+		..\definitions\z80\8-bit-load\ld-8-bit-load_register_immediate.yaml = ..\definitions\z80\8-bit-load\ld-8-bit-load_register_immediate.yaml
+		..\definitions\z80\8-bit-load\ld-8-bit-store_indirect_register.yaml = ..\definitions\z80\8-bit-load\ld-8-bit-store_indirect_register.yaml
+		..\definitions\z80\8-bit-load\ld-8-bit-load_register_register-pair-indirect.yaml = ..\definitions\z80\8-bit-load\ld-8-bit-load_register_register-pair-indirect.yaml
+		..\definitions\z80\8-bit-load\ld-8-bit-store_register-pair-indirect_immediate.yaml = ..\definitions\z80\8-bit-load\ld-8-bit-store_register-pair-indirect_immediate.yaml
+		..\definitions\z80\8-bit-load\ld-8-bit-load_register_indirect.yaml = ..\definitions\z80\8-bit-load\ld-8-bit-load_register_indirect.yaml
+		..\definitions\z80\8-bit-load\ld-8-bit-copy_register_register.yaml = ..\definitions\z80\8-bit-load\ld-8-bit-copy_register_register.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "16-bit-arithmetic", "16-bit-arithmetic", "{A59EBA30-DD92-4D0C-96F0-11C856EF1354}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\z80\16-bit-arithmetic\dec.yaml = ..\definitions\z80\16-bit-arithmetic\dec.yaml
+		..\definitions\z80\16-bit-arithmetic\adc.yaml = ..\definitions\z80\16-bit-arithmetic\adc.yaml
+		..\definitions\z80\16-bit-arithmetic\inc.yaml = ..\definitions\z80\16-bit-arithmetic\inc.yaml
+		..\definitions\z80\16-bit-arithmetic\sbc.yaml = ..\definitions\z80\16-bit-arithmetic\sbc.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "16-bit-load", "16-bit-load", "{0F91056D-21E8-442D-8FF6-E231AE2E3401}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\z80\16-bit-load\ld-16-bit-copy_register-pair_register-pair.yaml = ..\definitions\z80\16-bit-load\ld-16-bit-copy_register-pair_register-pair.yaml
+		..\definitions\z80\16-bit-load\ld-16-bit-load_register-pair_immediate.yaml = ..\definitions\z80\16-bit-load\ld-16-bit-load_register-pair_immediate.yaml
+		..\definitions\z80\16-bit-load\push.yaml = ..\definitions\z80\16-bit-load\push.yaml
+		..\definitions\z80\16-bit-load\ld-16-bit-load_register-pair_indirect.yaml = ..\definitions\z80\16-bit-load\ld-16-bit-load_register-pair_indirect.yaml
+		..\definitions\z80\16-bit-load\ld-16-bit-store_indirect_register-pair.yaml = ..\definitions\z80\16-bit-load\ld-16-bit-store_indirect_register-pair.yaml
+		..\definitions\z80\16-bit-load\pop.yaml = ..\definitions\z80\16-bit-load\pop.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "bit-set-reset-and-test", "bit-set-reset-and-test", "{7F4505BD-81F8-44F2-AF91-A5F1A9D9D9AB}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\z80\bit-set-reset-and-test\set.yaml = ..\definitions\z80\bit-set-reset-and-test\set.yaml
+		..\definitions\z80\bit-set-reset-and-test\bit.yaml = ..\definitions\z80\bit-set-reset-and-test\bit.yaml
+		..\definitions\z80\bit-set-reset-and-test\res.yaml = ..\definitions\z80\bit-set-reset-and-test\res.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "call-and-return", "call-and-return", "{570409D5-C21E-4049-A61D-AE7D24A77669}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\z80\call-and-return\retn.yaml = ..\definitions\z80\call-and-return\retn.yaml
+		..\definitions\z80\call-and-return\ret.yaml = ..\definitions\z80\call-and-return\ret.yaml
+		..\definitions\z80\call-and-return\rst.yaml = ..\definitions\z80\call-and-return\rst.yaml
+		..\definitions\z80\call-and-return\call.yaml = ..\definitions\z80\call-and-return\call.yaml
+		..\definitions\z80\call-and-return\reti.yaml = ..\definitions\z80\call-and-return\reti.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "exchange-block-transfer-and-search", "exchange-block-transfer-and-search", "{4A00B689-6673-4B0B-A9F3-A9195093AFCB}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\z80\exchange-block-transfer-and-search\ldi.yaml = ..\definitions\z80\exchange-block-transfer-and-search\ldi.yaml
+		..\definitions\z80\exchange-block-transfer-and-search\ldir.yaml = ..\definitions\z80\exchange-block-transfer-and-search\ldir.yaml
+		..\definitions\z80\exchange-block-transfer-and-search\ldd.yaml = ..\definitions\z80\exchange-block-transfer-and-search\ldd.yaml
+		..\definitions\z80\exchange-block-transfer-and-search\ex.yaml = ..\definitions\z80\exchange-block-transfer-and-search\ex.yaml
+		..\definitions\z80\exchange-block-transfer-and-search\lddr.yaml = ..\definitions\z80\exchange-block-transfer-and-search\lddr.yaml
+		..\definitions\z80\exchange-block-transfer-and-search\cpdr.yaml = ..\definitions\z80\exchange-block-transfer-and-search\cpdr.yaml
+		..\definitions\z80\exchange-block-transfer-and-search\cpi.yaml = ..\definitions\z80\exchange-block-transfer-and-search\cpi.yaml
+		..\definitions\z80\exchange-block-transfer-and-search\exx.yaml = ..\definitions\z80\exchange-block-transfer-and-search\exx.yaml
+		..\definitions\z80\exchange-block-transfer-and-search\cpir.yaml = ..\definitions\z80\exchange-block-transfer-and-search\cpir.yaml
+		..\definitions\z80\exchange-block-transfer-and-search\cpd.yaml = ..\definitions\z80\exchange-block-transfer-and-search\cpd.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "general-purpose-arithmetic-and-cpu-control", "general-purpose-arithmetic-and-cpu-control", "{48E01C21-7F93-48B6-AC12-D3D1F4311FA1}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\z80\general-purpose-arithmetic-and-cpu-control\cpl.yaml = ..\definitions\z80\general-purpose-arithmetic-and-cpu-control\cpl.yaml
+		..\definitions\z80\general-purpose-arithmetic-and-cpu-control\ei.yaml = ..\definitions\z80\general-purpose-arithmetic-and-cpu-control\ei.yaml
+		..\definitions\z80\general-purpose-arithmetic-and-cpu-control\daa.yaml = ..\definitions\z80\general-purpose-arithmetic-and-cpu-control\daa.yaml
+		..\definitions\z80\general-purpose-arithmetic-and-cpu-control\scf.yaml = ..\definitions\z80\general-purpose-arithmetic-and-cpu-control\scf.yaml
+		..\definitions\z80\general-purpose-arithmetic-and-cpu-control\di.yaml = ..\definitions\z80\general-purpose-arithmetic-and-cpu-control\di.yaml
+		..\definitions\z80\general-purpose-arithmetic-and-cpu-control\nop.yaml = ..\definitions\z80\general-purpose-arithmetic-and-cpu-control\nop.yaml
+		..\definitions\z80\general-purpose-arithmetic-and-cpu-control\neg.yaml = ..\definitions\z80\general-purpose-arithmetic-and-cpu-control\neg.yaml
+		..\definitions\z80\general-purpose-arithmetic-and-cpu-control\im.yaml = ..\definitions\z80\general-purpose-arithmetic-and-cpu-control\im.yaml
+		..\definitions\z80\general-purpose-arithmetic-and-cpu-control\halt.yaml = ..\definitions\z80\general-purpose-arithmetic-and-cpu-control\halt.yaml
+		..\definitions\z80\general-purpose-arithmetic-and-cpu-control\ccf.yaml = ..\definitions\z80\general-purpose-arithmetic-and-cpu-control\ccf.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "input-and-output", "input-and-output", "{99BA9244-B547-4E3D-A04F-38A90BBE2162}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\z80\input-and-output\indr.yaml = ..\definitions\z80\input-and-output\indr.yaml
+		..\definitions\z80\input-and-output\otdr.yaml = ..\definitions\z80\input-and-output\otdr.yaml
+		..\definitions\z80\input-and-output\ind.yaml = ..\definitions\z80\input-and-output\ind.yaml
+		..\definitions\z80\input-and-output\inir.yaml = ..\definitions\z80\input-and-output\inir.yaml
+		..\definitions\z80\input-and-output\in.yaml = ..\definitions\z80\input-and-output\in.yaml
+		..\definitions\z80\input-and-output\out.yaml = ..\definitions\z80\input-and-output\out.yaml
+		..\definitions\z80\input-and-output\ini.yaml = ..\definitions\z80\input-and-output\ini.yaml
+		..\definitions\z80\input-and-output\outi.yaml = ..\definitions\z80\input-and-output\outi.yaml
+		..\definitions\z80\input-and-output\otir.yaml = ..\definitions\z80\input-and-output\otir.yaml
+		..\definitions\z80\input-and-output\outd.yaml = ..\definitions\z80\input-and-output\outd.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "jump", "jump", "{939A3024-4236-45C6-94EC-2F739C03918B}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\z80\jump\jp.yaml = ..\definitions\z80\jump\jp.yaml
+		..\definitions\z80\jump\djnz.yaml = ..\definitions\z80\jump\djnz.yaml
+		..\definitions\z80\jump\jr.yaml = ..\definitions\z80\jump\jr.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rotate-and-shift", "rotate-and-shift", "{067A3691-A480-429E-8731-6A3778429310}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\z80\rotate-and-shift\sra.yaml = ..\definitions\z80\rotate-and-shift\sra.yaml
+		..\definitions\z80\rotate-and-shift\rld.yaml = ..\definitions\z80\rotate-and-shift\rld.yaml
+		..\definitions\z80\rotate-and-shift\sla.yaml = ..\definitions\z80\rotate-and-shift\sla.yaml
+		..\definitions\z80\rotate-and-shift\srl.yaml = ..\definitions\z80\rotate-and-shift\srl.yaml
+		..\definitions\z80\rotate-and-shift\rrc.yaml = ..\definitions\z80\rotate-and-shift\rrc.yaml
+		..\definitions\z80\rotate-and-shift\rlca.yaml = ..\definitions\z80\rotate-and-shift\rlca.yaml
+		..\definitions\z80\rotate-and-shift\rra.yaml = ..\definitions\z80\rotate-and-shift\rra.yaml
+		..\definitions\z80\rotate-and-shift\rrca.yaml = ..\definitions\z80\rotate-and-shift\rrca.yaml
+		..\definitions\z80\rotate-and-shift\rl.yaml = ..\definitions\z80\rotate-and-shift\rl.yaml
+		..\definitions\z80\rotate-and-shift\sll.yaml = ..\definitions\z80\rotate-and-shift\sll.yaml
+		..\definitions\z80\rotate-and-shift\rrd.yaml = ..\definitions\z80\rotate-and-shift\rrd.yaml
+		..\definitions\z80\rotate-and-shift\rla.yaml = ..\definitions\z80\rotate-and-shift\rla.yaml
+		..\definitions\z80\rotate-and-shift\rr.yaml = ..\definitions\z80\rotate-and-shift\rr.yaml
+		..\definitions\z80\rotate-and-shift\rlc.yaml = ..\definitions\z80\rotate-and-shift\rlc.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -128,5 +208,16 @@ Global
 		{4C2E5424-BCEA-47D9-82A3-D9894FDFAC41} = {C18D2C0D-B892-41EF-AA43-20F981CA5A56}
 		{FA51A712-6207-480C-8868-AA0D66A6A601} = {CF6CC39D-85D3-443F-B491-4552DB6C50FD}
 		{448255F6-03C3-498E-800B-1CB149319459} = {FA51A712-6207-480C-8868-AA0D66A6A601}
+		{A47A6EEC-AEF6-41CF-AD3C-A5C80845A97C} = {4C2E5424-BCEA-47D9-82A3-D9894FDFAC41}
+		{2AEF37CE-1AD2-4761-AA1A-A2558CF8071B} = {4C2E5424-BCEA-47D9-82A3-D9894FDFAC41}
+		{A59EBA30-DD92-4D0C-96F0-11C856EF1354} = {4C2E5424-BCEA-47D9-82A3-D9894FDFAC41}
+		{0F91056D-21E8-442D-8FF6-E231AE2E3401} = {4C2E5424-BCEA-47D9-82A3-D9894FDFAC41}
+		{7F4505BD-81F8-44F2-AF91-A5F1A9D9D9AB} = {4C2E5424-BCEA-47D9-82A3-D9894FDFAC41}
+		{570409D5-C21E-4049-A61D-AE7D24A77669} = {4C2E5424-BCEA-47D9-82A3-D9894FDFAC41}
+		{4A00B689-6673-4B0B-A9F3-A9195093AFCB} = {4C2E5424-BCEA-47D9-82A3-D9894FDFAC41}
+		{48E01C21-7F93-48B6-AC12-D3D1F4311FA1} = {4C2E5424-BCEA-47D9-82A3-D9894FDFAC41}
+		{99BA9244-B547-4E3D-A04F-38A90BBE2162} = {4C2E5424-BCEA-47D9-82A3-D9894FDFAC41}
+		{939A3024-4236-45C6-94EC-2F739C03918B} = {4C2E5424-BCEA-47D9-82A3-D9894FDFAC41}
+		{067A3691-A480-429E-8731-6A3778429310} = {4C2E5424-BCEA-47D9-82A3-D9894FDFAC41}
 	EndGlobalSection
 EndGlobal

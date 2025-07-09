@@ -1,0 +1,127 @@
+instructions:       
+  - group: 8-Bit Arithmetic
+    mnemonic: ADC A, R0
+    opcodes:
+      - opcode: 0x88
+        R0: B
+      - opcode: 0x89
+        R0: C
+      - opcode: 0x8A
+        R0: D
+      - opcode: 0x8B
+        R0: E
+      - opcode: 0x8C
+        R0: H
+      - opcode: 0x8D
+        R0: L
+      - opcode: 0x8F
+        R0: A
+        
+      - opcode: 0xDD 0x88
+        R0: B
+      - opcode: 0xDD 0x89
+        R0: C
+      - opcode: 0xDD 0x8A
+        R0: D
+      - opcode: 0xDD 0x8B
+        R0: E
+      - opcode: 0xDD 0x8C
+        R0: IXH
+      - opcode: 0xDD 0x8D
+        R0: IXL
+      - opcode: 0xDD 0x8F
+        R0: A
+        
+      - opcode: 0xFD 0x88
+        R0: B
+      - opcode: 0xFD 0x89
+        R0: C
+      - opcode: 0xFD 0x8A
+        R0: D
+      - opcode: 0xFD 0x8B
+        R0: E
+      - opcode: 0xFD 0x8C
+        R0: IYH
+      - opcode: 0xFD 0x8D
+        R0: IYL
+      - opcode: 0xFD 0x8F
+        R0: A
+    steps:
+      - $left = A; $right = R0; $result = $left + $right + flag.C; A = $result; flags();
+    flags:
+      C: ($result & 0x100) == 0x100
+      N: 0
+      PV: did_8_bit_addition_overflow($left, $right, $result)
+      X: copy_from($result)
+      H: did_8_bit_addition_half_carry($left, $right, $result)
+      Y: copy_from($result)
+      Z: is_zero(A) # Must take from A rather than $result as $result is an Int32 and could be not zero when A is zero.
+      S: copy_from($result)
+    next_opcode: overlapped
+
+  - group: 8-Bit Arithmetic
+    mnemonic: ADC A, n
+    opcodes:
+      - opcode: 0xCE
+      - opcode: 0xDD 0xCE
+      - opcode: 0xFD 0xCE
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      -
+      - $left = A; $right = Data; $result = $left + $right + flag.C; A = $result; flags();
+    flags:
+      C: ($result & 0x100) == 0x100
+      N: 0
+      PV: did_8_bit_addition_overflow($left, $right, $result)
+      X: copy_from($result)
+      H: did_8_bit_addition_half_carry($left, $right, $result)
+      Y: copy_from($result)
+      Z: is_zero(A)
+      S: copy_from($result)
+    
+  - group: 8-Bit Arithmetic
+    mnemonic: ADC A, (HL)
+    opcodes:
+      - opcode: 0x8E
+    steps:
+      - Address = HL; request(action.memory_read);
+      - $left = A; $right = Data; $result = $left + $right + flag.C; A = $result; flags();
+      - 
+    flags:
+      C: ($result & 0x100) == 0x100
+      N: 0
+      PV: did_8_bit_addition_overflow($left, $right, $result)
+      X: copy_from($result)
+      H: did_8_bit_addition_half_carry($left, $right, $result)
+      Y: copy_from($result)
+      Z: is_zero(A)
+      S: copy_from($result)
+    
+  - group: 8-Bit Arithmetic
+    mnemonic: ADC A, (RP0 + n)
+    opcodes:
+      - opcode: 0xDD 0x8E
+        RP0: IX
+      - opcode: 0xFD 0x8E
+        RP0: IY
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      -
+      -
+      -
+      -
+      -
+      -
+      -
+      - WZ = RP0 + signed(Data); Address = WZ; request(action.memory_read);
+      - $left = A; $right = Data; $result = $left + $right + flag.C; A = $result; flags();
+      -
+    flags:
+      C: ($result & 0x100) == 0x100
+      N: 0
+      PV: did_8_bit_addition_overflow($left, $right, $result)
+      X: copy_from($result)
+      H: did_8_bit_addition_half_carry($left, $right, $result)
+      Y: copy_from($result)
+      Z: is_zero(A)
+      S: copy_from($result)

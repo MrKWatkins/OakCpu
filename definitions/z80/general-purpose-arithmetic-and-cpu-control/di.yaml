@@ -1,0 +1,11 @@
+instructions:
+  - group: General-Purpose Arithmetic and CPU Control
+    mnemonic: DI
+    opcodes:
+      - opcode: 0xF3
+      - opcode: 0xDD 0xF3
+      - opcode: 0xFD 0xF3
+    steps:
+      - IFF1 = false; IFF2 = false;
+    next_opcode: overlapped
+    

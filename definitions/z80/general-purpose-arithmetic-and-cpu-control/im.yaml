@@ -1,0 +1,29 @@
+instructions:
+  - group: General-Purpose Arithmetic and CPU Control
+    mnemonic: IM 0
+    opcodes:
+      - opcode: 0xED 0x46
+      - opcode: 0xED 0x4E
+      - opcode: 0xED 0x66
+      - opcode: 0xED 0x6E
+    steps:
+      - IM = 0;
+    next_opcode: overlapped
+    
+  - group: General-Purpose Arithmetic and CPU Control
+    mnemonic: IM 1
+    opcodes:
+      - opcode: 0xED 0x56
+      - opcode: 0xED 0x76
+    steps:
+      - IM = 1;
+    next_opcode: overlapped
+    
+  - group: General-Purpose Arithmetic and CPU Control
+    mnemonic: IM 2
+    opcodes:
+      - opcode: 0xED 0x5E
+      - opcode: 0xED 0x7E
+    steps:
+      - IM = 2;
+    next_opcode: overlapped

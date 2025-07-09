@@ -1,0 +1,13 @@
+instructions:
+  - group: Exchange, Block Transfer, and Search
+    mnemonic: EXX
+    opcodes:
+      - opcode: 0xD9
+      - opcode: 0xDD 0xD9
+      - opcode: 0xFD 0xD9
+    steps:
+      - |
+        $temp = BC'; BC' = BC; BC = $temp;
+        $temp = DE'; DE' = DE; DE = $temp;
+        $temp = HL'; HL' = HL; HL = $temp;
+    next_opcode: overlapped

@@ -1,0 +1,47 @@
+instructions:
+  - group: Exchange, Block Transfer, and Search
+    mnemonic: EX AF; AF'
+    opcodes:
+      - opcode: 0x08
+      - opcode: 0xDD 0x08
+      - opcode: 0xFD 0x08
+    steps:
+      - $temp = AF'; AF' = AF; AF = $temp;
+    next_opcode: overlapped
+    
+  - group: Exchange, Block Transfer, and Search
+    mnemonic: EX DE; HL
+    opcodes:
+      - opcode: 0xEB
+      - opcode: 0xDD 0xEB
+      - opcode: 0xFD 0xEB
+    steps:
+      - $temp = DE; DE = HL; HL = $temp;
+    next_opcode: overlapped
+    
+  - group: Exchange, Block Transfer, and Search
+    mnemonic: EX (SP); RP0
+    opcodes:
+      - opcode: 0xE3
+        RP0: HL
+      - opcode: 0xDD 0xE3
+        RP0: IX
+      - opcode: 0xFD 0xE3
+        RP0: IY
+    steps:
+      - Address = SP; request(action.memory_read);
+      - Z = Data;
+      - 
+      - Address = SP + 1; request(action.memory_read);
+      - W = Data;
+      - 
+      - 
+      - Data = RP0H; request(action.memory_write); # Skipping setting Address as it is already Address = SP + 1.
+      - 
+      - 
+      - Address = SP; Data = RP0L; request(action.memory_write);
+      - 
+      - 
+      - 
+      - RP0 = WZ;
+    

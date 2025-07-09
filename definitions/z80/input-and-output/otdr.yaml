@@ -1,0 +1,57 @@
+instructions:
+  - group: Input and Output
+    mnemonic: OTDR
+    opcodes:
+      - opcode: 0xED 0xBB
+    steps:
+      -
+      - Address = HL; HL = HL - 1; request(action.memory_read);
+      - B = B - 1;
+      -
+      - Address = BC;
+      - request(action.io_write);
+      - WZ = BC - 1;
+      - |
+        if B == 0;
+          $temp = Data + (L & 0xFF);
+          $x = (B & 0x08) != 0;
+          $y = (B & 0x02) != 0;
+          $h = $temp > 0xFF;
+          $pv = (even_parity(($temp & 0x07) ^ B) == 0x01);
+          flags();
+          instruction_complete();
+        endif;
+      -
+      - PC = PC - 2; WZ = PC + 1;
+      -
+      -
+      - |
+        $temp = Data + (L & 0xFF);
+        $x = (PCH & 0x08) != 0;
+        $y = (PCH & 0x20) != 0;
+        $h;
+        $pv;
+        if $temp > 255;
+          if (Data & 0x80) != 0;
+            $h = (B & 0x0F) == 0;
+            $pv = (even_parity(($temp & 0x07) ^ B) ^ even_parity((B - 1) & 0x07) ^ 0x01) == 0x01;
+          else;
+            $h = (B & 0x0F) == 0x0F;
+            $pv = (even_parity(($temp & 0x07) ^ B) ^ even_parity((B + 1) & 0x07) ^ 0x01) == 0x01;
+          endif;
+        else;
+          $h = false;
+          $pv = (even_parity(($temp & 0x07) ^ B) ^ even_parity(B & 0x07) ^ 0x01) == 0x01;
+        endif;
+        
+        flags();
+
+    flags:
+      C: $temp > 0xFF
+      N: is_negative(Data)
+      PV: $pv
+      X: $x
+      H: $h
+      Y: $y
+      Z: B == 0
+      S: is_negative(B)

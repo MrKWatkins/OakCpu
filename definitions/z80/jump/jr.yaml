@@ -1,0 +1,56 @@
+instructions:
+  - group: Jump
+    mnemonic: JR d
+    opcodes:
+      - opcode: 0x18
+      - opcode: 0xDD 0x18
+      - opcode: 0xFD 0x18
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - 
+      - 
+      - PC = PC + signed(Data); WZ = PC;
+      - 
+      - 
+      - 
+      - 
+    
+  - group: Jump
+    mnemonic: JR C0, d
+    opcodes:
+      - opcode: 0x20
+        C0: NZ
+      - opcode: 0x28
+        C0: Z
+      - opcode: 0x30
+        C0: NC
+      - opcode: 0x38
+        C0: C
+        
+      - opcode: 0xDD 0x20
+        C0: NZ
+      - opcode: 0xDD 0x28
+        C0: Z
+      - opcode: 0xDD 0x30
+        C0: NC
+      - opcode: 0xDD 0x38
+        C0: C
+        
+      - opcode: 0xFD 0x20
+        C0: NZ
+      - opcode: 0xFD 0x28
+        C0: Z
+      - opcode: 0xFD 0x30
+        C0: NC
+      - opcode: 0xFD 0x38
+        C0: C
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - 
+      - if !condition.C0; instruction_complete(); endif;
+      - PC = PC + signed(Data); WZ = PC;
+      - 
+      - 
+      - 
+      - 
+    

@@ -24,9 +24,9 @@ public sealed class FuseTests
 
         // The following tests disagree with the Single Step tests.
         // TODO: Use the netlist simulator to work out which one is actually correct.
-        ["edb9_2"] = FuseTestSuite.DefaultAssertions & ~TestAssertions.X & ~TestAssertions.F,
         ["edb2_1"] = FuseTestSuite.DefaultAssertions & ~TestAssertions.PV & ~TestAssertions.X & ~TestAssertions.F & ~TestAssertions.WZ,
         ["edb3_1"] = FuseTestSuite.DefaultAssertions & ~TestAssertions.PV & ~TestAssertions.H & ~TestAssertions.F & ~TestAssertions.WZ,
+        ["edb9_2"] = FuseTestSuite.DefaultAssertions & ~TestAssertions.X & ~TestAssertions.F,
         ["edba_1"] = FuseTestSuite.DefaultAssertions & ~TestAssertions.WZ,
         ["edbb_1"] = FuseTestSuite.DefaultAssertions & ~TestAssertions.PV & ~TestAssertions.H & ~TestAssertions.F & ~TestAssertions.WZ
     };

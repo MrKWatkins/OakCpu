@@ -1,0 +1,181 @@
+instructions:
+  - group: 8-Bit Arithmetic
+    mnemonic: ADD RP0, RP1
+    opcodes:
+      - opcode: 0x09
+        RP0: HL
+        RP1: BC
+      - opcode: 0x19
+        RP0: HL
+        RP1: DE
+      - opcode: 0x29
+        RP0: HL
+        RP1: HL
+      - opcode: 0x39
+        RP0: HL
+        RP1: SP
+      - opcode: 0xDD 0x09
+        RP0: IX
+        RP1: BC
+      - opcode: 0xDD 0x19
+        RP0: IX
+        RP1: DE
+      - opcode: 0xDD 0x29
+        RP0: IX
+        RP1: IX
+      - opcode: 0xDD 0x39
+        RP0: IX
+        RP1: SP
+      - opcode: 0xFD 0x09
+        RP0: IY
+        RP1: BC
+      - opcode: 0xFD 0x19
+        RP0: IY
+        RP1: DE
+      - opcode: 0xFD 0x29
+        RP0: IY
+        RP1: IY
+      - opcode: 0xFD 0x39
+        RP0: IY
+        RP1: SP
+    steps:
+      - $left = RP0; $right = RP1; $result = $left + $right; RP0 = $result; WZ = $left + 1; flags();
+      - 
+      - 
+      - 
+      - 
+      - 
+      - 
+    flags:
+      C: ($result & 0x10000) == 0x10000
+      N: 0
+      X: copy_from(RP0H)
+      H: did_16_bit_addition_half_carry($left, $right, $result)
+      Y: copy_from(RP0H)
+        
+  - group: 8-Bit Arithmetic
+    mnemonic: ADD A, R0
+    opcodes:
+      - opcode: 0x80
+        R0: B
+      - opcode: 0x81
+        R0: C
+      - opcode: 0x82
+        R0: D
+      - opcode: 0x83
+        R0: E
+      - opcode: 0x84
+        R0: H
+      - opcode: 0x85
+        R0: L
+      - opcode: 0x87
+        R0: A
+        
+      - opcode: 0xDD 0x80
+        R0: B
+      - opcode: 0xDD 0x81
+        R0: C
+      - opcode: 0xDD 0x82
+        R0: D
+      - opcode: 0xDD 0x83
+        R0: E
+      - opcode: 0xDD 0x84
+        R0: IXH
+      - opcode: 0xDD 0x85
+        R0: IXL
+      - opcode: 0xDD 0x87
+        R0: A
+        
+      - opcode: 0xFD 0x80
+        R0: B
+      - opcode: 0xFD 0x81
+        R0: C
+      - opcode: 0xFD 0x82
+        R0: D
+      - opcode: 0xFD 0x83
+        R0: E
+      - opcode: 0xFD 0x84
+        R0: IYH
+      - opcode: 0xFD 0x85
+        R0: IYL
+      - opcode: 0xFD 0x87
+        R0: A
+    steps:
+      - $left = A; $right = R0; $result = $left + $right; A = $result; flags();
+    flags:
+      C: ($result & 0x100) == 0x100
+      N: 0
+      PV: did_8_bit_addition_overflow($left, $right, $result)
+      X: copy_from($result)
+      H: did_8_bit_addition_half_carry($left, $right, $result)
+      Y: copy_from($result)
+      Z: is_zero(A)
+      S: copy_from($result)
+    next_opcode: overlapped
+    
+  - group: 8-Bit Arithmetic
+    mnemonic: ADD A, n
+    opcodes:
+      - opcode: 0xC6
+      - opcode: 0xDD 0xC6
+      - opcode: 0xFD 0xC6
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      -
+      - $left = A; $right = Data; $result = $left + $right; A = $result; flags();
+    flags:
+      C: ($result & 0x100) == 0x100
+      N: 0
+      PV: did_8_bit_addition_overflow($left, $right, $result)
+      X: copy_from($result)
+      H: did_8_bit_addition_half_carry($left, $right, $result)
+      Y: copy_from($result)
+      Z: is_zero(A)
+      S: copy_from($result)
+
+  - group: 8-Bit Arithmetic
+    mnemonic: ADD A, (HL)
+    opcodes:
+      - opcode: 0x86
+    steps:
+      - Address = HL; request(action.memory_read);
+      - 
+      - $left = A; $right = Data; $result = $left + $right; A = $result; flags();
+    flags:
+      C: ($result & 0x100) == 0x100
+      N: 0
+      PV: did_8_bit_addition_overflow($left, $right, $result)
+      X: copy_from($result)
+      H: did_8_bit_addition_half_carry($left, $right, $result)
+      Y: copy_from($result)
+      Z: is_zero(A)
+      S: copy_from($result)
+
+  - group: 8-Bit Arithmetic
+    mnemonic: ADD A, (RP0 + n)
+    opcodes:
+      - opcode: 0xDD 0x86
+        RP0: IX
+      - opcode: 0xFD 0x86
+        RP0: IY
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - 
+      -
+      -
+      -
+      -
+      -
+      -
+      - WZ = RP0 + signed(Data); Address = WZ; request(action.memory_read);
+      - $left = A; $right = Data; $result = $left + $right; A = $result; flags();
+      - 
+    flags:
+      C: ($result & 0x100) == 0x100
+      N: 0
+      PV: did_8_bit_addition_overflow($left, $right, $result)
+      X: copy_from($result)
+      H: did_8_bit_addition_half_carry($left, $right, $result)
+      Y: copy_from($result)
+      Z: is_zero(A)
+      S: copy_from($result)

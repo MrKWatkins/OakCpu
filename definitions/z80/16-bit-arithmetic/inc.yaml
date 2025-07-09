@@ -1,0 +1,33 @@
+instructions:
+  - group: 16-Bit Arithmetic
+    mnemonic: INC RP0
+    opcodes:
+      - opcode: 0x03
+        RP0: BC
+      - opcode: 0x13
+        RP0: DE
+      - opcode: 0x23
+        RP0: HL
+      - opcode: 0x33
+        RP0: SP
+        
+      - opcode: 0xDD 0x03
+        RP0: BC
+      - opcode: 0xDD 0x13
+        RP0: DE
+      - opcode: 0xDD 0x23
+        RP0: IX
+      - opcode: 0xDD 0x33
+        RP0: SP
+        
+      - opcode: 0xFD 0x03
+        RP0: BC
+      - opcode: 0xFD 0x13
+        RP0: DE
+      - opcode: 0xFD 0x23
+        RP0: IY
+      - opcode: 0xFD 0x33
+        RP0: SP
+    steps:
+      - RP0 = RP0 + 1;
+      - 

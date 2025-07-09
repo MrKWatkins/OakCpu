@@ -1,0 +1,15 @@
+instructions:
+  - group: General-Purpose Arithmetic and CPU Control
+    mnemonic: CPL
+    opcodes:
+      - opcode: 0x2F
+      - opcode: 0xDD 0x2F
+      - opcode: 0xFD 0x2F
+    steps:
+      - A = ~A; flags();
+    flags:
+      N: 1
+      X: copy_from(A)
+      H: 1
+      Y: copy_from(A)
+    next_opcode: overlapped

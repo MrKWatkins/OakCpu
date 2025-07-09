@@ -1,0 +1,52 @@
+instructions:
+  - group: 8-Bit Load
+    mnemonic: LD R0, n
+    opcodes:
+      - opcode: 0x06
+        R0: B
+      - opcode: 0x0E
+        R0: C
+      - opcode: 0x16
+        R0: D
+      - opcode: 0x1E
+        R0: E
+      - opcode: 0x26
+        R0: H
+      - opcode: 0x2E
+        R0: L
+      - opcode: 0x3E
+        R0: A
+        
+      - opcode: 0xDD 0x06
+        R0: B
+      - opcode: 0xDD 0x0E
+        R0: C
+      - opcode: 0xDD 0x16
+        R0: D
+      - opcode: 0xDD 0x1E
+        R0: E
+      - opcode: 0xDD 0x26
+        R0: IXH
+      - opcode: 0xDD 0x2E
+        R0: IXL
+      - opcode: 0xDD 0x3E
+        R0: A
+        
+      - opcode: 0xFD 0x06
+        R0: B
+      - opcode: 0xFD 0x0E
+        R0: C
+      - opcode: 0xFD 0x16
+        R0: D
+      - opcode: 0xFD 0x1E
+        R0: E
+      - opcode: 0xFD 0x26
+        R0: IYH
+      - opcode: 0xFD 0x2E
+        R0: IYL
+      - opcode: 0xFD 0x3E
+        R0: A
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - R0 = Data;
+      - 

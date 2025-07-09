@@ -25,7 +25,7 @@ public abstract class TestFixture
     protected static async Task<YamlFile> LoadZ80Yaml()
     {
         var yamls = new List<YamlFile>();
-        foreach (var file in Directory.GetFiles(Z80DefinitionsDirectory, "*.yaml"))
+        foreach (var file in Directory.GetFiles(Z80DefinitionsDirectory, "*.yaml", SearchOption.AllDirectories))
         {
             yamls.Add(await DeserializeYamlAsync<YamlFile>(file));
         }

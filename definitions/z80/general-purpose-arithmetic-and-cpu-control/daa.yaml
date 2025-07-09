@@ -1,0 +1,49 @@
+instructions:
+  - group: General-Purpose Arithmetic and CPU Control
+    mnemonic: DAA
+    opcodes:
+      - opcode: 0x27
+      - opcode: 0xDD 0x27
+      - opcode: 0xFD 0x27
+    steps:
+      - |
+        $low_a = A & 0x0F;
+        $modifier = 0x00;
+        if flag.H || $low_a > 0x09;
+            $modifier = $modifier + 0x06;
+        endif;
+        
+        $carry = 0x00;
+        if flag.C || A > 0x99;
+            $modifier = $modifier + 0x60;
+            $carry = 0xFF;
+        endif;
+        
+        if flag.N;
+          A = A - $modifier;
+        else;
+          A = A + $modifier;
+        endif;
+
+        $half_carry = 0x00;
+        if flag.N;
+          if flag.H && ($low_a < 0x06);
+            $half_carry = 0xFF;
+          endif;
+        else;
+          if $low_a >= 0x0A;
+            $half_carry = 0xFF;
+          endif;
+        endif;
+        
+        flags();
+    flags:
+      C: copy_from($carry)
+      PV: even_parity(A)
+      X: copy_from(A)
+      H: copy_from($half_carry)
+      Y: copy_from(A)
+      Z: is_zero(A)
+      S: copy_from(A)
+
+    next_opcode: overlapped

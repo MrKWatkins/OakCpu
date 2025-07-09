@@ -1,0 +1,24 @@
+instructions:
+  - group: Rotate and Shift
+    mnemonic: RLD
+    opcodes:
+      - opcode: 0xED 0x6F
+    steps:
+      - Address = HL; request(action.memory_read);
+      - 
+      -
+      -
+      -
+      -
+      -
+      - $lowA = A & 0x0F; A = (A & 0xF0) | (Data >> 4); Data = (Data << 4) | $lowA; flags(); WZ = HL + 1; Address = HL; request(action.memory_write);
+      - 
+      - 
+    flags:
+      N: 0
+      PV: even_parity(A)
+      X: copy_from(A)
+      H: 0
+      Y: copy_from(A)
+      Z: is_zero(A)
+      S: copy_from(A)

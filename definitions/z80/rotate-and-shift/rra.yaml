@@ -1,0 +1,16 @@
+instructions:
+  - group: Rotate and Shift
+    mnemonic: RRA
+    opcodes:
+      - opcode: 0x1F
+      - opcode: 0xDD 0x1F
+      - opcode: 0xFD 0x1F
+    steps:
+      - $temp = A; A = (A >> 1) | (flag.C << 7); flags();
+    flags:
+      C: ($temp & 0x01) == 0x01
+      N: 0
+      X: copy_from(A)
+      H: 0
+      Y: copy_from(A)
+    next_opcode: overlapped

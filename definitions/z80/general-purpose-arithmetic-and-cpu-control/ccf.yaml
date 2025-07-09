@@ -1,0 +1,16 @@
+instructions:
+  - group: General-Purpose Arithmetic and CPU Control
+    mnemonic: CCF
+    opcodes:
+      - opcode: 0x3F
+      - opcode: 0xDD 0x3F
+      - opcode: 0xFD 0x3F
+    steps:
+      - $xy = (Q ^ F) | A; flags();
+    flags:
+      C: flag.C == 0
+      N: 0
+      X: copy_from($xy)
+      H: flag.C
+      Y: copy_from($xy)
+    next_opcode: overlapped
