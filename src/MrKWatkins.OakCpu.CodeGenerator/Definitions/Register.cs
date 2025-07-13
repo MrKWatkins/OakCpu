@@ -5,7 +5,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Register
 {
-    internal Register(string name, DataType type, bool flags, bool programCounter, string? category, int fieldOffset, bool hasRegisterClassProperty)
+    internal Register(string name, DataType type, bool flags, bool programCounter, string? category, int fieldOffset, bool hasRegisterClassProperty, Register? parent)
     {
         Name = name;
         Type = type;
@@ -14,6 +14,7 @@ public sealed class Register
         Category = category;
         FieldOffset = fieldOffset;
         HasRegisterClassProperty = hasRegisterClassProperty;
+        Parent = parent;
     }
 
     public string Name { get; }
@@ -35,6 +36,8 @@ public sealed class Register
     public int FieldOffset { get; }
 
     public bool HasRegisterClassProperty { get; }
+
+    public Register? Parent { get; }
 
     public Register? HighRegister { get; private set; }
 
@@ -59,20 +62,20 @@ public sealed class Register
         var u8Size = DataType.U8.Size();
         foreach (var yaml in Order(yamls.Where(y => y.Type == DataType.U16)))
         {
-            var registerPair = new Register(yaml.Name, yaml.Type, yaml.Flags, yaml.ProgramCounter, yaml.Category, fieldOffset, true);
+            var registerPair = new Register(yaml.Name, yaml.Type, yaml.Flags, yaml.ProgramCounter, yaml.Category, fieldOffset, true, null);
             registers.Add(registerPair);
 
             // Little endian; low byte is at the lowest address.
             registerPair.LowRegister = yaml.Low != null
-                ? new Register(yaml.Low.Name, yaml.Low.Type, yaml.Low.Flags, yaml.Low.ProgramCounter, yaml.Low.Category, fieldOffset, true)
-                : new Register(yaml.Name + "L", DataType.U8, false, false, yaml.Category, fieldOffset, false);
+                ? new Register(yaml.Low.Name, yaml.Low.Type, yaml.Low.Flags, yaml.Low.ProgramCounter, yaml.Low.Category, fieldOffset, true, registerPair)
+                : new Register(yaml.Name + "L", DataType.U8, false, false, yaml.Category, fieldOffset, false, registerPair);
 
             registers.Add(registerPair.LowRegister);
             fieldOffset += u8Size;
 
             registerPair.HighRegister = yaml.High != null
-                ? new Register(yaml.High.Name, yaml.High.Type, yaml.High.Flags, yaml.High.ProgramCounter, yaml.High.Category, fieldOffset, true)
-                : new Register(yaml.Name + "H", DataType.U8, false, false, yaml.Category, fieldOffset, false);
+                ? new Register(yaml.High.Name, yaml.High.Type, yaml.High.Flags, yaml.High.ProgramCounter, yaml.High.Category, fieldOffset, true, registerPair)
+                : new Register(yaml.Name + "H", DataType.U8, false, false, yaml.Category, fieldOffset, false, registerPair);
 
             registers.Add(registerPair.HighRegister);
             fieldOffset += u8Size;
@@ -80,7 +83,7 @@ public sealed class Register
 
         foreach (var yaml in Order(yamls.Where(y => y.Type == DataType.U8)))
         {
-            registers.Add(new Register(yaml.Name, yaml.Type, yaml.Flags, yaml.ProgramCounter, yaml.Category, fieldOffset, true));
+            registers.Add(new Register(yaml.Name, yaml.Type, yaml.Flags, yaml.ProgramCounter, yaml.Category, fieldOffset, true, null));
             fieldOffset += u8Size;
         }
 

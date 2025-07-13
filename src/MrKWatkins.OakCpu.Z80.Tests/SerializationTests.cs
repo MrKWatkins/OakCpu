@@ -38,8 +38,8 @@ public sealed class SerializationTests
         var originalHarness = new Z80EmulatorTestHarness(original);
 
         // IM 1.
-        originalHarness.SetByteInMemory(0x0000, 0xED);
-        originalHarness.SetByteInMemory(0x0001, 0x56);
+        originalHarness.WriteByteToMemory(0x0000, 0xED);
+        originalHarness.WriteByteToMemory(0x0001, 0x56);
 
         // 5 steps to read the 0xED and request the next opcode.
         originalHarness.Step(5);
@@ -51,8 +51,8 @@ public sealed class SerializationTests
 
         var copy = Z80Emulator.Deserialize(stream);
         var copyHarness = new Z80EmulatorTestHarness(copy);
-        copyHarness.SetByteInMemory(0x0000, 0xED);
-        copyHarness.SetByteInMemory(0x0000, 0x56);
+        copyHarness.WriteByteToMemory(0x0000, 0xED);
+        copyHarness.WriteByteToMemory(0x0000, 0x56);
 
         // 4 steps to finish reading the 0x56 and perform the instruction. (Instruction is performed with an overlapped read)
         copyHarness.Step(4);

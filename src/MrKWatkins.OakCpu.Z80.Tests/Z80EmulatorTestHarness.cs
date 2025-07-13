@@ -137,9 +137,15 @@ public sealed class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80SteppableT
         set => emulator.interrupt = value;
     }
 
-    public override byte GetByteFromMemory(ushort address) => memory[address];
+    public override byte ReadByteFromMemory(ushort address) => memory[address];
 
-    public override void SetByteInMemory(ushort address, byte value) => memory[address] = value;
+    public override void WriteByteToMemory(ushort address, byte value) => memory[address] = value;
+
+    public override void Reset()
+    {
+        base.Reset();
+        emulator.Reset();
+    }
 
     public override void AssertFail(string message) => Assert.Fail(message + Environment.NewLine);
 
@@ -166,11 +172,14 @@ public sealed class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80SteppableT
         {
             case ActionRequired.OpcodeRead:
             case ActionRequired.MemoryRead:
-                emulator.Data = MemoryRead(emulator.Address);
+                emulator.Data = ReadByteFromMemory(emulator.Address);
                 return;
 
             case ActionRequired.MemoryWrite:
-                MemoryWrite(emulator.Address, emulator.Data);
+                if (RomArea == null || emulator.Address < RomArea.Value.Start || emulator.Address > RomArea.Value.End)
+                {
+                    WriteByteToMemory(emulator.Address, emulator.Data);
+                }
                 return;
 
             case ActionRequired.IoRead:

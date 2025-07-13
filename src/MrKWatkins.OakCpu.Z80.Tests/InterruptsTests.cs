@@ -270,7 +270,7 @@ public sealed class InterruptsTests
             RETI()
         ]);
 
-        z80.SetWordInMemory(0x01E0, 0x000D);
+        z80.WriteWordToMemory(0x01E0, 0x000D);
 
         // EI + IM 2 + LD A, 0x01 + LD I, A.
         z80.Step(27);

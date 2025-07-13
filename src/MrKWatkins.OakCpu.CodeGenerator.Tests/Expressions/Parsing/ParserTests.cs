@@ -34,9 +34,9 @@ public sealed class ParserTests
             new[] { Action.None, new Action("memory_read", 1) }.ToDictionary(a => a.Name),
             new Dictionary<string, Register>
             {
-                ["R"] = new("R", DataType.U8, false, false, null, 0, true),
-                ["RP0"] = new("RP0", DataType.U16, false, false, null, 0, false),
-                ["RP1"] = new("RP1", DataType.U16, false, false, null, 0, false)
+                ["R"] = new("R", DataType.U8, false, false, null, 0, true, null),
+                ["RP0"] = new("RP0", DataType.U16, false, false, null, 0, false, null),
+                ["RP1"] = new("RP1", DataType.U16, false, false, null, 0, false, null)
             },
             new Dictionary<string, Flag>
             {

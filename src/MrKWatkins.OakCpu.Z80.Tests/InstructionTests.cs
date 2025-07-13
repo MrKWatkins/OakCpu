@@ -13,11 +13,11 @@ public sealed class InstructionTests
         };
 
         // Prefixed NOP alternative.
-        emulator.SetByteInMemory(0x8335, 0xED);
-        emulator.SetByteInMemory(0x8336, 0x06);
+        emulator.WriteByteToMemory(0x8335, 0xED);
+        emulator.WriteByteToMemory(0x8336, 0x06);
 
         // CCF.
-        emulator.SetByteInMemory(0x8337, 0x3F);
+        emulator.WriteByteToMemory(0x8337, 0x3F);
 
         // Execute NOP.
         emulator.ExecuteInstruction(TestContext.Progress);
