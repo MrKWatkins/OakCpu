@@ -6,8 +6,8 @@ using static MrKWatkins.OakAsm.Z80.Z80Assembly;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 
-// TODO: Make into a test suite. Remove FluentAssertions.
-// TODO: Review exact timings using Visual Z80 Remix.
+// TODO: Make into a test suite.
+// TODO: Review exact timings using Visual Z80 Remix, especially for instructions with overlapped reads that interrupt, e.g. the overlapped read for NOP is currently skipped.
 // TODO: Interrupts after an overlapped opcode - should we run the first step of the handler? Probably. Confirm with Visual Z80 Remix.
 // TODO: Test resume from HALT is in the right place.
 // Some of these tests are based on https://github.com/floooh/chips-test/blob/master/tests/z80-int.c.
@@ -413,6 +413,9 @@ public sealed class InterruptsTests
         StepAndAssertEvent(z80, CycleType.MemoryRead);
         StepAndAssertEvent(z80, CycleType.None);
         z80.RegisterPC.Should().Equal(0x0003);
+
+        // Interrupt should've been marked as handled.
+        z80.Interrupt.Should().BeFalse();
     }
 
     [Test]

@@ -23,6 +23,8 @@ interrupts:
       interrupt = false;
       handled();
     endif;
+    
+    interrupt = false;
   
   # Move to a separate cycle of opcodes after a HALT. This is to avoid the overhead of checking for halted in opcode_read.
   halted_cycle:
