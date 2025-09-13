@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -15,7 +16,7 @@ public sealed class ActionRequiredGenerator : TypeGenerator
     {
         var members = context.Configuration.Actions.Values
             .OrderBy(a => a.Value)
-            .Select(action => EnumMemberDeclaration([], Identifier(action.EnumName), EqualsValueClause(SyntaxHelpers.GenerateNumericLiteralExpression(action.Value))))
+            .Select(action => EnumMemberDeclaration([], Identifier(action.EnumName), EqualsValueClause(GenerateNumericLiteralExpression(action.Value))))
             .ToArray();
 
         return EnumDeclaration(ActionRequiredEnumName)

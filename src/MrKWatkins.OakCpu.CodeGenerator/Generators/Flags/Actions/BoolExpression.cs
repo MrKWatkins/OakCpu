@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Actions;
 
@@ -30,7 +31,7 @@ internal sealed class BoolExpression : FlagAction
         var shift = Flags[0].Index;
 
         return shift != 0
-            ? BinaryExpression(SyntaxKind.LeftShiftExpression, ParenthesizedExpression(byteExpression), SyntaxHelpers.GenerateNumericLiteralExpression(shift))
+            ? BinaryExpression(SyntaxKind.LeftShiftExpression, ParenthesizedExpression(byteExpression), GenerateNumericLiteralExpression(shift))
             : byteExpression;
     }
 
@@ -43,7 +44,7 @@ internal sealed class BoolExpression : FlagAction
                     SyntaxKind.SimpleMemberAccessExpression,
                     IdentifierName(nameof(Unsafe)),
                     GenericName(Identifier("BitCast"))
-                        .WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>([CommonSyntax.Bool, CommonSyntax.Byte])))))
+                        .WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>([Bool, CommonSyntax.Byte])))))
             .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(value))));
     }
 

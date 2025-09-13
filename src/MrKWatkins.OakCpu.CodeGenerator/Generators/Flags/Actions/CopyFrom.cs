@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Actions;
 
@@ -32,7 +33,7 @@ internal sealed class CopyFrom : FlagAction
         BinaryExpression(
             SyntaxKind.BitwiseAndExpression,
             ExpressionGenerator.GenerateExpressionSyntax(context, Argument),
-            SyntaxHelpers.GenerateBinaryLiteralExpression(BitMask));
+            GenerateBinaryLiteralExpression(BitMask));
 
     internal override string GenerateComment() => $"// Copy {FlagsNames(Flags)} from {Argument}.";
 

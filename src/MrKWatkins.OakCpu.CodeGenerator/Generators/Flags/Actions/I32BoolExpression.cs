@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Actions;
 
@@ -39,8 +40,8 @@ internal sealed class I32BoolExpression : FlagAction
 
         return Shift switch
         {
-            > 0 => BinaryExpression(SyntaxKind.LeftShiftExpression, ParenthesizedExpression(expressionSyntax), SyntaxHelpers.GenerateNumericLiteralExpression(Shift)),
-            < 0 => BinaryExpression(SyntaxKind.RightShiftExpression, ParenthesizedExpression(expressionSyntax), SyntaxHelpers.GenerateNumericLiteralExpression(-Shift)),
+            > 0 => BinaryExpression(SyntaxKind.LeftShiftExpression, ParenthesizedExpression(expressionSyntax), GenerateNumericLiteralExpression(Shift)),
+            < 0 => BinaryExpression(SyntaxKind.RightShiftExpression, ParenthesizedExpression(expressionSyntax), GenerateNumericLiteralExpression(-Shift)),
             _ => expressionSyntax
         };
     }

@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -50,8 +51,8 @@ public sealed class FlagsClassGenerator : TypeGenerator
                 BinaryExpression(
                     SyntaxKind.BitwiseAndExpression,
                     flagsMemberAccess,
-                    SyntaxHelpers.GenerateBinaryLiteralExpression(getMask))),
-            SyntaxHelpers.GenerateNumericLiteralExpression(0));
+                    GenerateBinaryLiteralExpression(getMask))),
+            GenerateNumericLiteralExpression(0));
 
         var setExpression = AssignmentExpression(
             SyntaxKind.SimpleAssignmentExpression,
@@ -64,7 +65,7 @@ public sealed class FlagsClassGenerator : TypeGenerator
                         BinaryExpression(
                             SyntaxKind.BitwiseOrExpression,
                             flagsMemberAccess,
-                            SyntaxHelpers.GenerateBinaryLiteralExpression(setMask)),
+                            GenerateBinaryLiteralExpression(setMask)),
                         BinaryExpression(
                             SyntaxKind.BitwiseAndExpression,
                             flagsMemberAccess,
