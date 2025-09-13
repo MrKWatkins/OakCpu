@@ -33,6 +33,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrKWatkins.OakCpu.CodeGenerator.Tests", "MrKWatkins.OakCpu.CodeGenerator.Tests\MrKWatkins.OakCpu.CodeGenerator.Tests.csproj", "{EBCAA82A-3581-42CB-A6F2-4A1E5842D9EE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{FA51A712-6207-480C-8868-AA0D66A6A601}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\copilot-instructions.md = ..\.github\copilot-instructions.md
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{448255F6-03C3-498E-800B-1CB149319459}"
 	ProjectSection(SolutionItems) = preProject
