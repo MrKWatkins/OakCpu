@@ -32,7 +32,7 @@ internal sealed class CopyFrom : FlagAction
         BinaryExpression(
             SyntaxKind.BitwiseAndExpression,
             ExpressionGenerator.GenerateExpressionSyntax(context, Argument),
-            GenerateBinaryLiteralExpression(BitMask));
+            SyntaxHelpers.GenerateBinaryLiteralExpression(BitMask));
 
     internal override string GenerateComment() => $"// Copy {FlagsNames(Flags)} from {Argument}.";
 

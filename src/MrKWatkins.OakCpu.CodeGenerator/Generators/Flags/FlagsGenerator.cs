@@ -44,13 +44,13 @@ public abstract class FlagsGenerator : Generator
         yield return ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
-                EmulatorMemberIdentifier(context.Configuration.FlagsRegister.FieldName),
+                SyntaxHelpers.EmulatorMemberIdentifier(context.Configuration.FlagsRegister.FieldName),
                 CastExpression(
                     context.Configuration.FlagsRegister.TypeSyntax, IdentifierName(FlagsVariableName))));
     }
 
     private static StatementSyntax CreateInitialize(ExpressionSyntax expression, string comment, List<string> commentsBeforeInitialize) =>
-        InitializeVariableStatement(FlagsVariableName, expression, Int).WithLeadingTrivia(commentsBeforeInitialize.Select(Comment)).WithTrailingTrivia(Comment(comment));
+        SyntaxHelpers.InitializeVariableStatement(FlagsVariableName, expression, CommonSyntax.Int).WithLeadingTrivia(commentsBeforeInitialize.Select(Comment)).WithTrailingTrivia(Comment(comment));
 
     [Pure]
     private static StatementSyntax CreateFlagsOrAssignment(ExpressionSyntax expression, string comment) =>

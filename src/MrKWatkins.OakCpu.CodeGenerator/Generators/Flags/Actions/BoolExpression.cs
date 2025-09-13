@@ -30,7 +30,7 @@ internal sealed class BoolExpression : FlagAction
         var shift = Flags[0].Index;
 
         return shift != 0
-            ? BinaryExpression(SyntaxKind.LeftShiftExpression, ParenthesizedExpression(byteExpression), GenerateNumericLiteralExpression(shift))
+            ? BinaryExpression(SyntaxKind.LeftShiftExpression, ParenthesizedExpression(byteExpression), SyntaxHelpers.GenerateNumericLiteralExpression(shift))
             : byteExpression;
     }
 
@@ -43,7 +43,7 @@ internal sealed class BoolExpression : FlagAction
                     SyntaxKind.SimpleMemberAccessExpression,
                     IdentifierName(nameof(Unsafe)),
                     GenericName(Identifier("BitCast"))
-                        .WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>([Bool, Byte])))))
+                        .WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>([CommonSyntax.Bool, CommonSyntax.Byte])))))
             .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(value))));
     }
 

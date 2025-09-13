@@ -39,8 +39,8 @@ internal sealed class I32BoolExpression : FlagAction
 
         return Shift switch
         {
-            > 0 => BinaryExpression(SyntaxKind.LeftShiftExpression, ParenthesizedExpression(expressionSyntax), GenerateNumericLiteralExpression(Shift)),
-            < 0 => BinaryExpression(SyntaxKind.RightShiftExpression, ParenthesizedExpression(expressionSyntax), GenerateNumericLiteralExpression(-Shift)),
+            > 0 => BinaryExpression(SyntaxKind.LeftShiftExpression, ParenthesizedExpression(expressionSyntax), SyntaxHelpers.GenerateNumericLiteralExpression(Shift)),
+            < 0 => BinaryExpression(SyntaxKind.RightShiftExpression, ParenthesizedExpression(expressionSyntax), SyntaxHelpers.GenerateNumericLiteralExpression(-Shift)),
             _ => expressionSyntax
         };
     }

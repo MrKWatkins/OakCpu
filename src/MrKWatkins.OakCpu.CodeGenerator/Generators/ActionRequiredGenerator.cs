@@ -15,7 +15,7 @@ public sealed class ActionRequiredGenerator : TypeGenerator
     {
         var members = context.Configuration.Actions.Values
             .OrderBy(a => a.Value)
-            .Select(action => EnumMemberDeclaration([], Identifier(action.EnumName), EqualsValueClause(GenerateNumericLiteralExpression(action.Value))))
+            .Select(action => EnumMemberDeclaration([], Identifier(action.EnumName), EqualsValueClause(SyntaxHelpers.GenerateNumericLiteralExpression(action.Value))))
             .ToArray();
 
         return EnumDeclaration(ActionRequiredEnumName)
