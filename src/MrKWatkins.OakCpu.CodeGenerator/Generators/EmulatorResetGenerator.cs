@@ -2,6 +2,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -25,7 +26,7 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
             .Concat(GenerateResetDataMembers(context))
             .Concat(GenerateResetRegisters(context));
 
-        return MethodDeclaration(Void, Identifier(ResetMethodName))
+        return MethodDeclaration(VoidType, Identifier(ResetMethodName))
             .WithModifiers([Public])
             .WithBody(Block(statements));
     }

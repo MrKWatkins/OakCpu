@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -70,7 +71,7 @@ public sealed class FlagsClassGenerator : TypeGenerator
                             flagsMemberAccess,
                             GenerateBinaryLiteralExpression(resetMask))))));
 
-        return CreateGetSetProperty(context, Bool, flag.Name, getExpression, setExpression);
+        return CreateGetSetProperty(context, BoolType, flag.Name, getExpression, setExpression);
     }
 
     [Pure]

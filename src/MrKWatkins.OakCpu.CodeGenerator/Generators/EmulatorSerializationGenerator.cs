@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -64,7 +65,7 @@ public sealed class EmulatorSerializationGenerator : EmulatorClassGenerator
             .Concat(GenerateRestoreDataMembers(context))
             .Concat(GenerateRestoreRegisters(context));
 
-        return MethodDeclaration(Void, Identifier(RestoreMethodName))
+        return MethodDeclaration(VoidType, Identifier(RestoreMethodName))
             .WithModifiers([Public])
             .WithParameterList(ParameterList(
             [
@@ -118,7 +119,7 @@ public sealed class EmulatorSerializationGenerator : EmulatorClassGenerator
             .Concat(GenerateSerializeDataMembers(context))
             .Concat(GenerateSerializeRegisters(context));
 
-        return MethodDeclaration(Void, Identifier(SerializeMethodName))
+        return MethodDeclaration(VoidType, Identifier(SerializeMethodName))
             .WithModifiers([Public])
             .WithParameterList(ParameterList(
             [

@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -104,7 +105,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         {
             AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
                 .WithExpressionBody(ArrowExpressionClause(fieldAccessExpression))
-                .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
+                .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
                 .WithSemicolonToken(Semicolon)
         };
 
@@ -118,7 +119,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
             var setter =
                 AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
                     .WithExpressionBody(ArrowExpressionClause(setExpression))
-                    .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
+                    .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
                     .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 
             if (member.SetterVisibility != member.GetterVisibility)
