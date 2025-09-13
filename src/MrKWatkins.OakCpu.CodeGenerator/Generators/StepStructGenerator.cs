@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -19,7 +20,7 @@ public sealed class StepStructGenerator : TypeGenerator
                 [
                     FunctionPointerParameter(IdentifierName(GetEmulatorClassName(context))),
                     FunctionPointerParameter(IdentifierName(ActionRequiredEnumName)).WithModifiers([Ref]),
-                    FunctionPointerParameter(Void)
+                    FunctionPointerParameter(CommonSyntax.Void)
                 ]));
 
         var actionRequiredType = IdentifierName(ActionRequiredEnumName);

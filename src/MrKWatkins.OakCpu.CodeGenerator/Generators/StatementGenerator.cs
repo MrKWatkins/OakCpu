@@ -7,6 +7,7 @@ using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -267,7 +268,7 @@ public abstract class StatementGenerator : Generator
             throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToInterruptMode} must have exactly one argument.");
         }
 
-        var getOpcode = SyntaxHelpers.CreateArrayGetWithoutBoundsCheck(
+        var getOpcode = CreateArrayGetWithoutBoundsCheck(
             context.GeneratorContext.RequiredUsings,
             IdentifierName(InterruptModeStepTableFieldName),
             ExpressionGenerator.GenerateExpressionSyntax(context, call.Arguments[0]));
@@ -278,7 +279,7 @@ public abstract class StatementGenerator : Generator
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateMoveToOpcode(StatementGeneratorContext context)
     {
-        var getOpcode = SyntaxHelpers.CreateArrayGetWithoutBoundsCheck(
+        var getOpcode = CreateArrayGetWithoutBoundsCheck(
             context.GeneratorContext.RequiredUsings,
             EmulatorMemberIdentifier(PreDefinedDataMember.OpcodeStepTable.FieldName),
             EmulatorMemberIdentifier(PreDefinedDataMember.Data.FieldName));

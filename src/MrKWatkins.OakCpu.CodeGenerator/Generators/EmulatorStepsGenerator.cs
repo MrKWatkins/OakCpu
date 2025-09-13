@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -44,7 +45,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
 
         // Aggressively inline step 0 as it is called for overlapped reads.
         function = step == context.OpcodeRead.FirstStep
-            ? function.WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(comment)])
+            ? function.WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(comment)])
             : function.WithLeadingTrivia(comment);
 
         return function;
@@ -52,7 +53,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
 
     [Pure]
     private static MemberDeclarationSyntax CreateFunction(GeneratorContext context, string name, IEnumerable<StatementSyntax> statements) =>
-        MethodDeclaration(Void, Identifier(name))
+        MethodDeclaration(CommonSyntax.Void, Identifier(name))
             .WithModifiers([Private, Static])
             .WithParameterList(ParameterList(
             [
@@ -77,7 +78,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
                         .WithVariables([
                             VariableDeclarator(stepVariableName)
                                 .WithInitializer(
-                                    EqualsValueClause(CreateArrayGetWithoutBoundsCheck(context, IdentifierName(StepsFieldName), IdentifierName(PreDefinedDataMember.CurrentStep.FieldName))))
+                                    EqualsValueClause(CreateArrayGetWithoutBoundsCheck(context.RequiredUsings, IdentifierName(StepsFieldName), IdentifierName(PreDefinedDataMember.CurrentStep.FieldName))))
                         ])),
 
                 // currentStep = node.NextStep;

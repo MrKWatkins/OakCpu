@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 using Boolean = MrKWatkins.OakCpu.CodeGenerator.Language.Ast.Boolean;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -132,7 +133,7 @@ public abstract class ExpressionGenerator : Generator
 
     [Pure]
     private static ExpressionSyntax GenerateIsZeroExpressionSyntax(StatementGeneratorContext context, Expression argument) =>
-        BinaryExpression(SyntaxKind.EqualsExpression, GenerateExpressionSyntax(context, argument), SyntaxHelpers.GenerateNumericLiteralExpression(0));
+        BinaryExpression(SyntaxKind.EqualsExpression, GenerateExpressionSyntax(context, argument), GenerateNumericLiteralExpression(0));
 
     [Pure]
     private static ExpressionSyntax GenerateArgumentAccess(StatementGeneratorContext context, ArgumentAccess argumentAccess)
@@ -146,7 +147,7 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateDataMemberAccess(DataMemberAccess dataMemberAccess) => SyntaxHelpers.EmulatorMemberIdentifier(dataMemberAccess.DataMember.FieldName);
+    private static ExpressionSyntax GenerateDataMemberAccess(DataMemberAccess dataMemberAccess) => EmulatorMemberIdentifier(dataMemberAccess.DataMember.FieldName);
 
     [Pure]
     private static ExpressionSyntax GenerateBoolean(Boolean boolean) => LiteralExpression(boolean.Value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
@@ -155,7 +156,7 @@ public abstract class ExpressionGenerator : Generator
     private static ExpressionSyntax GenerateNumber(Number number) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(number.NumberString, number.Value));
 
     [Pure]
-    private static ExpressionSyntax GenerateRegisterAccess(RegisterAccess registerAccess) => SyntaxHelpers.EmulatorMemberIdentifier(registerAccess.Register.FieldName);
+    private static ExpressionSyntax GenerateRegisterAccess(RegisterAccess registerAccess) => EmulatorMemberIdentifier(registerAccess.Register.FieldName);
 
     [Pure]
     private static ExpressionSyntax GenerateConditionAccess(StatementGeneratorContext context, ConditionAccess conditionAccess, bool invert = false)
@@ -163,11 +164,11 @@ public abstract class ExpressionGenerator : Generator
         var bitMask = (byte)(1 << conditionAccess.Condition.Flag.Index);
 
         // Isolate the flag bit.
-        var isolate = ParenthesizedExpression(BinaryExpression(SyntaxKind.BitwiseAndExpression, SyntaxHelpers.EmulatorMemberIdentifier(context.Configuration.FlagsRegister.FieldName), SyntaxHelpers.GenerateBinaryLiteralExpression(bitMask)));
+        var isolate = ParenthesizedExpression(BinaryExpression(SyntaxKind.BitwiseAndExpression, EmulatorMemberIdentifier(context.Configuration.FlagsRegister.FieldName), GenerateBinaryLiteralExpression(bitMask)));
 
         // Comparison.
         var positive = invert ? conditionAccess.Condition.IsNot : !conditionAccess.Condition.IsNot;
-        var comparison = BinaryExpression(SyntaxKind.EqualsExpression, isolate, SyntaxHelpers.GenerateBinaryLiteralExpression(positive ? bitMask : (byte)0));
+        var comparison = BinaryExpression(SyntaxKind.EqualsExpression, isolate, GenerateBinaryLiteralExpression(positive ? bitMask : (byte)0));
 
         return comparison.WithTrailingTrivia(Comment($"/* {(invert ? "!" : "")}condition.{conditionAccess.Condition.Name} */"));
     }
@@ -178,19 +179,19 @@ public abstract class ExpressionGenerator : Generator
         var bitMask = (byte)(1 << flagAccess.Flag.Index);
 
         // Isolate the flag bit.
-        var expression = BinaryExpression(SyntaxKind.BitwiseAndExpression, SyntaxHelpers.EmulatorMemberIdentifier(context.Configuration.FlagsRegister.FieldName), SyntaxHelpers.GenerateBinaryLiteralExpression(bitMask));
+        var expression = BinaryExpression(SyntaxKind.BitwiseAndExpression, EmulatorMemberIdentifier(context.Configuration.FlagsRegister.FieldName), GenerateBinaryLiteralExpression(bitMask));
 
         // If we're in a boolean context, return a bool, otherwise return an int.
         if (context.InBooleanContext)
         {
-            expression = BinaryExpression(SyntaxKind.EqualsExpression, ParenthesizedExpression(expression), SyntaxHelpers.GenerateBinaryLiteralExpression(bitMask));
+            expression = BinaryExpression(SyntaxKind.EqualsExpression, ParenthesizedExpression(expression), GenerateBinaryLiteralExpression(bitMask));
         }
         else
         {
             // If the index is not 0, shift the bit to the rightmost position.
             if (flagAccess.Flag.Index != 0)
             {
-                expression = BinaryExpression(SyntaxKind.RightShiftExpression, expression, SyntaxHelpers.GenerateNumericLiteralExpression(flagAccess.Flag.Index));
+                expression = BinaryExpression(SyntaxKind.RightShiftExpression, expression, GenerateNumericLiteralExpression(flagAccess.Flag.Index));
             }
         }
 
