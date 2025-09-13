@@ -10,7 +10,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public abstract class TypeGenerator : Generator
 {
-    protected const string EmulatorFieldName = "emulator";
+    protected const string EmulatorFieldName = SyntaxHelpers.EmulatorFieldName;
 
     private protected TypeGenerator()
     {
@@ -72,7 +72,7 @@ public abstract class TypeGenerator : Generator
                 AccessorList(
                 [
                     AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                        .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
+                        .WithAttributeLists([AttributeList([SyntaxHelpers.CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
                         .WithSemicolonToken(Semicolon)
                         .WithTrailingTrivia(NewlineComment, IndentComment)
                 ])
@@ -87,12 +87,12 @@ public abstract class TypeGenerator : Generator
                     [
                         AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
                             .WithExpressionBody(ArrowExpressionClause(getExpression))
-                            .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
+                            .WithAttributeLists([AttributeList([SyntaxHelpers.CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
                             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
 
                         AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
                             .WithExpressionBody(ArrowExpressionClause(setExpression))
-                            .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
+                            .WithAttributeLists([AttributeList([SyntaxHelpers.CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
                             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
                             .WithTrailingTrivia(NewlineComment, IndentComment)
                     ]))
@@ -106,45 +106,19 @@ public abstract class TypeGenerator : Generator
 
     [Pure]
     protected static ExpressionStatementSyntax CreateNewObjectAndAssignToProperty(string propertyName, string classToCreateName, params ExpressionSyntax[] constructorArguments) =>
-        ExpressionStatement(
-            AssignmentExpression(
-                SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName(propertyName),
-                ObjectCreationExpression(IdentifierName(classToCreateName))
-                    .WithArgumentList(
-                        ArgumentList(
-                            SeparatedList(constructorArguments.Select(Argument).ToArray())))));
+        SyntaxHelpers.CreateNewObjectAndAssignToProperty(propertyName, classToCreateName, constructorArguments);
 
     [Pure]
     protected static ExpressionStatementSyntax CreateAssignEmulatorFieldExpression() =>
-        // this.emulator = emulator;
-        ExpressionStatement(
-            AssignmentExpression(
-                SyntaxKind.SimpleAssignmentExpression,
-                MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    ThisExpression(),
-                    IdentifierName(EmulatorFieldName)),
-                IdentifierName(EmulatorFieldName)));
+        SyntaxHelpers.CreateAssignEmulatorFieldExpression();
 
     [MustUseReturnValue]
-    protected static AttributeSyntax CreateMethodImplAttribute(GeneratorContext context, MethodImplOptions options) => CreateMethodImplAttribute(context, options.ToString());
+    protected static AttributeSyntax CreateMethodImplAttribute(GeneratorContext context, MethodImplOptions options) =>
+        SyntaxHelpers.CreateMethodImplAttribute(context.RequiredUsings, options);
 
     [MustUseReturnValue]
-    protected static AttributeSyntax CreateMethodImplAttribute(GeneratorContext context, string options)
-    {
-        context.RequiredUsings.Add("System.Runtime.CompilerServices");
-
-        return Attribute(
-            IdentifierName("MethodImpl"),
-            AttributeArgumentList(
-                SingletonSeparatedList(
-                    AttributeArgument(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName(nameof(MethodImplOptions)),
-                            IdentifierName(options))))));
-    }
+    protected static AttributeSyntax CreateMethodImplAttribute(GeneratorContext context, string options) =>
+        SyntaxHelpers.CreateMethodImplAttribute(context.RequiredUsings, options);
 
     [Pure]
     protected static string GetEmulatorClassName(GeneratorContext context) => $"{context.Cpu.Name}Emulator";
