@@ -50,8 +50,8 @@ public sealed class FlagsClassGenerator : TypeGenerator
                 BinaryExpression(
                     SyntaxKind.BitwiseAndExpression,
                     flagsMemberAccess,
-                    GenerateBinaryLiteralExpression(getMask))),
-            GenerateNumericLiteralExpression(0));
+                    SyntaxHelpers.GenerateBinaryLiteralExpression(getMask))),
+            SyntaxHelpers.GenerateNumericLiteralExpression(0));
 
         var setExpression = AssignmentExpression(
             SyntaxKind.SimpleAssignmentExpression,
@@ -64,7 +64,7 @@ public sealed class FlagsClassGenerator : TypeGenerator
                         BinaryExpression(
                             SyntaxKind.BitwiseOrExpression,
                             flagsMemberAccess,
-                            GenerateBinaryLiteralExpression(setMask)),
+                            SyntaxHelpers.GenerateBinaryLiteralExpression(setMask)),
                         BinaryExpression(
                             SyntaxKind.BitwiseAndExpression,
                             flagsMemberAccess,

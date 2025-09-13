@@ -59,8 +59,8 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
     [Pure]
     private static LiteralExpressionSyntax ResetValue(DataType type) => type switch
     {
-        DataType.U8 => GenerateNumericLiteralExpression(0),
-        DataType.U16 => GenerateNumericLiteralExpression(0),
+        DataType.U8 => SyntaxHelpers.GenerateNumericLiteralExpression(0),
+        DataType.U16 => SyntaxHelpers.GenerateNumericLiteralExpression(0),
         DataType.Bool => LiteralExpression(SyntaxKind.FalseLiteralExpression, Token(SyntaxKind.FalseKeyword)),
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
     };
