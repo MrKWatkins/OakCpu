@@ -14,111 +14,96 @@ public abstract class Generator
     protected const string StepHandlerFieldName = "Handler";
     protected const string StepNextStepFieldName = "NextStep";
     protected const string StepActionRequiredFieldName = "ActionRequired";
-    protected const string EmulatorParameterName = "emulator";
-    protected const string ActionRequiredParameterName = "actionRequired";
+    protected const string EmulatorParameterName = SyntaxHelpers.EmulatorParameterName;
+    protected const string ActionRequiredParameterName = SyntaxHelpers.ActionRequiredParameterName;
     protected const string ErrorFunctionName = "Error";
     protected const string HandleInterruptsMethodName = "HandleInterrupts";
     protected const string InterruptModeStepTableFieldName = "InterruptModeStepTable";
     private const string StepFunctionPrefix = "Step_";
 
     // Filthy hackery to put some newlines and indents where we want because NormalizeWhitespace will remove any normal whitespace we add.
-    protected static readonly string NewlineCommentText = "// Newline";
-    protected static readonly SyntaxTrivia NewlineComment = Comment(NewlineCommentText);
-    protected static readonly SyntaxTrivia IndentComment = Comment("// Indent");
+    protected static readonly string NewlineCommentText = SyntaxHelpers.NewlineCommentText;
+    protected static readonly SyntaxTrivia NewlineComment = SyntaxHelpers.NewlineComment;
+    protected static readonly SyntaxTrivia IndentComment = SyntaxHelpers.IndentComment;
 
     private protected Generator()
     {
     }
 
     [Pure]
-    protected static StatementSyntax InitializeVariableStatement(string variable, ExpressionSyntax value) => InitializeVariableStatement(variable, value, IdentifierName("var"));
+    protected static StatementSyntax InitializeVariableStatement(string variable, ExpressionSyntax value) =>
+        SyntaxHelpers.InitializeVariableStatement(variable, value);
 
     [Pure]
     protected static StatementSyntax InitializeVariableStatement(string variable, ExpressionSyntax value, TypeSyntax type) =>
-        LocalDeclarationStatement(VariableDeclaration(type)
-            .WithVariables(SingletonSeparatedList(
-                VariableDeclarator(Identifier(variable))
-                    .WithInitializer(EqualsValueClause(value)))));
+        SyntaxHelpers.InitializeVariableStatement(variable, value, type);
 
     [Pure]
-    protected static ExpressionSyntax CreateArrayGetWithoutBoundsCheck(GeneratorContext context, ExpressionSyntax array, ExpressionSyntax index)
-    {
-        context.RequiredUsings.Add("System.Runtime.CompilerServices");
-        context.RequiredUsings.Add("System.Runtime.InteropServices");
-
-        // Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(values), index);
-        return InvocationExpression(
-                MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("Unsafe"), IdentifierName("Add")))
-            .WithArgumentList(
-                ArgumentList([
-                    Argument(InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("MemoryMarshal"), IdentifierName("GetArrayDataReference")))
-                            .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(array)))))
-                        .WithRefKindKeyword(Token(SyntaxKind.RefKeyword)),
-                    Argument(index)]));
-    }
+    protected static ExpressionSyntax CreateArrayGetWithoutBoundsCheck(GeneratorContext context, ExpressionSyntax array, ExpressionSyntax index) =>
+        SyntaxHelpers.CreateArrayGetWithoutBoundsCheck(context.RequiredUsings, array, index);
 
     [Pure]
-    protected static PredefinedTypeSyntax Bool => PredefinedType(Token(SyntaxKind.BoolKeyword));
+    protected static PredefinedTypeSyntax Bool => CommonSyntax.Bool;
 
     [Pure]
-    protected static PredefinedTypeSyntax Byte => PredefinedType(Token(SyntaxKind.ByteKeyword));
+    protected static PredefinedTypeSyntax Byte => CommonSyntax.Byte;
 
     [Pure]
-    protected static PredefinedTypeSyntax Int => PredefinedType(Token(SyntaxKind.IntKeyword));
+    protected static PredefinedTypeSyntax Int => CommonSyntax.Int;
 
     [Pure]
-    protected static PredefinedTypeSyntax UShort => PredefinedType(Token(SyntaxKind.UShortKeyword));
+    protected static PredefinedTypeSyntax UShort => CommonSyntax.UShort;
 
     [Pure]
-    protected static TypeSyntax Void => PredefinedType(Token(SyntaxKind.VoidKeyword));
+    protected static TypeSyntax Void => CommonSyntax.Void;
 
     [Pure]
-    protected static SyntaxToken Field => Token(SyntaxKind.FieldKeyword);
+    protected static SyntaxToken Field => CommonSyntax.Field;
 
     [Pure]
-    protected static SyntaxToken Internal => Token(SyntaxKind.InternalKeyword);
+    protected static SyntaxToken Internal => CommonSyntax.Internal;
 
     [Pure]
-    protected static SyntaxToken Partial => Token(SyntaxKind.PartialKeyword);
+    protected static SyntaxToken Partial => CommonSyntax.Partial;
 
     [Pure]
-    protected static SyntaxToken Private => Token(SyntaxKind.PrivateKeyword);
+    protected static SyntaxToken Private => CommonSyntax.Private;
 
     [Pure]
-    protected static SyntaxToken Public => Token(SyntaxKind.PublicKeyword);
+    protected static SyntaxToken Public => CommonSyntax.Public;
 
     [Pure]
-    protected static SyntaxToken ReadOnly => Token(SyntaxKind.ReadOnlyKeyword);
+    protected static SyntaxToken ReadOnly => CommonSyntax.ReadOnly;
 
     [Pure]
-    protected static SyntaxToken Ref => Token(SyntaxKind.RefKeyword);
+    protected static SyntaxToken Ref => CommonSyntax.Ref;
 
     [Pure]
-    protected static SyntaxToken Sealed => Token(SyntaxKind.SealedKeyword);
+    protected static SyntaxToken Sealed => CommonSyntax.Sealed;
 
     [Pure]
-    protected static SyntaxToken Semicolon => Token(SyntaxKind.SemicolonToken);
+    protected static SyntaxToken Semicolon => CommonSyntax.Semicolon;
 
     [Pure]
-    protected static SyntaxToken Static => Token(SyntaxKind.StaticKeyword);
+    protected static SyntaxToken Static => CommonSyntax.Static;
 
     [Pure]
-    protected static SyntaxToken Unsafe => Token(SyntaxKind.UnsafeKeyword);
+    protected static SyntaxToken Unsafe => CommonSyntax.Unsafe;
 
     [Pure]
-    protected static SyntaxToken GenerateBinaryLiteral(byte value) => Literal($"0b{Convert.ToString(value, 2).PadLeft(8, '0')}", value);
+    protected static SyntaxToken GenerateBinaryLiteral(byte value) => SyntaxHelpers.GenerateBinaryLiteral(value);
 
     [Pure]
-    protected static LiteralExpressionSyntax GenerateBinaryLiteralExpression(byte value) => LiteralExpression(SyntaxKind.NumericLiteralExpression, GenerateBinaryLiteral(value));
+    protected static LiteralExpressionSyntax GenerateBinaryLiteralExpression(byte value) => SyntaxHelpers.GenerateBinaryLiteralExpression(value);
 
     [Pure]
-    protected static LiteralExpressionSyntax GenerateNumericLiteralExpression(int value) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(value));
+    protected static LiteralExpressionSyntax GenerateNumericLiteralExpression(int value) => SyntaxHelpers.GenerateNumericLiteralExpression(value);
 
     [Pure]
-    protected static IdentifierNameSyntax EmulatorMemberIdentifier(string name) => IdentifierName($"{EmulatorParameterName}.{name}");
+    protected static IdentifierNameSyntax EmulatorMemberIdentifier(string name) => SyntaxHelpers.EmulatorMemberIdentifier(name);
 
     [Pure]
-    protected static ArgumentSyntax CreateEmulatorArgument() => Argument(IdentifierName(EmulatorParameterName));
+    protected static ArgumentSyntax CreateEmulatorArgument() => SyntaxHelpers.CreateEmulatorArgument();
 
     [Pure]
     protected static string GetStepFunctionName(Step step) => $"{StepFunctionPrefix}{step.Index}";

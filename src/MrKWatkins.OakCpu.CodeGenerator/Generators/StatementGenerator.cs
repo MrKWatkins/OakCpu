@@ -267,8 +267,8 @@ public abstract class StatementGenerator : Generator
             throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToInterruptMode} must have exactly one argument.");
         }
 
-        var getOpcode = CreateArrayGetWithoutBoundsCheck(
-            context.GeneratorContext,
+        var getOpcode = SyntaxHelpers.CreateArrayGetWithoutBoundsCheck(
+            context.GeneratorContext.RequiredUsings,
             IdentifierName(InterruptModeStepTableFieldName),
             ExpressionGenerator.GenerateExpressionSyntax(context, call.Arguments[0]));
 
@@ -278,8 +278,8 @@ public abstract class StatementGenerator : Generator
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateMoveToOpcode(StatementGeneratorContext context)
     {
-        var getOpcode = CreateArrayGetWithoutBoundsCheck(
-            context.GeneratorContext,
+        var getOpcode = SyntaxHelpers.CreateArrayGetWithoutBoundsCheck(
+            context.GeneratorContext.RequiredUsings,
             EmulatorMemberIdentifier(PreDefinedDataMember.OpcodeStepTable.FieldName),
             EmulatorMemberIdentifier(PreDefinedDataMember.Data.FieldName));
 
