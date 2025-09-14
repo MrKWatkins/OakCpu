@@ -8,18 +8,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Tests.Expressions.Parsing;
 
 public sealed class ParserTests
 {
-    [TestCase("")]
-    [TestCase("R = R + 1;", "R = R + 0x01")]
-    [TestCase("R = R & 1;R=R^1;", "R = R & 0x01", "R = R ^ 0x01")]
-    [TestCase("R = R + R & 1;", "R = R + R & 0x01")]
-    [TestCase("R = R + (R & 1);", "R = R + (R & 0x01)")]
-    public void ParseStatements(string statementsText, params string[] expectedParsedExpressions)
-    {
-        var context = CreateContext();
-        var statements = Parser.ParseStatements(context, statementsText);
-        statements.Select(s => s.ToString()).Should().SequenceEqual(expectedParsedExpressions);
-    }
-
+    // Expression positive tests
     [TestCase("RP0 ^ RP1 ^ (RP0 + RP1)", "RP0 ^ RP1 ^ RP0 + RP1")]
     [TestCase("true", "True")]
     [TestCase("false", "False")]
@@ -46,6 +35,8 @@ public sealed class ParserTests
     [TestCase("R + 1 > 5 && R - 1 < 10", "R + 0x01 > 0x05 && R - 0x01 < 0x0A")] // Arithmetic, comparison, and logical operators
     [TestCase("!R == 0 || R > 10", "!(R) == 0x00 || R > 0x0A")] // Unary, comparison, and logical operators
     [TestCase("R & 1 == 1 && R > 0", "R & 0x01 == 0x01 && R > 0x00")] // Bitwise, comparison, and logical operators
+    [TestCase("$temp + R", "temp + R")] // $ prefix is stripped in the AST representation
+    [TestCase("flag.X", "X")] // flag. prefix is stripped in the AST representation
     public void ParseExpression(string expressionText, string expectedParsedExpression)
     {
         var context = CreateContext();
@@ -53,39 +44,38 @@ public sealed class ParserTests
         expression.ToString().Should().Equal(expectedParsedExpression);
     }
 
-    [Test]
-    public void ParseExpression_WithTemporaryVariable()
+    // Expression exception tests
+    [TestCase(null, typeof(ArgumentException), "")]
+    [TestCase("", typeof(ArgumentException), "")]
+    [TestCase("   ", typeof(ArgumentException), "")]
+    [TestCase("(R +", typeof(FormatException), "Exception parsing \"(R +\":")]
+    [TestCase("unknown_identifier", typeof(FormatException), "Unsupported identifier unknown_identifier")]
+    [TestCase("R +", typeof(FormatException), "Unexpected token")]
+    [TestCase(")", typeof(FormatException), "Unexpected token")]
+    [TestCase("(R + 1", typeof(FormatException), "Unexpected token")]
+    public void ParseExpression_ThrowsException(string expressionText, Type expectedExceptionType, string expectedMessageSubstring)
     {
         var context = CreateContext();
-        var expression = Parser.ParseExpression(context, "$temp + R");
-        expression.ToString().Should().Equal("temp + R"); // $ prefix is stripped in the AST representation
+
+        var exception = Assert.Throws(expectedExceptionType, () => Parser.ParseExpression(context, expressionText!));
+        if (!string.IsNullOrEmpty(expectedMessageSubstring))
+        {
+            Assert.That(exception!.Message, Does.Contain(expectedMessageSubstring));
+        }
     }
 
-    [Test]
-    public void ParseExpression_WithFlagAccess()
+    // Statement positive tests
+    [TestCase("", 0)]
+    [TestCase("R = R + 1;", 1, "R = R + 0x01")]
+    [TestCase("R = R & 1;R=R^1;", 2, "R = R & 0x01", "R = R ^ 0x01")]
+    [TestCase("R = R + R & 1;", 1, "R = R + R & 0x01")]
+    [TestCase("R = R + (R & 1);", 1, "R = R + (R & 0x01)")]
+    public void ParseStatements(string statementsText, int expectedCount, params string[] expectedParsedExpressions)
     {
         var context = CreateContext();
-        var expression = Parser.ParseExpression(context, "flag.X");
-        expression.ToString().Should().Equal("X"); // flag. prefix is stripped in the AST representation
-    }
-
-    [Test]
-    public void ParseExpression_NullOrWhitespace_ThrowsArgumentException()
-    {
-        var context = CreateContext();
-
-        Assert.Throws<ArgumentException>(() => Parser.ParseExpression(context, null!));
-        Assert.Throws<ArgumentException>(() => Parser.ParseExpression(context, ""));
-        Assert.Throws<ArgumentException>(() => Parser.ParseExpression(context, "   "));
-    }
-
-    [Test]
-    public void ParseExpression_InvalidExpression_ThrowsFormatException()
-    {
-        var context = CreateContext();
-
-        var exception = Assert.Throws<FormatException>(() => Parser.ParseExpression(context, "(R +"));
-        Assert.That(exception!.Message, Does.StartWith("Exception parsing \"(R +\":"));
+        var statements = Parser.ParseStatements(context, statementsText);
+        statements.Should().HaveCount(expectedCount);
+        statements.Select(s => s.ToString()).Should().SequenceEqual(expectedParsedExpressions);
     }
 
     [TestCase("if R > 0; R = R - 1; else; R = 0; endif;", 1, typeof(IfStatement))]
@@ -100,6 +90,7 @@ public sealed class ParserTests
         statements[0].GetType().Should().Equal(expectedStatementType);
     }
 
+    // Statement exception tests
     [TestCase("R = 1", typeof(FormatException), "Expected semi-colon after statement")]
     [TestCase("if R > 0; R = 1;", typeof(FormatException), "if without endif")]
     [TestCase("if; R = 1; endif;", typeof(FormatException), "Unexpected token SemiColon")]
@@ -113,42 +104,6 @@ public sealed class ParserTests
 
         var exception = Assert.Throws(expectedExceptionType, () => Parser.ParseStatements(context, statementsText));
         Assert.That(exception!.Message, Does.Contain(expectedMessageSubstring));
-    }
-
-    [Test]
-    public void ParseExpression_UnsupportedIdentifier_ThrowsNotSupportedException()
-    {
-        var context = CreateContext();
-
-        var exception = Assert.Throws<FormatException>(() => Parser.ParseExpression(context, "unknown_identifier"));
-        Assert.That(exception!.Message, Does.Contain("Unsupported identifier unknown_identifier"));
-    }
-
-    [Test]
-    public void ParseExpression_UnexpectedToken_ThrowsFormatException()
-    {
-        var context = CreateContext();
-
-        var exception = Assert.Throws<FormatException>(() => Parser.ParseExpression(context, "R +"));
-        Assert.That(exception!.Message, Does.Contain("Unexpected token"));
-    }
-
-    [Test]
-    public void ParseExpression_UnexpectedCloseBracket_ThrowsFormatException()
-    {
-        var context = CreateContext();
-
-        var exception = Assert.Throws<FormatException>(() => Parser.ParseExpression(context, ")"));
-        Assert.That(exception!.Message, Does.Contain("Unexpected token"));
-    }
-
-    [Test]
-    public void ParseExpression_MismatchedBrackets_ThrowsFormatException()
-    {
-        var context = CreateContext();
-
-        var exception = Assert.Throws<FormatException>(() => Parser.ParseExpression(context, "(R + 1"));
-        Assert.That(exception!.Message, Does.Contain("Unexpected token"));
     }
 
     [Pure]
