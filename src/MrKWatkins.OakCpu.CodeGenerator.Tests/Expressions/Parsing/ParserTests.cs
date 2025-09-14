@@ -63,7 +63,7 @@ public sealed class ParserTests
     public void ParseExpression_NullOrWhitespace_ThrowsArgumentException()
     {
         var context = CreateContext();
-        
+
         Assert.Throws<ArgumentException>(() => Parser.ParseExpression(context, null!));
         Assert.Throws<ArgumentException>(() => Parser.ParseExpression(context, ""));
         Assert.Throws<ArgumentException>(() => Parser.ParseExpression(context, "   "));
@@ -73,7 +73,7 @@ public sealed class ParserTests
     public void ParseExpression_InvalidExpression_ThrowsFormatException()
     {
         var context = CreateContext();
-        
+
         var exception = Assert.Throws<FormatException>(() => Parser.ParseExpression(context, "(R +"));
         Assert.That(exception!.Message, Does.StartWith("Exception parsing \"(R +\":"));
     }
@@ -120,7 +120,7 @@ public sealed class ParserTests
     public void ParseStatements_WithoutSemiColon_ThrowsInvalidOperationException()
     {
         var context = CreateContext();
-        
+
         var exception = Assert.Throws<FormatException>(() => Parser.ParseStatements(context, "R = 1"));
         Assert.That(exception!.Message, Does.Contain("Expected semi-colon after statement"));
     }
@@ -129,7 +129,7 @@ public sealed class ParserTests
     public void ParseStatements_IfWithoutEndif_ThrowsInvalidOperationException()
     {
         var context = CreateContext();
-        
+
         var exception = Assert.Throws<FormatException>(() => Parser.ParseStatements(context, "if R > 0; R = 1;"));
         Assert.That(exception!.Message, Does.Contain("if without endif"));
     }
@@ -138,7 +138,7 @@ public sealed class ParserTests
     public void ParseStatements_MultipleElse_ThrowsInvalidOperationException()
     {
         var context = CreateContext();
-        
+
         var exception = Assert.Throws<FormatException>(() => Parser.ParseStatements(context, "if R > 0; R = 1; else; R = 2; else; R = 3; endif;"));
         Assert.That(exception!.Message, Does.Contain("Multiple else statements"));
     }
@@ -147,7 +147,7 @@ public sealed class ParserTests
     public void ParseStatements_InvalidStatement_ThrowsInvalidOperationException()
     {
         var context = CreateContext();
-        
+
         var exception = Assert.Throws<FormatException>(() => Parser.ParseStatements(context, "123;"));
         Assert.That(exception!.Message, Does.Contain("did not parse to a statement"));
     }
@@ -156,7 +156,7 @@ public sealed class ParserTests
     public void ParseExpression_UnsupportedIdentifier_ThrowsNotSupportedException()
     {
         var context = CreateContext();
-        
+
         var exception = Assert.Throws<FormatException>(() => Parser.ParseExpression(context, "unknown_identifier"));
         Assert.That(exception!.Message, Does.Contain("Unsupported identifier unknown_identifier"));
     }
@@ -165,7 +165,7 @@ public sealed class ParserTests
     public void ParseExpression_UnexpectedToken_ThrowsFormatException()
     {
         var context = CreateContext();
-        
+
         var exception = Assert.Throws<FormatException>(() => Parser.ParseExpression(context, "R +"));
         Assert.That(exception!.Message, Does.Contain("Unexpected token"));
     }
@@ -174,7 +174,7 @@ public sealed class ParserTests
     public void ParseExpression_UnexpectedCloseBracket_ThrowsFormatException()
     {
         var context = CreateContext();
-        
+
         var exception = Assert.Throws<FormatException>(() => Parser.ParseExpression(context, ")"));
         Assert.That(exception!.Message, Does.Contain("Unexpected token"));
     }
@@ -183,7 +183,7 @@ public sealed class ParserTests
     public void ParseExpression_MismatchedBrackets_ThrowsFormatException()
     {
         var context = CreateContext();
-        
+
         var exception = Assert.Throws<FormatException>(() => Parser.ParseExpression(context, "(R + 1"));
         Assert.That(exception!.Message, Does.Contain("Unexpected token"));
     }
@@ -192,7 +192,7 @@ public sealed class ParserTests
     public void ParseExpression_IfConditionMustBeExpression_ThrowsFormatException()
     {
         var context = CreateContext();
-        
+
         // This tests that if condition must be an expression
         var exception = Assert.Throws<FormatException>(() => Parser.ParseStatements(context, "if; endif;"));
         Assert.That(exception!.Message, Does.Contain("Unexpected token SemiColon"));

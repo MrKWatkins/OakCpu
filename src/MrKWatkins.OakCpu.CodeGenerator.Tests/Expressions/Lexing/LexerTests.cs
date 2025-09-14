@@ -203,16 +203,16 @@ public sealed class LexerTests
 
         // Complex expressions
         yield return Create("(x + 4)", new OpenBracket(0), new Identifier(1, "x"), new BinaryOperator(3, Operator.Add), new Number(5, 1, 4), new CloseBracket(6), new EndOfInput(7));
-        
+
         // Whitespace handling
         yield return Create("  x  ", new Identifier(2, "x"), new EndOfInput(3));
         yield return Create("\tx\n", new Identifier(1, "x"), new EndOfInput(2));
         yield return Create("x + y", new Identifier(0, "x"), new BinaryOperator(2, Operator.Add), new Identifier(4, "y"), new EndOfInput(5));
-        
+
         // Mixed hex cases
         yield return Create("0xDEAD", new Number(0, 6, 0xDEAD), new EndOfInput(6));
         yield return Create("0xBEEF", new Number(0, 6, 0xBEEF), new EndOfInput(6));
-        
+
         // Identifiers with special characters
         yield return Create("flag.Z", new Identifier(0, "flag.Z"), new EndOfInput(6));
         yield return Create("condition.NZ", new Identifier(0, "condition.NZ"), new EndOfInput(12));
