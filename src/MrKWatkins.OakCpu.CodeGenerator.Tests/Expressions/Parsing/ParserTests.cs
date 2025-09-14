@@ -36,6 +36,16 @@ public sealed class ParserTests
     [TestCase("true && false", "True && False")]
     [TestCase("true || false", "True || False")]
     [TestCase("((R + 1))", "R + 0x01")]
+    // Logical operator precedence tests
+    [TestCase("true && false || true", "True && False || True")] // && has higher precedence than ||
+    [TestCase("false || true && false", "False || True && False")] // && has higher precedence than ||
+    [TestCase("true && (false || true)", "True && (False || True)")] // Parentheses override precedence
+    [TestCase("(true && false) || true", "True && False || True")] // Explicit parentheses are removed when not needed
+    [TestCase("R > 0 && R < 10", "R > 0x00 && R < 0x0A")] // Comparison with logical AND
+    [TestCase("R == 5 || R == 10", "R == 0x05 || R == 0x0A")] // Comparison with logical OR
+    [TestCase("R + 1 > 5 && R - 1 < 10", "R + 0x01 > 0x05 && R - 0x01 < 0x0A")] // Arithmetic, comparison, and logical operators
+    [TestCase("!R == 0 || R > 10", "!(R) == 0x00 || R > 0x0A")] // Unary, comparison, and logical operators
+    [TestCase("R & 1 == 1 && R > 0", "R & 0x01 == 0x01 && R > 0x00")] // Bitwise, comparison, and logical operators
     public void ParseExpression(string expressionText, string expectedParsedExpression)
     {
         var context = CreateContext();
@@ -78,6 +88,17 @@ public sealed class ParserTests
         Assert.That(exception!.Message, Does.StartWith("Exception parsing \"(R +\":"));
     }
 
+    [TestCase("if R > 0; R = R - 1; else; R = 0; endif;", 1)]
+    [TestCase("if R > 0; if R > 5; R = 10; endif; endif;", 1)]
+    [TestCase("R = 5;", 1)]
+    [TestCase("$temp;", 1)]
+    public void ParseStatements_ValidStatements(string statementsText, int expectedCount)
+    {
+        var context = CreateContext();
+        var statements = Parser.ParseStatements(context, statementsText);
+        statements.Should().HaveCount(expectedCount);
+    }
+
     [Test]
     public void ParseStatements_IfElseEndif()
     {
@@ -97,11 +118,9 @@ public sealed class ParserTests
     }
 
     [Test]
-    public void ParseStatements_CallStatement()
+    public void ParseStatements_Assignment()
     {
         var context = CreateContext();
-        // Since we don't have functions configured, this test would fail
-        // Let's test a simpler assignment statement instead
         var statements = Parser.ParseStatements(context, "R = 5;");
         statements.Should().HaveCount(1);
         statements[0].Should().BeOfType<Assignment>();
@@ -132,6 +151,33 @@ public sealed class ParserTests
 
         var exception = Assert.Throws<FormatException>(() => Parser.ParseStatements(context, "if R > 0; R = 1;"));
         Assert.That(exception!.Message, Does.Contain("if without endif"));
+    }
+
+    [Test]
+    public void ParseStatements_IfWithoutCondition_ThrowsFormatException()
+    {
+        var context = CreateContext();
+
+        var exception = Assert.Throws<FormatException>(() => Parser.ParseStatements(context, "if; R = 1; endif;"));
+        Assert.That(exception!.Message, Does.Contain("Unexpected token SemiColon"));
+    }
+
+    [Test]
+    public void ParseStatements_NestedIfWithoutEndif_ThrowsFormatException()
+    {
+        var context = CreateContext();
+
+        var exception = Assert.Throws<FormatException>(() => Parser.ParseStatements(context, "if R > 0; if R > 5; R = 10; endif;"));
+        Assert.That(exception!.Message, Does.Contain("if without endif"));
+    }
+
+    [Test]
+    public void ParseStatements_InvalidStatementStructure_ThrowsFormatException()
+    {
+        var context = CreateContext();
+
+        var exception = Assert.Throws<FormatException>(() => Parser.ParseStatements(context, "if R > 0 R = 1; endif;"));
+        Assert.That(exception!.Message, Does.Contain("Unexpected token Identifier"));
     }
 
     [Test]
