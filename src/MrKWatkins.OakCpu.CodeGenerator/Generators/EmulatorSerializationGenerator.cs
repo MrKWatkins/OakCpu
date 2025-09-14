@@ -65,7 +65,7 @@ public sealed class EmulatorSerializationGenerator : EmulatorClassGenerator
             .Concat(GenerateRestoreDataMembers(context))
             .Concat(GenerateRestoreRegisters(context));
 
-        return MethodDeclaration(CommonSyntax.Void, Identifier(RestoreMethodName))
+        return MethodDeclaration(VoidType, Identifier(RestoreMethodName))
             .WithModifiers([Public])
             .WithParameterList(ParameterList(
             [
@@ -119,7 +119,7 @@ public sealed class EmulatorSerializationGenerator : EmulatorClassGenerator
             .Concat(GenerateSerializeDataMembers(context))
             .Concat(GenerateSerializeRegisters(context));
 
-        return MethodDeclaration(CommonSyntax.Void, Identifier(SerializeMethodName))
+        return MethodDeclaration(VoidType, Identifier(SerializeMethodName))
             .WithModifiers([Public])
             .WithParameterList(ParameterList(
             [

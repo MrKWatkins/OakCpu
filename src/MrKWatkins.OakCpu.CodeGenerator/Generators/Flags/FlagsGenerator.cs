@@ -51,7 +51,7 @@ public abstract class FlagsGenerator : Generator
     }
 
     private static StatementSyntax CreateInitialize(ExpressionSyntax expression, string comment, List<string> commentsBeforeInitialize) =>
-        InitializeVariableStatement(FlagsVariableName, expression, Int).WithLeadingTrivia(commentsBeforeInitialize.Select(Comment)).WithTrailingTrivia(Comment(comment));
+        InitializeVariableStatement(FlagsVariableName, expression, IntType).WithLeadingTrivia(commentsBeforeInitialize.Select(Comment)).WithTrailingTrivia(Comment(comment));
 
     [Pure]
     private static StatementSyntax CreateFlagsOrAssignment(ExpressionSyntax expression, string comment) =>

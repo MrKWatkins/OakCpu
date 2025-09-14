@@ -8,30 +8,20 @@ namespace MrKWatkins.OakCpu.CodeGenerator;
 
 internal static class CommonSyntax
 {
-    // Constants for common parameter and field names.
-    public const string EmulatorParameterName = "emulator";
-    public const string ActionRequiredParameterName = "actionRequired";
-    public const string EmulatorFieldName = "emulator";
-
-    // Common syntax trivia for formatting.
-    public static readonly string NewlineCommentText = "// Newline";
-    public static readonly SyntaxTrivia NewlineComment = Comment(NewlineCommentText);
-    public static readonly SyntaxTrivia IndentComment = Comment("// Indent");
+    [Pure]
+    public static PredefinedTypeSyntax BoolType => PredefinedType(Token(SyntaxKind.BoolKeyword));
 
     [Pure]
-    public static PredefinedTypeSyntax Bool => PredefinedType(Token(SyntaxKind.BoolKeyword));
+    public static PredefinedTypeSyntax ByteType => PredefinedType(Token(SyntaxKind.ByteKeyword));
 
     [Pure]
-    public static PredefinedTypeSyntax Byte => PredefinedType(Token(SyntaxKind.ByteKeyword));
+    public static PredefinedTypeSyntax IntType => PredefinedType(Token(SyntaxKind.IntKeyword));
 
     [Pure]
-    public static PredefinedTypeSyntax Int => PredefinedType(Token(SyntaxKind.IntKeyword));
+    public static PredefinedTypeSyntax UShortType => PredefinedType(Token(SyntaxKind.UShortKeyword));
 
     [Pure]
-    public static PredefinedTypeSyntax UShort => PredefinedType(Token(SyntaxKind.UShortKeyword));
-
-    [Pure]
-    public static TypeSyntax Void => PredefinedType(Token(SyntaxKind.VoidKeyword));
+    public static TypeSyntax VoidType => PredefinedType(Token(SyntaxKind.VoidKeyword));
 
     [Pure]
     public static SyntaxToken Field => Token(SyntaxKind.FieldKeyword);
@@ -116,11 +106,11 @@ internal static class CommonSyntax
 
     [Pure]
     public static IdentifierNameSyntax EmulatorMemberIdentifier(string name) =>
-        IdentifierName($"{EmulatorParameterName}.{name}");
+        IdentifierName($"emulator.{name}");
 
     [Pure]
     public static ArgumentSyntax CreateEmulatorArgument() =>
-        Argument(IdentifierName(EmulatorParameterName));
+        Argument(IdentifierName("emulator"));
 
     [Pure]
     public static SyntaxToken GenerateBinaryLiteral(byte value) =>
@@ -143,8 +133,8 @@ internal static class CommonSyntax
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     ThisExpression(),
-                    IdentifierName(EmulatorFieldName)),
-                IdentifierName(EmulatorFieldName)));
+                    IdentifierName("emulator")),
+                IdentifierName("emulator")));
 
     [Pure]
     public static ExpressionStatementSyntax CreateNewObjectAndAssignToProperty(string propertyName, string classToCreateName, params ExpressionSyntax[] constructorArguments) =>

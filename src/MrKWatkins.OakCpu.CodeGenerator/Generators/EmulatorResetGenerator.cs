@@ -26,7 +26,7 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
             .Concat(GenerateResetDataMembers(context))
             .Concat(GenerateResetRegisters(context));
 
-        return MethodDeclaration(CommonSyntax.Void, Identifier(ResetMethodName))
+        return MethodDeclaration(VoidType, Identifier(ResetMethodName))
             .WithModifiers([Public])
             .WithBody(Block(statements));
     }

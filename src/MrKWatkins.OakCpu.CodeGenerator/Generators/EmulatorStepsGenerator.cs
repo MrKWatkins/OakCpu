@@ -53,7 +53,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
 
     [Pure]
     private static MemberDeclarationSyntax CreateFunction(GeneratorContext context, string name, IEnumerable<StatementSyntax> statements) =>
-        MethodDeclaration(CommonSyntax.Void, Identifier(name))
+        MethodDeclaration(VoidType, Identifier(name))
             .WithModifiers([Private, Static])
             .WithParameterList(ParameterList(
             [

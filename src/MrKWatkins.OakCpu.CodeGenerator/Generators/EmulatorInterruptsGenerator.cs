@@ -47,7 +47,7 @@ public sealed class EmulatorInterruptsGenerator : EmulatorClassGenerator
         statements.Add(ReturnStatement(LiteralExpression(SyntaxKind.FalseLiteralExpression)));
 
         return MethodDeclaration(
-                Bool,
+                BoolType,
                 Identifier(HandleInterruptsMethodName))
             .WithParameterList(ParameterList(
             [

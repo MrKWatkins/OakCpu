@@ -44,7 +44,7 @@ internal sealed class BoolExpression : FlagAction
                     SyntaxKind.SimpleMemberAccessExpression,
                     IdentifierName(nameof(Unsafe)),
                     GenericName(Identifier("BitCast"))
-                        .WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>([Bool, CommonSyntax.Byte])))))
+                        .WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>([BoolType, ByteType])))))
             .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(value))));
     }
 

@@ -71,7 +71,7 @@ public sealed class FlagsClassGenerator : TypeGenerator
                             flagsMemberAccess,
                             GenerateBinaryLiteralExpression(resetMask))))));
 
-        return CreateGetSetProperty(context, Bool, flag.Name, getExpression, setExpression);
+        return CreateGetSetProperty(context, BoolType, flag.Name, getExpression, setExpression);
     }
 
     [Pure]
