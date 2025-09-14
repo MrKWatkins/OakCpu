@@ -99,40 +99,16 @@ public sealed class ParserTests
         statements.Should().HaveCount(expectedCount);
     }
 
-    [Test]
-    public void ParseStatements_IfElseEndif()
+    [TestCase("if R > 0; R = R - 1; else; R = 0; endif;", typeof(IfStatement))]
+    [TestCase("if R > 0; if R > 5; R = 10; endif; endif;", typeof(IfStatement))]
+    [TestCase("R = 5;", typeof(Assignment))]
+    [TestCase("$temp;", typeof(TemporaryVariableDeclarationStatement))]
+    public void ParseStatements_StatementTypes(string statementsText, Type expectedStatementType)
     {
         var context = CreateContext();
-        var statements = Parser.ParseStatements(context, "if R > 0; R = R - 1; else; R = 0; endif;");
+        var statements = Parser.ParseStatements(context, statementsText);
         statements.Should().HaveCount(1);
-        statements[0].Should().BeOfType<IfStatement>();
-    }
-
-    [Test]
-    public void ParseStatements_NestedIf()
-    {
-        var context = CreateContext();
-        var statements = Parser.ParseStatements(context, "if R > 0; if R > 5; R = 10; endif; endif;");
-        statements.Should().HaveCount(1);
-        statements[0].Should().BeOfType<IfStatement>();
-    }
-
-    [Test]
-    public void ParseStatements_Assignment()
-    {
-        var context = CreateContext();
-        var statements = Parser.ParseStatements(context, "R = 5;");
-        statements.Should().HaveCount(1);
-        statements[0].Should().BeOfType<Assignment>();
-    }
-
-    [Test]
-    public void ParseStatements_TemporaryVariableDeclaration()
-    {
-        var context = CreateContext();
-        var statements = Parser.ParseStatements(context, "$temp;");
-        statements.Should().HaveCount(1);
-        statements[0].Should().BeOfType<TemporaryVariableDeclarationStatement>();
+        statements[0].Should().BeOfType(expectedStatementType);
     }
 
     [Test]
