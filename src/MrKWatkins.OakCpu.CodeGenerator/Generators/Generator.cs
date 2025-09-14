@@ -15,17 +15,17 @@ public abstract class Generator
     protected const string StepHandlerFieldName = "Handler";
     protected const string StepNextStepFieldName = "NextStep";
     protected const string StepActionRequiredFieldName = "ActionRequired";
-    protected const string EmulatorParameterName = CommonSyntax.EmulatorParameterName;
-    protected const string ActionRequiredParameterName = CommonSyntax.ActionRequiredParameterName;
+    protected const string EmulatorParameterName = "emulator";
+    protected const string ActionRequiredParameterName = "actionRequired";
     protected const string ErrorFunctionName = "Error";
     protected const string HandleInterruptsMethodName = "HandleInterrupts";
     protected const string InterruptModeStepTableFieldName = "InterruptModeStepTable";
     private const string StepFunctionPrefix = "Step_";
 
     // Filthy hackery to put some newlines and indents where we want because NormalizeWhitespace will remove any normal whitespace we add.
-    protected static readonly string NewlineCommentText = CommonSyntax.NewlineCommentText;
-    protected static readonly SyntaxTrivia NewlineComment = CommonSyntax.NewlineComment;
-    protected static readonly SyntaxTrivia IndentComment = CommonSyntax.IndentComment;
+    protected static readonly string NewlineCommentText = "// Newline";
+    protected static readonly SyntaxTrivia NewlineComment = Comment(NewlineCommentText);
+    protected static readonly SyntaxTrivia IndentComment = Comment("// Indent");
 
     private protected Generator()
     {

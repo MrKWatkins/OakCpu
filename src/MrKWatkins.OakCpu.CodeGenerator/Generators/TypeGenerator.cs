@@ -11,7 +11,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public abstract class TypeGenerator : Generator
 {
-    protected const string EmulatorFieldName = CommonSyntax.EmulatorFieldName;
+    protected const string EmulatorFieldName = "emulator";
 
     private protected TypeGenerator()
     {

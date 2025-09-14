@@ -20,7 +20,7 @@ public sealed class StepStructGenerator : TypeGenerator
                 [
                     FunctionPointerParameter(IdentifierName(GetEmulatorClassName(context))),
                     FunctionPointerParameter(IdentifierName(ActionRequiredEnumName)).WithModifiers([Ref]),
-                    FunctionPointerParameter(CommonSyntax.Void)
+                    FunctionPointerParameter(VoidType)
                 ]));
 
         var actionRequiredType = IdentifierName(ActionRequiredEnumName);
@@ -31,13 +31,13 @@ public sealed class StepStructGenerator : TypeGenerator
                 ParameterList(
                 [
                     Parameter(Identifier(StepHandlerParameterName)).WithType(actionType),
-                    Parameter(Identifier(StepNextStepParameterName)).WithType(UShort),
+                    Parameter(Identifier(StepNextStepParameterName)).WithType(UShortType),
                     Parameter(Identifier(StepActionRequiredParameterName)).WithType(actionRequiredType)
                 ]))
             .WithMembers(
             [
                 CreateField(actionType, StepHandlerFieldName, StepHandlerParameterName),
-                CreateField(UShort, StepNextStepFieldName, StepNextStepParameterName),
+                CreateField(UShortType, StepNextStepFieldName, StepNextStepParameterName),
                 CreateField(actionRequiredType, StepActionRequiredFieldName, StepActionRequiredParameterName)
             ]);
     }
