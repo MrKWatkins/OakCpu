@@ -12,35 +12,35 @@ public sealed class CommonSyntaxTests
     public void BoolType()
     {
         var result = CommonSyntax.BoolType;
-        ToNormalizedString(result).Should().Equal("bool");
+        result.ToNormalizedString().Should().Equal("bool");
     }
 
     [Test]
     public void ByteType()
     {
         var result = CommonSyntax.ByteType;
-        ToNormalizedString(result).Should().Equal("byte");
+        result.ToNormalizedString().Should().Equal("byte");
     }
 
     [Test]
     public void IntType()
     {
         var result = CommonSyntax.IntType;
-        ToNormalizedString(result).Should().Equal("int");
+        result.ToNormalizedString().Should().Equal("int");
     }
 
     [Test]
     public void UShortType()
     {
         var result = CommonSyntax.UShortType;
-        ToNormalizedString(result).Should().Equal("ushort");
+        result.ToNormalizedString().Should().Equal("ushort");
     }
 
     [Test]
     public void VoidType()
     {
         var result = CommonSyntax.VoidType;
-        ToNormalizedString(result).Should().Equal("void");
+        result.ToNormalizedString().Should().Equal("void");
     }
 
     [Test]
@@ -126,7 +126,7 @@ public sealed class CommonSyntaxTests
         var value = LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(42));
         var result = CommonSyntax.InitializeVariableStatement("myVariable", value);
 
-        ToNormalizedString(result).Should().Equal("var myVariable = 42;");
+        result.ToNormalizedString().Should().Equal("var myVariable = 42;");
     }
 
     [Test]
@@ -136,7 +136,7 @@ public sealed class CommonSyntaxTests
         var type = PredefinedType(Token(SyntaxKind.IntKeyword));
         var result = CommonSyntax.InitializeVariableStatement("myVariable", value, type);
 
-        ToNormalizedString(result).Should().Equal("int myVariable = 42;");
+        result.ToNormalizedString().Should().Equal("int myVariable = 42;");
     }
 
     [Test]
@@ -151,7 +151,7 @@ public sealed class CommonSyntaxTests
         requiredUsings.Count.Should().Equal(2);
         requiredUsings.Contains("System.Runtime.CompilerServices").Should().BeTrue();
         requiredUsings.Contains("System.Runtime.InteropServices").Should().BeTrue();
-        ToNormalizedString(result).Should().Equal("Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(values), i)");
+        result.ToNormalizedString().Should().Equal("Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(values), i)");
     }
 
     [Test]
@@ -162,7 +162,7 @@ public sealed class CommonSyntaxTests
 
         requiredUsings.Count.Should().Equal(1);
         requiredUsings.Contains("System.Runtime.CompilerServices").Should().BeTrue();
-        ToNormalizedString(result).Should().Equal("MethodImpl(MethodImplOptions.AggressiveInlining)");
+        result.ToNormalizedString().Should().Equal("MethodImpl(MethodImplOptions.AggressiveInlining)");
     }
 
     [Test]
@@ -173,21 +173,21 @@ public sealed class CommonSyntaxTests
 
         requiredUsings.Count.Should().Equal(1);
         requiredUsings.Contains("System.Runtime.CompilerServices").Should().BeTrue();
-        ToNormalizedString(result).Should().Equal("MethodImpl(MethodImplOptions.AggressiveInlining)");
+        result.ToNormalizedString().Should().Equal("MethodImpl(MethodImplOptions.AggressiveInlining)");
     }
 
     [Test]
     public void EmulatorMemberIdentifier()
     {
         var result = CommonSyntax.EmulatorMemberIdentifier("Memory");
-        ToNormalizedString(result).Should().Equal("emulator.Memory");
+        result.ToNormalizedString().Should().Equal("emulator.Memory");
     }
 
     [Test]
     public void CreateEmulatorArgument()
     {
         var result = CommonSyntax.CreateEmulatorArgument();
-        ToNormalizedString(result).Should().Equal("emulator");
+        result.ToNormalizedString().Should().Equal("emulator");
     }
 
     [Test]
@@ -202,21 +202,21 @@ public sealed class CommonSyntaxTests
     public void GenerateBinaryLiteralExpression()
     {
         var result = CommonSyntax.GenerateBinaryLiteralExpression(42);
-        ToNormalizedString(result).Should().Equal("0b00101010");
+        result.ToNormalizedString().Should().Equal("0b00101010");
     }
 
     [Test]
     public void GenerateNumericLiteralExpression()
     {
         var result = CommonSyntax.GenerateNumericLiteralExpression(123);
-        ToNormalizedString(result).Should().Equal("123");
+        result.ToNormalizedString().Should().Equal("123");
     }
 
     [Test]
     public void CreateAssignEmulatorFieldExpression()
     {
         var result = CommonSyntax.CreateAssignEmulatorFieldExpression();
-        ToNormalizedString(result).Should().Equal("this.emulator = emulator;");
+        result.ToNormalizedString().Should().Equal("this.emulator = emulator;");
     }
 
     [Test]
@@ -226,17 +226,14 @@ public sealed class CommonSyntaxTests
         var arg2 = LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(42));
         var result = CommonSyntax.CreateNewObjectAndAssignToProperty("MyProperty", "MyClass", arg1, arg2);
 
-        ToNormalizedString(result).Should().Equal("MyProperty = new MyClass(arg1, 42);");
+        result.ToNormalizedString().Should().Equal("MyProperty = new MyClass(arg1, 42);");
     }
 
     [Test]
     public void CreateNewObjectAndAssignToProperty_NoArguments()
     {
         var result = CommonSyntax.CreateNewObjectAndAssignToProperty("MyProperty", "MyClass");
-        ToNormalizedString(result).Should().Equal("MyProperty = new MyClass();");
+        result.ToNormalizedString().Should().Equal("MyProperty = new MyClass();");
     }
 
-    [Pure]
-    private static string ToNormalizedString(SyntaxNode node) =>
-        node.NormalizeWhitespace().ToFullString();
 }
