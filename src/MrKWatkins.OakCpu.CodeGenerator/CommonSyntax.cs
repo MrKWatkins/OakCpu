@@ -57,8 +57,7 @@ internal static class CommonSyntax
     public static SyntaxToken Unsafe => Token(SyntaxKind.UnsafeKeyword);
 
     [Pure]
-    public static StatementSyntax InitializeVariableStatement(string variable, ExpressionSyntax value) =>
-        InitializeVariableStatement(variable, value, IdentifierName("var"));
+    public static StatementSyntax InitializeVariableStatement(string variable, ExpressionSyntax value) => InitializeVariableStatement(variable, value, IdentifierName("var"));
 
     [Pure]
     public static StatementSyntax InitializeVariableStatement(string variable, ExpressionSyntax value, TypeSyntax type) =>
@@ -85,8 +84,7 @@ internal static class CommonSyntax
     }
 
     [Pure]
-    public static AttributeSyntax CreateMethodImplAttribute(ISet<string> requiredUsings, MethodImplOptions options) =>
-        CreateMethodImplAttribute(requiredUsings, options.ToString());
+    public static AttributeSyntax CreateMethodImplAttribute(ISet<string> requiredUsings, MethodImplOptions options) => CreateMethodImplAttribute(requiredUsings, options.ToString());
 
     [Pure]
     public static AttributeSyntax CreateMethodImplAttribute(ISet<string> requiredUsings, string options)
@@ -105,24 +103,19 @@ internal static class CommonSyntax
     }
 
     [Pure]
-    public static IdentifierNameSyntax EmulatorMemberIdentifier(string name) =>
-        IdentifierName($"emulator.{name}");
+    public static IdentifierNameSyntax EmulatorMemberIdentifier(string name) => IdentifierName($"emulator.{name}");
 
     [Pure]
-    public static ArgumentSyntax CreateEmulatorArgument() =>
-        Argument(IdentifierName("emulator"));
+    public static ArgumentSyntax CreateEmulatorArgument() => Argument(IdentifierName("emulator"));
 
     [Pure]
-    public static SyntaxToken GenerateBinaryLiteral(byte value) =>
-        Literal($"0b{Convert.ToString(value, 2).PadLeft(8, '0')}", value);
+    public static SyntaxToken GenerateBinaryLiteral(byte value) => Literal($"0b{Convert.ToString(value, 2).PadLeft(8, '0')}", value);
 
     [Pure]
-    public static LiteralExpressionSyntax GenerateBinaryLiteralExpression(byte value) =>
-        LiteralExpression(SyntaxKind.NumericLiteralExpression, GenerateBinaryLiteral(value));
+    public static LiteralExpressionSyntax GenerateBinaryLiteralExpression(byte value) => LiteralExpression(SyntaxKind.NumericLiteralExpression, GenerateBinaryLiteral(value));
 
     [Pure]
-    public static LiteralExpressionSyntax GenerateNumericLiteralExpression(int value) =>
-        LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(value));
+    public static LiteralExpressionSyntax GenerateNumericLiteralExpression(int value) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(value));
 
     [Pure]
     public static ExpressionStatementSyntax CreateAssignEmulatorFieldExpression() =>

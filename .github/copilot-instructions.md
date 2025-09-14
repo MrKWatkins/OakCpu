@@ -23,6 +23,7 @@ Always reference these instructions first and fall back to search or bash comman
 - **ALWAYS** run `dotnet format --verify-no-changes` before committing changes.
 - The project has strict code analysis rules configured in .editorconfig
 - All projects use `TreatWarningsAsErrors=true`
+- **NEVER** leave unnecessary `using` statements in the code.
 
 ## Validation
 
@@ -87,3 +88,4 @@ Always reference these instructions first and fall back to search or bash comman
 - End comments with a period, e.g. `// This is a comment.`
 - Do not write test classes for enums as they do not add value
 - Prefer lambdas over explicit method blocks where possible, e.g. `() => value` instead of `() => { return value; }`
+- Do not leave unnecessary `using` statements in the code.
