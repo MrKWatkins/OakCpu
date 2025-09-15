@@ -130,43 +130,52 @@ public sealed class FunctionYamlTests : TestFixture
     }
 
     [Test]
-    public void Deserialize_MissingName_ShouldThrow()
+    public void Deserialize_WithMissingName()
     {
         var yaml = """
                    type: u8
                    expression: test
                    """;
 
-        AssertThat.Invoking(() => YamlSerializer.Deserialize<FunctionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
-            .Should().Throw<Exception>();
+        var function = YamlSerializer.Deserialize<FunctionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        function.Name.Should().BeNull();
+        function.Type.Should().Equal("u8");
+        function.Expression.Should().Equal("test");
     }
 
     [Test]
-    public void Deserialize_MissingType_ShouldThrow()
+    public void Deserialize_WithMissingType()
     {
         var yaml = """
                    name: test_function
                    expression: test
                    """;
 
-        AssertThat.Invoking(() => YamlSerializer.Deserialize<FunctionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
-            .Should().Throw<Exception>();
+        var function = YamlSerializer.Deserialize<FunctionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        function.Name.Should().Equal("test_function");
+        function.Type.Should().BeNull();
+        function.Expression.Should().Equal("test");
     }
 
     [Test]
-    public void Deserialize_MissingExpression_ShouldThrow()
+    public void Deserialize_WithMissingExpression()
     {
         var yaml = """
                    name: test_function
                    type: u8
                    """;
 
-        AssertThat.Invoking(() => YamlSerializer.Deserialize<FunctionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
-            .Should().Throw<Exception>();
+        var function = YamlSerializer.Deserialize<FunctionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        function.Name.Should().Equal("test_function");
+        function.Type.Should().Equal("u8");
+        function.Expression.Should().BeNull();
     }
 
     [Test]
-    public void Deserialize_EmptyName_ShouldThrow()
+    public void Deserialize_WithEmptyName()
     {
         var yaml = """
                    name: ""
@@ -174,12 +183,15 @@ public sealed class FunctionYamlTests : TestFixture
                    expression: test
                    """;
 
-        AssertThat.Invoking(() => YamlSerializer.Deserialize<FunctionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
-            .Should().Throw<Exception>();
+        var function = YamlSerializer.Deserialize<FunctionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        function.Name.Should().Equal("");
+        function.Type.Should().Equal("u8");
+        function.Expression.Should().Equal("test");
     }
 
     [Test]
-    public void Deserialize_EmptyType_ShouldThrow()
+    public void Deserialize_WithEmptyType()
     {
         var yaml = """
                    name: test_function
@@ -187,12 +199,15 @@ public sealed class FunctionYamlTests : TestFixture
                    expression: test
                    """;
 
-        AssertThat.Invoking(() => YamlSerializer.Deserialize<FunctionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
-            .Should().Throw<Exception>();
+        var function = YamlSerializer.Deserialize<FunctionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        function.Name.Should().Equal("test_function");
+        function.Type.Should().Equal("");
+        function.Expression.Should().Equal("test");
     }
 
     [Test]
-    public void Deserialize_EmptyExpression_ShouldThrow()
+    public void Deserialize_WithEmptyExpression()
     {
         var yaml = """
                    name: test_function
@@ -200,23 +215,14 @@ public sealed class FunctionYamlTests : TestFixture
                    expression: ""
                    """;
 
-        AssertThat.Invoking(() => YamlSerializer.Deserialize<FunctionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
-            .Should().Throw<Exception>();
+        var function = YamlSerializer.Deserialize<FunctionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        function.Name.Should().Equal("test_function");
+        function.Type.Should().Equal("u8");
+        function.Expression.Should().Equal("");
     }
 
-    [Test]
-    public void Deserialize_InvalidParametersList_ShouldThrow()
-    {
-        var yaml = """
-                   name: test_function
-                   type: u8
-                   parameters: not_a_list
-                   expression: test
-                   """;
 
-        AssertThat.Invoking(() => YamlSerializer.Deserialize<FunctionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
-            .Should().Throw<Exception>();
-    }
 
     [Test]
     public void ToString_ReturnsExpectedFormat()

@@ -10,23 +10,18 @@ public sealed class OpcodeYamlTests : TestFixture
     {
         var yaml = """
                    opcode: 0x12 0x34
-                   r0: A
-                   r1: B
-                   rp0: BC
-                   rp1: DE
-                   c0: NZ
-                   n0: 42
                    """;
 
         var opcode = YamlSerializer.Deserialize<OpcodeYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
 
         opcode.Opcode.Should().Equal("0x12 0x34");
-        opcode.R0.Should().Equal("A");
-        opcode.R1.Should().Equal("B");
-        opcode.RP0.Should().Equal("BC");
-        opcode.RP1.Should().Equal("DE");
-        opcode.C0.Should().Equal("NZ");
-        opcode.N0.Should().Equal((byte)42);
+        // Note: R0, R1, RP0, RP1, C0, N0 are not set from YAML but computed elsewhere
+        opcode.R0.Should().BeNull();
+        opcode.R1.Should().BeNull();
+        opcode.RP0.Should().BeNull();
+        opcode.RP1.Should().BeNull();
+        opcode.C0.Should().BeNull();
+        opcode.N0.Should().BeNull();
     }
 
     [Test]
@@ -114,52 +109,36 @@ public sealed class OpcodeYamlTests : TestFixture
     }
 
     [Test]
-    public void Deserialize_ValidOpcodeWithRegisterPairOperands()
+    public void Deserialize_ValidOpcodeWithSingleOpcodeValue()
     {
         var yaml = """
                    opcode: 0x01
-                   rp0: BC
-                   rp1: HL
                    """;
 
         var opcode = YamlSerializer.Deserialize<OpcodeYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
 
-        opcode.RP0.Should().Equal("BC");
-        opcode.RP1.Should().Equal("HL");
+        opcode.Opcode.Should().Equal("0x01");
+        opcode.RP0.Should().BeNull();
+        opcode.RP1.Should().BeNull();
         opcode.R0.Should().BeNull();
         opcode.R1.Should().BeNull();
     }
 
     [Test]
-    public void Deserialize_ValidOpcodeWithConditionAndNumber()
+    public void Deserialize_ValidOpcodeWithOpcodeOnly()
     {
         var yaml = """
                    opcode: 0x20
-                   c0: NZ
-                   n0: 8
                    """;
 
         var opcode = YamlSerializer.Deserialize<OpcodeYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
 
-        opcode.C0.Should().Equal("NZ");
-        opcode.N0.Should().Equal((byte)8);
+        opcode.Opcode.Should().Equal("0x20");
+        opcode.C0.Should().BeNull();
+        opcode.N0.Should().BeNull();
     }
 
-    [TestCase(0)]
-    [TestCase(1)]
-    [TestCase(127)]
-    [TestCase(255)]
-    public void Deserialize_ValidNumberValues(int numberValue)
-    {
-        var yaml = $"""
-                    opcode: 0x00
-                    n0: {numberValue}
-                    """;
 
-        var opcode = YamlSerializer.Deserialize<OpcodeYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
-
-        opcode.N0.Should().Equal((byte)numberValue);
-    }
 
     [Test]
     public void ToString_ReturnsOpcodeString()

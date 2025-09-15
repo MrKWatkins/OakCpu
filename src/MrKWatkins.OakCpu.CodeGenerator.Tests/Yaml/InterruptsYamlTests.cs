@@ -50,7 +50,7 @@ public sealed class InterruptsYamlTests : TestFixture
     public void Deserialize_ValidInterruptsWithMinimalProperties()
     {
         var yaml = """
-                   # No properties specified, should have defaults
+                   {}
                    """;
 
         var interrupts = YamlSerializer.Deserialize<InterruptsYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
