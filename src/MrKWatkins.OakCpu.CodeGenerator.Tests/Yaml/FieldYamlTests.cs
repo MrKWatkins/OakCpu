@@ -1,0 +1,151 @@
+using MrKWatkins.OakCpu.CodeGenerator.Yaml;
+using VYaml.Serialization;
+
+namespace MrKWatkins.OakCpu.CodeGenerator.Tests.Yaml;
+
+public sealed class FieldYamlTests : TestFixture
+{
+    [Test]
+    public void Deserialize_ValidFieldWithAllProperties()
+    {
+        var yaml = """
+                   name: test_field
+                   type: u8
+                   getter: true
+                   setter: true
+                   """;
+
+        var field = YamlSerializer.Deserialize<FieldYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        field.Name.Should().Equal("test_field");
+        field.Type.Should().Equal(DataType.U8);
+        field.Getter.Should().BeTrue();
+        field.Setter.Should().BeTrue();
+    }
+
+    [Test]
+    public void Deserialize_ValidFieldWithMinimalProperties()
+    {
+        var yaml = """
+                   name: simple_field
+                   type: bool
+                   """;
+
+        var field = YamlSerializer.Deserialize<FieldYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        field.Name.Should().Equal("simple_field");
+        field.Type.Should().Equal(DataType.Bool);
+        field.Getter.Should().BeFalse();
+        field.Setter.Should().BeFalse();
+    }
+
+    [TestCase("u8", DataType.U8)]
+    [TestCase("i8", DataType.I8)]
+    [TestCase("u16", DataType.U16)]
+    [TestCase("i32", DataType.I32)]
+    [TestCase("i32_bool", DataType.I32Bool)]
+    [TestCase("bool", DataType.Bool)]
+    [TestCase("void", DataType.Void)]
+    public void Deserialize_ValidDataTypes(string yamlType, DataType expectedType)
+    {
+        var yaml = $"""
+                    name: test_field
+                    type: {yamlType}
+                    """;
+
+        var field = YamlSerializer.Deserialize<FieldYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        field.Type.Should().Equal(expectedType);
+    }
+
+    [Test]
+    public void Deserialize_GetterAndSetterBooleanValues()
+    {
+        var yaml = """
+                   name: test_field
+                   type: u16
+                   getter: false
+                   setter: true
+                   """;
+
+        var field = YamlSerializer.Deserialize<FieldYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        field.Getter.Should().BeFalse();
+        field.Setter.Should().BeTrue();
+    }
+
+    [Test]
+    public void Deserialize_MissingName_ShouldThrow()
+    {
+        var yaml = """
+                   type: u8
+                   getter: true
+                   """;
+
+        AssertThat.Invoking(() => YamlSerializer.Deserialize<FieldYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
+            .Should().Throw<Exception>();
+    }
+
+    [Test]
+    public void Deserialize_MissingType_ShouldThrow()
+    {
+        var yaml = """
+                   name: test_field
+                   getter: true
+                   """;
+
+        AssertThat.Invoking(() => YamlSerializer.Deserialize<FieldYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
+            .Should().Throw<Exception>();
+    }
+
+    [Test]
+    public void Deserialize_InvalidType_ShouldThrow()
+    {
+        var yaml = """
+                   name: test_field
+                   type: invalid_type
+                   """;
+
+        AssertThat.Invoking(() => YamlSerializer.Deserialize<FieldYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
+            .Should().Throw<Exception>();
+    }
+
+    [Test]
+    public void Deserialize_InvalidBooleanForGetter_ShouldThrow()
+    {
+        var yaml = """
+                   name: test_field
+                   type: u8
+                   getter: invalid_bool
+                   """;
+
+        AssertThat.Invoking(() => YamlSerializer.Deserialize<FieldYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
+            .Should().Throw<Exception>();
+    }
+
+    [Test]
+    public void Deserialize_InvalidBooleanForSetter_ShouldThrow()
+    {
+        var yaml = """
+                   name: test_field
+                   type: u8
+                   setter: not_a_bool
+                   """;
+
+        AssertThat.Invoking(() => YamlSerializer.Deserialize<FieldYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
+            .Should().Throw<Exception>();
+    }
+
+    [Test]
+    public void ToString_ReturnsExpectedFormat()
+    {
+        var yaml = """
+                   name: my_field
+                   type: u16
+                   """;
+
+        var field = YamlSerializer.Deserialize<FieldYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        field.ToString().Should().Equal("my_field: U16");
+    }
+}

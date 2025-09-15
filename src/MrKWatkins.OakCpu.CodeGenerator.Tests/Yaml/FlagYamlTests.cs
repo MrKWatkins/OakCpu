@@ -1,0 +1,168 @@
+using MrKWatkins.OakCpu.CodeGenerator.Yaml;
+using VYaml.Serialization;
+
+namespace MrKWatkins.OakCpu.CodeGenerator.Tests.Yaml;
+
+public sealed class FlagYamlTests : TestFixture
+{
+    [Test]
+    public void Deserialize_ValidFlagWithAllProperties()
+    {
+        var yaml = """
+                   name: C
+                   index: 0
+                   condition: $carry
+                   not_condition: $not_carry
+                   """;
+
+        var flag = YamlSerializer.Deserialize<FlagYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        flag.Name.Should().Equal("C");
+        flag.Index.Should().Equal(0);
+        flag.Condition.Should().Equal("$carry");
+        flag.NotCondition.Should().Equal("$not_carry");
+    }
+
+    [Test]
+    public void Deserialize_ValidFlagWithMinimalProperties()
+    {
+        var yaml = """
+                   name: Z
+                   index: 6
+                   """;
+
+        var flag = YamlSerializer.Deserialize<FlagYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        flag.Name.Should().Equal("Z");
+        flag.Index.Should().Equal(6);
+        flag.Condition.Should().BeNull();
+        flag.NotCondition.Should().BeNull();
+    }
+
+    [Test]
+    public void Deserialize_ValidFlagWithOnlyCondition()
+    {
+        var yaml = """
+                   name: S
+                   index: 7
+                   condition: $sign
+                   """;
+
+        var flag = YamlSerializer.Deserialize<FlagYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        flag.Name.Should().Equal("S");
+        flag.Index.Should().Equal(7);
+        flag.Condition.Should().Equal("$sign");
+        flag.NotCondition.Should().BeNull();
+    }
+
+    [Test]
+    public void Deserialize_ValidFlagWithOnlyNotCondition()
+    {
+        var yaml = """
+                   name: H
+                   index: 4
+                   not_condition: $no_half_carry
+                   """;
+
+        var flag = YamlSerializer.Deserialize<FlagYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        flag.Name.Should().Equal("H");
+        flag.Index.Should().Equal(4);
+        flag.Condition.Should().BeNull();
+        flag.NotCondition.Should().Equal("$no_half_carry");
+    }
+
+    [TestCase(0)]
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(3)]
+    [TestCase(4)]
+    [TestCase(5)]
+    [TestCase(6)]
+    [TestCase(7)]
+    public void Deserialize_ValidIndexValues(int index)
+    {
+        var yaml = $"""
+                    name: FLAG{index}
+                    index: {index}
+                    """;
+
+        var flag = YamlSerializer.Deserialize<FlagYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        flag.Index.Should().Equal(index);
+    }
+
+    [Test]
+    public void Deserialize_MissingName_ShouldThrow()
+    {
+        var yaml = """
+                   index: 0
+                   condition: $test
+                   """;
+
+        AssertThat.Invoking(() => YamlSerializer.Deserialize<FlagYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
+            .Should().Throw<Exception>();
+    }
+
+    [Test]
+    public void Deserialize_MissingIndex_ShouldThrow()
+    {
+        var yaml = """
+                   name: TestFlag
+                   condition: $test
+                   """;
+
+        AssertThat.Invoking(() => YamlSerializer.Deserialize<FlagYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
+            .Should().Throw<Exception>();
+    }
+
+    [Test]
+    public void Deserialize_InvalidIndex_NegativeValue_ShouldThrow()
+    {
+        var yaml = """
+                   name: TestFlag
+                   index: -1
+                   """;
+
+        AssertThat.Invoking(() => YamlSerializer.Deserialize<FlagYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
+            .Should().Throw<Exception>();
+    }
+
+    [Test]
+    public void Deserialize_InvalidIndex_TooLarge_ShouldThrow()
+    {
+        var yaml = """
+                   name: TestFlag
+                   index: 256
+                   """;
+
+        AssertThat.Invoking(() => YamlSerializer.Deserialize<FlagYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
+            .Should().Throw<Exception>();
+    }
+
+    [Test]
+    public void Deserialize_InvalidIndex_NonInteger_ShouldThrow()
+    {
+        var yaml = """
+                   name: TestFlag
+                   index: not_a_number
+                   """;
+
+        AssertThat.Invoking(() => YamlSerializer.Deserialize<FlagYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
+            .Should().Throw<Exception>();
+    }
+
+    [Test]
+    public void ToString_ReturnsName()
+    {
+        var yaml = """
+                   name: MyFlag
+                   index: 3
+                   """;
+
+        var flag = YamlSerializer.Deserialize<FlagYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        flag.ToString().Should().Equal("MyFlag");
+    }
+}
