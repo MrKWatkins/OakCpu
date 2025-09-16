@@ -152,4 +152,67 @@ public sealed class FieldYamlTests : TestFixture
 
         field.ToString().Should().Equal("my_field: U16");
     }
+
+    [Test]
+    public void Serialize_ValidFieldWithAllProperties()
+    {
+        var originalYaml = """
+                           name: test_field
+                           type: u8
+                           getter: true
+                           setter: true
+                           """;
+
+        var field = YamlSerializer.Deserialize<FieldYaml>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var serializedBytes = YamlSerializer.Serialize(field, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+
+        // Verify that serialization works and produces valid YAML output
+        (serializedYaml.Length > 0).Should().BeTrue();
+        serializedYaml.Contains("name: test_field", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("type: u8", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("getter: true", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("setter: true", StringComparison.Ordinal).Should().BeTrue();
+    }
+
+    [Test]
+    public void Serialize_ValidFieldWithMinimalProperties()
+    {
+        var originalYaml = """
+                           name: simple_field
+                           type: bool
+                           """;
+
+        var field = YamlSerializer.Deserialize<FieldYaml>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var serializedBytes = YamlSerializer.Serialize(field, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+
+        // Verify that serialization works and produces valid YAML output
+        (serializedYaml.Length > 0).Should().BeTrue();
+        serializedYaml.Contains("name: simple_field", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("type: bool", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("getter: false", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("setter: false", StringComparison.Ordinal).Should().BeTrue();
+    }
+
+    [Test]
+    public void Serialize_ValidFieldWithBasicProperties()
+    {
+        var originalYaml = """
+                           name: test_field
+                           getter: true
+                           setter: false
+                           """;
+
+        var field = YamlSerializer.Deserialize<FieldYaml>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var serializedBytes = YamlSerializer.Serialize(field, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+
+        // Verify that serialization works and produces valid YAML output  
+        (serializedYaml.Length > 0).Should().BeTrue();
+        serializedYaml.Contains("name: test_field", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("type: void", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("getter: true", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("setter: false", StringComparison.Ordinal).Should().BeTrue();
+    }
 }
