@@ -254,4 +254,48 @@ public sealed class FunctionYamlTests : TestFixture
 
         function.ToString().Should().Equal("bool simple_func()");
     }
+
+    [Test]
+    public void Serialize_ValidFunctionWithAllProperties()
+    {
+        var originalYaml = """
+                           name: add_bytes
+                           type: u8
+                           parameters:
+                             - a
+                             - b
+                           expression: $a + $b
+                           """;
+
+        var function = YamlSerializer.Deserialize<FunctionYaml>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var serializedBytes = YamlSerializer.Serialize(function, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+
+        // Verify that serialization works and produces valid YAML output
+        (serializedYaml.Length > 0).Should().BeTrue();
+        serializedYaml.Contains("name: add_bytes", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("type: u8", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("expression: $a + $b", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("- a", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("- b", StringComparison.Ordinal).Should().BeTrue();
+    }
+
+    [Test]
+    public void Serialize_ValidFunctionWithNoParameters()
+    {
+        var originalYaml = """
+                           name: get_zero
+                           type: u8
+                           expression: 0
+                           """;
+
+        var function = YamlSerializer.Deserialize<FunctionYaml>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var serializedBytes = YamlSerializer.Serialize(function, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+
+        // Verify that serialization works and produces valid YAML output
+        (serializedYaml.Length > 0).Should().BeTrue();
+        serializedYaml.Contains("name: get_zero", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("type: u8", StringComparison.Ordinal).Should().BeTrue();
+    }
 }

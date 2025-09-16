@@ -160,4 +160,64 @@ public sealed class FlagYamlTests : TestFixture
 
         flag.ToString().Should().Equal("MyFlag");
     }
+
+    [Test]
+    public void Serialize_ValidFlagWithAllProperties()
+    {
+        var originalYaml = """
+                           name: C
+                           index: 0
+                           condition: $carry
+                           not_condition: $not_carry
+                           """;
+
+        var flag = YamlSerializer.Deserialize<FlagYaml>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var serializedBytes = YamlSerializer.Serialize(flag, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+
+        // Verify that serialization works and produces valid YAML output
+        (serializedYaml.Length > 0).Should().BeTrue();
+        serializedYaml.Contains("name: C", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("index: 0", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("condition: $carry", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("not_condition: $not_carry", StringComparison.Ordinal).Should().BeTrue();
+    }
+
+    [Test]
+    public void Serialize_ValidFlagWithMinimalProperties()
+    {
+        var originalYaml = """
+                           name: Z
+                           index: 6
+                           """;
+
+        var flag = YamlSerializer.Deserialize<FlagYaml>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var serializedBytes = YamlSerializer.Serialize(flag, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+
+        // Verify that serialization works and produces valid YAML output
+        (serializedYaml.Length > 0).Should().BeTrue();
+        serializedYaml.Contains("name: Z", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("index: 6", StringComparison.Ordinal).Should().BeTrue();
+    }
+
+    [Test]
+    public void Serialize_ValidFlagWithOnlyCondition()
+    {
+        var originalYaml = """
+                           name: S
+                           index: 7
+                           condition: $sign
+                           """;
+
+        var flag = YamlSerializer.Deserialize<FlagYaml>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var serializedBytes = YamlSerializer.Serialize(flag, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+
+        // Verify that serialization works and produces valid YAML output
+        (serializedYaml.Length > 0).Should().BeTrue();
+        serializedYaml.Contains("name: S", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("index: 7", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("condition: $sign", StringComparison.Ordinal).Should().BeTrue();
+    }
 }
