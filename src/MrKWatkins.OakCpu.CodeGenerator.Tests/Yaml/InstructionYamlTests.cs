@@ -1,3 +1,6 @@
+using MrKWatkins.OakCpu.CodeGenerator.Yaml;
+using VYaml.Serialization;
+
 namespace MrKWatkins.OakCpu.CodeGenerator.Tests.Yaml;
 
 public sealed class InstructionYamlTests : TestFixture
@@ -41,5 +44,25 @@ public sealed class InstructionYamlTests : TestFixture
             "Jump",
             "Redirects",
             "Rotate and Shift");
+    }
+
+    [Test]
+    public void Serialize_ValidInstructionWithMinimalProperties()
+    {
+        var originalYaml = """
+                           group: Test Group
+                           mnemonic: NOP
+                           next_opcode: read
+                           """;
+
+        var instruction = YamlSerializer.Deserialize<InstructionYaml>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var serializedBytes = YamlSerializer.Serialize(instruction, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+
+        // Verify that serialization works and produces valid YAML output
+        (serializedYaml.Length > 0).Should().BeTrue();
+        serializedYaml.Contains("group: Test Group", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("mnemonic: NOP", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("next_opcode: read", StringComparison.Ordinal).Should().BeTrue();
     }
 }

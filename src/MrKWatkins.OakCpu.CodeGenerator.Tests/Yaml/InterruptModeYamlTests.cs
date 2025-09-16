@@ -178,4 +178,47 @@ public sealed class InterruptModeYamlTests : TestFixture
         AssertThat.Invoking(() => YamlSerializer.Deserialize<InterruptModeYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
             .Should().Throw<Exception>();
     }
+
+    [Test]
+    public void Serialize_ValidInterruptModeWithAllProperties()
+    {
+        var originalYaml = """
+                           number: 0
+                           steps:
+                             - step_one
+                             - step_two
+                             - step_three
+                           next_opcode: read
+                           """;
+
+        var interruptMode = YamlSerializer.Deserialize<InterruptModeYaml>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var serializedBytes = YamlSerializer.Serialize(interruptMode, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+
+        // Verify that serialization works and produces valid YAML output
+        (serializedYaml.Length > 0).Should().BeTrue();
+        serializedYaml.Contains("number: 0", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("next_opcode: read", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("- step_one", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("- step_two", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("- step_three", StringComparison.Ordinal).Should().BeTrue();
+    }
+
+    [Test]
+    public void Serialize_ValidInterruptModeWithMinimalProperties()
+    {
+        var originalYaml = """
+                           number: 1
+                           next_opcode: overlapped
+                           """;
+
+        var interruptMode = YamlSerializer.Deserialize<InterruptModeYaml>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var serializedBytes = YamlSerializer.Serialize(interruptMode, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+
+        // Verify that serialization works and produces valid YAML output
+        (serializedYaml.Length > 0).Should().BeTrue();
+        serializedYaml.Contains("number: 1", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("next_opcode: overlapped", StringComparison.Ordinal).Should().BeTrue();
+    }
 }

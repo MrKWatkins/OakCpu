@@ -218,4 +218,51 @@ public sealed class InterruptsYamlTests : TestFixture
         AssertThat.Invoking(() => YamlSerializer.Deserialize<InterruptsYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
             .Should().Throw<Exception>();
     }
+
+    [Test]
+    public void Serialize_ValidInterruptsWithAllProperties()
+    {
+        var originalYaml = """
+                           handle: handle_interrupt
+                           properties:
+                             - name: enabled
+                               type: bool
+                               getter: true
+                               setter: true
+                           modes:
+                             - number: 0
+                               next_opcode: read
+                           halted_cycle:
+                             - step_one
+                             - step_two
+                           """;
+
+        var interrupts = YamlSerializer.Deserialize<InterruptsYaml>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var serializedBytes = YamlSerializer.Serialize(interrupts, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+
+        // Verify that serialization works and produces valid YAML output
+        (serializedYaml.Length > 0).Should().BeTrue();
+        serializedYaml.Contains("handle: handle_interrupt", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("name: enabled", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("number: 0", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("- step_one", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("- step_two", StringComparison.Ordinal).Should().BeTrue();
+    }
+
+    [Test]
+    public void Serialize_ValidInterruptsWithMinimalProperties()
+    {
+        var originalYaml = """
+                           handle: simple_handler
+                           """;
+
+        var interrupts = YamlSerializer.Deserialize<InterruptsYaml>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var serializedBytes = YamlSerializer.Serialize(interrupts, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+
+        // Verify that serialization works and produces valid YAML output
+        (serializedYaml.Length > 0).Should().BeTrue();
+        serializedYaml.Contains("handle: simple_handler", StringComparison.Ordinal).Should().BeTrue();
+    }
 }

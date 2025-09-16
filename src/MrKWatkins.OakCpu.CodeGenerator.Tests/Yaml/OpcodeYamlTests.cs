@@ -226,4 +226,36 @@ public sealed class OpcodeYamlTests : TestFixture
         prefix1.Should().Equal((byte)0xED);
         opcodeByte1.Should().Equal((byte)0x5F);
     }
+
+    [Test]
+    public void Serialize_ValidOpcodeWithMinimalProperties()
+    {
+        var originalYaml = """
+                           opcode: 0x00
+                           """;
+
+        var opcode = YamlSerializer.Deserialize<OpcodeYaml>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var serializedBytes = YamlSerializer.Serialize(opcode, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+
+        // Verify that serialization works and produces valid YAML output
+        (serializedYaml.Length > 0).Should().BeTrue();
+        serializedYaml.Contains("opcode: 0x00", StringComparison.Ordinal).Should().BeTrue();
+    }
+
+    [Test]
+    public void Serialize_ValidOpcodeWithPrefix()
+    {
+        var originalYaml = """
+                           opcode: 0xED 0x5F
+                           """;
+
+        var opcode = YamlSerializer.Deserialize<OpcodeYaml>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var serializedBytes = YamlSerializer.Serialize(opcode, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+
+        // Verify that serialization works and produces valid YAML output
+        (serializedYaml.Length > 0).Should().BeTrue();
+        serializedYaml.Contains("opcode: 0xED 0x5F", StringComparison.Ordinal).Should().BeTrue();
+    }
 }
