@@ -21,21 +21,29 @@ public sealed class YamlFileTests : TestFixture
             .Select(file => new TestCaseData(file.FullName).SetArgDisplayNames(file.Name));
 
     [Test]
-    public void Serialize_ValidYamlFileWithMinimalProperties()
+    public void Deserialize_ValidYamlFileWithMinimalProperties()
     {
-        var originalYaml = """
-                           cpu:
-                             name: TestCpu
-                           interrupts:
-                             handle: test_handler
-                           """;
+        var yaml = """
+                   cpu:
+                     name: TestCpu
+                   interrupts:
+                     handle: test_handler
+                   """;
 
-        var yamlFile = YamlSerializer.Deserialize<YamlFile>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var yamlFile = YamlSerializer.Deserialize<YamlFile>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        // Verify deserialized properties
+        yamlFile.Cpu.Should().NotBeNull();
+        yamlFile.Cpu.Name.Should().Equal("TestCpu");
+        yamlFile.Interrupts.Should().NotBeNull();
+        yamlFile.Interrupts.Handle.Should().Equal("test_handler");
+        yamlFile.Registers.Should().BeEmpty();
+        yamlFile.Flags.Should().BeEmpty();
+        yamlFile.Instructions.Should().BeEmpty();
+
+        // Verify round-trip serialization
         var serializedBytes = YamlSerializer.Serialize(yamlFile, YamlOptions.Instance);
         var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
-
-        // Verify that serialization works and produces valid YAML output
-        (serializedYaml.Length > 0).Should().BeTrue();
         serializedYaml.Contains("name: TestCpu", StringComparison.Ordinal).Should().BeTrue();
         serializedYaml.Contains("handle: test_handler", StringComparison.Ordinal).Should().BeTrue();
     }

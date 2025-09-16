@@ -14,18 +14,23 @@ public class CpuYamlTests : TestFixture
     }
 
     [Test]
-    public void Serialize_ValidCpuWithMinimalProperties()
+    public void Deserialize_ValidCpuWithMinimalProperties()
     {
-        var originalYaml = """
-                           name: Z80
-                           """;
+        var yaml = """
+                   name: Z80
+                   """;
 
-        var cpu = YamlSerializer.Deserialize<CpuYaml>(System.Text.Encoding.UTF8.GetBytes(originalYaml), YamlOptions.Instance);
+        var cpu = YamlSerializer.Deserialize<CpuYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        // Verify deserialized properties
+        cpu.Name.Should().Equal("Z80");
+        cpu.Actions.Should().BeEmpty();
+        cpu.Fields.Should().BeEmpty();
+        cpu.OpcodeRead.Should().BeEmpty();
+
+        // Verify round-trip serialization
         var serializedBytes = YamlSerializer.Serialize(cpu, YamlOptions.Instance);
         var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
-
-        // Verify that serialization works and produces valid YAML output
-        (serializedYaml.Length > 0).Should().BeTrue();
         serializedYaml.Contains("name: Z80", StringComparison.Ordinal).Should().BeTrue();
     }
 }
