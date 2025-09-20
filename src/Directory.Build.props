@@ -35,6 +35,7 @@
 
         <Using Include="MrKWatkins.Assertions"/>
         <Using Include="NUnit.Framework"/>
+        <Using Include="VerifyNUnit"/>
     </ItemGroup>
 
     <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('Tests'))">
