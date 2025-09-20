@@ -21,6 +21,14 @@ public sealed class FieldYamlTests : TestFixture
         field.Type.Should().Equal(DataType.U8);
         field.Getter.Should().BeTrue();
         field.Setter.Should().BeTrue();
+
+        // Verify round-trip serialization
+        var serializedBytes = YamlSerializer.Serialize(field, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+        serializedYaml.Contains("name: test_field", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("type: u8", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("getter: true", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("setter: true", StringComparison.Ordinal).Should().BeTrue();
     }
 
     [Test]
@@ -37,6 +45,14 @@ public sealed class FieldYamlTests : TestFixture
         field.Type.Should().Equal(DataType.Bool);
         field.Getter.Should().BeFalse();
         field.Setter.Should().BeFalse();
+
+        // Verify round-trip serialization
+        var serializedBytes = YamlSerializer.Serialize(field, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+        serializedYaml.Contains("name: simple_field", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("type: bool", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("getter: false", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("setter: false", StringComparison.Ordinal).Should().BeTrue();
     }
 
     [Test]
@@ -55,6 +71,13 @@ public sealed class FieldYamlTests : TestFixture
         field.Setter.Should().BeFalse();
         // Note: DataType enum testing is omitted due to VYaml limitations with isolated enum deserialization
         // DataType enum deserialization works correctly in full YAML context as verified by YamlFileTests
+
+        // Verify round-trip serialization
+        var serializedBytes = YamlSerializer.Serialize(field, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+        serializedYaml.Contains("name: test_field", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("getter: true", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("setter: false", StringComparison.Ordinal).Should().BeTrue();
     }
 
     [Test]
@@ -71,6 +94,14 @@ public sealed class FieldYamlTests : TestFixture
 
         field.Getter.Should().BeFalse();
         field.Setter.Should().BeTrue();
+
+        // Verify round-trip serialization
+        var serializedBytes = YamlSerializer.Serialize(field, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+        serializedYaml.Contains("name: test_field", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("type: u16", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("getter: false", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("setter: true", StringComparison.Ordinal).Should().BeTrue();
     }
 
     [Test]

@@ -19,12 +19,21 @@ public sealed class InterruptModeYamlTests : TestFixture
 
         var interruptMode = YamlSerializer.Deserialize<InterruptModeYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
 
-        interruptMode.Number.Should().Equal((byte)0);
+        interruptMode.Number.Should().Equal(0);
         interruptMode.Steps.Should().HaveCount(3);
         interruptMode.Steps[0].Should().Equal("step_one");
         interruptMode.Steps[1].Should().Equal("step_two");
         interruptMode.Steps[2].Should().Equal("step_three");
         interruptMode.NextOpcode.Should().Equal(NextOpcodeMode.Read);
+
+        // Verify round-trip serialization
+        var serializedBytes = YamlSerializer.Serialize(interruptMode, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+        serializedYaml.Contains("number: 0", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("next_opcode: read", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("- step_one", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("- step_two", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("- step_three", StringComparison.Ordinal).Should().BeTrue();
     }
 
     [Test]
@@ -37,7 +46,7 @@ public sealed class InterruptModeYamlTests : TestFixture
 
         var interruptMode = YamlSerializer.Deserialize<InterruptModeYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
 
-        interruptMode.Number.Should().Equal((byte)1);
+        interruptMode.Number.Should().Equal(1);
         interruptMode.Steps.Should().BeEmpty();
         interruptMode.NextOpcode.Should().Equal(NextOpcodeMode.Overlapped);
     }
@@ -53,7 +62,7 @@ public sealed class InterruptModeYamlTests : TestFixture
 
         var interruptMode = YamlSerializer.Deserialize<InterruptModeYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
 
-        interruptMode.Number.Should().Equal((byte)2);
+        interruptMode.Number.Should().Equal(2);
         interruptMode.Steps.Should().BeEmpty();
         interruptMode.NextOpcode.Should().Equal(NextOpcodeMode.Custom);
     }
@@ -70,7 +79,7 @@ public sealed class InterruptModeYamlTests : TestFixture
 
         var interruptMode = YamlSerializer.Deserialize<InterruptModeYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
 
-        interruptMode.Number.Should().Equal((byte)1);
+        interruptMode.Number.Should().Equal(1);
         interruptMode.Steps.Should().HaveCount(1);
         interruptMode.Steps[0].Should().Equal("single_step");
         interruptMode.NextOpcode.Should().Equal(NextOpcodeMode.Loop);
@@ -90,7 +99,7 @@ public sealed class InterruptModeYamlTests : TestFixture
 
         var interruptMode = YamlSerializer.Deserialize<InterruptModeYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
 
-        interruptMode.Number.Should().Equal((byte)3);
+        interruptMode.Number.Should().Equal(3);
         interruptMode.Steps.Should().HaveCount(3);
         interruptMode.Steps[0].Should().Equal("step_one");
         interruptMode.Steps[1].Should().BeNull();

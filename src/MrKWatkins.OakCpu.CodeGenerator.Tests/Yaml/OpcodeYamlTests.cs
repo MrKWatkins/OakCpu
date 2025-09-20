@@ -22,6 +22,11 @@ public sealed class OpcodeYamlTests : TestFixture
         opcode.RP1.Should().BeNull();
         opcode.C0.Should().BeNull();
         opcode.N0.Should().BeNull();
+
+        // Verify round-trip serialization
+        var serializedBytes = YamlSerializer.Serialize(opcode, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+        serializedYaml.Contains("opcode: 0x12 0x34", StringComparison.Ordinal).Should().BeTrue();
     }
 
     [Test]
@@ -53,7 +58,7 @@ public sealed class OpcodeYamlTests : TestFixture
 
         opcode.Opcode.Should().Equal("0xFF");
         opcode.PrefixByte.Should().BeNull();
-        opcode.OpcodeByte.Should().Equal((byte)0xFF);
+        opcode.OpcodeByte.Should().Equal(0xFF);
     }
 
     [Test]
@@ -66,8 +71,8 @@ public sealed class OpcodeYamlTests : TestFixture
         var opcode = YamlSerializer.Deserialize<OpcodeYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
 
         opcode.Opcode.Should().Equal("0xDD 0x46");
-        opcode.PrefixByte.Should().Equal((byte)0xDD);
-        opcode.OpcodeByte.Should().Equal((byte)0x46);
+        opcode.PrefixByte.Should().Equal(0xDD);
+        opcode.OpcodeByte.Should().Equal(0x46);
     }
 
     [TestCase("0x00", null, 0x00)]
@@ -223,7 +228,7 @@ public sealed class OpcodeYamlTests : TestFixture
 
         prefix1.Should().Equal(prefix2);
         opcodeByte1.Should().Equal(opcodeByte2);
-        prefix1.Should().Equal((byte)0xED);
-        opcodeByte1.Should().Equal((byte)0x5F);
+        prefix1.Should().Equal(0xED);
+        opcodeByte1.Should().Equal(0x5F);
     }
 }

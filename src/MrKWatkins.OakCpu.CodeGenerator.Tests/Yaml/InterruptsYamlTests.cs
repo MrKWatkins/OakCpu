@@ -38,8 +38,8 @@ public sealed class InterruptsYamlTests : TestFixture
         interrupts.Properties[1].Name.Should().Equal("counter");
         interrupts.Properties[1].Type.Should().Equal(DataType.U8);
         interrupts.Modes.Should().HaveCount(2);
-        interrupts.Modes[0].Number.Should().Equal((byte)0);
-        interrupts.Modes[1].Number.Should().Equal((byte)1);
+        interrupts.Modes[0].Number.Should().Equal(0);
+        interrupts.Modes[1].Number.Should().Equal(1);
         interrupts.HaltedCycle.Should().HaveCount(3);
         interrupts.HaltedCycle[0].Should().Equal("step_one");
         interrupts.HaltedCycle[1].Should().Equal("step_two");
@@ -101,7 +101,7 @@ public sealed class InterruptsYamlTests : TestFixture
         interrupts.Properties[0].Name.Should().Equal("single_prop");
         interrupts.Properties[0].Type.Should().Equal(DataType.U16);
         interrupts.Modes.Should().HaveCount(1);
-        interrupts.Modes[0].Number.Should().Equal((byte)42);
+        interrupts.Modes[0].Number.Should().Equal(42);
         interrupts.Modes[0].NextOpcode.Should().Equal(NextOpcodeMode.Custom);
         interrupts.HaltedCycle.Should().HaveCount(1);
         interrupts.HaltedCycle[0].Should().Equal("single_step");
@@ -176,13 +176,13 @@ public sealed class InterruptsYamlTests : TestFixture
         var interrupts = YamlSerializer.Deserialize<InterruptsYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
 
         interrupts.Modes.Should().HaveCount(3);
-        interrupts.Modes[0].Number.Should().Equal((byte)0);
+        interrupts.Modes[0].Number.Should().Equal(0);
         interrupts.Modes[0].NextOpcode.Should().Equal(NextOpcodeMode.Read);
         interrupts.Modes[0].Steps.Should().BeEmpty();
-        interrupts.Modes[1].Number.Should().Equal((byte)1);
+        interrupts.Modes[1].Number.Should().Equal(1);
         interrupts.Modes[1].NextOpcode.Should().Equal(NextOpcodeMode.Overlapped);
         interrupts.Modes[1].Steps.Should().HaveCount(2);
-        interrupts.Modes[2].Number.Should().Equal((byte)2);
+        interrupts.Modes[2].Number.Should().Equal(2);
         interrupts.Modes[2].NextOpcode.Should().Equal(NextOpcodeMode.Custom);
     }
 

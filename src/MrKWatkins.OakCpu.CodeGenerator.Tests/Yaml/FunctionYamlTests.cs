@@ -25,6 +25,15 @@ public sealed class FunctionYamlTests : TestFixture
         function.Parameters[0].Should().Equal("a");
         function.Parameters[1].Should().Equal("b");
         function.Expression.Should().Equal("$a + $b");
+
+        // Verify round-trip serialization
+        var serializedBytes = YamlSerializer.Serialize(function, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+        serializedYaml.Contains("name: add_bytes", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("type: u8", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("expression: $a + $b", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("- a", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("- b", StringComparison.Ordinal).Should().BeTrue();
     }
 
     [Test]
@@ -42,6 +51,12 @@ public sealed class FunctionYamlTests : TestFixture
         function.Type.Should().Equal("u8");
         function.Parameters.Should().BeEmpty();
         function.Expression.Should().Equal("0");
+
+        // Verify round-trip serialization
+        var serializedBytes = YamlSerializer.Serialize(function, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+        serializedYaml.Contains("name: get_zero", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("type: u8", StringComparison.Ordinal).Should().BeTrue();
     }
 
     [Test]

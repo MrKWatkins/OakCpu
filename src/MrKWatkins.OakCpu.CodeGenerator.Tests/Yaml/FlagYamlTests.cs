@@ -21,6 +21,14 @@ public sealed class FlagYamlTests : TestFixture
         flag.Index.Should().Equal(0);
         flag.Condition.Should().Equal("$carry");
         flag.NotCondition.Should().Equal("$not_carry");
+
+        // Verify round-trip serialization
+        var serializedBytes = YamlSerializer.Serialize(flag, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+        serializedYaml.Contains("name: C", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("index: 0", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("condition: $carry", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("not_condition: $not_carry", StringComparison.Ordinal).Should().BeTrue();
     }
 
     [Test]
@@ -37,6 +45,12 @@ public sealed class FlagYamlTests : TestFixture
         flag.Index.Should().Equal(6);
         flag.Condition.Should().BeNull();
         flag.NotCondition.Should().BeNull();
+
+        // Verify round-trip serialization
+        var serializedBytes = YamlSerializer.Serialize(flag, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+        serializedYaml.Contains("name: Z", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("index: 6", StringComparison.Ordinal).Should().BeTrue();
     }
 
     [Test]
@@ -54,6 +68,13 @@ public sealed class FlagYamlTests : TestFixture
         flag.Index.Should().Equal(7);
         flag.Condition.Should().Equal("$sign");
         flag.NotCondition.Should().BeNull();
+
+        // Verify round-trip serialization
+        var serializedBytes = YamlSerializer.Serialize(flag, YamlOptions.Instance);
+        var serializedYaml = System.Text.Encoding.UTF8.GetString(serializedBytes.Span);
+        serializedYaml.Contains("name: S", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("index: 7", StringComparison.Ordinal).Should().BeTrue();
+        serializedYaml.Contains("condition: $sign", StringComparison.Ordinal).Should().BeTrue();
     }
 
     [Test]
