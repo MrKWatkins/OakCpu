@@ -6,7 +6,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Tests;
 
 public abstract class TestFixture
 {
-    private static readonly Lazy<YamlFile> LazyZ80Yaml = new(() => LoadZ80Yaml().Result);
+    private static readonly Lazy<YamlFile> LazyZ80Yaml = new(() => LoadZ80YamlAsync().Result);
     private static readonly Lazy<GeneratorContext> LazyZ80GeneratorInput = new(() => GeneratorContext.Create("MrKWatkins.OakCpu.Z80", Z80Yaml));
 
     protected static YamlFile Z80Yaml => LazyZ80Yaml.Value;
@@ -14,15 +14,14 @@ public abstract class TestFixture
     protected static GeneratorContext Z80GeneratorContext => LazyZ80GeneratorInput.Value;
 
     [Pure]
-    protected static async Task<YamlFile> LoadZ80DefinitionFileAsync(string name)
+    protected static Task<YamlFile> LoadZ80DefinitionFileAsync(string name)
     {
         var file = Path.Combine(Z80DefinitionsDirectory, name);
-        await using var stream = File.OpenRead(file);
-        return await DeserializeYamlAsync<YamlFile>(file);
+        return DeserializeYamlAsync<YamlFile>(file);
     }
 
     [Pure]
-    protected static async Task<YamlFile> LoadZ80Yaml()
+    protected static async Task<YamlFile> LoadZ80YamlAsync()
     {
         var yamls = new List<YamlFile>();
         foreach (var file in Directory.GetFiles(Z80DefinitionsDirectory, "*.yaml", SearchOption.AllDirectories))
@@ -32,7 +31,7 @@ public abstract class TestFixture
         return YamlFile.Combine(yamls);
     }
 
-    protected static async Task<TYaml> DeserializeYamlAsync<TYaml>([PathReference] string file)
+    private static async Task<TYaml> DeserializeYamlAsync<TYaml>([PathReference] string file)
     {
         try
         {

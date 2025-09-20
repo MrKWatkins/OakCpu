@@ -143,7 +143,7 @@ public sealed class LexerTests
         var lexer = new Lexer(reader);
 
         var enumerator = ((IEnumerable)lexer).GetEnumerator();
-        using var disposable = enumerator as IDisposable;
+        using var _ = enumerator as IDisposable;
         var actualTokens = new List<object?>();
         while (enumerator.MoveNext())
         {

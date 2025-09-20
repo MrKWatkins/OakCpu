@@ -9,7 +9,7 @@ internal sealed class RemoveUnnecessaryResets : FlagOptimization
         // If we are just resetting flags, and we have copy_froms, then we can remove the reset and initialize directly from the first copy_from().
         // Must run *after* CombineConstants!
         var constant = actions.OfType<Constant>().FirstOrDefault();
-        if (constant is null || constant.BitMask != 0 || !actions.Any(a => a is CopyFrom))
+        if (constant is null || constant.BitMask != 0 || actions.All(a => a is not CopyFrom))
         {
             return actions;
         }

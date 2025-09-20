@@ -3,7 +3,6 @@ using MrKWatkins.EmulatorTestSuites.Z80.Instruction.Fuse;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 
-[Explicit]
 [Parallelizable(ParallelScope.All)]
 public sealed class FuseTests
 {

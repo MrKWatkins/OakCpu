@@ -26,7 +26,7 @@ public sealed class InstructionYamlTests : TestFixture
     [Test]
     public async Task Groups()
     {
-        var yaml = await LoadZ80Yaml();
+        var yaml = await LoadZ80YamlAsync();
         var groups = yaml.Instructions.Select(i => i.Group).Distinct().Order().ToList();
         groups.Should().SequenceEqual(
             "16-Bit Arithmetic",

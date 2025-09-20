@@ -71,14 +71,9 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
         if (step.DoesNothing)
         {
             // If we're an overlapped read and doing nothing, we still need to run step 0.
-            if (step.NextOpcode == NextOpcodeMode.Overlapped)
-            {
-                handler = PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetStepFunctionName(context.OpcodeRead.FirstStep)));
-            }
-            else
-            {
-                handler = LiteralExpression(SyntaxKind.DefaultLiteralExpression);
-            }
+            handler = step.NextOpcode == NextOpcodeMode.Overlapped
+                ? PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetStepFunctionName(context.OpcodeRead.FirstStep)))
+                : LiteralExpression(SyntaxKind.DefaultLiteralExpression);
         }
         else
         {
