@@ -10,6 +10,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Using Include="VerifyNUnit" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\MrKWatkins.OakCpu.CodeGenerator\MrKWatkins.OakCpu.CodeGenerator.csproj" />
     </ItemGroup>
 </Project>
