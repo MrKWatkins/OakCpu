@@ -1,0 +1,280 @@
+﻿using System.Runtime.CompilerServices;
+
+namespace MrKWatkins.OakCpu.Z80
+{
+    public sealed class Z80Registers
+    {
+        private readonly Z80Emulator emulator;
+        
+        internal Z80Registers(Z80Emulator emulator)
+        {
+            this.emulator = emulator;
+            Shadow = new Z80ShadowRegisters(emulator);
+        }
+
+        public Z80ShadowRegisters Shadow 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get; 
+                }
+        public byte A 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.A; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.A = value; 
+                } 
+        
+        public ushort AF 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.AF; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.AF = value; 
+                } 
+        
+        public byte B 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.B; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.B = value; 
+                } 
+        
+        public ushort BC 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.BC; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.BC = value; 
+                } 
+        
+        public byte C 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.C; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.C = value; 
+                } 
+        
+        public byte D 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.D; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.D = value; 
+                } 
+        
+        public ushort DE 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.DE; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.DE = value; 
+                } 
+        
+        public byte E 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.E; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.E = value; 
+                } 
+        
+        public byte F 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.F; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.F = value; 
+                } 
+        
+        public byte H 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.H; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.H = value; 
+                } 
+        
+        public ushort HL 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.HL; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.HL = value; 
+                } 
+        
+        public byte I 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.I; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.I = value; 
+                } 
+        
+        public ushort IR 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.IR; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.IR = value; 
+                } 
+        
+        public ushort IX 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.IX; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.IX = value; 
+                } 
+        
+        public byte IXH 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.IXH; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.IXH = value; 
+                } 
+        
+        public byte IXL 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.IXL; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.IXL = value; 
+                } 
+        
+        public ushort IY 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.IY; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.IY = value; 
+                } 
+        
+        public byte IYH 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.IYH; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.IYH = value; 
+                } 
+        
+        public byte IYL 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.IYL; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.IYL = value; 
+                } 
+        
+        public byte L 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.L; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.L = value; 
+                } 
+        
+        public ushort PC 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.PC; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.PC = value; 
+                } 
+        
+        public byte Q 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.Q; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.Q = value; 
+                } 
+        
+        public byte R 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.R; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.R = value; 
+                } 
+        
+        public ushort SP 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.SP; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.SP = value; 
+                } 
+        
+        public byte W 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.W; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.W = value; 
+                } 
+        
+        public ushort WZ 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.WZ; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.WZ = value; 
+                } 
+        
+        public byte Z 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.Z; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.Z = value; 
+                } 
+        
+    }
+
+    public sealed class Z80ShadowRegisters
+    {
+        private readonly Z80Emulator emulator;
+        
+        internal Z80ShadowRegisters(Z80Emulator emulator)
+        {
+            this.emulator = emulator;
+        }
+
+        public ushort AF 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.Shadow_AF; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.Shadow_AF = value; 
+                } 
+        
+        public ushort BC 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.Shadow_BC; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.Shadow_BC = value; 
+                } 
+        
+        public ushort DE 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.Shadow_DE; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.Shadow_DE = value; 
+                } 
+        
+        public ushort HL 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => emulator.Shadow_HL; 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => emulator.Shadow_HL = value; 
+                } 
+        
+    }
+}

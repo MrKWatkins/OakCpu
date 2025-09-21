@@ -6,6 +6,11 @@
 
     <ItemGroup>
         <PackageReference Include="VYaml" />
+        <PackageReference Include="Verify.NUnit" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="VerifyNUnit" />
     </ItemGroup>
 
     <ItemGroup>
