@@ -40,45 +40,49 @@ interrupts:
   modes:
     - number: 0
       steps:
-        - IFF1 = false; IFF2 = false;
-        - request(action.io_read);
-        - 
-        - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);
-        - move_to_opcode();
+        - IFF1 = false; IFF2 = false;                                                                 # 1
+        - request(action.io_read);                                                                    # 2
+        -                                                                                             # 3
+        - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);                                            # 4
+        - move_to_opcode();                                                                           # 5
       next_opcode: custom
       
     - number: 1
       steps:
-        - IFF1 = false; IFF2 = false;
-        - request(action.io_read);
-        - 
-        - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);
-        -
-        -
-        - SP = SP - 1; Address = SP; Data = PCH; request(action.memory_write);
-        -
-        -
-        - SP = SP - 1; Address = SP; Data = PCL; PC = 0x38; WZ = 0x38; request(action.memory_write);
-        -
-        -
+        # Should be 13 T-States, according to http://z80.info/interrup.htm.
+        - IFF1 = false; IFF2 = false;                                                                 # 1
+        - request(action.io_read);                                                                    # 2
+        -                                                                                             # 3
+        - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);                                            # 4
+        -                                                                                             # 5
+        -                                                                                             # 6
+        -                                                                                             # 7
+        - SP = SP - 1; Address = SP; Data = PCH; request(action.memory_write);                        # 8
+        -                                                                                             # 9
+        -                                                                                             # 10
+        - SP = SP - 1; Address = SP; Data = PCL; PC = 0x38; WZ = 0x38; request(action.memory_write);  # 11
+        -                                                                                             # 12
+        -                                                                                             # 13
     
     - number: 2
       steps:
-        - IFF1 = false; IFF2 = false;
-        - request(action.io_read);
-        - latch = Data;
-        - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);
-        -
-        -
-        - SP = SP - 1; Address = SP; Data = PCH; request(action.memory_write);
-        -
-        -
-        - SP = SP - 1; Address = SP; Data = PCL; Z = latch; W = I; request(action.memory_write);
-        -
-        -
-        - Address = WZ; WZ = WZ + 1; request(action.memory_read);
-        - latch = Data;
-        -
-        - Address = WZ; request(action.memory_read);
-        - W = Data; Z = latch; PC = WZ;
-        - 
+        # Should be 19 T-States, according to http://z80.info/interrup.htm.
+        - IFF1 = false; IFF2 = false;                                                                 # 1
+        - request(action.io_read);                                                                    # 2
+        - latch = Data;                                                                               # 3
+        - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);                                            # 4
+        -                                                                                             # 5
+        -                                                                                             # 6
+        -                                                                                             # 7
+        - SP = SP - 1; Address = SP; Data = PCH; request(action.memory_write);                        # 8
+        -                                                                                             # 9
+        -                                                                                             # 10
+        - SP = SP - 1; Address = SP; Data = PCL; Z = latch; W = I; request(action.memory_write);      # 11
+        -                                                                                             # 12
+        -                                                                                             # 13
+        - Address = WZ; WZ = WZ + 1; request(action.memory_read);                                     # 14
+        - latch = Data;                                                                               # 15
+        -                                                                                             # 16
+        - Address = WZ; request(action.memory_read);                                                  # 17
+        - W = Data; Z = latch; PC = WZ;                                                               # 18
+        -                                                                                             # 19

@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace MrKWatkins.OakCpu.Z80.Testing;
 
-public sealed class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80SteppableTestHarness
+public class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80SteppableTestHarness
 {
     private readonly byte[] memory = new byte[65536];
 
@@ -11,6 +11,12 @@ public sealed class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80SteppableT
         : this(new Z80Emulator())
     {
     }
+
+    // TODO: Remove.
+    public ReadOnlySpan<byte> Memory => memory;
+
+    // TODO: Remove.
+    public Z80Emulator Emulator => emulator;
 
     public override ushort RegisterAF
     {
@@ -152,9 +158,11 @@ public sealed class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80SteppableT
 
     public override void Step() => PerformActionRequired(emulator.Step());
 
-    public override void ExecuteInstruction() => emulator.ExecuteInstruction(PerformActionRequired);
+    public override void ExecuteInstruction() => ExecuteInstruction();
 
-    private void PerformActionRequired(ActionRequired actionRequired)
+    public void ExecuteInstruction(Action? onBeforeStep = null) => emulator.ExecuteInstruction(PerformActionRequired, onBeforeStep);
+
+    protected void PerformActionRequired(ActionRequired actionRequired)
     {
         switch (actionRequired)
         {

@@ -5,6 +5,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MrKWatkins.EmulatorTestSuites.Z80" />
+    <PackageReference Include="MrKWatkins.OakAsm.Disassembly.Z80" />
+    <PackageReference Include="MrKWatkins.OakAsm.Formatting" />
     <PackageReference Include="MrKWatkins.OakAsm.Z80" />
   </ItemGroup>
 </Project>

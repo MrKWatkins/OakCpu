@@ -13,7 +13,7 @@ namespace MrKWatkins.OakCpu.Z80;
 
 public sealed unsafe partial class Z80Emulator
 {
-    private static readonly ushort[] InterruptModeStepTable = [12, 17, 29];
+    private static readonly ushort[] InterruptModeStepTable = [12, 17, 30];
 
     private static bool HandleInterrupts(Z80Emulator emulator, ref ActionRequired actionRequired)
     {

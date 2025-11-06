@@ -9,6 +9,8 @@ instructions:
       # PC moves to the next instruction after a HALT. The next opcode is then repeatedly read, but PC is not advanced and the instruction is not executed 
       # until the CPU is no longer halted. See http://www.primrosebank.net/computers/z80/z80_special_reset.htm for details.
       # We use a special cycle for this to avoid the overhead of having to check halted during a normal opcode read cycle.
-      # TODO: Annoying we have to have the memory_read here. Can we make more generic too? Arbitrary custom cycles for stuff like halted? Arbitrary sets of custom cycles for stuff like modes?
-      - Q = 0; halted = true; handle_interrupts(); move_to_halted_cycle(); request(action.opcode_read);
+      # TODO: Annoying we have to have the memory_read here. Can we have generic cycles, and overlaps for them?
+      - Q = 0; halted = true; handle_interrupts(); move_to_halted_cycle(); Address = PC; request(action.opcode_read);
     next_opcode: custom
+    #  - Q = 0; PC = PC - 1; halted = true;
+    #next_opcode: overlapped

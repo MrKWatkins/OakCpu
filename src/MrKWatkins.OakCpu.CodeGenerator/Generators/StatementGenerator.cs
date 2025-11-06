@@ -93,7 +93,7 @@ public abstract class StatementGenerator : Generator
         }
         if (callStatement.Call.Function == PreDefinedFunction.HandleInterrupts)
         {
-            return GenerateHandleInterrupts();
+            return GenerateHandleInterrupts(context);
         }
         if (callStatement.Call.Function == PreDefinedFunction.MoveToInterruptMode)
         {
@@ -144,16 +144,30 @@ public abstract class StatementGenerator : Generator
         yield return ReturnStatement(LiteralExpression(SyntaxKind.TrueLiteralExpression));
     }
 
+    // TODO: If no overlapped read, skip the if altogether.
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateHandleInterrupts()
+    private static IEnumerable<StatementSyntax> GenerateHandleInterrupts(StatementGeneratorContext context)
     {
+        // We need to call the HandleInterrupts method, and if it returns true, then return from the step function.
+        // However... Overlapped reads come into play. So if we normally go on to do an overlapped read, we need to
+        // perform the first instruction of the interrupt handler, which we can do by calling Step.
+        var block = new List<StatementSyntax>();
+        if (context.Step != null && context.Step.Sequence.Steps.Last() == context.Step && context.Step.NextOpcode == NextOpcodeMode.Overlapped)
+        {
+            block.Add(
+                ExpressionStatement(
+                        AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(ActionRequiredParameterName), InvocationExpression(EmulatorMemberIdentifier("Step"))))
+                    .WithLeadingTrivia(Comment("// Overlapped interrupt handler.")));
+        }
+        block.Add(ReturnStatement());
+
         yield return IfStatement(
                 InvocationExpression(IdentifierName(HandleInterruptsMethodName))
                     .WithArgumentList(ArgumentList(SeparatedList([
                         Argument(IdentifierName(EmulatorParameterName)),
                         Argument(IdentifierName(ActionRequiredParameterName)).WithRefKindKeyword(Ref)
                     ]))),
-                Block(ReturnStatement()));
+                Block(block));
     }
 
     [Pure]

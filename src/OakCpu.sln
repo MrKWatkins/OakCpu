@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\License.md = ..\License.md
 		Disassemble.sh = Disassemble.sh
 		global.json = global.json
+		..\AGENTS.md = ..\AGENTS.md
+		..\CLAUDE.md = ..\CLAUDE.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "definitions", "definitions", "{C18D2C0D-B892-41EF-AA43-20F981CA5A56}"

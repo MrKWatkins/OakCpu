@@ -160,7 +160,7 @@ public abstract class ExpressionGenerator : Generator
         // outcome of a bitwise operation if you can see the bits.
         if (number.Type == DataType.U8 && context.Parent is BinaryOperation { Operator.Symbol: "|" or "&" or "^" } binaryOperation && binaryOperation.Right == number)
         {
-            return GenerateBinaryLiteralExpression((byte) number.Value);
+            return GenerateBinaryLiteralExpression((byte)number.Value);
         }
         return LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(number.NumberString, number.Value));
     }

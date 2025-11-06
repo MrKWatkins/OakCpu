@@ -232,8 +232,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.iff2 = false;
     }
 
-    // Interrupt Mode 1 [6]
-    // Interrupt Mode 2 [6]
+    // Interrupt Mode 1 [7]
+    // Interrupt Mode 2 [7]
     // 0xC4: CALL NZ, nn [7]
     // 0xC7: RST 0x00 [1]
     // 0xCC: CALL Z, nn [7]
@@ -275,7 +275,7 @@ public sealed unsafe partial class Z80Emulator
         emulator.data = emulator.PCH;
     }
 
-    // Interrupt Mode 1 [9]
+    // Interrupt Mode 1 [10]
     // 0xFF: RST 0x38 [4]
     // 0xDD 0xFF: RST 0x38 [4]
     private static void Step11(Z80Emulator emulator, ref ActionRequired actionRequired)
@@ -288,7 +288,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Interrupt Mode 2 [2]
-    // Interrupt Mode 2 [13]
+    // Interrupt Mode 2 [14]
     // 0xDD 0x34: INC (IX + d) [1]
     // 0xDD 0x35: DEC (IX + d) [1]
     // 0xDD 0x36: LD (IX + d), n [1]
@@ -302,7 +302,7 @@ public sealed unsafe partial class Z80Emulator
         emulator.latch = emulator.data;
     }
 
-    // Interrupt Mode 2 [9]
+    // Interrupt Mode 2 [10]
     private static void Step13(Z80Emulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
@@ -312,7 +312,7 @@ public sealed unsafe partial class Z80Emulator
         emulator.W = emulator.I;
     }
 
-    // Interrupt Mode 2 [12]
+    // Interrupt Mode 2 [13]
     // 0x2A: LD HL, (nn) [6]
     // 0x3A: LD A, (nn) [6]
     // 0xDD 0x2A: LD IX, (nn) [6]
@@ -328,7 +328,7 @@ public sealed unsafe partial class Z80Emulator
         emulator.WZ += 0x01;
     }
 
-    // Interrupt Mode 2 [15]
+    // Interrupt Mode 2 [16]
     // 0x2A: LD HL, (nn) [9]
     // 0xDD 0x2A: LD IX, (nn) [9]
     // 0xED 0x4B: LD BC, (nn) [9]
@@ -341,7 +341,7 @@ public sealed unsafe partial class Z80Emulator
         emulator.address = emulator.WZ;
     }
 
-    // Interrupt Mode 2 [16]
+    // Interrupt Mode 2 [17]
     private static void Step16(Z80Emulator emulator, ref ActionRequired actionRequired)
     {
         emulator.W = emulator.data;
@@ -355,6 +355,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -920,6 +922,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -944,6 +948,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -966,6 +972,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -982,6 +990,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -1276,6 +1286,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -1300,6 +1312,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -1322,6 +1336,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -1414,6 +1430,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -1438,6 +1456,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -1460,6 +1480,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -1538,6 +1560,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -1562,6 +1586,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -1584,6 +1610,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -1819,6 +1847,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -1843,6 +1873,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -1903,6 +1935,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -1971,6 +2005,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -1995,6 +2031,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2015,6 +2053,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2151,6 +2191,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2233,6 +2275,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2257,6 +2301,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2279,6 +2325,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2292,6 +2340,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2306,6 +2356,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2320,6 +2372,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2334,6 +2388,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2348,6 +2404,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2362,6 +2420,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2376,6 +2436,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2390,6 +2452,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2403,6 +2467,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2417,6 +2483,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2431,6 +2499,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2445,6 +2515,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2459,6 +2531,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2473,6 +2547,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2487,6 +2563,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2501,6 +2579,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2514,6 +2594,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2528,6 +2610,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2542,6 +2626,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2556,6 +2642,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2570,6 +2658,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2584,6 +2674,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2598,6 +2690,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2612,6 +2706,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2625,6 +2721,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2639,6 +2737,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2653,6 +2753,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2667,6 +2769,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2681,6 +2785,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2695,6 +2801,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2709,6 +2817,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2723,6 +2833,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2736,6 +2848,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2750,6 +2864,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2764,6 +2880,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2778,6 +2896,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2792,6 +2912,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2806,6 +2928,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2820,6 +2944,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2834,6 +2960,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2847,6 +2975,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2861,6 +2991,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2923,6 +3055,7 @@ public sealed unsafe partial class Z80Emulator
         // Move to halted cycle.
         emulator.currentStep = 9;
         Step7(emulator, ref actionRequired);
+        emulator.address = emulator.PC;
     }
 
     // 0x77: LD (HL), A [0]
@@ -2939,6 +3072,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2953,6 +3088,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2967,6 +3104,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2981,6 +3120,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -2995,6 +3136,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3009,6 +3152,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3022,6 +3167,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3048,6 +3195,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3074,6 +3223,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3100,6 +3251,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3126,6 +3279,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3152,6 +3307,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3178,6 +3335,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3231,6 +3390,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3257,6 +3418,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3283,6 +3446,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3309,6 +3474,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3335,6 +3502,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3361,6 +3530,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3387,6 +3558,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3433,6 +3606,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3459,6 +3634,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3485,6 +3662,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3511,6 +3690,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3537,6 +3718,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3563,6 +3746,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3589,6 +3774,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3637,6 +3824,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3663,6 +3852,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3689,6 +3880,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3715,6 +3908,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3741,6 +3936,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3767,6 +3964,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3793,6 +3992,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3841,6 +4042,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3862,6 +4065,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3883,6 +4088,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3904,6 +4111,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3925,6 +4134,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3946,6 +4157,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -3967,6 +4180,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4003,6 +4218,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4024,6 +4241,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4045,6 +4264,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4066,6 +4287,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4087,6 +4310,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4108,6 +4333,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4129,6 +4356,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4167,6 +4396,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4188,6 +4419,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4209,6 +4442,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4230,6 +4465,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4251,6 +4488,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4272,6 +4511,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4293,6 +4534,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4329,6 +4572,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4355,6 +4600,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4381,6 +4628,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4407,6 +4656,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4433,6 +4684,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4459,6 +4712,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4485,6 +4740,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4533,6 +4790,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -4841,6 +5100,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5013,6 +5274,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5047,6 +5310,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5116,6 +5381,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5222,6 +5489,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5246,6 +5515,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5270,6 +5541,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5294,6 +5567,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5318,6 +5593,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5342,6 +5619,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5407,6 +5686,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5431,6 +5712,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5455,6 +5738,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5479,6 +5764,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5503,6 +5790,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5527,6 +5816,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5551,6 +5842,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5592,6 +5885,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5616,6 +5911,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5640,6 +5937,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5664,6 +5963,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5688,6 +5989,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5712,6 +6015,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5736,6 +6041,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5777,6 +6084,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5801,6 +6110,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5825,6 +6136,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5849,6 +6162,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5873,6 +6188,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5897,6 +6214,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5921,6 +6240,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5962,6 +6283,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -5986,6 +6309,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6010,6 +6335,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6034,6 +6361,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6058,6 +6387,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6082,6 +6413,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6106,6 +6439,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6147,6 +6482,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6171,6 +6508,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6195,6 +6534,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6219,6 +6560,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6243,6 +6586,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6267,6 +6612,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6291,6 +6638,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6332,6 +6681,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6356,6 +6707,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6380,6 +6733,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6404,6 +6759,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6428,6 +6785,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6452,6 +6811,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6476,6 +6837,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6517,6 +6880,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6541,6 +6906,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6565,6 +6932,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6589,6 +6958,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6613,6 +6984,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6637,6 +7010,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6661,6 +7036,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6702,6 +7079,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6726,6 +7105,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6750,6 +7131,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6774,6 +7157,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6798,6 +7183,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6822,6 +7209,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6846,6 +7235,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6892,6 +7283,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6916,6 +7309,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6940,6 +7335,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6964,6 +7361,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -6988,6 +7387,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7012,6 +7413,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7036,6 +7439,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7082,6 +7487,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7106,6 +7513,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7130,6 +7539,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7154,6 +7565,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7178,6 +7591,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7202,6 +7617,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7226,6 +7643,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7272,6 +7691,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7296,6 +7717,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7320,6 +7743,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7344,6 +7769,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7368,6 +7795,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7392,6 +7821,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7416,6 +7847,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7462,6 +7895,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7486,6 +7921,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7510,6 +7947,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7534,6 +7973,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7558,6 +7999,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7582,6 +8025,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7606,6 +8051,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7652,6 +8099,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7676,6 +8125,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7700,6 +8151,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7724,6 +8177,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7748,6 +8203,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7772,6 +8229,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7796,6 +8255,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7842,6 +8303,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7866,6 +8329,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7890,6 +8355,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7914,6 +8381,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7938,6 +8407,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7962,6 +8433,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -7986,6 +8459,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8032,6 +8507,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8056,6 +8533,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8080,6 +8559,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8104,6 +8585,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8128,6 +8611,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8152,6 +8637,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8176,6 +8663,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8222,6 +8711,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8237,6 +8728,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8252,6 +8745,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8267,6 +8762,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8282,6 +8779,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8297,6 +8796,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8312,6 +8813,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8357,6 +8860,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8372,6 +8877,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8387,6 +8894,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8402,6 +8911,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8417,6 +8928,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8432,6 +8945,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8447,6 +8962,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8470,6 +8987,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8485,6 +9004,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8500,6 +9021,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8515,6 +9038,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8530,6 +9055,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8545,6 +9072,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8560,6 +9089,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8583,6 +9114,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8598,6 +9131,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8613,6 +9148,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8628,6 +9165,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8643,6 +9182,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8658,6 +9199,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8673,6 +9216,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8696,6 +9241,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8711,6 +9258,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8726,6 +9275,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8741,6 +9292,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8756,6 +9309,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8771,6 +9326,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8786,6 +9343,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8809,6 +9368,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8824,6 +9385,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8839,6 +9402,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8854,6 +9419,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8869,6 +9436,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8884,6 +9453,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8899,6 +9470,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8922,6 +9495,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8937,6 +9512,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8952,6 +9529,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8967,6 +9546,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8982,6 +9563,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -8997,6 +9580,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9012,6 +9597,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9035,6 +9622,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9050,6 +9639,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9065,6 +9656,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9080,6 +9673,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9095,6 +9690,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9110,6 +9707,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9125,6 +9724,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9148,6 +9749,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9163,6 +9766,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9178,6 +9783,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9193,6 +9800,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9208,6 +9817,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9223,6 +9834,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9238,6 +9851,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9261,6 +9876,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9276,6 +9893,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9291,6 +9910,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9306,6 +9927,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9321,6 +9944,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9336,6 +9961,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9351,6 +9978,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9374,6 +10003,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9389,6 +10020,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9404,6 +10037,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9419,6 +10054,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9434,6 +10071,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9449,6 +10088,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9464,6 +10105,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9487,6 +10130,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9502,6 +10147,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9517,6 +10164,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9532,6 +10181,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9547,6 +10198,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9562,6 +10215,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9577,6 +10232,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9600,6 +10257,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9615,6 +10274,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9630,6 +10291,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9645,6 +10308,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9660,6 +10325,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9675,6 +10342,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9690,6 +10359,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9713,6 +10384,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9728,6 +10401,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9743,6 +10418,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9758,6 +10435,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9773,6 +10452,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9788,6 +10469,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9803,6 +10486,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9826,6 +10511,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9841,6 +10528,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9856,6 +10545,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9871,6 +10562,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9886,6 +10579,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9901,6 +10596,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9916,6 +10613,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9939,6 +10638,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9954,6 +10655,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9969,6 +10672,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9984,6 +10689,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -9999,6 +10706,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10014,6 +10723,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10029,6 +10740,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10052,6 +10765,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10066,6 +10781,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10198,6 +10915,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10223,6 +10942,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10246,6 +10967,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10263,6 +10986,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10321,6 +11046,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10346,6 +11073,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10369,6 +11098,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10430,6 +11161,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10455,6 +11188,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10478,6 +11213,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10536,6 +11273,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10561,6 +11300,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10584,6 +11325,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10649,6 +11392,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10674,6 +11419,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10735,6 +11482,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10786,6 +11535,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10811,6 +11562,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -10832,6 +11585,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11046,6 +11801,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11097,6 +11854,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11122,6 +11881,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11145,6 +11906,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11159,6 +11922,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11174,6 +11939,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11189,6 +11956,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11204,6 +11973,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11219,6 +11990,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11234,6 +12007,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11262,6 +12037,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11277,6 +12054,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11291,6 +12070,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11306,6 +12087,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11321,6 +12104,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11336,6 +12121,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11351,6 +12138,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11366,6 +12155,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11381,6 +12172,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11396,6 +12189,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11410,6 +12205,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11425,6 +12222,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11440,6 +12239,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11455,6 +12256,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11470,6 +12273,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11485,6 +12290,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11500,6 +12307,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11515,6 +12324,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11529,6 +12340,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11544,6 +12357,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11559,6 +12374,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11574,6 +12391,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11589,6 +12408,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11604,6 +12425,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11619,6 +12442,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11634,6 +12459,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11648,6 +12475,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11663,6 +12492,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11678,6 +12509,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11693,6 +12526,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11708,6 +12543,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11723,6 +12560,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11738,6 +12577,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11753,6 +12594,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11767,6 +12610,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11782,6 +12627,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11851,6 +12698,7 @@ public sealed unsafe partial class Z80Emulator
         // Move to halted cycle.
         emulator.currentStep = 9;
         Step7(emulator, ref actionRequired);
+        emulator.address = emulator.PC;
     }
 
     // 0xDD 0x77: LD (IX + d), A [8]
@@ -11869,6 +12717,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11884,6 +12734,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11899,6 +12751,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11914,6 +12768,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11929,6 +12785,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11944,6 +12802,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11958,6 +12818,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -11985,6 +12847,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12012,6 +12876,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12039,6 +12905,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12066,6 +12934,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12093,6 +12963,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12120,6 +12992,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12166,6 +13040,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12193,6 +13069,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12220,6 +13098,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12247,6 +13127,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12274,6 +13156,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12301,6 +13185,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12328,6 +13214,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12355,6 +13243,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12382,6 +13272,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12409,6 +13301,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12436,6 +13330,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12463,6 +13359,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12490,6 +13388,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12517,6 +13417,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12544,6 +13446,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12571,6 +13475,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12598,6 +13504,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12625,6 +13533,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12652,6 +13562,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12679,6 +13591,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12706,6 +13620,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12733,6 +13649,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12755,6 +13673,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12777,6 +13697,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12799,6 +13721,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12821,6 +13745,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12843,6 +13769,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12865,6 +13793,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12886,6 +13816,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12908,6 +13840,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12930,6 +13864,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12952,6 +13888,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12974,6 +13912,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -12996,6 +13936,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13018,6 +13960,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13040,6 +13984,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13062,6 +14008,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13084,6 +14032,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13106,6 +14056,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13128,6 +14080,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13150,6 +14104,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13172,6 +14128,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13193,6 +14151,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13220,6 +14180,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13247,6 +14209,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13274,6 +14238,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13301,6 +14267,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13328,6 +14296,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13355,6 +14325,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13382,6 +14354,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13505,6 +14479,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13604,6 +14580,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13621,6 +14599,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13637,6 +14617,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13670,6 +14652,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13721,6 +14705,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13852,6 +14838,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -13881,6 +14869,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -14037,6 +15027,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -14123,6 +15115,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15145,6 +16139,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15170,6 +16166,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15221,6 +16219,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15246,6 +16246,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15431,6 +16433,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15446,6 +16450,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15474,6 +16480,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15489,6 +16497,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15504,6 +16514,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15519,6 +16531,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15534,6 +16548,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15549,6 +16565,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15564,6 +16582,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15579,6 +16599,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15594,6 +16616,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15609,6 +16633,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15623,6 +16649,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15638,6 +16666,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15653,6 +16683,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15668,6 +16700,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15683,6 +16717,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15698,6 +16734,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15713,6 +16751,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15728,6 +16768,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15742,6 +16784,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15757,6 +16801,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15828,6 +16874,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15843,6 +16891,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15870,6 +16920,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15897,6 +16949,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15924,6 +16978,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15951,6 +17007,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -15978,6 +17036,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -16005,6 +17065,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -16032,6 +17094,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -16059,6 +17123,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -16081,6 +17147,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -16103,6 +17171,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -16125,6 +17195,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -16147,6 +17219,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -16169,6 +17243,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -16191,6 +17267,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -16218,6 +17296,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -16245,6 +17325,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -16269,6 +17351,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
@@ -16326,6 +17410,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
         {
+            // Overlapped interrupt handler.
+            actionRequired = emulator.Step();
             return;
         }
 
