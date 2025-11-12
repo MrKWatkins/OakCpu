@@ -1,4 +1,5 @@
 using MrKWatkins.EmulatorTestSuites.Z80.Program.MarkWoodmass;
+using MrKWatkins.OakCpu.Z80.Testing;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 

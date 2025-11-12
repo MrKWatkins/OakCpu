@@ -7,6 +7,6 @@
         <PackageReference Include="MrKWatkins.EmulatorTestSuites.Z80" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\MrKWatkins.OakCpu.Z80.Tests\MrKWatkins.OakCpu.Z80.Tests.csproj" />
+      <ProjectReference Include="..\MrKWatkins.OakCpu.Z80.Testing\MrKWatkins.OakCpu.Z80.Testing.csproj" />
     </ItemGroup>
 </Project>

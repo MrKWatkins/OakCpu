@@ -5,19 +5,25 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="BenchmarkDotNet" Version="0.15.0" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.15.6" />
     <PackageVersion Include="JetBrains.Annotations" Version="2025.2.2" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+    <!-- Needed until NUnit3TestAdapter references v2.0.0. -->
+    <PackageVersion Include="Microsoft.Testing.Platform.MSBuild" Version="2.0.0" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.1.0" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.TrxReport" Version="2.0.0" />
+    <!-- Needed until NUnit3TestAdapter references v2.0.0. -->
+    <PackageVersion Include="Microsoft.Testing.Extensions.VSTestBridge" Version="2.0.0" />
     <PackageVersion Include="MrKWatkins.Assertions" Version="0.0.21" />
     <PackageVersion Include="MrKWatkins.EmulatorTestSuites.Z80" Version="0.1.9" />
     <PackageVersion Include="MrKWatkins.OakAsm.Z80" Version="0.6.60" />
     <PackageVersion Include="NUnit" Version="4.4.0" />
-    <PackageVersion Include="NUnit3TestAdapter" Version="5.1.0" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="5.2.0" />
     <PackageVersion Include="SourceGenerator.Foundations" Version="2.0.13" />
-    <PackageVersion Include="Verify.NUnit" Version="30.17.0" />
+    <PackageVersion Include="Verify.NUnit" Version="31.6.0" />
     <PackageVersion Include="VYaml" Version="1.2.0" />
   </ItemGroup>
 </Project>

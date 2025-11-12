@@ -1,6 +1,7 @@
 using MrKWatkins.EmulatorTestSuites.Z80;
+using NUnit.Framework;
 
-namespace MrKWatkins.OakCpu.Z80.Tests;
+namespace MrKWatkins.OakCpu.Z80.Testing;
 
 public sealed class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80SteppableTestHarness
 {

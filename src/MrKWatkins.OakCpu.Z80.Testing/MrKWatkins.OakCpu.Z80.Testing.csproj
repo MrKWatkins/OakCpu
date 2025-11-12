@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <ProjectReference Include="..\MrKWatkins.OakCpu.Z80\MrKWatkins.OakCpu.Z80.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="MrKWatkins.EmulatorTestSuites.Z80" />
+        <PackageReference Include="MrKWatkins.OakAsm.Z80" />
+        <PackageReference Include="NUnit" PrivateAssets="All" />
+    </ItemGroup>
+</Project>

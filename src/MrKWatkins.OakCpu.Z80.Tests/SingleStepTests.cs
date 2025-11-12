@@ -1,5 +1,6 @@
 using MrKWatkins.EmulatorTestSuites.Z80.Instruction;
 using MrKWatkins.EmulatorTestSuites.Z80.Instruction.SingleStep;
+using MrKWatkins.OakCpu.Z80.Testing;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 
