@@ -22,12 +22,12 @@ public sealed class BinaryOperation : Expression
     /// <summary>
     /// The left side of the operation.
     /// </summary>
-    public Expression Left { get; }
+    public Expression Left { get; private set; }
 
     /// <summary>
     /// The right side of the operation.
     /// </summary>
-    public Expression Right { get; }
+    public Expression Right { get; private set; }
 
     public override DataType Type => Operator.Type;
 
@@ -37,6 +37,22 @@ public sealed class BinaryOperation : Expression
         {
             yield return Left;
             yield return Right;
+        }
+    }
+
+    public override void ReplaceChild(AstNode original, AstNode replacement)
+    {
+        if (ReferenceEquals(Left, original))
+        {
+            Left = replacement as Expression ?? throw new ArgumentException($"Value must be a {nameof(Expression)}, not a {replacement.GetType().Name}.", nameof(replacement));
+        }
+        else if (ReferenceEquals(Right, original))
+        {
+            Right = replacement as Expression ?? throw new ArgumentException($"Value must be a {nameof(Expression)}, not a {replacement.GetType().Name}.", nameof(replacement));
+        }
+        else
+        {
+            throw new ArgumentException("Value is not a child of this node.", nameof(original));
         }
     }
 

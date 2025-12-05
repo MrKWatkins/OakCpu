@@ -92,7 +92,7 @@ public sealed class Instruction : StepSequence
     private static void ResolveTypesInFlagsExpressions(Step steps, IReadOnlyDictionary<string, Expression> flags)
     {
         var variables = new Dictionary<string, TemporaryVariable>();
-        foreach (var node in steps.Statements.SelectMany(s => s.Traverse()))
+        foreach (var node in steps.Statements.SelectMany(s => s.TraverseDepthFirst()))
         {
             if (node is IReferencesTemporaryVariable referencesTemporaryVariable)
             {
@@ -113,7 +113,7 @@ public sealed class Instruction : StepSequence
         {
             var flag = kvp.Key;
 
-            foreach (var variableReference in kvp.Value.Traverse().OfType<IReferencesTemporaryVariable>())
+            foreach (var variableReference in kvp.Value.TraverseDepthFirst().OfType<IReferencesTemporaryVariable>())
             {
                 if (!temporaryVariables.TryGetValue(variableReference.Variable.Name, out var variable))
                 {

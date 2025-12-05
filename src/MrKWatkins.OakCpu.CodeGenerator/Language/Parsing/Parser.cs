@@ -1,5 +1,6 @@
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
+using MrKWatkins.OakCpu.CodeGenerator.Language.Ast.Optimization;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Lexing;
 using Boolean = MrKWatkins.OakCpu.CodeGenerator.Language.Ast.Boolean;
 
@@ -52,14 +53,14 @@ public static class Parser
 
             lexer.Read();
 
-            yield return parsed switch
+            yield return Optimizer.Optimize(parsed switch
             {
                 IfStatement ifStatement => ParseIfStatements(context, lexer, ifStatement),
                 Statement statement => statement,
                 Call { Function.Type: DataType.Void } call => new CallStatement(call),
                 TemporaryVariableAccess temporaryVariableAccess => new TemporaryVariableDeclarationStatement(temporaryVariableAccess.Variable),
                 _ => throw new InvalidOperationException($"Expression \"{parsed}\" did not parse to a statement.")
-            };
+            });
         }
     }
 

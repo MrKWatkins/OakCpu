@@ -31,20 +31,6 @@ public abstract class ExpressionGenerator : Generator
     [Pure]
     private static ExpressionSyntax GenerateBinaryOperation(StatementGeneratorContext context, BinaryOperation binaryOperation)
     {
-        // If one operand is 0, we can simplify certain operations.
-        if (binaryOperation.Operator.LeftIdentity.HasValue &&
-            binaryOperation.Left is Number leftNumber &&
-            leftNumber.Value == binaryOperation.Operator.LeftIdentity.Value)
-        {
-            return GenerateExpressionSyntax(context, binaryOperation.Right);
-        }
-        if (binaryOperation.Operator.RightIdentity.HasValue &&
-            binaryOperation.Right is Number rightNumber &&
-            rightNumber.Value == binaryOperation.Operator.RightIdentity.Value)
-        {
-            return GenerateExpressionSyntax(context, binaryOperation.Left);
-        }
-
         var left = GenerateExpressionSyntax(context, binaryOperation.Left);
         if (binaryOperation.Left is BinaryOperation leftBinary && leftBinary.Operator.Precedence < binaryOperation.Operator.Precedence)
         {
