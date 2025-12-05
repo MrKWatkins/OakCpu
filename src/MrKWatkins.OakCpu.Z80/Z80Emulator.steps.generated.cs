@@ -160,8 +160,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x38;
-        emulator.WZ = (ushort)0x38;
+        emulator.PC = 0x38;
+        emulator.WZ = 0x38;
     }
 
     // Interrupt Mode 2 [0]
@@ -1274,7 +1274,7 @@ public sealed unsafe partial class Z80Emulator
     private static void Step_169(Z80Emulator emulator, ref ActionRequired actionRequired)
     {
         var low_a = emulator.A & 0x0F;
-        var modifier = (int)0x00;
+        var modifier = 0x00;
         if (((emulator.F & 0b00010000) == 0b00010000 /* flag.H */) || low_a > 0x09)
         {
             modifier += 0x06;
@@ -5169,8 +5169,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x00;
-        emulator.WZ = (ushort)0x00;
+        emulator.PC = 0x00;
+        emulator.WZ = 0x00;
     }
 
     // 0xC7: RST 0x00 [6]
@@ -5503,8 +5503,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x08;
-        emulator.WZ = (ushort)0x08;
+        emulator.PC = 0x08;
+        emulator.WZ = 0x08;
     }
 
     // 0xCF: RST 0x08 [6]
@@ -5854,8 +5854,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x10;
-        emulator.WZ = (ushort)0x10;
+        emulator.PC = 0x10;
+        emulator.WZ = 0x10;
     }
 
     // 0xD7: RST 0x10 [6]
@@ -6161,8 +6161,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x18;
-        emulator.WZ = (ushort)0x18;
+        emulator.PC = 0x18;
+        emulator.WZ = 0x18;
     }
 
     // 0xDF: RST 0x18 [6]
@@ -6518,8 +6518,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x20;
-        emulator.WZ = (ushort)0x20;
+        emulator.PC = 0x20;
+        emulator.WZ = 0x20;
     }
 
     // 0xE7: RST 0x20 [6]
@@ -6788,8 +6788,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x28;
-        emulator.WZ = (ushort)0x28;
+        emulator.PC = 0x28;
+        emulator.WZ = 0x28;
     }
 
     // 0xEF: RST 0x28 [6]
@@ -7110,8 +7110,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x30;
-        emulator.WZ = (ushort)0x30;
+        emulator.PC = 0x30;
+        emulator.WZ = 0x30;
     }
 
     // 0xF7: RST 0x30 [6]
@@ -7255,7 +7255,7 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         emulator.instructionComplete = true;
         emulator.address = emulator.PC;
-        emulator.currentStep = (ushort)0x01;
+        emulator.currentStep = 0x01;
     }
 
     // 0xFC: CALL M, nn [0]
@@ -7383,8 +7383,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x38;
-        emulator.WZ = (ushort)0x38;
+        emulator.PC = 0x38;
+        emulator.WZ = 0x38;
     }
 
     // 0xFF: RST 0x38 [6]
@@ -14018,7 +14018,7 @@ public sealed unsafe partial class Z80Emulator
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var low_a = emulator.A & 0x0F;
-        var modifier = (int)0x00;
+        var modifier = 0x00;
         if (((emulator.F & 0b00010000) == 0b00010000 /* flag.H */) || low_a > 0x09)
         {
             modifier += 0x06;
@@ -18306,8 +18306,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x00;
-        emulator.WZ = (ushort)0x00;
+        emulator.PC = 0x00;
+        emulator.WZ = 0x00;
     }
 
     // 0xDD 0xC7: RST 0x00 [6]
@@ -18681,8 +18681,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x08;
-        emulator.WZ = (ushort)0x08;
+        emulator.PC = 0x08;
+        emulator.WZ = 0x08;
     }
 
     // 0xDD 0xCF: RST 0x08 [6]
@@ -19050,8 +19050,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x10;
-        emulator.WZ = (ushort)0x10;
+        emulator.PC = 0x10;
+        emulator.WZ = 0x10;
     }
 
     // 0xDD 0xD7: RST 0x10 [6]
@@ -19369,8 +19369,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x18;
-        emulator.WZ = (ushort)0x18;
+        emulator.PC = 0x18;
+        emulator.WZ = 0x18;
     }
 
     // 0xDD 0xDF: RST 0x18 [6]
@@ -19744,8 +19744,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x20;
-        emulator.WZ = (ushort)0x20;
+        emulator.PC = 0x20;
+        emulator.WZ = 0x20;
     }
 
     // 0xDD 0xE7: RST 0x20 [6]
@@ -20042,8 +20042,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x28;
-        emulator.WZ = (ushort)0x28;
+        emulator.PC = 0x28;
+        emulator.WZ = 0x28;
     }
 
     // 0xDD 0xEF: RST 0x28 [6]
@@ -20382,8 +20382,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x30;
-        emulator.WZ = (ushort)0x30;
+        emulator.PC = 0x30;
+        emulator.WZ = 0x30;
     }
 
     // 0xDD 0xF7: RST 0x30 [6]
@@ -20531,7 +20531,7 @@ public sealed unsafe partial class Z80Emulator
         emulator.Q = 0x00;
         emulator.instructionComplete = true;
         emulator.address = emulator.PC;
-        emulator.currentStep = (ushort)0x01;
+        emulator.currentStep = 0x01;
     }
 
     // 0xDD 0xFC: CALL M, nn [0]
@@ -20683,8 +20683,8 @@ public sealed unsafe partial class Z80Emulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = (ushort)0x38;
-        emulator.WZ = (ushort)0x38;
+        emulator.PC = 0x38;
+        emulator.WZ = 0x38;
     }
 
     // 0xDD 0xFF: RST 0x38 [6]

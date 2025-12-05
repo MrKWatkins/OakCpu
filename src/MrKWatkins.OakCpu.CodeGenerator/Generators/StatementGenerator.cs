@@ -183,8 +183,9 @@ public abstract class StatementGenerator : Generator
             yield break;
         }
 
+        // Might need to cast to the correct type. We can ignore the cast if the value is a numeric literal; the compiler will type the number correctly for us.
         var value = ExpressionGenerator.GenerateExpressionSyntax(context, assignment.Value);
-        if (assignment.Value.Type != assignment.Target.Type)
+        if (assignment.Target.Type != assignment.Value.Type && assignment.Value is not Number)
         {
             if (assignment.Value is BinaryOperation)
             {
