@@ -88,6 +88,8 @@ public abstract class ExpressionGenerator : Generator
     [Pure]
     private static ExpressionSyntax GeneratePopCountExpressionSyntax(StatementGeneratorContext context, Expression argument)
     {
+        context.GeneratorContext.RequiredUsings.Add("System.Numerics");
+
         var argumentExpression = GenerateExpressionSyntax(context, argument);
 
         // PopCount has overloads for unsigned types, so we only need to cast if the argument is signed. Need to make sure
@@ -101,7 +103,7 @@ public abstract class ExpressionGenerator : Generator
         return InvocationExpression(
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName("System.Numerics.BitOperations"),
+                    IdentifierName("BitOperations"),
                     IdentifierName("PopCount")))
             .WithArgumentList(
                 ArgumentList(
