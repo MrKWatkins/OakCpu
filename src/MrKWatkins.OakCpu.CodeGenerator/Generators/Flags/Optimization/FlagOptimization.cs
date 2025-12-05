@@ -2,6 +2,10 @@ using MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Actions;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Optimization;
 
+// Transforms tried that did not work:
+// * Copying registers to local fields. The JIT already caches the field values.
+// * Unsafe.BitCast<bool, byte>(A == constant) for is_zero rather than A == 0 ? 1 : 0 because it wasn't always generating a sete.
+// * Unsafe.BitCast<bool, byte>(A == 0)) << 6 when setting Z to is_zero rather than A == 0 ? 64 : 0 as the latter generates more assembly instructions.
 internal abstract class FlagOptimization
 {
     private static readonly IReadOnlyList<FlagOptimization> All =

@@ -89,7 +89,11 @@ public abstract class ExpressionGenerator : Generator
     private static ExpressionSyntax GeneratePopCountExpressionSyntax(StatementGeneratorContext context, Expression argument)
     {
         var argumentExpression = GenerateExpressionSyntax(context, argument);
-        if (argument.Type != PreDefinedFunction.PopCount.Type)
+
+        // PopCount has overloads for unsigned types, so we only need to cast if the argument is signed. Need to make sure
+        // we check the type of the actual value being passed in the argument scope.
+        var type = argument is Access access ? context.ArgumentScope[access.Name].Type : argument.Type;
+        if (type.IsSigned)
         {
             argumentExpression = CastExpression(PreDefinedFunction.PopCount.TypeSyntax, ParenthesizedExpression(argumentExpression));
         }
