@@ -29,7 +29,8 @@ namespace MrKWatkins.OakCpu.Z80.Benchmarks;
 // | ZEXALL | aluop a,nn | 2.132 s | 0.0420 s | 0.0789 s |   x74.43 |   65.69 KB | 2025-06-25 After adding a separate halt cycle.
 // | ZEXALL | aluop a,nn | 2.068 s | 0.0257 s | 0.0240 s |   x76.74 |   65.69 KB | 2025-06-25 After fixing LDIR. (Does that mean it's now doing fewer cycles? Error has dropped a lot too. Or just variation in the benchmark? Who knows...)
 // | ZEXALL | aluop a,nn | 2.424 s | 0.0286 s | 0.0253 s |   x65.45 |   65.70 KB | 2025-06-07 After completing emulator and separating out test suites. No idea why the speed has dropped so much...
-// | ZEXALL | aluop a,nn | 2.246 s | 0.0175 s | 0.0164 s |   x70.65 |   64.66 KB | 2025-11-12 .NET 10.
+// | ZEXALL | aluop a,nn | 2.246 s | 0.0175 s | 0.0164 s |   x70.65 |   64.66 KB | 2025-11-12 .NET 10. This was a lucky measurement; other tests after with no real changes came in around ~2.35s
+// | ZEXALL | aluop a,nn | 2.261 s | 0.0381 s | 0.0356 s |   x70.16 |   64.66 KB | 2025-12-05 After various code gen improvements. JITted code probably hasn't changed.
 [MemoryDiagnoser]
 [Config(typeof(Config))]
 [SuppressMessage("ReSharper", "InconsistentNaming")]

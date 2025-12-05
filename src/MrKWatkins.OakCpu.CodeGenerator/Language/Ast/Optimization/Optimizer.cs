@@ -4,16 +4,13 @@ internal abstract class Optimizer
 {
     private static readonly IReadOnlyList<Optimizer> All =
     [
-        new SimplifyBinaryIdentityOperations()
+        new SimplifyBinaryIdentityOperations(),
+        new UnaryConstantFolding()
     ];
 
     [MustUseReturnValue]
-    internal static T Optimize<T>(T root)
-        where T : AstNode =>
-        All.Aggregate(root, (current, optimization) => (T)optimization.OptimizeNodeAndChildren(current));
-
-    [MustUseReturnValue]
-    private AstNode OptimizeNodeAndChildren(AstNode node)
+    internal static T Optimize<T>(T node)
+        where T : AstNode
     {
         var children = node.Children.ToArray();
         foreach (var child in children)
@@ -25,7 +22,7 @@ internal abstract class Optimizer
             }
         }
 
-        return OptimizeNode(node);
+        return (T)All.Aggregate<Optimizer, AstNode>(node, (current, optimizer) => optimizer.OptimizeNode(current));
     }
 
     [Pure]
@@ -37,5 +34,5 @@ internal abstract class Optimizer<T> : Optimizer
 {
     protected override AstNode OptimizeNode(AstNode node) => node is T typedNode ? OptimizeNode(typedNode) : node;
 
-    protected abstract AstNode OptimizeNode(T node);
+    protected abstract AstNode OptimizeNode(T unaryOperation);
 }
