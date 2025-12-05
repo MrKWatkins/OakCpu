@@ -171,13 +171,8 @@ internal sealed class Lexer(TextReader input) : IEnumerable<Token>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     [Pure]
-    private static int ParseNumber(string number)
-    {
-        if (number.StartsWith("0x", StringComparison.Ordinal))
-        {
-            return int.Parse(number.Substring(2), NumberStyles.HexNumber);
-        }
-
-        return int.Parse(number);
-    }
+    private static int ParseNumber(string number) =>
+        number.StartsWith("0x", StringComparison.Ordinal)
+            ? int.Parse(number[2..], NumberStyles.HexNumber) // skipcq: CS-R1004
+            : int.Parse(number); // skipcq: CS-R1004
 }

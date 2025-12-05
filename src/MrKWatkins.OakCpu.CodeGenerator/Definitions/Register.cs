@@ -53,7 +53,7 @@ public sealed class Register
         {
             throw new InvalidOperationException("Registers must have type u8 or u16.");
         }
-        if (yamls.Any(y => (y.High != null && y.High.Type != DataType.U8) || (y.Low != null && y.Low.Type != DataType.U8)))
+        if (yamls.Any(y => (y.High != null && y.High.Type != DataType.U8) || (y.Low != null && y.Low.Type != DataType.U8)))  // skipcq: CS-R1136
         {
             throw new InvalidOperationException("High and low registers must have type u8.");
         }

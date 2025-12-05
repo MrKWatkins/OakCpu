@@ -218,10 +218,17 @@ public abstract class StatementGenerator : Generator
     private static bool TryGenerateCompoundAssignment(StatementGeneratorContext context, Assignment assignment, [MaybeNullWhen(false)] out StatementSyntax statement)
     {
         //  We don't check for X = Y + X; just write compounds with the left as the target.
-        if (assignment.Value.Type != assignment.Target.Type ||
-            assignment.Value is not BinaryOperation binary ||
+        if (assignment.Value is not BinaryOperation binary ||
             binary.Left != assignment.Target ||
             binary.Operator.CompoundAssignmentSyntaxKind == null)
+        {
+            statement = null;
+            return false;
+        }
+
+        // If the type of the right-hand side does not match the target, then skip the assignment. Exception to this is if it's a numeric constant - that will be
+        // typed by the compiler to the target type.
+        if (assignment.Target.Type != binary.Right.Type && binary.Right is not Number)
         {
             statement = null;
             return false;
