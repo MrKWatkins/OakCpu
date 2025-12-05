@@ -11,15 +11,7 @@ public sealed class BinaryOperation : Expression
     {
         Operator = @operator;
         Left = left as Expression ?? throw new ArgumentException($"Value must be a {nameof(Expression)}, not a {left.GetType().Name}.", nameof(left));
-        /*if (Left.Type == DataType.Void)
-        {
-            throw new ArgumentException($"Value cannot be of type {nameof(DataType.Void)}.", nameof(left));
-        }*/
         Right = right as Expression ?? throw new ArgumentException($"Value must be a {nameof(Expression)}, not a {right.GetType().Name}.", nameof(right));
-        /*if (Right.Type == DataType.Void)
-        {
-            throw new ArgumentException($"Value cannot be of type {nameof(DataType.Void)}.", nameof(right));
-        }*/
     }
 
     /// <summary>

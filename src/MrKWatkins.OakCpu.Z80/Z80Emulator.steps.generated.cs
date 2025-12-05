@@ -1277,13 +1277,13 @@ public sealed unsafe partial class Z80Emulator
         var modifier = (int)0x00;
         if (((emulator.F & 0b00010000) == 0b00010000 /* flag.H */) || low_a > 0x09)
         {
-            modifier = modifier + 0x06;
+            modifier += 0x06;
         }
 
         var carry = 0x00;
         if (((emulator.F & 0b00000001) == 0b00000001 /* flag.C */) || emulator.A > 0x99)
         {
-            modifier = modifier + 0x60;
+            modifier += 0x60;
             carry = 0xFF;
         }
 
@@ -14021,13 +14021,13 @@ public sealed unsafe partial class Z80Emulator
         var modifier = (int)0x00;
         if (((emulator.F & 0b00010000) == 0b00010000 /* flag.H */) || low_a > 0x09)
         {
-            modifier = modifier + 0x06;
+            modifier += 0x06;
         }
 
         var carry = 0x00;
         if (((emulator.F & 0b00000001) == 0b00000001 /* flag.C */) || emulator.A > 0x99)
         {
-            modifier = modifier + 0x60;
+            modifier += 0x60;
             carry = 0xFF;
         }
 

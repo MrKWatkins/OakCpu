@@ -47,15 +47,10 @@ public abstract class ExpressionGenerator : Generator
     }
 
     [Pure]
-    private static ExpressionSyntax GenerateCall(StatementGeneratorContext context, Call call)
-    {
-        if (call.Function is PreDefinedFunction)
-        {
-            return GeneratePreDefinedFunctionCallExpressionSyntax(context, call);
-        }
-
-        return GenerateUserDefinedFunctionCallExpressionSyntax(context, call);
-    }
+    private static ExpressionSyntax GenerateCall(StatementGeneratorContext context, Call call) =>
+        call.Function is PreDefinedFunction
+            ? GeneratePreDefinedFunctionCallExpressionSyntax(context, call)
+            : GenerateUserDefinedFunctionCallExpressionSyntax(context, call);
 
     [Pure]
     private static ExpressionSyntax GenerateUserDefinedFunctionCallExpressionSyntax(StatementGeneratorContext context, Call call)
@@ -186,13 +181,10 @@ public abstract class ExpressionGenerator : Generator
         {
             expression = BinaryExpression(SyntaxKind.EqualsExpression, ParenthesizedExpression(expression), GenerateBinaryLiteralExpression(bitMask));
         }
-        else
+        // Else if the index is not 0, shift the bit to the rightmost position.
+        else if (flagAccess.Flag.Index != 0)
         {
-            // If the index is not 0, shift the bit to the rightmost position.
-            if (flagAccess.Flag.Index != 0)
-            {
-                expression = BinaryExpression(SyntaxKind.RightShiftExpression, expression, GenerateNumericLiteralExpression(flagAccess.Flag.Index));
-            }
+            expression = BinaryExpression(SyntaxKind.RightShiftExpression, expression, GenerateNumericLiteralExpression(flagAccess.Flag.Index));
         }
 
         return ParenthesizedExpression(expression.WithTrailingTrivia(Comment($"/* flag.{flagAccess.Flag.Name} */")));
@@ -200,15 +192,10 @@ public abstract class ExpressionGenerator : Generator
 
     [Pure]
     // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-    private static ExpressionSyntax GenerateTemporaryVariableAccess(StatementGeneratorContext context, TemporaryVariableAccess temporaryVariableAccess)
-    {
-        if (!context.InitializedTemporaryVariables.Contains(temporaryVariableAccess.Name))
-        {
-            throw new InvalidOperationException($"The temporary variable {temporaryVariableAccess.Name} has not been initialized.");
-        }
-
-        return temporaryVariableAccess.Identifier;
-    }
+    private static ExpressionSyntax GenerateTemporaryVariableAccess(StatementGeneratorContext context, TemporaryVariableAccess temporaryVariableAccess) =>
+        context.InitializedTemporaryVariables.Contains(temporaryVariableAccess.Name)
+            ? temporaryVariableAccess.Identifier
+            : throw new InvalidOperationException($"The temporary variable {temporaryVariableAccess.Name} has not been initialized.");
 
     [Pure]
     private static ExpressionSyntax GenerateUnaryOperation(StatementGeneratorContext context, UnaryOperation unaryOperation)

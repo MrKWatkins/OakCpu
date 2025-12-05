@@ -177,9 +177,13 @@ public abstract class StatementGenerator : Generator
             yield break;
         }
 
-        // TODO: AssignmentEqual if possible, i.e. A |= D rather than A = (byte)(A | D). Probably generates the same code though...
-        var value = ExpressionGenerator.GenerateExpressionSyntax(context, assignment.Value);
+        if (TryGenerateCompoundAssignment(context, assignment, out var statement))
+        {
+            yield return statement;
+            yield break;
+        }
 
+        var value = ExpressionGenerator.GenerateExpressionSyntax(context, assignment.Value);
         if (assignment.Value.Type != assignment.Target.Type)
         {
             if (assignment.Value is BinaryOperation)
@@ -208,6 +212,27 @@ public abstract class StatementGenerator : Generator
         }
 
         yield return ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, target, value));
+    }
+
+    [Pure]
+    private static bool TryGenerateCompoundAssignment(StatementGeneratorContext context, Assignment assignment, [MaybeNullWhen(false)] out StatementSyntax statement)
+    {
+        //  We don't check for X = Y + X; just write compounds with the left as the target.
+        if (assignment.Value.Type != assignment.Target.Type ||
+            assignment.Value is not BinaryOperation binary ||
+            binary.Left != assignment.Target ||
+            binary.Operator.CompoundAssignmentSyntaxKind == null)
+        {
+            statement = null;
+            return false;
+        }
+
+        var value = ExpressionGenerator.GenerateExpressionSyntax(context, binary.Right);
+
+        var target = assignment.Target is TemporaryVariableAccess temporaryVariableAccess ? temporaryVariableAccess.Identifier : ExpressionGenerator.GenerateExpressionSyntax(context, assignment.Target);
+
+        statement = ExpressionStatement(AssignmentExpression(binary.Operator.CompoundAssignmentSyntaxKind.Value, target, value));
+        return true;
     }
 
     [Pure]
