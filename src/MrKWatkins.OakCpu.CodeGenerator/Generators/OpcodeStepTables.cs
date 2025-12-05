@@ -16,10 +16,7 @@ public sealed class OpcodeStepTables : IEnumerable<OpcodeStepTable>
         {
             if (instructionYaml.OpcodeTable != null)
             {
-                if (!custom.ContainsKey(instructionYaml.OpcodeTable))
-                {
-                    custom.Add(instructionYaml.OpcodeTable, OpcodeStepTable.CreateCustom(instructionYaml.OpcodeTable));
-                }
+                custom.TryAdd(instructionYaml.OpcodeTable, OpcodeStepTable.CreateCustom(instructionYaml.OpcodeTable));
                 continue;
             }
 

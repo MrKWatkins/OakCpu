@@ -27,7 +27,7 @@ public abstract partial class TypeGenerator : Generator
     [GeneratedRegex(@"\r?\n\r?\n\r?\n")]
     private static partial Regex DoubleBlankLinesRegex();
 
-    [GeneratedRegex(@"    {\r?\n\r?\n")]
+    [GeneratedRegex(@"{\r?\n\r?\n")]
     private static partial Regex ExtraBlankLineInClassDeclarationRegex();
 
     [GeneratedRegex(@"\r?\n")]
@@ -86,7 +86,7 @@ public abstract partial class TypeGenerator : Generator
         code = DoubleBlankLinesRegex().Replace(code, "\n\n");
 
         // Remove extra blank line in class declaration.
-        code = ExtraBlankLineInClassDeclarationRegex().Replace(code, "    {\n");
+        code = ExtraBlankLineInClassDeclarationRegex().Replace(code, "{\n");
 
         // Normalize new lines.
         code = NewlineRegex().Replace(code, Environment.NewLine);
@@ -99,14 +99,12 @@ public abstract partial class TypeGenerator : Generator
     {
         context = context.WithRequiredUsings();
 
-        var classDeclarations = CreateTypes(context).ToArray<MemberDeclarationSyntax>();
+        var members = new List<MemberDeclarationSyntax> { context.CreateRootNamespaceDeclaration() };
+        members.AddRange(CreateTypes(context));
 
         return CompilationUnit()
             .AddUsings(context.RequiredUsings.OrderBy(n => n).Select(CreateUsingStatement).ToArray())
-            .AddMembers(
-                context
-                    .CreateRootNamespaceDeclaration()
-                    .AddMembers(classDeclarations))
+            .AddMembers(members.ToArray())
             .NormalizeWhitespace();
     }
 

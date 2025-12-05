@@ -9,222 +9,221 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace MrKWatkins.OakCpu.Z80
+namespace MrKWatkins.OakCpu.Z80;
+
+[StructLayout(LayoutKind.Explicit)]
+public sealed unsafe partial class Z80Emulator
 {
-    [StructLayout(LayoutKind.Explicit)]
-    public sealed unsafe partial class Z80Emulator
+    [FieldOffset(0)]
+    internal ushort AF;
+
+    [FieldOffset(0)]
+    internal byte F;
+
+    [FieldOffset(1)]
+    internal byte A;
+
+    [FieldOffset(2)]
+    internal ushort BC;
+
+    [FieldOffset(2)]
+    internal byte C;
+
+    [FieldOffset(3)]
+    internal byte B;
+
+    [FieldOffset(4)]
+    internal ushort DE;
+
+    [FieldOffset(4)]
+    internal byte E;
+
+    [FieldOffset(5)]
+    internal byte D;
+
+    [FieldOffset(6)]
+    internal ushort HL;
+
+    [FieldOffset(6)]
+    internal byte L;
+
+    [FieldOffset(7)]
+    internal byte H;
+
+    [FieldOffset(8)]
+    internal ushort IR;
+
+    [FieldOffset(8)]
+    internal byte R;
+
+    [FieldOffset(9)]
+    internal byte I;
+
+    [FieldOffset(10)]
+    internal ushort IX;
+
+    [FieldOffset(10)]
+    internal byte IXL;
+
+    [FieldOffset(11)]
+    internal byte IXH;
+
+    [FieldOffset(12)]
+    internal ushort IY;
+
+    [FieldOffset(12)]
+    internal byte IYL;
+
+    [FieldOffset(13)]
+    internal byte IYH;
+
+    [FieldOffset(14)]
+    internal ushort PC;
+
+    [FieldOffset(14)]
+    internal byte PCL;
+
+    [FieldOffset(15)]
+    internal byte PCH;
+
+    [FieldOffset(16)]
+    internal ushort SP;
+
+    [FieldOffset(16)]
+    internal byte SPL;
+
+    [FieldOffset(17)]
+    internal byte SPH;
+
+    [FieldOffset(18)]
+    internal ushort WZ;
+
+    [FieldOffset(18)]
+    internal byte Z;
+
+    [FieldOffset(19)]
+    internal byte W;
+
+    [FieldOffset(20)]
+    internal ushort Shadow_AF;
+
+    [FieldOffset(20)]
+    internal byte Shadow_AFL;
+
+    [FieldOffset(21)]
+    internal byte Shadow_AFH;
+
+    [FieldOffset(22)]
+    internal ushort Shadow_BC;
+
+    [FieldOffset(22)]
+    internal byte Shadow_BCL;
+
+    [FieldOffset(23)]
+    internal byte Shadow_BCH;
+
+    [FieldOffset(24)]
+    internal ushort Shadow_DE;
+
+    [FieldOffset(24)]
+    internal byte Shadow_DEL;
+
+    [FieldOffset(25)]
+    internal byte Shadow_DEH;
+
+    [FieldOffset(26)]
+    internal ushort Shadow_HL;
+
+    [FieldOffset(26)]
+    internal byte Shadow_HLL;
+
+    [FieldOffset(27)]
+    internal byte Shadow_HLH;
+
+    [FieldOffset(28)]
+    internal byte Q;
+
+    public Z80Emulator()
     {
-        [FieldOffset(0)]
-        internal ushort AF;
+        opcodeStepTable = OpcodeStepTableNoPrefix;
+        Registers = new Z80Registers(this);
+        Flags = new Z80Flags(this);
+        Interrupts = new Z80Interrupts(this);
+    }
 
-        [FieldOffset(0)]
-        internal byte F;
+    [field: FieldOffset(32)]
+    public Z80Registers Registers
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
 
-        [FieldOffset(1)]
-        internal byte A;
+    [field: FieldOffset(40)]
+    public Z80Flags Flags
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
 
-        [FieldOffset(2)]
-        internal ushort BC;
+    [field: FieldOffset(48)]
+    public Z80Interrupts Interrupts
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
 
-        [FieldOffset(2)]
-        internal byte C;
+    [FieldOffset(56)]
+    private ushort[] opcodeStepTable;
 
-        [FieldOffset(3)]
-        internal byte B;
+    [FieldOffset(64)]
+    private ushort address;
 
-        [FieldOffset(4)]
-        internal ushort DE;
+    public ushort Address
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => address;
+    }
 
-        [FieldOffset(4)]
-        internal byte E;
+    [FieldOffset(66)]
+    private ushort currentStep;
 
-        [FieldOffset(5)]
-        internal byte D;
+    [FieldOffset(68)]
+    private byte latch;
 
-        [FieldOffset(6)]
-        internal ushort HL;
+    [FieldOffset(69)]
+    private bool instructionComplete;
 
-        [FieldOffset(6)]
-        internal byte L;
+    public bool InstructionComplete
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => instructionComplete; 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => instructionComplete = value;
+    }
 
-        [FieldOffset(7)]
-        internal byte H;
+    [FieldOffset(70)]
+    internal byte im;
 
-        [FieldOffset(8)]
-        internal ushort IR;
+    [FieldOffset(71)]
+    internal bool iff1;
 
-        [FieldOffset(8)]
-        internal byte R;
+    [FieldOffset(72)]
+    internal bool iff2;
 
-        [FieldOffset(9)]
-        internal byte I;
+    [FieldOffset(73)]
+    internal bool halted;
 
-        [FieldOffset(10)]
-        internal ushort IX;
+    [FieldOffset(74)]
+    internal bool interrupt;
 
-        [FieldOffset(10)]
-        internal byte IXL;
+    [FieldOffset(75)]
+    private byte data;
 
-        [FieldOffset(11)]
-        internal byte IXH;
-
-        [FieldOffset(12)]
-        internal ushort IY;
-
-        [FieldOffset(12)]
-        internal byte IYL;
-
-        [FieldOffset(13)]
-        internal byte IYH;
-
-        [FieldOffset(14)]
-        internal ushort PC;
-
-        [FieldOffset(14)]
-        internal byte PCL;
-
-        [FieldOffset(15)]
-        internal byte PCH;
-
-        [FieldOffset(16)]
-        internal ushort SP;
-
-        [FieldOffset(16)]
-        internal byte SPL;
-
-        [FieldOffset(17)]
-        internal byte SPH;
-
-        [FieldOffset(18)]
-        internal ushort WZ;
-
-        [FieldOffset(18)]
-        internal byte Z;
-
-        [FieldOffset(19)]
-        internal byte W;
-
-        [FieldOffset(20)]
-        internal ushort Shadow_AF;
-
-        [FieldOffset(20)]
-        internal byte Shadow_AFL;
-
-        [FieldOffset(21)]
-        internal byte Shadow_AFH;
-
-        [FieldOffset(22)]
-        internal ushort Shadow_BC;
-
-        [FieldOffset(22)]
-        internal byte Shadow_BCL;
-
-        [FieldOffset(23)]
-        internal byte Shadow_BCH;
-
-        [FieldOffset(24)]
-        internal ushort Shadow_DE;
-
-        [FieldOffset(24)]
-        internal byte Shadow_DEL;
-
-        [FieldOffset(25)]
-        internal byte Shadow_DEH;
-
-        [FieldOffset(26)]
-        internal ushort Shadow_HL;
-
-        [FieldOffset(26)]
-        internal byte Shadow_HLL;
-
-        [FieldOffset(27)]
-        internal byte Shadow_HLH;
-
-        [FieldOffset(28)]
-        internal byte Q;
-
-        public Z80Emulator()
-        {
-            opcodeStepTable = OpcodeStepTableNoPrefix;
-            Registers = new Z80Registers(this);
-            Flags = new Z80Flags(this);
-            Interrupts = new Z80Interrupts(this);
-        }
-
-        [field: FieldOffset(32)]
-        public Z80Registers Registers
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get;
-        }
-
-        [field: FieldOffset(40)]
-        public Z80Flags Flags
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get;
-        }
-
-        [field: FieldOffset(48)]
-        public Z80Interrupts Interrupts
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get;
-        }
-
-        [FieldOffset(56)]
-        private ushort[] opcodeStepTable;
-
-        [FieldOffset(64)]
-        private ushort address;
-
-        public ushort Address
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => address;
-        }
-
-        [FieldOffset(66)]
-        private ushort currentStep;
-
-        [FieldOffset(68)]
-        private byte latch;
-
-        [FieldOffset(69)]
-        private bool instructionComplete;
-
-        public bool InstructionComplete
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => instructionComplete; 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set => instructionComplete = value;
-        }
-
-        [FieldOffset(70)]
-        internal byte im;
-
-        [FieldOffset(71)]
-        internal bool iff1;
-
-        [FieldOffset(72)]
-        internal bool iff2;
-
-        [FieldOffset(73)]
-        internal bool halted;
-
-        [FieldOffset(74)]
-        internal bool interrupt;
-
-        [FieldOffset(75)]
-        private byte data;
-
-        public byte Data
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => data; 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set => data = value;
-        }
+    public byte Data
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => data; 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => data = value;
     }
 }

@@ -9,25 +9,24 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace MrKWatkins.OakCpu.Z80
+namespace MrKWatkins.OakCpu.Z80;
+
+public sealed unsafe partial class Z80Emulator
 {
-    public sealed unsafe partial class Z80Emulator
+    private static readonly ushort[] InterruptModeStepTable = [12, 17, 29];
+
+    private static bool HandleInterrupts(Z80Emulator emulator, ref ActionRequired actionRequired)
     {
-        private static readonly ushort[] InterruptModeStepTable = [12, 17, 29];
-
-        private static bool HandleInterrupts(Z80Emulator emulator, ref ActionRequired actionRequired)
+        if (emulator.interrupt && emulator.iff1)
         {
-            if (emulator.interrupt && emulator.iff1)
-            {
-                emulator.halted = false;
-                emulator.currentStep = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(InterruptModeStepTable), emulator.im);
-                emulator.interrupt = false;
-                actionRequired = ActionRequired.None;
-                return true;
-            }
-
+            emulator.halted = false;
+            emulator.currentStep = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(InterruptModeStepTable), emulator.im);
             emulator.interrupt = false;
-            return false;
+            actionRequired = ActionRequired.None;
+            return true;
         }
+
+        emulator.interrupt = false;
+        return false;
     }
 }

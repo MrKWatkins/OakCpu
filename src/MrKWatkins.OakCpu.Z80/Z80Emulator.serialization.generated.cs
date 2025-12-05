@@ -9,143 +9,142 @@
 using System.IO;
 using System.Text;
 
-namespace MrKWatkins.OakCpu.Z80
+namespace MrKWatkins.OakCpu.Z80;
+
+public sealed unsafe partial class Z80Emulator
 {
-    public sealed unsafe partial class Z80Emulator
+    public void Serialize(Stream stream)
     {
-        public void Serialize(Stream stream)
+        using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
+        if (opcodeStepTable == OpcodeStepTableNoPrefix)
         {
-            using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
-            if (opcodeStepTable == OpcodeStepTableNoPrefix)
-            {
-                writer.Write((byte)0);
-            }
-            else if (opcodeStepTable == OpcodeStepTablePrefixCB)
-            {
-                writer.Write((byte)1);
-            }
-            else if (opcodeStepTable == OpcodeStepTablePrefixDD)
-            {
-                writer.Write((byte)2);
-            }
-            else if (opcodeStepTable == OpcodeStepTablePrefixED)
-            {
-                writer.Write((byte)3);
-            }
-            else if (opcodeStepTable == OpcodeStepTablePrefixFD)
-            {
-                writer.Write((byte)4);
-            }
-            else if (opcodeStepTable == OpcodeStepTableDDCB)
-            {
-                writer.Write((byte)5);
-            }
-            else if (opcodeStepTable == OpcodeStepTableFDCB)
-            {
-                writer.Write((byte)6);
-            }
-
-            writer.Write(address);
-            writer.Write(currentStep);
-            writer.Write(data);
-            writer.Write(halted);
-            writer.Write(iff1);
-            writer.Write(iff2);
-            writer.Write(im);
-            writer.Write(instructionComplete);
-            writer.Write(interrupt);
-            writer.Write(latch);
-            writer.Write(F);
-            writer.Write(A);
-            writer.Write(C);
-            writer.Write(B);
-            writer.Write(E);
-            writer.Write(D);
-            writer.Write(L);
-            writer.Write(H);
-            writer.Write(R);
-            writer.Write(I);
-            writer.Write(IXL);
-            writer.Write(IXH);
-            writer.Write(IYL);
-            writer.Write(IYH);
-            writer.Write(PCL);
-            writer.Write(PCH);
-            writer.Write(SPL);
-            writer.Write(SPH);
-            writer.Write(Z);
-            writer.Write(W);
-            writer.Write(Shadow_AFL);
-            writer.Write(Shadow_AFH);
-            writer.Write(Shadow_BCL);
-            writer.Write(Shadow_BCH);
-            writer.Write(Shadow_DEL);
-            writer.Write(Shadow_DEH);
-            writer.Write(Shadow_HLL);
-            writer.Write(Shadow_HLH);
-            writer.Write(Q);
+            writer.Write((byte)0);
+        }
+        else if (opcodeStepTable == OpcodeStepTablePrefixCB)
+        {
+            writer.Write((byte)1);
+        }
+        else if (opcodeStepTable == OpcodeStepTablePrefixDD)
+        {
+            writer.Write((byte)2);
+        }
+        else if (opcodeStepTable == OpcodeStepTablePrefixED)
+        {
+            writer.Write((byte)3);
+        }
+        else if (opcodeStepTable == OpcodeStepTablePrefixFD)
+        {
+            writer.Write((byte)4);
+        }
+        else if (opcodeStepTable == OpcodeStepTableDDCB)
+        {
+            writer.Write((byte)5);
+        }
+        else if (opcodeStepTable == OpcodeStepTableFDCB)
+        {
+            writer.Write((byte)6);
         }
 
-        public static Z80Emulator Deserialize(Stream stream)
-        {
-            var deserialized = new Z80Emulator();
-            deserialized.Restore(stream);
-            return deserialized;
-        }
+        writer.Write(address);
+        writer.Write(currentStep);
+        writer.Write(data);
+        writer.Write(halted);
+        writer.Write(iff1);
+        writer.Write(iff2);
+        writer.Write(im);
+        writer.Write(instructionComplete);
+        writer.Write(interrupt);
+        writer.Write(latch);
+        writer.Write(F);
+        writer.Write(A);
+        writer.Write(C);
+        writer.Write(B);
+        writer.Write(E);
+        writer.Write(D);
+        writer.Write(L);
+        writer.Write(H);
+        writer.Write(R);
+        writer.Write(I);
+        writer.Write(IXL);
+        writer.Write(IXH);
+        writer.Write(IYL);
+        writer.Write(IYH);
+        writer.Write(PCL);
+        writer.Write(PCH);
+        writer.Write(SPL);
+        writer.Write(SPH);
+        writer.Write(Z);
+        writer.Write(W);
+        writer.Write(Shadow_AFL);
+        writer.Write(Shadow_AFH);
+        writer.Write(Shadow_BCL);
+        writer.Write(Shadow_BCH);
+        writer.Write(Shadow_DEL);
+        writer.Write(Shadow_DEH);
+        writer.Write(Shadow_HLL);
+        writer.Write(Shadow_HLH);
+        writer.Write(Q);
+    }
 
-        public void Restore(Stream stream)
+    public static Z80Emulator Deserialize(Stream stream)
+    {
+        var deserialized = new Z80Emulator();
+        deserialized.Restore(stream);
+        return deserialized;
+    }
+
+    public void Restore(Stream stream)
+    {
+        using var reader = new BinaryReader(stream, Encoding.UTF8, true);
+        opcodeStepTable = reader.ReadByte() switch
         {
-            using var reader = new BinaryReader(stream, Encoding.UTF8, true);
-            opcodeStepTable = reader.ReadByte() switch
-            {
-                0 => OpcodeStepTableNoPrefix,
-                1 => OpcodeStepTablePrefixCB,
-                2 => OpcodeStepTablePrefixDD,
-                3 => OpcodeStepTablePrefixED,
-                4 => OpcodeStepTablePrefixFD,
-                5 => OpcodeStepTableDDCB,
-                6 => OpcodeStepTableFDCB,
-                _ => throw new InvalidOperationException("Unknown opcode step table.")
-            };
-            address = reader.ReadUInt16();
-            currentStep = reader.ReadUInt16();
-            data = reader.ReadByte();
-            halted = reader.ReadBoolean();
-            iff1 = reader.ReadBoolean();
-            iff2 = reader.ReadBoolean();
-            im = reader.ReadByte();
-            instructionComplete = reader.ReadBoolean();
-            interrupt = reader.ReadBoolean();
-            latch = reader.ReadByte();
-            F = reader.ReadByte();
-            A = reader.ReadByte();
-            C = reader.ReadByte();
-            B = reader.ReadByte();
-            E = reader.ReadByte();
-            D = reader.ReadByte();
-            L = reader.ReadByte();
-            H = reader.ReadByte();
-            R = reader.ReadByte();
-            I = reader.ReadByte();
-            IXL = reader.ReadByte();
-            IXH = reader.ReadByte();
-            IYL = reader.ReadByte();
-            IYH = reader.ReadByte();
-            PCL = reader.ReadByte();
-            PCH = reader.ReadByte();
-            SPL = reader.ReadByte();
-            SPH = reader.ReadByte();
-            Z = reader.ReadByte();
-            W = reader.ReadByte();
-            Shadow_AFL = reader.ReadByte();
-            Shadow_AFH = reader.ReadByte();
-            Shadow_BCL = reader.ReadByte();
-            Shadow_BCH = reader.ReadByte();
-            Shadow_DEL = reader.ReadByte();
-            Shadow_DEH = reader.ReadByte();
-            Shadow_HLL = reader.ReadByte();
-            Shadow_HLH = reader.ReadByte();
-            Q = reader.ReadByte();
-        }
+            0 => OpcodeStepTableNoPrefix,
+            1 => OpcodeStepTablePrefixCB,
+            2 => OpcodeStepTablePrefixDD,
+            3 => OpcodeStepTablePrefixED,
+            4 => OpcodeStepTablePrefixFD,
+            5 => OpcodeStepTableDDCB,
+            6 => OpcodeStepTableFDCB,
+            _ => throw new InvalidOperationException("Unknown opcode step table.")
+        };
+        address = reader.ReadUInt16();
+        currentStep = reader.ReadUInt16();
+        data = reader.ReadByte();
+        halted = reader.ReadBoolean();
+        iff1 = reader.ReadBoolean();
+        iff2 = reader.ReadBoolean();
+        im = reader.ReadByte();
+        instructionComplete = reader.ReadBoolean();
+        interrupt = reader.ReadBoolean();
+        latch = reader.ReadByte();
+        F = reader.ReadByte();
+        A = reader.ReadByte();
+        C = reader.ReadByte();
+        B = reader.ReadByte();
+        E = reader.ReadByte();
+        D = reader.ReadByte();
+        L = reader.ReadByte();
+        H = reader.ReadByte();
+        R = reader.ReadByte();
+        I = reader.ReadByte();
+        IXL = reader.ReadByte();
+        IXH = reader.ReadByte();
+        IYL = reader.ReadByte();
+        IYH = reader.ReadByte();
+        PCL = reader.ReadByte();
+        PCH = reader.ReadByte();
+        SPL = reader.ReadByte();
+        SPH = reader.ReadByte();
+        Z = reader.ReadByte();
+        W = reader.ReadByte();
+        Shadow_AFL = reader.ReadByte();
+        Shadow_AFH = reader.ReadByte();
+        Shadow_BCL = reader.ReadByte();
+        Shadow_BCH = reader.ReadByte();
+        Shadow_DEL = reader.ReadByte();
+        Shadow_DEH = reader.ReadByte();
+        Shadow_HLL = reader.ReadByte();
+        Shadow_HLH = reader.ReadByte();
+        Q = reader.ReadByte();
     }
 }

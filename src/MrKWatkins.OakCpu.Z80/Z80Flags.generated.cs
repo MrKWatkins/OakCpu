@@ -8,79 +8,78 @@
 //------------------------------------------------------------------------------
 using System.Runtime.CompilerServices;
 
-namespace MrKWatkins.OakCpu.Z80
+namespace MrKWatkins.OakCpu.Z80;
+
+public sealed class Z80Flags
 {
-    public sealed class Z80Flags
+    private readonly Z80Emulator emulator;
+
+    internal Z80Flags(Z80Emulator emulator)
     {
-        private readonly Z80Emulator emulator;
+        this.emulator = emulator;
+    }
 
-        internal Z80Flags(Z80Emulator emulator)
-        {
-            this.emulator = emulator;
-        }
+    public bool C
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => (emulator.F & 0b00000001) != 0; 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => emulator.F = (byte)(value ? emulator.F | 0b00000001 : emulator.F & 0b11111110);
+    }
 
-        public bool C
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (emulator.F & 0b00000001) != 0; 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set => emulator.F = (byte)(value ? emulator.F | 0b00000001 : emulator.F & 0b11111110);
-        }
+    public bool N
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => (emulator.F & 0b00000010) != 0; 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => emulator.F = (byte)(value ? emulator.F | 0b00000010 : emulator.F & 0b11111101);
+    }
 
-        public bool N
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (emulator.F & 0b00000010) != 0; 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set => emulator.F = (byte)(value ? emulator.F | 0b00000010 : emulator.F & 0b11111101);
-        }
+    public bool PV
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => (emulator.F & 0b00000100) != 0; 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => emulator.F = (byte)(value ? emulator.F | 0b00000100 : emulator.F & 0b11111011);
+    }
 
-        public bool PV
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (emulator.F & 0b00000100) != 0; 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set => emulator.F = (byte)(value ? emulator.F | 0b00000100 : emulator.F & 0b11111011);
-        }
+    public bool X
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => (emulator.F & 0b00001000) != 0; 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => emulator.F = (byte)(value ? emulator.F | 0b00001000 : emulator.F & 0b11110111);
+    }
 
-        public bool X
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (emulator.F & 0b00001000) != 0; 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set => emulator.F = (byte)(value ? emulator.F | 0b00001000 : emulator.F & 0b11110111);
-        }
+    public bool H
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => (emulator.F & 0b00010000) != 0; 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => emulator.F = (byte)(value ? emulator.F | 0b00010000 : emulator.F & 0b11101111);
+    }
 
-        public bool H
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (emulator.F & 0b00010000) != 0; 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set => emulator.F = (byte)(value ? emulator.F | 0b00010000 : emulator.F & 0b11101111);
-        }
+    public bool Y
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => (emulator.F & 0b00100000) != 0; 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => emulator.F = (byte)(value ? emulator.F | 0b00100000 : emulator.F & 0b11011111);
+    }
 
-        public bool Y
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (emulator.F & 0b00100000) != 0; 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set => emulator.F = (byte)(value ? emulator.F | 0b00100000 : emulator.F & 0b11011111);
-        }
+    public bool Z
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => (emulator.F & 0b01000000) != 0; 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => emulator.F = (byte)(value ? emulator.F | 0b01000000 : emulator.F & 0b10111111);
+    }
 
-        public bool Z
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (emulator.F & 0b01000000) != 0; 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set => emulator.F = (byte)(value ? emulator.F | 0b01000000 : emulator.F & 0b10111111);
-        }
-
-        public bool S
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (emulator.F & 0b10000000) != 0; 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set => emulator.F = (byte)(value ? emulator.F | 0b10000000 : emulator.F & 0b01111111);
-        }
+    public bool S
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => (emulator.F & 0b10000000) != 0; 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => emulator.F = (byte)(value ? emulator.F | 0b10000000 : emulator.F & 0b01111111);
     }
 }

@@ -6,15 +6,14 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace MrKWatkins.OakCpu.Z80
+namespace MrKWatkins.OakCpu.Z80;
+
+public enum ActionRequired
 {
-    public enum ActionRequired
-    {
-        None = 0,
-        OpcodeRead = 1,
-        MemoryRead = 2,
-        MemoryWrite = 3,
-        IoRead = 4,
-        IoWrite = 5
-    }
+    None = 0,
+    OpcodeRead = 1,
+    MemoryRead = 2,
+    MemoryWrite = 3,
+    IoRead = 4,
+    IoWrite = 5
 }

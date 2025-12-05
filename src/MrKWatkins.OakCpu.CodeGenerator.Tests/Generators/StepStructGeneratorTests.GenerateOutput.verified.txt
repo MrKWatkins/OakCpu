@@ -6,14 +6,13 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace MrKWatkins.OakCpu.Z80
+namespace MrKWatkins.OakCpu.Z80;
+
+internal unsafe readonly struct Step(delegate*<Z80Emulator, ref ActionRequired, void> handler, ushort nextStep, ActionRequired actionRequired)
 {
-    internal unsafe readonly struct Step(delegate*<Z80Emulator, ref ActionRequired, void> handler, ushort nextStep, ActionRequired actionRequired)
-    {
-        internal readonly delegate*<Z80Emulator, ref ActionRequired, void> Handler = handler;
+    internal readonly delegate*<Z80Emulator, ref ActionRequired, void> Handler = handler;
 
-        internal readonly ushort NextStep = nextStep;
+    internal readonly ushort NextStep = nextStep;
 
-        internal readonly ActionRequired ActionRequired = actionRequired;
-    }
+    internal readonly ActionRequired ActionRequired = actionRequired;
 }

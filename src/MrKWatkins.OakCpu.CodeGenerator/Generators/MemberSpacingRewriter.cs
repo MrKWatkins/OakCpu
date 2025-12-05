@@ -26,7 +26,7 @@ internal sealed class ExtraSpacingRewriter : CSharpSyntaxRewriter
         }
 
         // Put the '[' on a new line, indented to statement level.
-        result = Indent(PrefixWithBlankLine(result), 3);
+        result = Indent(PrefixWithBlankLine(result), 2);
 
         // Put n items per line.
         var item = 0;
@@ -37,7 +37,7 @@ internal sealed class ExtraSpacingRewriter : CSharpSyntaxRewriter
                 item++;
                 if (item % elementsPerLine == 1)
                 {
-                    return Indent(PrefixWithBlankLine(original), 4);
+                    return Indent(PrefixWithBlankLine(original), 3);
                 }
 
                 return original;
@@ -45,7 +45,7 @@ internal sealed class ExtraSpacingRewriter : CSharpSyntaxRewriter
 
         // Put the ']' on a new line, indented to statement level.
         var closeBracket = result.ChildTokens().Last();
-        var newCloseBracket = closeBracket.WithLeadingTrivia(SyntaxFactory.LineFeed, CreateIndent(3));
+        var newCloseBracket = closeBracket.WithLeadingTrivia(SyntaxFactory.LineFeed, CreateIndent(2));
 
         result = result.ReplaceToken(closeBracket, newCloseBracket);
 
@@ -65,7 +65,7 @@ internal sealed class ExtraSpacingRewriter : CSharpSyntaxRewriter
         var accessor = (AccessorDeclarationSyntax)base.VisitAccessorDeclaration(node)!;
 
         // If we have a setter with attributes, then we need a blank line or the attribute will be on the same line as the getter. Assumes no set-only properties!
-        return accessor.IsKind(SyntaxKind.SetAccessorDeclaration) && accessor.AttributeLists.Any() ? Indent(PrefixWithBlankLine(accessor), 3) : accessor;
+        return accessor.IsKind(SyntaxKind.SetAccessorDeclaration) && accessor.AttributeLists.Any() ? Indent(PrefixWithBlankLine(accessor), 2) : accessor;
     }
 
     public override SyntaxNode VisitVariableDeclaration(VariableDeclarationSyntax node)

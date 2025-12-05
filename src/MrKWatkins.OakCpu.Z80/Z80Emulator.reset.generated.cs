@@ -6,38 +6,37 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace MrKWatkins.OakCpu.Z80
+namespace MrKWatkins.OakCpu.Z80;
+
+public sealed unsafe partial class Z80Emulator
 {
-    public sealed unsafe partial class Z80Emulator
+    public void Reset()
     {
-        public void Reset()
-        {
-            opcodeStepTable = OpcodeStepTableNoPrefix;
-            address = 0;
-            currentStep = 0;
-            data = 0;
-            halted = false;
-            iff1 = false;
-            iff2 = false;
-            im = 0;
-            instructionComplete = false;
-            interrupt = false;
-            latch = 0;
-            AF = 0;
-            BC = 0;
-            DE = 0;
-            HL = 0;
-            IR = 0;
-            IX = 0;
-            IY = 0;
-            PC = 0;
-            SP = 0;
-            WZ = 0;
-            Shadow_AF = 0;
-            Shadow_BC = 0;
-            Shadow_DE = 0;
-            Shadow_HL = 0;
-            Q = 0;
-        }
+        opcodeStepTable = OpcodeStepTableNoPrefix;
+        address = 0;
+        currentStep = 0;
+        data = 0;
+        halted = false;
+        iff1 = false;
+        iff2 = false;
+        im = 0;
+        instructionComplete = false;
+        interrupt = false;
+        latch = 0;
+        AF = 0;
+        BC = 0;
+        DE = 0;
+        HL = 0;
+        IR = 0;
+        IX = 0;
+        IY = 0;
+        PC = 0;
+        SP = 0;
+        WZ = 0;
+        Shadow_AF = 0;
+        Shadow_BC = 0;
+        Shadow_DE = 0;
+        Shadow_HL = 0;
+        Q = 0;
     }
 }
