@@ -1,6 +1,3 @@
-using System.Collections.Immutable;
-using System.Text;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -53,17 +50,36 @@ public sealed class GeneratorContext
     public NamespaceDeclarationSyntax CreateRootNamespaceDeclaration() => SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(RootNamespace));
 
     [Pure]
-    public static GeneratorContext Create(string? rootNamespace, ImmutableArray<AdditionalText> yamls) =>
-        Create(rootNamespace, YamlFile.Combine(yamls.Select(LoadYaml)));
-
-    [Pure]
-    internal static GeneratorContext Create(string? rootNamespace, YamlFile yaml)
+    public static async Task<GeneratorContext> CreateAsync(string rootNamespace, DirectoryInfo definitionsDirectory)
     {
-        if (rootNamespace == null)
+        var yamls = new List<YamlFile>();
+        foreach (var file in definitionsDirectory.GetFiles("*.yaml", SearchOption.AllDirectories))
         {
-            throw new ArgumentNullException(nameof(rootNamespace));
+            yamls.Add(await DeserializeYamlAsync<YamlFile>(file));
         }
 
+        var combined = YamlFile.Combine(yamls);
+
+        return Create(rootNamespace, combined);
+    }
+
+    [Pure]
+    private static async Task<TYaml> DeserializeYamlAsync<TYaml>(FileInfo file)
+    {
+        try
+        {
+            await using var stream = file.OpenRead();
+            return await YamlSerializer.DeserializeAsync<TYaml>(stream, YamlOptions.Instance);
+        }
+        catch (Exception exception)
+        {
+            throw new InvalidOperationException($"Could not load YAML file {file}.", exception);
+        }
+    }
+
+    [Pure]
+    internal static GeneratorContext Create(string rootNamespace, YamlFile yaml)
+    {
         var actions = Action.Create(yaml.Cpu);
         var registers = Register.Create(yaml.Registers);
         var flags = Flag.Create(yaml.Flags);
@@ -100,18 +116,4 @@ public sealed class GeneratorContext
 
     [Pure]
     internal GeneratorContext WithRequiredUsings() => new(RootNamespace, Configuration, Cpu, Interrupts, OpcodeRead, OnInstructionComplete, Instructions, PrefixJumps, AllSteps);
-
-    [Pure]
-    private static YamlFile LoadYaml(AdditionalText text)
-    {
-        try
-        {
-            var bytes = Encoding.UTF8.GetBytes(text.GetText()!.ToString());
-            return YamlSerializer.Deserialize<YamlFile>(bytes, YamlOptions.Instance);
-        }
-        catch (Exception exception)
-        {
-            throw new IOException($"Could not load YAML file {Path.GetFullPath(text.Path)}.", exception);
-        }
-    }
 }

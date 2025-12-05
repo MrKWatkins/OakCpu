@@ -37,7 +37,9 @@ public sealed class OpcodeStepTables : IEnumerable<OpcodeStepTable>
         Custom = custom.ToFrozenDictionary();
     }
 
+#pragma warning disable CA1822
     public OpcodeStepTable NoPrefix => OpcodeStepTable.NoPrefix;
+#pragma warning restore CA1822
 
     public IReadOnlyDictionary<byte, OpcodeStepTable> Prefixes { get; }
 

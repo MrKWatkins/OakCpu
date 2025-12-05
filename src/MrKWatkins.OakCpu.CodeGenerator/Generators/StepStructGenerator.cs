@@ -12,6 +12,12 @@ public sealed class StepStructGenerator : TypeGenerator
 
     public static readonly StepStructGenerator Instance = new();
 
+    private StepStructGenerator()
+    {
+    }
+
+    protected override string GetBaseFileName(GeneratorContext context) => StepStructName;
+
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
     {
         var actionType = FunctionPointerType(

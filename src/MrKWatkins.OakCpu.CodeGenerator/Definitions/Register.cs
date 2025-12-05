@@ -21,7 +21,7 @@ public sealed class Register
 
     public string FieldName => Category != null ? $"{Category}_{PropertyName}" : PropertyName;
 
-    public string PropertyName => Name.Replace("'", "");
+    public string PropertyName => Name.Replace("'", "", StringComparison.Ordinal);
 
     public DataType Type { get; }
 

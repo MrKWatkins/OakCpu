@@ -17,6 +17,8 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     {
     }
 
+    protected override string GetBaseFileName(GeneratorContext context) => $"{GetEmulatorClassName(context)}.initialization";
+
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration)
     {
         var members = new List<MemberDeclarationSyntax>
@@ -46,14 +48,13 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     {
         var stepCreations = context.AllSteps.Select(step => CreateStep(context, step)).Append(CreateErrorStep());
 
-        var elements = stepCreations.Select(step => ExpressionElement(step).WithLeadingTrivia(NewlineComment, IndentComment)).ToArray();
-        elements[elements.Length - 1] = elements[elements.Length - 1].WithTrailingTrivia(NewlineComment);
+        var elements = stepCreations.Select(ExpressionElement).ToArray();
 
-        var value = CollectionExpression(SeparatedList<CollectionElementSyntax>(elements)).WithLeadingTrivia(NewlineComment);
+        var value = CollectionExpression(SeparatedList<CollectionElementSyntax>(elements));
 
         var assignment = AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(StepsFieldName), value);
 
-        return ExpressionStatement(assignment).WithTrailingTrivia(NewlineComment);
+        return ExpressionStatement(assignment);
     }
 
     [Pure]
@@ -152,15 +153,14 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
         // Static constructor
         return ConstructorDeclaration(GetEmulatorClassName(context))
             .WithModifiers(TokenList(Static))
-            .WithBody(Block(statements))
-            .WithLeadingTrivia(NewlineComment);
+            .WithBody(Block(statements));
     }
 
     [Pure]
-    private static StatementSyntax CreateLittleEndianStatement(GeneratorContext context)
+    private static IfStatementSyntax CreateLittleEndianStatement(GeneratorContext context)
     {
-        context.RequiredUsings.Add(typeof(BitConverter).Namespace);
-        context.RequiredUsings.Add(typeof(NotSupportedException).Namespace);
+        context.RequiredUsings.Add(typeof(BitConverter).Namespace!);
+        context.RequiredUsings.Add(typeof(NotSupportedException).Namespace!);
 
         // throw new NotSupportedException("Only little endian systems are supported.");
         var throwStatement = ThrowStatement(

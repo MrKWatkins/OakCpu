@@ -1,5 +1,4 @@
 using System.Text;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -22,6 +21,8 @@ public sealed class EmulatorSerializationGenerator : EmulatorClassGenerator
     private EmulatorSerializationGenerator()
     {
     }
+
+    protected override string GetBaseFileName(GeneratorContext context) => $"{GetEmulatorClassName(context)}.serialization";
 
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration.AddMembers(GenerateSerialize(context), GenerateDeserialize(context), GenerateRestore(context));
@@ -85,14 +86,12 @@ public sealed class EmulatorSerializationGenerator : EmulatorClassGenerator
                 DiscardPattern(),
                 ThrowExpression(ObjectCreationExpression(IdentifierName(nameof(InvalidOperationException)))
                     .WithArgumentList(
-                        ArgumentList([Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Unknown opcode step table.")))]))))
-                .WithTrailingTrivia(NewlineComment));
+                        ArgumentList([Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Unknown opcode step table.")))])))));
 
         var switchExpression = SwitchExpression(GenerateReadExpression(DataType.U8)).WithArms(SeparatedList(arms));
 
         yield return ExpressionStatement(
-            AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(PreDefinedDataMember.OpcodeStepTable.FieldName), switchExpression))
-            .WithLeadingTrivia(NewlineComment);
+            AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(PreDefinedDataMember.OpcodeStepTable.FieldName), switchExpression));
     }
 
     [Pure]
@@ -160,7 +159,7 @@ public sealed class EmulatorSerializationGenerator : EmulatorClassGenerator
                 : IfStatement(condition, Block(statement), ElseClause(ifStatement));
         }
 
-        yield return ifStatement!.WithLeadingTrivia(NewlineComment);
+        yield return ifStatement!;
     }
 
     [Pure]
@@ -194,8 +193,8 @@ public sealed class EmulatorSerializationGenerator : EmulatorClassGenerator
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateUsingBinaryReaderOrWriter<T>(GeneratorContext context, string parameterName)
     {
-        context.RequiredUsings.Add(typeof(T).Namespace);
-        context.RequiredUsings.Add(typeof(Encoding).Namespace);
+        context.RequiredUsings.Add(typeof(T).Namespace!);
+        context.RequiredUsings.Add(typeof(Encoding).Namespace!);
 
         yield return LocalDeclarationStatement(
                 VariableDeclaration(IdentifierName("var"))

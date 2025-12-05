@@ -30,7 +30,7 @@ public abstract class Expression : AstNode, IEquatable<Expression>
 
     public override bool Equals(object? obj) => Equals(obj as Expression);
 
-    public override int GetHashCode() => ToString().GetHashCode();
+    public override int GetHashCode() => ToString().GetHashCode(StringComparison.Ordinal);
 
     public static bool operator ==(Expression? left, Expression? right) => Equals(left, right);
 

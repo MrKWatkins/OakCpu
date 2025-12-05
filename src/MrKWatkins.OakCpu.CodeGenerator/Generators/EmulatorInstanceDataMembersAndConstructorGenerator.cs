@@ -21,6 +21,8 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
     {
     }
 
+    protected override string GetBaseFileName(GeneratorContext context) => GetEmulatorClassName(context);
+
     // TODO: An automatic layout algorithm taking into account padding would be nice.
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration)
     {
@@ -76,8 +78,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
 
         return ConstructorDeclaration(GetEmulatorClassName(context))
             .WithModifiers(TokenList(Public))
-            .WithBody(Block(statements))
-            .WithLeadingTrivia(NewlineComment);
+            .WithBody(Block(statements));
     }
 
     [Pure]
@@ -105,7 +106,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         {
             AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
                 .WithExpressionBody(ArrowExpressionClause(fieldAccessExpression))
-                .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
+                .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)])])
                 .WithSemicolonToken(Semicolon)
         };
 
@@ -119,7 +120,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
             var setter =
                 AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
                     .WithExpressionBody(ArrowExpressionClause(setExpression))
-                    .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(NewlineComment)])
+                    .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)])])
                     .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 
             if (member.SetterVisibility != member.GetterVisibility)
@@ -171,7 +172,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         var variable = VariableDeclaration(type).WithVariables(SingletonSeparatedList(variableDeclarator));
 
         return FieldDeclaration(variable)
-            .AddAttributeLists(AttributeList(SingletonSeparatedList(attribute)).WithLeadingTrivia(NewlineComment))
+            .AddAttributeLists(AttributeList(SingletonSeparatedList(attribute)))
             .AddModifiers(modifiers.ToArray());
     }
 

@@ -16,5 +16,5 @@ public sealed class Boolean : Expression
 
     public override DataType Type => DataType.Bool;
 
-    public override void WriteStringRepresentation(StringBuilder stringRepresentation) => stringRepresentation.Append(Value.ToString());
+    public override void WriteStringRepresentation(StringBuilder stringRepresentation) => stringRepresentation.Append(Value);
 }

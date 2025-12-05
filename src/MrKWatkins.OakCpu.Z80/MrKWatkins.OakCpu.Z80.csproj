@@ -2,18 +2,11 @@
 
     <PropertyGroup>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     </PropertyGroup>
 
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
             <_Parameter1>MrKWatkins.OakCpu.Z80.Testing</_Parameter1>
         </AssemblyAttribute>
-        <CompilerVisibleProperty Include="RootNamespace" />
-
-        <AdditionalFiles Include="..\..\definitions\z80\**\*.yaml" LinkBase="definitions" />
-
-        <ProjectReference Include="..\MrKWatkins.OakCpu.SourceGenerator\MrKWatkins.OakCpu.SourceGenerator.csproj"
-                          PrivateAssets="all" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 </Project>

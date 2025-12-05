@@ -1,6 +1,4 @@
-using Microsoft.CodeAnalysis;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -18,11 +16,6 @@ public abstract class Generator
     protected const string HandleInterruptsMethodName = "HandleInterrupts";
     protected const string InterruptModeStepTableFieldName = "InterruptModeStepTable";
     private const string StepFunctionPrefix = "Step_";
-
-    // Filthy hackery to put some newlines and indents where we want because NormalizeWhitespace will remove any normal whitespace we add.
-    protected const string NewlineCommentText = "// Newline";
-    protected static readonly SyntaxTrivia NewlineComment = Comment(NewlineCommentText);
-    protected static readonly SyntaxTrivia IndentComment = Comment("// Indent");
 
     private protected Generator()
     {

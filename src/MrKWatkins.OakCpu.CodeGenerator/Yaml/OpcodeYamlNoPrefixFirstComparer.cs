@@ -8,8 +8,23 @@ public sealed class OpcodeYamlNoPrefixFirstComparer : IComparer<OpcodeYaml>
     {
     }
 
-    public int Compare(OpcodeYaml x, OpcodeYaml y)
+    public int Compare(OpcodeYaml? x, OpcodeYaml? y)
     {
+        if (ReferenceEquals(x, y))
+        {
+            return 0;
+        }
+
+        if (x is null)
+        {
+            return -1;
+        }
+
+        if (y is null)
+        {
+            return 1;
+        }
+
         if (x.PrefixByte == null)
         {
             if (y.PrefixByte == null)

@@ -234,27 +234,27 @@ public static class Parser
             return new DataMemberAccess(dataMember);
         }
 
-        if (identifier.StartsWith("$"))
+        if (identifier.StartsWith("$", StringComparison.Ordinal))
         {
             return new TemporaryVariableAccess(DeclareOrReferenceTemporaryVariable(context, identifier.Substring(1)));
         }
 
-        if (identifier.StartsWith("flag.") && context.Configuration.Flags.TryGetValue(identifier.Substring(5), out var flag))
+        if (identifier.StartsWith("flag.", StringComparison.Ordinal) && context.Configuration.Flags.TryGetValue(identifier.Substring(5), out var flag))
         {
             return new FlagAccess(flag);
         }
 
-        if (identifier.StartsWith("condition.") && context.Configuration.Conditions.TryGetValue(identifier.Substring(10), out var condition))
+        if (identifier.StartsWith("condition.", StringComparison.Ordinal) && context.Configuration.Conditions.TryGetValue(identifier.Substring(10), out var condition))
         {
             return new ConditionAccess(condition);
         }
 
-        if (identifier.StartsWith("action.") && context.Configuration.Actions.TryGetValue(identifier.Substring(7), out var action))
+        if (identifier.StartsWith("action.", StringComparison.Ordinal) && context.Configuration.Actions.TryGetValue(identifier.Substring(7), out var action))
         {
             return new ActionAccess(action);
         }
 
-        if (identifier.StartsWith("opcode_table.") && context.Configuration.OpcodeStepTables.Custom.TryGetValue(identifier.Substring(13), out var opcodeStepTable))
+        if (identifier.StartsWith("opcode_table.", StringComparison.Ordinal) && context.Configuration.OpcodeStepTables.Custom.TryGetValue(identifier.Substring(13), out var opcodeStepTable))
         {
             return new OpcodeStepTableAccess(opcodeStepTable);
         }

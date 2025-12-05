@@ -23,7 +23,7 @@ public abstract class FlagsGenerator : Generator
 
         IReadOnlyList<FlagAction> actions = FlagAction.Create(context, instruction).ToList();
 
-        var commentsBeforeInitialize = new List<string> { NewlineCommentText, "// Update flags." };
+        var commentsBeforeInitialize = new List<string> { "// Update flags." };
         actions = FlagOptimization.PerformAllOptimizations(context, actions, commentsBeforeInitialize);
 
         var initialized = false;

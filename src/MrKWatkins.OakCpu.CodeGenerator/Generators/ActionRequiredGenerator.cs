@@ -12,6 +12,8 @@ public sealed class ActionRequiredGenerator : TypeGenerator
     {
     }
 
+    protected override string GetBaseFileName(GeneratorContext context) => ActionRequiredEnumName;
+
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
     {
         var members = context.Configuration.Actions.Values

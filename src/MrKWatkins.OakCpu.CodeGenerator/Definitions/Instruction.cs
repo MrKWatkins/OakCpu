@@ -150,14 +150,14 @@ public sealed class Instruction : StepSequence
 
             if (register.HighRegister != null)
             {
-                value = value.Replace($"{registerVariable}H", register.HighRegister.Name);
+                value = value.Replace($"{registerVariable}H", register.HighRegister.Name, StringComparison.Ordinal);
             }
             if (register.LowRegister != null)
             {
-                value = value.Replace($"{registerVariable}L", register.LowRegister.Name);
+                value = value.Replace($"{registerVariable}L", register.LowRegister.Name, StringComparison.Ordinal);
             }
 
-            value = value.Replace(registerVariable, register.Name);
+            value = value.Replace(registerVariable, register.Name, StringComparison.Ordinal);
         }
 
         return value;
@@ -170,7 +170,7 @@ public sealed class Instruction : StepSequence
         {
             var condition = context.Configuration.Conditions[replacement];
 
-            value = value.Replace(conditionVariable, condition.Name);
+            value = value.Replace(conditionVariable, condition.Name, StringComparison.Ordinal);
         }
 
         return value;
@@ -181,7 +181,7 @@ public sealed class Instruction : StepSequence
     {
         if (replacement != null)
         {
-            value = value.Replace(conditionVariable, $"0x{replacement.Value:X2}");
+            value = value.Replace(conditionVariable, $"0x{replacement.Value:X2}", StringComparison.Ordinal);
         }
 
         return value;

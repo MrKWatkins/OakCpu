@@ -42,8 +42,9 @@ public sealed class InterruptsTests
             RETI()
         ]);
 
-        // EI + IM 0 + LD SP, 0x1122.
-        z80.Step(21);
+        z80.Step(4);    // EI
+        z80.Step(8);    // IM 0
+        z80.Step(10);    // LD SP, 0x1122
         z80.IFF1.Should().BeTrue();
         z80.IFF2.Should().BeTrue();
         z80.IM.Should().Equal(0);
@@ -156,8 +157,8 @@ public sealed class InterruptsTests
             RETI()
         ]);
 
-        // EI + IM 1.
-        z80.Step(11);
+        z80.Step(4);    // EI
+        z80.Step(8);    // IM 1
 
         // IM1 - Update interrupt properties. NOP - Overlapped opcode read.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
@@ -273,8 +274,10 @@ public sealed class InterruptsTests
 
         z80.WriteWordToMemory(0x01E0, 0x000D);
 
-        // EI + IM 2 + LD A, 0x01 + LD I, A.
-        z80.Step(27);
+        z80.Step(4);    // EI
+        z80.Step(8);    // IM 2
+        z80.Step(7);    // LD A, 1
+        z80.Step(9);    // LD I, A
         z80.IFF1.Should().BeTrue();
         z80.IFF2.Should().BeTrue();
         z80.IM.Should().Equal(2);
@@ -391,7 +394,7 @@ public sealed class InterruptsTests
         ]);
 
         // DI.
-        z80.Step(3);
+        z80.Step(4);
         z80.RegisterPC.Should().Equal(0x0001);
 
         // DI - Reset flags. NOP - Overlapped opcode read.
@@ -434,8 +437,8 @@ public sealed class InterruptsTests
             NOP()
         ]);
 
-        // EI + IM 1.
-        z80.Step(11);
+        z80.Step(4);    // EI
+        z80.Step(8);    // IM 1
 
         // IM1 - Update interrupt properties. EI - Overlapped opcode read.
         StepAndAssertEvent(z80, CycleType.MemoryRead);
@@ -566,9 +569,9 @@ public sealed class InterruptsTests
             RETI()
         ]);
 
-        // EI + IM 1 + HALT
-        z80.Step(14);
-        z80.Step();
+        z80.Step(4);    // EI
+        z80.Step(8);    // IM 1
+        z80.Step(4);    // HALT
         z80.RegisterPC.Should().Equal(0x0004);
         z80.RegisterR.Should().Equal(0x04);
 
@@ -650,6 +653,55 @@ public sealed class InterruptsTests
         z80.RegisterPC.Should().Equal(0x0005);
     }
 
+    [Test]
+    public void InterruptFullyExecuteOverlappedInstructions([Values(0, 1, 2)] int mode)
+    {
+        var z80 = new Z80EmulatorTestHarness { RecordCycles = true, RegisterSP = 0x0100 };
+
+        Load(z80,
+        [
+            ORG(0x0000),
+            EI(),
+            IM(mode),
+            INC(A),
+            RST20()
+        ]);
+
+        Load(z80,
+        [
+            ORG(0x0038),
+            RETI()
+        ]);
+
+        z80.Step(4);    // EI
+        z80.Step(8);    // IM mode
+        z80.IFF1.Should().BeTrue();
+        z80.IFF2.Should().BeTrue();
+
+        // INC A.
+        StepAndAssertEvent(z80, CycleType.MemoryRead);
+        StepAndAssertEvent(z80, CycleType.None);
+
+        // Trigger an interrupt during INC A.
+        z80.Interrupt = true;
+
+        StepAndAssertEvent(z80, CycleType.None);
+        StepAndAssertEvent(z80, CycleType.None);
+
+        // Increment is performed during the overlap, so A should be 0 here.
+        z80.RegisterA.Should().Equal(0);
+
+        // Interrupt handling starts here.
+        StepAndAssertEvent(z80, CycleType.None);
+
+        // Overlap should increment A.
+        z80.RegisterA.Should().Equal(1);
+
+        StepAndAssertEvent(z80, CycleType.None);
+        z80.IFF1.Should().BeFalse();
+        z80.IFF2.Should().BeFalse();
+    }
+
     private static void StepAndAssertEvent(Z80EmulatorTestHarness z80, CycleType type)
     {
         z80.Step();
@@ -667,4 +719,13 @@ public sealed class InterruptsTests
             z80.CopyToMemory(region.Location.Address, region);
         }
     }
+
+    [Pure]
+    private static Opcode IM(int mode) => mode switch
+    {
+        0 => IM0(),
+        1 => IM1(),
+        2 => IM2(),
+        _ => throw new InvalidOperationException($"Invalid interrupt mode {mode}.")
+    };
 }

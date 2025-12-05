@@ -16,6 +16,8 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
     {
     }
 
+    protected override string GetBaseFileName(GeneratorContext context) => $"{GetEmulatorClassName(context)}.reset";
+
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration.AddMembers(GenerateReset(context));
 

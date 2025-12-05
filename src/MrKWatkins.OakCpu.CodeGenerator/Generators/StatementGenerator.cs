@@ -154,8 +154,7 @@ public abstract class StatementGenerator : Generator
                         Argument(IdentifierName(EmulatorParameterName)),
                         Argument(IdentifierName(ActionRequiredParameterName)).WithRefKindKeyword(Ref)
                     ]))),
-                Block(ReturnStatement()))
-            .WithLeadingTrivia(NewlineComment);
+                Block(ReturnStatement()));
     }
 
     [Pure]
@@ -292,7 +291,7 @@ public abstract class StatementGenerator : Generator
     {
         // Execute step 0. No need to set step 1; the NextOpcode handling will cover that.
         yield return GenerateCallStep(context.GeneratorContext.OpcodeRead.FirstStep)
-            .WithLeadingTrivia(NewlineComment, Comment("// Overlapped opcode read."));
+            .WithLeadingTrivia(Comment("// Overlapped opcode read."));
     }
 
     [Pure]

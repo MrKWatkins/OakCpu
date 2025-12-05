@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 namespace MrKWatkins.OakCpu.CodeGenerator;
@@ -24,12 +25,12 @@ public static class StringExtensions
             }
             if (needsUpper)
             {
-                result.Append(char.ToUpper(character));
+                result.Append(char.ToUpper(character, CultureInfo.InvariantCulture));
                 needsUpper = false;
             }
             else if (lower)
             {
-                result.Append(char.ToLower(character));
+                result.Append(char.ToLower(character, CultureInfo.InvariantCulture));
             }
             else
             {

@@ -42,20 +42,5 @@ public sealed class OpcodeYamlDuplicateEqualityComparer : IEqualityComparer<Opco
                x.N0 == y.N0;
     }
 
-    public int GetHashCode(OpcodeYaml obj)
-    {
-        // HashCode.Combine is not available in .NET Standard 2.0.
-        unchecked
-        {
-            var hasPrefix = obj.PrefixByte != null;
-            var hashCode = hasPrefix.GetHashCode();
-            hashCode = (hashCode * 397) ^ (obj.R0 != null ? obj.R0.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ (obj.R1 != null ? obj.R1.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ (obj.RP0 != null ? obj.RP0.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ (obj.RP1 != null ? obj.RP1.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ (obj.C0 != null ? obj.C0.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ obj.N0.GetHashCode();
-            return hashCode;
-        }
-    }
+    public int GetHashCode(OpcodeYaml obj) => HashCode.Combine(obj.PrefixByte != null, obj.R0, obj.R1, obj.RP0, obj.RP1, obj.C0, obj.N0);
 }

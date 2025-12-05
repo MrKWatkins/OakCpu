@@ -1,4 +1,3 @@
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -14,6 +13,8 @@ public sealed class RegistersClassesGenerator : TypeGenerator
     private RegistersClassesGenerator()
     {
     }
+
+    protected override string GetBaseFileName(GeneratorContext context) => GetRegistersClassName(context);
 
     protected override IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(GeneratorContext context)
     {
@@ -95,8 +96,7 @@ public sealed class RegistersClassesGenerator : TypeGenerator
                     SingletonSeparatedList(
                         Parameter(Identifier(EmulatorFieldName))
                             .WithType(GetEmulatorClassIdentifier(context)))))
-            .WithBody(Block(statements.ToArray()))
-            .WithLeadingTrivia(NewlineComment);
+            .WithBody(Block(statements.ToArray()));
     }
 
     [Pure]

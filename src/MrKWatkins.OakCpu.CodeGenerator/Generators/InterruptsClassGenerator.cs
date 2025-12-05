@@ -1,4 +1,3 @@
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -14,6 +13,8 @@ public sealed class InterruptsClassGenerator : TypeGenerator
     private InterruptsClassGenerator()
     {
     }
+
+    protected override string GetBaseFileName(GeneratorContext context) => GetInterruptsClassName(context);
 
     protected override IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(GeneratorContext context)
     {
@@ -73,7 +74,6 @@ public sealed class InterruptsClassGenerator : TypeGenerator
                     SingletonSeparatedList(
                         Parameter(Identifier(EmulatorFieldName))
                             .WithType(GetEmulatorClassIdentifier(context)))))
-            .WithBody(Block(statements.ToArray()))
-            .WithLeadingTrivia(NewlineComment);
+            .WithBody(Block(statements.ToArray()));
     }
 }

@@ -1,4 +1,3 @@
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -14,6 +13,8 @@ public sealed class EmulatorInterruptsGenerator : EmulatorClassGenerator
     private EmulatorInterruptsGenerator()
     {
     }
+
+    protected override string GetBaseFileName(GeneratorContext context) => $"{GetEmulatorClassName(context)}.interrupts";
 
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration
@@ -55,7 +56,6 @@ public sealed class EmulatorInterruptsGenerator : EmulatorClassGenerator
                 Parameter(Identifier(ActionRequiredParameterName)).WithType(IdentifierName(ActionRequiredEnumName)).WithModifiers([Ref])
             ]))
             .AddModifiers(Private, Static)
-            .WithBody(Block(statements))
-            .WithLeadingTrivia(NewlineComment);
+            .WithBody(Block(statements));
     }
 }

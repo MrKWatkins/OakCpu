@@ -15,12 +15,4 @@ public sealed class TypeGeneratorTests : TestFixture
         allGenerators.Contains(StepStructGenerator.Instance).Should().BeTrue();
         allGenerators.Contains(RegistersClassesGenerator.Instance).Should().BeTrue();
     }
-
-    [Test]
-    public void FileNameProperty()
-    {
-        ActionRequiredGenerator.Instance.FileName.Should().Equal("ActionRequired");
-        StepStructGenerator.Instance.FileName.Should().Equal("StepStruct");
-        RegistersClassesGenerator.Instance.FileName.Should().Equal("RegistersClasses");
-    }
 }

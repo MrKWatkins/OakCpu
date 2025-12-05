@@ -10,19 +10,19 @@ public sealed partial class OpcodeYaml
     [YamlIgnore]
     private (byte? Prefix, byte Opcode)? prefixAndOpcode;
 
-    public string Opcode { get; internal set; } = null!;
+    public string Opcode { get; internal init; } = null!;
 
-    public string? R0 { get; internal set; }
+    public string? R0 { get; internal init; }
 
-    public string? R1 { get; internal set; }
+    public string? R1 { get; internal init; }
 
-    public string? RP0 { get; internal set; }
+    public string? RP0 { get; internal init; }
 
-    public string? RP1 { get; internal set; }
+    public string? RP1 { get; internal init; }
 
-    public string? C0 { get; internal set; }
+    public string? C0 { get; internal init; }
 
-    public byte? N0 { get; internal set; }
+    public byte? N0 { get; internal init; }
 
     public override string ToString() => Opcode;
 
@@ -44,12 +44,5 @@ public sealed partial class OpcodeYaml
     }
 
     [Pure]
-    private static byte ParseHex(string hex)
-    {
-        if (hex.StartsWith("0x"))
-        {
-            return byte.Parse(hex.Substring(2), NumberStyles.HexNumber);
-        }
-        throw new InvalidOperationException($"{hex} is not a hex number.");
-    }
+    private static byte ParseHex(string hex) => hex.StartsWith("0x", StringComparison.Ordinal) ? byte.Parse(hex[2..], NumberStyles.HexNumber) : throw new InvalidOperationException($"{hex} is not a hex number.");
 }

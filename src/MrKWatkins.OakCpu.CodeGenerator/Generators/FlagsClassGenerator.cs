@@ -15,6 +15,8 @@ public sealed class FlagsClassGenerator : TypeGenerator
     {
     }
 
+    protected override string GetBaseFileName(GeneratorContext context) => GetFlagsClassName(context);
+
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
     {
         var members = new List<MemberDeclarationSyntax>
@@ -83,13 +85,13 @@ public sealed class FlagsClassGenerator : TypeGenerator
         };
 
         return ConstructorDeclaration(GetFlagsClassName(context))
+            .WithLeadingTrivia(TriviaList(CarriageReturnLineFeed, CarriageReturnLineFeed))
             .WithModifiers(TokenList(Internal))
             .WithParameterList(
                 ParameterList(
                     SingletonSeparatedList(
                         Parameter(Identifier(EmulatorFieldName))
                             .WithType(GetEmulatorClassIdentifier(context)))))
-            .WithBody(Block(statements))
-            .WithLeadingTrivia(NewlineComment);
+            .WithBody(Block(statements));
     }
 }

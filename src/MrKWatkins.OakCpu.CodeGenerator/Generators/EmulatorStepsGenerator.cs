@@ -18,6 +18,8 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     {
     }
 
+    protected override string GetBaseFileName(GeneratorContext context) => $"{GetEmulatorClassName(context)}.steps";
+
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration
             .AddMembers(CreateStepMethod(context), CreateErrorFunction(context))
