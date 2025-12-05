@@ -16,8 +16,9 @@ interrupts:
     - name: interrupt
       type: bool
   
+  # Use & rather than && to avoid a branch.
   handle: |
-    if interrupt && IFF1;
+    if interrupt & IFF1;  
       halted = false;     
       move_to_interrupt_mode(IM);
       interrupt = false;

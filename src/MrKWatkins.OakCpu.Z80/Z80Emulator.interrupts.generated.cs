@@ -17,7 +17,7 @@ public sealed unsafe partial class Z80Emulator
 
     private static bool HandleInterrupts(Z80Emulator emulator, ref ActionRequired actionRequired)
     {
-        if (emulator.interrupt && emulator.iff1)
+        if (emulator.interrupt & emulator.iff1)
         {
             emulator.halted = false;
             emulator.currentStep = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(InterruptModeStepTable), emulator.im);
