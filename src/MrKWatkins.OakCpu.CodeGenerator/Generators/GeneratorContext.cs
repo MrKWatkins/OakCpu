@@ -11,7 +11,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public sealed class GeneratorContext
 {
-    private GeneratorContext(string rootNamespace, Configuration configuration, Cpu cpu, Interrupts interrupts, OpcodeRead opcodeRead, IReadOnlyList<Statement> onInstructionComplete, IReadOnlyList<Instruction> instructions, IReadOnlyDictionary<byte, PrefixJump> prefixJumps, IReadOnlyList<Step> allSteps)
+    private GeneratorContext(string rootNamespace, Configuration configuration, Cpu cpu, Interrupts interrupts, OpcodeRead opcodeRead, IReadOnlyList<Statement> onInstructionComplete, IReadOnlyList<Instruction> instructions, IReadOnlyDictionary<byte, PrefixJump> prefixJumps, IReadOnlyList<Step> allSteps, IReadOnlyList<Step> functionSteps)
     {
         RootNamespace = rootNamespace;
         Configuration = configuration;
@@ -22,6 +22,7 @@ public sealed class GeneratorContext
         Instructions = instructions;
         PrefixJumps = prefixJumps;
         AllSteps = allSteps;
+        FunctionSteps = functionSteps;
     }
 
     public string RootNamespace { get; }
@@ -39,6 +40,8 @@ public sealed class GeneratorContext
     public IReadOnlyList<Instruction> Instructions { get; }
 
     public IReadOnlyDictionary<byte, PrefixJump> PrefixJumps { get; }
+
+    public IReadOnlyList<Step> FunctionSteps { get; }
 
     public IReadOnlyList<Step> AllSteps { get; }
 
@@ -108,12 +111,18 @@ public sealed class GeneratorContext
         var allSteps = opcodeRead
             .Concat(prefixJumps.Values.SelectMany(p => p.Steps))
             .Concat(interrupts.AllSteps)
-            .Concat(instructions.SelectMany(i => i.Steps)).ToList();
-        Step.AssignIndexes(allSteps);
+            .Concat(instructions.SelectMany(i => i.Steps))
+            .ToList();
 
-        return new GeneratorContext(rootNamespace, configuration, Cpu.Create(yaml.Cpu), interrupts, opcodeRead, context.OnInstructionComplete, instructions, prefixJumps, allSteps);
+        Step.AssignIndices(allSteps);
+
+        var functionSteps = Step.MapDuplicates(allSteps).ToList();
+
+        Step.AssignFunctionIndices(functionSteps);
+
+        return new GeneratorContext(rootNamespace, configuration, Cpu.Create(yaml.Cpu), interrupts, opcodeRead, context.OnInstructionComplete, instructions, prefixJumps, allSteps, functionSteps);
     }
 
     [Pure]
-    internal GeneratorContext WithRequiredUsings() => new(RootNamespace, Configuration, Cpu, Interrupts, OpcodeRead, OnInstructionComplete, Instructions, PrefixJumps, AllSteps);
+    internal GeneratorContext WithRequiredUsings() => new(RootNamespace, Configuration, Cpu, Interrupts, OpcodeRead, OnInstructionComplete, Instructions, PrefixJumps, AllSteps, FunctionSteps);
 }

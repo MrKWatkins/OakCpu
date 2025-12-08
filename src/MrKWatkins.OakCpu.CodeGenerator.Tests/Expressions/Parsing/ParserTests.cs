@@ -36,7 +36,7 @@ public sealed class ParserTests
     [TestCase("!R == 0 || R > 10", "!(R) == 0x00 || R > 0x0A")] // Unary, comparison, and logical operators
     [TestCase("R & 1 == 1 && R > 0", "R & 0x01 == 0x01 && R > 0x00")] // Bitwise, comparison, and logical operators
     [TestCase("$temp + R", "temp + R")] // $ prefix is stripped in the AST representation
-    [TestCase("flag.X", "X")] // flag. prefix is stripped in the AST representation
+    [TestCase("flag.X", "flag.X")]
     public void ParseExpression(string expressionText, string expectedParsedExpression)
     {
         var context = CreateContext();

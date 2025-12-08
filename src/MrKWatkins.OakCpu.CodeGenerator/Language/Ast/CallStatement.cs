@@ -11,7 +11,7 @@ public sealed class CallStatement : Statement
 
     public Call Call { get; }
 
-    public override bool IsTerminal => Call.Function.IsTerminal;
+    public bool IsTerminal => Call.Function.IsTerminal;
 
     public override void WriteStringRepresentation(StringBuilder stringRepresentation) => Call.WriteStringRepresentation(stringRepresentation);
 

@@ -2,7 +2,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Condition
 {
-    internal Condition(string name, Flag flag, bool isNot)
+    private Condition(string name, Flag flag, bool isNot)
     {
         Name = name;
         Flag = flag;
@@ -15,7 +15,7 @@ public sealed class Condition
 
     public bool IsNot { get; }
 
-    public override string ToString() => Name;
+    public override string ToString() => $"condition.{Name}";
 
     [Pure]
     public static IReadOnlyDictionary<string, Condition> Create([InstantHandle] IEnumerable<Flag> flags)

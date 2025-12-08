@@ -330,7 +330,7 @@ public abstract class StatementGenerator : Generator
     [Pure]
     private static StatementSyntax GenerateCallStep(Step step) =>
         ExpressionStatement(
-            InvocationExpression(IdentifierName(GetStepFunctionName(step)))
+            InvocationExpression(IdentifierName(GetStepImplementationName(step)))
                 .WithArgumentList(ArgumentList(
                 [
                     CreateEmulatorArgument(),

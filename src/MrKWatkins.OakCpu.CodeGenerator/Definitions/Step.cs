@@ -8,7 +8,9 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Step
 {
+    private readonly List<Step> duplicates = new();
     private readonly Action? specifiedAction;
+    private Step? root;
 
     private Step(string name, IReadOnlyList<Statement> statements, Action? specifiedAction = null)
     {
@@ -23,7 +25,19 @@ public sealed class Step
 
     public ushort Index { get; private set; }
 
+    public ushort? FunctionIndex { get; private set; }
+
     public IReadOnlyList<Statement> Statements { get; }
+
+    public bool HasImplementation => Root.Statements.Count > 0;
+
+    public Step Root => root ?? throw new InvalidOperationException("Root step not set.");
+
+    public IReadOnlyList<Step> Duplicates => duplicates;
+
+    public IReadOnlyList<Step> StepAndDuplicates => Duplicates.Prepend(Root).ToList();
+
+    public Instruction? Instruction => Sequence as Instruction;
 
     [Pure]
     public Action GetAction(GeneratorContext context)
@@ -52,7 +66,24 @@ public sealed class Step
 
     public override string ToString() => $"{Name} => {string.Join("; ", Statements)};";
 
-    public static void AssignIndexes([InstantHandle] IEnumerable<Step> steps)
+    [MustUseReturnValue]
+    public static IEnumerable<Step> MapDuplicates([InstantHandle] IEnumerable<Step> steps)
+    {
+        foreach (var group in steps.GroupBy(s => s, StepDuplicateEqualityComparer.Instance))
+        {
+            var step = group.First();
+            step.root = step;
+            foreach (var duplicate in group.Skip(1))
+            {
+                step.duplicates.Add(duplicate);
+                duplicate.root = step;
+            }
+
+            yield return step;
+        }
+    }
+
+    internal static void AssignIndices([InstantHandle] IEnumerable<Step> steps)
     {
         var index = 0;
         foreach (var step in steps)
@@ -62,6 +93,24 @@ public sealed class Step
                 throw new InvalidAsynchronousStateException("Too many steps; will need to change to int.");
             }
             step.Index = (ushort)index++;
+        }
+    }
+
+    internal static void AssignFunctionIndices([InstantHandle] IEnumerable<Step> steps)
+    {
+        var index = 0;
+        foreach (var step in steps)
+        {
+            if (step.DoesNothing)
+            {
+                continue;
+            }
+
+            step.FunctionIndex = (ushort)index++;
+            foreach (var duplicate in step.Duplicates)
+            {
+                duplicate.FunctionIndex = step.FunctionIndex;
+            }
         }
     }
 

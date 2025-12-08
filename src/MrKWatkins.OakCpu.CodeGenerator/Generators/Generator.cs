@@ -15,12 +15,15 @@ public abstract class Generator
     protected const string ErrorFunctionName = "Error";
     protected const string HandleInterruptsMethodName = "HandleInterrupts";
     protected const string InterruptModeStepTableFieldName = "InterruptModeStepTable";
-    private const string StepFunctionPrefix = "Step_";
+    private const string StepImplementationPrefix = "StepImplementation_";
 
     private protected Generator()
     {
     }
 
     [Pure]
-    protected static string GetStepFunctionName(Step step) => $"{StepFunctionPrefix}{step.Index}";
+    protected static string GetStepImplementationName(Step step) =>
+        step.FunctionIndex != null
+            ? $"{StepImplementationPrefix}{step.FunctionIndex}"
+            : throw new InvalidOperationException($"Step {step.Name} does not have a function index.");
 }

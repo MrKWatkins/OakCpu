@@ -22,7 +22,7 @@ public sealed class Flag
 
     public byte BitMask => (byte)(1 << Index);
 
-    public override string ToString() => Name;
+    public override string ToString() => $"flag.{Name}";
 
     [Pure]
     public static IReadOnlyDictionary<string, Flag> Create(IReadOnlyList<FlagYaml> yamls) => yamls.Select(y => new Flag(y.Name, y.Index, y.Condition, y.NotCondition)).ToDictionary(f => f.Name);

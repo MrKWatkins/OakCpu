@@ -23,7 +23,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration
             .AddMembers(CreateStepMethod(context), CreateErrorFunction(context))
-            .AddMembers(context.AllSteps.Where(s => !s.DoesNothing).Select(step => CreateStepFunction(context, step)).ToArray());
+            .AddMembers(context.FunctionSteps.Where(s => !s.DoesNothing).Select(step => CreateStepFunction(context, step)).ToArray());
 
     [Pure]
     private static MemberDeclarationSyntax CreateErrorFunction(GeneratorContext context)
@@ -41,14 +41,14 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     {
         var statements = StatementGenerator.GenerateStatements(context, step);
 
-        var comment = Comment($"// {step.Name}");
+        var comments = step.StepAndDuplicates.Select(s => Comment($"// {s.Name}"));
 
-        var function = CreateFunction(context, GetStepFunctionName(step), statements);
+        var function = CreateFunction(context, GetStepImplementationName(step), statements);
 
         // Aggressively inline step 0 as it is called for overlapped reads.
         function = step == context.OpcodeRead.FirstStep
-            ? function.WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(comment)])
-            : function.WithLeadingTrivia(comment);
+            ? function.WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(comments)])
+            : function.WithLeadingTrivia(comments);
 
         return function;
     }
