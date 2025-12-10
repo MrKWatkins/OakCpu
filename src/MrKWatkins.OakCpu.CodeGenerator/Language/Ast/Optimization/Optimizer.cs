@@ -5,6 +5,7 @@ internal abstract class Optimizer
     private static readonly IReadOnlyList<Optimizer> All =
     [
         new SimplifyBinaryIdentityOperations(),
+        new BinaryConstantFolding(),
         new UnaryConstantFolding()
     ];
 

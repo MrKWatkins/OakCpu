@@ -2,22 +2,22 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Language.Ast.Optimization;
 
 internal sealed class SimplifyBinaryIdentityOperations : Optimizer<BinaryOperation>
 {
-    protected override AstNode OptimizeNode(BinaryOperation unaryOperation)
+    protected override AstNode OptimizeNode(BinaryOperation binaryOperation)
     {
         // If one operand is the identity value for that operator, we can simplify certain operations.
-        if (unaryOperation.Operator.LeftIdentity.HasValue &&
-            unaryOperation.Left is Number leftNumber &&
-            leftNumber.Value == unaryOperation.Operator.LeftIdentity.Value)
+        if (binaryOperation.Operator.LeftIdentity.HasValue &&
+            binaryOperation.Left is Number leftNumber &&
+            leftNumber.Value == binaryOperation.Operator.LeftIdentity.Value)
         {
-            return unaryOperation.Right;
+            return binaryOperation.Right;
         }
-        if (unaryOperation.Operator.RightIdentity.HasValue &&
-            unaryOperation.Right is Number rightNumber &&
-            rightNumber.Value == unaryOperation.Operator.RightIdentity.Value)
+        if (binaryOperation.Operator.RightIdentity.HasValue &&
+            binaryOperation.Right is Number rightNumber &&
+            rightNumber.Value == binaryOperation.Operator.RightIdentity.Value)
         {
-            return unaryOperation.Left;
+            return binaryOperation.Left;
         }
 
-        return unaryOperation;
+        return binaryOperation;
     }
 }
