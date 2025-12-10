@@ -60,7 +60,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     [Pure]
     private static ImplicitObjectCreationExpressionSyntax CreateErrorStep()
     {
-        var handler = PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(ErrorFunctionName));
+        var handler = PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(ErrorMethodName));
 
         return CreateStepCreation(handler, 0, Action.None);
     }
@@ -73,12 +73,12 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
         {
             // If we're an overlapped read and doing nothing, we still need to run step 0.
             handler = step.NextOpcode == NextOpcodeMode.Overlapped
-                ? PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetStepImplementationName(context.OpcodeRead.FirstStep)))
+                ? PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetStepMethodName(context.OpcodeRead.FirstStep)))
                 : LiteralExpression(SyntaxKind.DefaultLiteralExpression);
         }
         else
         {
-            handler = PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetStepImplementationName(step)));
+            handler = PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetStepMethodName(step)));
         }
 
         var nextStep = step.NextOpcode switch

@@ -10,7 +10,7 @@ public sealed class Step
 {
     private readonly List<Step> duplicates = new();
     private readonly Action? specifiedAction;
-    private Step? root;
+    private Step? implementation;
 
     private Step(string name, IReadOnlyList<Statement> statements, Action? specifiedAction = null)
     {
@@ -25,19 +25,25 @@ public sealed class Step
 
     public ushort Index { get; private set; }
 
-    public ushort? FunctionIndex { get; private set; }
+    /// <summary>
+    /// The index of the method in the generated code, or <c>null</c> if this is not an implementation step or the step does nothing.
+    /// </summary>
+    public ushort? MethodIndex { get; private set; }
 
     public IReadOnlyList<Statement> Statements { get; }
 
-    public bool HasImplementation => Root.Statements.Count > 0;
+    /// <summary>
+    /// The <see cref="Step" /> instance we used to generate the implementation code. For unique steps this will be this. For a step with
+    /// duplicates, the first step encountered will have this set to itself, and all duplicates will have this set to that step.
+    /// </summary>
+    public Step Implementation => implementation ?? throw new InvalidOperationException($"{nameof(Implementation)} step not set.");
 
-    public Step Root => root ?? throw new InvalidOperationException("Root step not set.");
-
+    /// <summary>
+    /// Any duplicates of this step. Will only contain steps for the implementation steps we used to generate code.
+    /// </summary>
     public IReadOnlyList<Step> Duplicates => duplicates;
 
-    public IReadOnlyList<Step> StepAndDuplicates => Duplicates.Prepend(Root).ToList();
-
-    public Instruction? Instruction => Sequence as Instruction;
+    public IReadOnlyList<Step> ImplementationAndDuplicates => Duplicates.Prepend(Implementation).ToList();
 
     [Pure]
     public Action GetAction(GeneratorContext context)
@@ -72,11 +78,11 @@ public sealed class Step
         foreach (var group in steps.GroupBy(s => s, StepDuplicateEqualityComparer.Instance))
         {
             var step = group.First();
-            step.root = step;
+            step.implementation = step;
             foreach (var duplicate in group.Skip(1))
             {
                 step.duplicates.Add(duplicate);
-                duplicate.root = step;
+                duplicate.implementation = step;
             }
 
             yield return step;
@@ -96,7 +102,7 @@ public sealed class Step
         }
     }
 
-    internal static void AssignFunctionIndices([InstantHandle] IEnumerable<Step> steps)
+    internal static void AssignMethodIndices([InstantHandle] IEnumerable<Step> steps)
     {
         var index = 0;
         foreach (var step in steps)
@@ -106,10 +112,10 @@ public sealed class Step
                 continue;
             }
 
-            step.FunctionIndex = (ushort)index++;
+            step.MethodIndex = (ushort)index++;
             foreach (var duplicate in step.Duplicates)
             {
-                duplicate.FunctionIndex = step.FunctionIndex;
+                duplicate.MethodIndex = step.MethodIndex;
             }
         }
     }

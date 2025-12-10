@@ -118,7 +118,7 @@ public sealed class GeneratorContext
 
         var functionSteps = Step.MapDuplicates(allSteps).ToList();
 
-        Step.AssignFunctionIndices(functionSteps);
+        Step.AssignMethodIndices(functionSteps);
 
         return new GeneratorContext(rootNamespace, configuration, Cpu.Create(yaml.Cpu), interrupts, opcodeRead, context.OnInstructionComplete, instructions, prefixJumps, allSteps, functionSteps);
     }

@@ -12,18 +12,18 @@ public abstract class Generator
     protected const string StepActionRequiredFieldName = "ActionRequired";
     protected const string EmulatorParameterName = "emulator";
     protected const string ActionRequiredParameterName = "actionRequired";
-    protected const string ErrorFunctionName = "Error";
+    protected const string ErrorMethodName = "Error";
     protected const string HandleInterruptsMethodName = "HandleInterrupts";
     protected const string InterruptModeStepTableFieldName = "InterruptModeStepTable";
-    private const string StepImplementationPrefix = "StepImplementation_";
+    private const string StepMethodPrefix = "Step";
 
     private protected Generator()
     {
     }
 
     [Pure]
-    protected static string GetStepImplementationName(Step step) =>
-        step.FunctionIndex != null
-            ? $"{StepImplementationPrefix}{step.FunctionIndex}"
-            : throw new InvalidOperationException($"Step {step.Name} does not have a function index.");
+    protected static string GetStepMethodName(Step step) =>
+        step.MethodIndex != null
+            ? $"{StepMethodPrefix}{step.MethodIndex}"
+            : throw new InvalidOperationException($"Step {step.Name} does not have a {nameof(step.MethodIndex)}.");
 }

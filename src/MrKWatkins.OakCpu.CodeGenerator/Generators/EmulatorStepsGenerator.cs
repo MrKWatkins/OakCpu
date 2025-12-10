@@ -23,7 +23,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration
             .AddMembers(CreateStepMethod(context), CreateErrorFunction(context))
-            .AddMembers(context.FunctionSteps.Where(s => !s.DoesNothing).Select(step => CreateStepFunction(context, step)).ToArray());
+            .AddMembers(context.FunctionSteps.Where(s => !s.DoesNothing).Select(step => CreateStepMethod(context, step)).ToArray());
 
     [Pure]
     private static MemberDeclarationSyntax CreateErrorFunction(GeneratorContext context)
@@ -33,17 +33,17 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
                 .WithArgumentList(
                     ArgumentList([Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Opcode not supported")))])));
 
-        return CreateFunction(context, ErrorFunctionName, [throwStatement]);
+        return CreateFunction(context, ErrorMethodName, [throwStatement]);
     }
 
     [Pure]
-    private static MemberDeclarationSyntax CreateStepFunction(GeneratorContext context, Step step)
+    private static MemberDeclarationSyntax CreateStepMethod(GeneratorContext context, Step step)
     {
         var statements = StatementGenerator.GenerateStatements(context, step);
 
-        var comments = step.StepAndDuplicates.Select(s => Comment($"// {s.Name}"));
+        var comments = step.ImplementationAndDuplicates.Select(s => Comment($"// {s.Name}"));
 
-        var function = CreateFunction(context, GetStepImplementationName(step), statements);
+        var function = CreateFunction(context, GetStepMethodName(step), statements);
 
         // Aggressively inline step 0 as it is called for overlapped reads.
         function = step == context.OpcodeRead.FirstStep
