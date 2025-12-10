@@ -21,7 +21,7 @@ public abstract class ExpressionGenerator : Generator
         ConditionAccess conditionAccess => GenerateConditionAccess(context, conditionAccess),
         DataMemberAccess dataMemberAccess => GenerateDataMemberAccess(dataMemberAccess),
         FlagAccess flagAccess => GenerateFlagAccess(context, flagAccess),
-        Number number => GenerateNumber(number),
+        Number number => GenerateNumber(context, number),
         RegisterAccess registerAccess => GenerateRegisterAccess(registerAccess),
         TemporaryVariableAccess temporaryVariableAccess => GenerateTemporaryVariableAccess(context, temporaryVariableAccess),
         UnaryOperation unaryOperation => GenerateUnaryOperation(context, unaryOperation),
@@ -31,13 +31,13 @@ public abstract class ExpressionGenerator : Generator
     [Pure]
     private static ExpressionSyntax GenerateBinaryOperation(StatementGeneratorContext context, BinaryOperation binaryOperation)
     {
-        var left = GenerateExpressionSyntax(context, binaryOperation.Left);
+        var left = GenerateExpressionSyntax(context.WithParentExpression(binaryOperation), binaryOperation.Left);
         if (binaryOperation.Left is BinaryOperation leftBinary && leftBinary.Operator.Precedence < binaryOperation.Operator.Precedence)
         {
             left = ParenthesizedExpression(left);
         }
 
-        var right = GenerateExpressionSyntax(context, binaryOperation.Right);
+        var right = GenerateExpressionSyntax(context.WithParentExpression(binaryOperation), binaryOperation.Right);
         if (binaryOperation.Right is BinaryOperation rightBinary && rightBinary.Operator.Precedence < binaryOperation.Operator.Precedence)
         {
             right = ParenthesizedExpression(right);
@@ -154,7 +154,16 @@ public abstract class ExpressionGenerator : Generator
     private static ExpressionSyntax GenerateBoolean(Boolean boolean) => LiteralExpression(boolean.Value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
 
     [Pure]
-    private static ExpressionSyntax GenerateNumber(Number number) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(number.NumberString, number.Value));
+    private static ExpressionSyntax GenerateNumber(StatementGeneratorContext context, Number number)
+    {
+        // Special case. If the parent is a bitwise operation, and we're a byte on the right, then render as a binary string. Makes the code easier to understand; it's easier to see the
+        // outcome of a bitwise operation if you can see the bits.
+        if (number.Type == DataType.U8 && context.Parent is BinaryOperation { Operator.Symbol: "|" or "&" or "^" } binaryOperation && binaryOperation.Right == number)
+        {
+            return GenerateBinaryLiteralExpression((byte) number.Value);
+        }
+        return LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(number.NumberString, number.Value));
+    }
 
     [Pure]
     private static ExpressionSyntax GenerateRegisterAccess(RegisterAccess registerAccess) => EmulatorMemberIdentifier(registerAccess.Register.FieldName);
@@ -212,7 +221,7 @@ public abstract class ExpressionGenerator : Generator
             return GenerateConditionAccess(context, conditionAccess, true);
         }
 
-        var expression = GenerateExpressionSyntax(context, unaryOperation.Expression);
+        var expression = GenerateExpressionSyntax(context.WithParentExpression(unaryOperation), unaryOperation.Expression);
         if (unaryOperation.Expression is BinaryOperation)
         {
             expression = ParenthesizedExpression(expression);

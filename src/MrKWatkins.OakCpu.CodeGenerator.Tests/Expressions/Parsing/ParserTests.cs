@@ -70,6 +70,7 @@ public sealed class ParserTests
     [TestCase("R = R & 1;R=R^1;", 2, "R = R & 0x01", "R = R ^ 0x01")]
     [TestCase("R = R + R & 1;", 1, "R = R + R & 0x01")]
     [TestCase("R = R + (R & 1);", 1, "R = R + (R & 0x01)")]
+    [TestCase("R = (R << 1) | flag.X;", 1, "R = R << 0x01 | flag.X")]
     public void ParseStatements(string statementsText, int expectedCount, params string[] expectedParsedExpressions)
     {
         var context = CreateContext();
