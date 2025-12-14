@@ -23,7 +23,7 @@ public sealed class Assignment : Statement
     /// <summary>
     /// The value to assign.
     /// </summary>
-    public Expression Value { get; }
+    public Expression Value { get; private set; }
 
     public override IEnumerable<AstNode> Children
     {
@@ -31,6 +31,22 @@ public sealed class Assignment : Statement
         {
             yield return Target;
             yield return Value;
+        }
+    }
+
+    public override void ReplaceChild(AstNode original, AstNode replacement)
+    {
+        if (ReferenceEquals(Value, original))
+        {
+            Value = replacement as Expression ?? throw new ArgumentException($"Value must be a {nameof(Expression)}, not a {replacement.GetType().Name}.", nameof(replacement));
+        }
+        else if (ReferenceEquals(Target, original))
+        {
+            throw new InvalidOperationException($"{nameof(Target)} cannot be replaced in an {nameof(Assignment)}.");
+        }
+        else
+        {
+            throw new ArgumentException("Value is not a child of this node.", nameof(original));
         }
     }
 

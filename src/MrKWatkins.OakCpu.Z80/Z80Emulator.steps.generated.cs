@@ -4109,8 +4109,6 @@ public sealed unsafe partial class Z80Emulator
     // 0xA7: AND A [0]
     private static void Step182(Z80Emulator emulator, ref ActionRequired actionRequired)
     {
-        emulator.A &= emulator.A;
-
         // Update flags.
         int flags = 0b00010000; // Set H. Reset C and N.
         flags |= emulator.A & 0b10101000; // Copy flag.X, flag.Y and S from A.
@@ -4280,7 +4278,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xAF: XOR A [0]
     private static void Step190(Z80Emulator emulator, ref ActionRequired actionRequired)
     {
-        emulator.A ^= emulator.A;
+        emulator.A = 0x00;
 
         // Update flags.
         // Reset flag.C, flag.N and H.
@@ -4451,8 +4449,6 @@ public sealed unsafe partial class Z80Emulator
     // 0xB7: OR A [0]
     private static void Step198(Z80Emulator emulator, ref ActionRequired actionRequired)
     {
-        emulator.A |= emulator.A;
-
         // Update flags.
         // Reset flag.C, flag.N and H.
         int flags = emulator.A & 0b10101000; // Copy flag.X, flag.Y and S from A.
@@ -13389,7 +13385,6 @@ public sealed unsafe partial class Z80Emulator
     private static void Step655(Z80Emulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
-        emulator.A &= emulator.A;
 
         // Update flags.
         int flags = 0b00010000; // Set H. Reset C and N.
@@ -13550,7 +13545,7 @@ public sealed unsafe partial class Z80Emulator
     private static void Step662(Z80Emulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
-        emulator.A ^= emulator.A;
+        emulator.A = 0x00;
 
         // Update flags.
         // Reset flag.C, flag.N and H.
@@ -13711,7 +13706,6 @@ public sealed unsafe partial class Z80Emulator
     private static void Step669(Z80Emulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
-        emulator.A |= emulator.A;
 
         // Update flags.
         // Reset flag.C, flag.N and H.

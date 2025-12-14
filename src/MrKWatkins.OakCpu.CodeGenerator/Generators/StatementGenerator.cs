@@ -11,7 +11,6 @@ using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-// TODO: Optimise A ^ A to 0.
 public abstract class StatementGenerator : Generator
 {
     [Pure]
