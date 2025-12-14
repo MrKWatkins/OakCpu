@@ -52,7 +52,6 @@ public sealed unsafe partial class Z80Emulator
         writer.Write(iff1);
         writer.Write(iff2);
         writer.Write(im);
-        writer.Write(instructionComplete);
         writer.Write(interrupt);
         writer.Write(latch);
         writer.Write(F);
@@ -114,7 +113,6 @@ public sealed unsafe partial class Z80Emulator
         iff1 = reader.ReadBoolean();
         iff2 = reader.ReadBoolean();
         im = reader.ReadByte();
-        instructionComplete = reader.ReadBoolean();
         interrupt = reader.ReadBoolean();
         latch = reader.ReadByte();
         F = reader.ReadByte();

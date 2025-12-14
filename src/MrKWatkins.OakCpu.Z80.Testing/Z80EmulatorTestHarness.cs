@@ -150,22 +150,9 @@ public sealed class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80SteppableT
 
     public override void AssertFail(string message) => Assert.Fail(message + Environment.NewLine);
 
-    public override void Step()
-    {
-        var actionRequired = emulator.Step();
-        PerformActionRequired(actionRequired);
-        MutableCycles?.Add(CreateCycle(actionRequired));
-        TStates++;
-    }
+    public override void Step() => PerformActionRequired(emulator.Step());
 
-    public override void ExecuteInstruction()
-    {
-        emulator.InstructionComplete = false;
-        while (!emulator.InstructionComplete)
-        {
-            Step();
-        }
-    }
+    public override void ExecuteInstruction() => emulator.ExecuteInstruction(PerformActionRequired);
 
     private void PerformActionRequired(ActionRequired actionRequired)
     {
@@ -174,23 +161,26 @@ public sealed class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80SteppableT
             case ActionRequired.OpcodeRead:
             case ActionRequired.MemoryRead:
                 emulator.Data = ReadByteFromMemory(emulator.Address);
-                return;
+                break;
 
             case ActionRequired.MemoryWrite:
                 if (RomArea == null || emulator.Address < RomArea.Value.Start || emulator.Address > RomArea.Value.End)
                 {
                     WriteByteToMemory(emulator.Address, emulator.Data);
                 }
-                return;
+                break;
 
             case ActionRequired.IoRead:
                 emulator.Data = IOReader.Read(emulator.Address);
-                return;
+                break;
 
             case ActionRequired.IoWrite:
                 IOWriter.Write(emulator.Address, emulator.Data);
-                return;
+                break;
         }
+
+        MutableCycles?.Add(CreateCycle(actionRequired));
+        TStates++;
     }
 
     [Pure]

@@ -32,6 +32,7 @@ namespace MrKWatkins.OakCpu.Z80.Benchmarks;
 // | ZEXALL | aluop a,nn | 2.246 s | 0.0175 s | 0.0164 s |   x70.65 |   64.66 KB | 2025-11-12 .NET 10. This was a lucky measurement; other tests after with no real changes came in around ~2.35s
 // | ZEXALL | aluop a,nn | 2.261 s | 0.0381 s | 0.0356 s |   x70.16 |   64.66 KB | 2025-12-05 After various code gen improvements. JITted code probably hasn't changed.
 // | ZEXALL | aluop a,nn | 2.122 s | 0.0263 s | 0.0246 s |   x74.76 |   64.66 KB | 2025-12-09 After sharing code for duplicate steps.
+// | ZEXALL | aluop a,nn | 2.032 s | 0.0405 s | 0.0688 s |   x78.10 |   64.66 KB | 2025-12-14 After removing instruction complete, a few optimizations and updating the test harness.
 [MemoryDiagnoser]
 [Config(typeof(Config))]
 [SuppressMessage("ReSharper", "InconsistentNaming")]

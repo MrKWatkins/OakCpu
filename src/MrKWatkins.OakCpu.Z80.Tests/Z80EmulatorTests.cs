@@ -1,3 +1,5 @@
+using MrKWatkins.OakCpu.Z80.Testing;
+
 namespace MrKWatkins.OakCpu.Z80.Tests;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -95,5 +97,60 @@ public sealed class Z80EmulatorTests
         emulator.Flags.X.Should().BeFalse();
         emulator.Flags.Y.Should().BeFalse();
         emulator.F.Should().Equal(0b00000000);
+    }
+
+    [Test]
+    public void ExecuteInstruction_NoOverlappedRead()
+    {
+        var z80 = new Z80EmulatorTestHarness();
+
+        // LD B, $42
+        z80.WriteByteToMemory(0x0000, 0x06);
+        z80.WriteByteToMemory(0x0001, 0x42);
+
+        z80.ExecuteInstruction(TestContext.Progress);
+
+        z80.TStates.Should().Equal(7);
+        z80.RegisterPC.Should().Equal(0x0002);
+        z80.RegisterB.Should().Equal(0x42);
+    }
+
+    [Test]
+    public void ExecuteInstruction_OverlappedRead()
+    {
+        var z80 = new Z80EmulatorTestHarness();
+
+        // INC B
+        z80.WriteByteToMemory(0x0000, 0x04);
+
+        z80.ExecuteInstruction(TestContext.Progress);
+
+        z80.TStates.Should().Equal(4);
+        z80.RegisterPC.Should().Equal(0x0001);
+        z80.RegisterB.Should().Equal(0x01);
+    }
+
+    [Test]
+    public void ExecuteInstruction_Halt()
+    {
+        var z80 = new Z80EmulatorTestHarness();
+
+        // HALT
+        z80.WriteByteToMemory(0x0000, 0x76);
+
+        z80.ExecuteInstruction(TestContext.Progress);
+
+        z80.TStates.Should().Equal(4);
+        z80.Halted.Should().BeTrue();
+
+        // PC does actually advance after a HALT.
+        z80.RegisterPC.Should().Equal(0x0001);
+
+        // Test the halted cycle.
+        z80.ExecuteInstruction(TestContext.Progress);
+
+        z80.TStates.Should().Equal(8);
+        z80.Halted.Should().BeTrue();
+        z80.RegisterPC.Should().Equal(0x0001);
     }
 }

@@ -191,32 +191,21 @@ public sealed unsafe partial class Z80Emulator
     private byte latch;
 
     [FieldOffset(69)]
-    private bool instructionComplete;
-
-    public bool InstructionComplete
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => instructionComplete; 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        set => instructionComplete = value;
-    }
-
-    [FieldOffset(70)]
     internal byte im;
 
-    [FieldOffset(71)]
+    [FieldOffset(70)]
     internal bool iff1;
 
-    [FieldOffset(72)]
+    [FieldOffset(71)]
     internal bool iff2;
 
-    [FieldOffset(73)]
+    [FieldOffset(72)]
     internal bool halted;
 
-    [FieldOffset(74)]
+    [FieldOffset(73)]
     internal bool interrupt;
 
-    [FieldOffset(75)]
+    [FieldOffset(74)]
     private byte data;
 
     public byte Data

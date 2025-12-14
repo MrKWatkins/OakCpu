@@ -20,7 +20,6 @@ public sealed unsafe partial class Z80Emulator
         iff1 = false;
         iff2 = false;
         im = 0;
-        instructionComplete = false;
         interrupt = false;
         latch = 0;
         AF = 0;

@@ -35,7 +35,7 @@ interrupts:
     -
     - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);
     # No need to reset Q as it was reset by the HALT that started the cycle.
-    - instruction_complete = true; handle_interrupts();
+    - handle_interrupts();
 
   modes:
     - number: 0
