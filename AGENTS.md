@@ -11,13 +11,16 @@ OakCpu is a cycle-accurate Z80 CPU emulator written in C# targeting .NET 10.0. C
 All commands run from the repo root.
 
 ```bash
-dotnet build src/OakEmu.sln # Build all projects.
-dotnet test --solution src/OakEmu.sln  # Run all tests.
-dotnet test --solution src/OakEmu.sln --configuration Release -- --coverage --coverage-output coverage.xml --coverage-output-format cobertura # Run all tests with code coverage.
-dotnet test --project src/MrKWatkins.OakEmu.Tests  # Run a single test project.
-dotnet test --project src/MrKWatkins.OakEmu.Tests --filter "FullyQualifiedName~BinarySerializerTests"  # Run a single test class.
-dotnet format src/OakEmu.sln  # Format the source code.
+dotnet build src/OakCpu.sln # Build all projects.
+dotnet run --project src/MrKWatkins.OakCpu.CodeGenerator.Console --no-build # Regenerate checked-in .generated.cs files.
+dotnet test --solution src/OakCpu.sln # Run the standard test suite.
+dotnet test --project src/MrKWatkins.OakCpu.Z80.Tests --filter "FullyQualifiedName~InterruptsTests|FullyQualifiedName~TimingTests" # Focused interrupt/timing regression pass.
+dotnet format src/OakCpu.sln # Format the source code.
 ```
+
+For interrupt- and timing-related changes, do not stop at the broad solution test run. Also run the focused `InterruptsTests` and `TimingTests` filter above.
+
+After regenerating with `CodeGenerator.Console`, do not use `dotnet test --no-build` for sign-off. The generator changes checked-in `.generated.cs` files, so the solution must be rebuilt as part of the post-regeneration validation pass.
 
 ## Architecture
 

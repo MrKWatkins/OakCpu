@@ -20,69 +20,85 @@ interrupts:
   handle: |
     if interrupt & IFF1;  
       halted = false;     
-      move_to_interrupt_mode(IM);
+      move_to_sequence_group(sequence_group.interrupt_mode, IM);
       interrupt = false;
       handled();
     endif;
     
     interrupt = false;
-  
-  # Move to a separate cycle of opcodes after a HALT. This is to avoid the overhead of checking for halted in opcode_read.
-  halted_cycle:
-    # PC moves to the next instruction after a HALT. The next opcode is then repeatedly read, but PC is not advanced and the instruction is not executed 
-    # until the CPU is no longer halted. See http://www.primrosebank.net/computers/z80/z80_special_reset.htm for details.
-    - Address = PC; request(action.opcode_read);
-    -
-    - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);
-    # No need to reset Q as it was reset by the HALT that started the cycle.
-    - handle_interrupts();
 
-  modes:
-    - number: 0
-      steps:
-        - IFF1 = false; IFF2 = false;                                                                 # 1
-        - request(action.io_read);                                                                    # 2
-        -                                                                                             # 3
-        - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);                                            # 4
-        - move_to_opcode();                                                                           # 5
-      next_opcode: custom
+sequences:
+  - name: halted
+    execute_overlap_on_start: true
+    next_opcode: loop
+    steps:
+      # PC moves to the next instruction after a HALT. The next opcode is then repeatedly read, but PC is not advanced and the instruction is not executed 
+      # until the CPU is no longer halted. See http://www.primrosebank.net/computers/z80/z80_special_reset.htm for details.
+      - Address = PC; request(action.opcode_read);
+      -
+      - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);
+      # No need to reset Q as it was reset by the HALT that started the cycle.
+      - handle_interrupts();
+
+  - name: interrupt_mode_0
+    group:
+      name: interrupt_mode
+      number: 0
+    execute_overlap_on_start: true
+    next_opcode: custom
+    steps:
+      - IFF1 = false; IFF2 = false;                                                                 # 1
+      - request(action.io_read);                                                                    # 2
+      -                                                                                             # 3
+      - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);                                            # 4
+      - move_to_opcode();                                                                           # 5
       
-    - number: 1
-      steps:
-        # Should be 13 T-States, according to http://z80.info/interrup.htm.
-        - IFF1 = false; IFF2 = false;                                                                 # 1
-        - request(action.io_read);                                                                    # 2
-        -                                                                                             # 3
-        - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);                                            # 4
-        -                                                                                             # 5
-        -                                                                                             # 6
-        -                                                                                             # 7
-        - SP = SP - 1; Address = SP; Data = PCH; request(action.memory_write);                        # 8
-        -                                                                                             # 9
-        -                                                                                             # 10
-        - SP = SP - 1; Address = SP; Data = PCL; PC = 0x38; WZ = 0x38; request(action.memory_write);  # 11
-        -                                                                                             # 12
-        -                                                                                             # 13
+  - name: interrupt_mode_1
+    group:
+      name: interrupt_mode
+      number: 1
+    execute_overlap_on_start: true
+    next_opcode: read
+    steps:
+      # Should be 13 T-States, according to http://z80.info/interrup.htm.
+      - IFF1 = false; IFF2 = false;                                                                 # 1
+      - request(action.io_read);                                                                    # 2
+      -                                                                                             # 3
+      - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);                                            # 4
+      -                                                                                             # 5
+      -                                                                                             # 6
+      -                                                                                             # 7
+      - SP = SP - 1; Address = SP; Data = PCH; request(action.memory_write);                        # 8
+      -                                                                                             # 9
+      -                                                                                             # 10
+      - SP = SP - 1; Address = SP; Data = PCL; PC = 0x38; WZ = 0x38; request(action.memory_write);  # 11
+      -                                                                                             # 12
+      -                                                                                             # 13
     
-    - number: 2
-      steps:
-        # Should be 19 T-States, according to http://z80.info/interrup.htm.
-        - IFF1 = false; IFF2 = false;                                                                 # 1
-        - request(action.io_read);                                                                    # 2
-        - latch = Data;                                                                               # 3
-        - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);                                            # 4
-        -                                                                                             # 5
-        -                                                                                             # 6
-        -                                                                                             # 7
-        - SP = SP - 1; Address = SP; Data = PCH; request(action.memory_write);                        # 8
-        -                                                                                             # 9
-        -                                                                                             # 10
-        - SP = SP - 1; Address = SP; Data = PCL; Z = latch; W = I; request(action.memory_write);      # 11
-        -                                                                                             # 12
-        -                                                                                             # 13
-        - Address = WZ; WZ = WZ + 1; request(action.memory_read);                                     # 14
-        - latch = Data;                                                                               # 15
-        -                                                                                             # 16
-        - Address = WZ; request(action.memory_read);                                                  # 17
-        - W = Data; Z = latch; PC = WZ;                                                               # 18
-        -                                                                                             # 19
+  - name: interrupt_mode_2
+    group:
+      name: interrupt_mode
+      number: 2
+    execute_overlap_on_start: true
+    next_opcode: read
+    steps:
+      # Should be 19 T-States, according to http://z80.info/interrup.htm.
+      - IFF1 = false; IFF2 = false;                                                                 # 1
+      - request(action.io_read);                                                                    # 2
+      - latch = Data;                                                                               # 3
+      - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);                                            # 4
+      -                                                                                             # 5
+      -                                                                                             # 6
+      -                                                                                             # 7
+      - SP = SP - 1; Address = SP; Data = PCH; request(action.memory_write);                        # 8
+      -                                                                                             # 9
+      -                                                                                             # 10
+      - SP = SP - 1; Address = SP; Data = PCL; Z = latch; W = I; request(action.memory_write);      # 11
+      -                                                                                             # 12
+      -                                                                                             # 13
+      - Address = WZ; WZ = WZ + 1; request(action.memory_read);                                     # 14
+      - latch = Data;                                                                               # 15
+      -                                                                                             # 16
+      - Address = WZ; request(action.memory_read);                                                  # 17
+      - W = Data; Z = latch; PC = WZ;                                                               # 18
+      -                                                                                             # 19

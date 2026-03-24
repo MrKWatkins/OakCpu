@@ -39,8 +39,8 @@ public abstract class StatementGenerator : Generator
 
         var trailingStatements = step.NextOpcode switch
         {
-            NextOpcodeMode.Read => GenerateMoveToOpcodeRead(context),
-            NextOpcodeMode.Overlapped => GenerateOverlappedOpcodeRead(context),
+            NextOpcodeMode.Read => GenerateMoveToSequenceStart(context.GeneratorContext.OpcodeRead),
+            NextOpcodeMode.Overlapped => GenerateExecuteSequenceOnStart(context.GeneratorContext.OpcodeRead, "Overlapped opcode read."),
             NextOpcodeMode.Custom => [],
             NextOpcodeMode.Loop => [],
             null => [],
@@ -87,10 +87,6 @@ public abstract class StatementGenerator : Generator
         {
             return GenerateHandled(context);
         }
-        if (callStatement.Call.Function == PreDefinedFunction.MoveToHaltedCycle)
-        {
-            return GenerateMoveToHaltedCycle(context);
-        }
         if (callStatement.Call.Function == PreDefinedFunction.HandleInterrupts)
         {
             return GenerateHandleInterrupts(context);
@@ -102,6 +98,14 @@ public abstract class StatementGenerator : Generator
         if (callStatement.Call.Function == PreDefinedFunction.MoveToOpcode)
         {
             return GenerateMoveToOpcode(context);
+        }
+        if (callStatement.Call.Function == PreDefinedFunction.MoveToSequenceGroup)
+        {
+            return GenerateMoveToSequenceGroup(context, callStatement.Call);
+        }
+        if (callStatement.Call.Function == PreDefinedFunction.MoveToSequence)
+        {
+            return GenerateMoveToSequence(context, callStatement.Call);
         }
         if (callStatement.Call.Function == PreDefinedFunction.Request)
         {
@@ -291,18 +295,19 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateMoveToOpcodeRead(StatementGeneratorContext context)
+    private static IEnumerable<StatementSyntax> GenerateMoveToSequence(StatementGeneratorContext context, Call call)
     {
-        yield return CreateSetStep(context.GeneratorContext.OpcodeRead.FirstStep);
-    }
+        if (call.Arguments.Count != 1)
+        {
+            throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToSequence.Name} must have exactly one argument.");
+        }
 
-    // TODO: Could we make more generic, i.e. if overlapped do this? Only bother if needed for other chips.
-    [Pure]
-    private static IEnumerable<StatementSyntax> GenerateMoveToHaltedCycle(StatementGeneratorContext context)
-    {
-        // Need to overlap the first step of the halted cycle.
-        yield return CreateSetStep(context.GeneratorContext.Interrupts.HaltedCycle.Steps[1]).WithLeadingTrivia(Comment("// Move to halted cycle."));
-        yield return GenerateCallStep(context.GeneratorContext.Interrupts.HaltedCycle.FirstStep);
+        if (call.Arguments[0] is not SequenceAccess sequenceAccess)
+        {
+            throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToSequence.Name} must use a sequence.<name> argument.");
+        }
+
+        return GenerateMoveToSequence(context.GeneratorContext.GetSequence(sequenceAccess.SequenceName));
     }
 
     [Pure]
@@ -313,12 +318,34 @@ public abstract class StatementGenerator : Generator
             throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToInterruptMode} must have exactly one argument.");
         }
 
-        var getOpcode = CreateArrayGetWithoutBoundsCheck(
-            context.GeneratorContext.RequiredUsings,
-            IdentifierName(InterruptModeStepTableFieldName),
-            ExpressionGenerator.GenerateExpressionSyntax(context, call.Arguments[0]));
+        return GenerateMoveToSequenceGroup(context, context.GeneratorContext.GetSequenceGroup(InterruptMode.SequenceGroupName), call.Arguments[0]);
+    }
 
-        yield return CreateSetStep(getOpcode);
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateMoveToSequenceGroup(StatementGeneratorContext context, Call call)
+    {
+        if (call.Arguments.Count != 2)
+        {
+            throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToSequenceGroup.Name} must have exactly two arguments.");
+        }
+
+        if (call.Arguments[0] is not SequenceGroupAccess sequenceGroupAccess)
+        {
+            throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToSequenceGroup.Name} must use a sequence_group.<name> argument.");
+        }
+
+        return GenerateMoveToSequenceGroup(context, context.GeneratorContext.GetSequenceGroup(sequenceGroupAccess.SequenceGroupName), call.Arguments[1]);
+    }
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateMoveToSequenceGroup(StatementGeneratorContext context, SequenceGroup sequenceGroup, Expression selector)
+    {
+        var getSequence = CreateArrayGetWithoutBoundsCheck(
+            context.GeneratorContext.RequiredUsings,
+            IdentifierName(GetSequenceGroupStepTableFieldName(sequenceGroup)),
+            ExpressionGenerator.GenerateExpressionSyntax(context, selector));
+
+        yield return CreateSetStep(getSequence).WithLeadingTrivia(Comment($"// Move to {sequenceGroup.Name.Replace('_', ' ')}."));
     }
 
     [Pure]
@@ -333,11 +360,38 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateOverlappedOpcodeRead(StatementGeneratorContext context)
+    private static IEnumerable<StatementSyntax> GenerateMoveToSequence(StepSequence sequence)
     {
-        // Execute step 0. No need to set step 1; the NextOpcode handling will cover that.
-        yield return GenerateCallStep(context.GeneratorContext.OpcodeRead.FirstStep)
-            .WithLeadingTrivia(Comment("// Overlapped opcode read."));
+        if (!sequence.ExecuteOverlapOnStart)
+        {
+            return GenerateMoveToSequenceStart(sequence);
+        }
+
+        if (sequence.Steps.Count < 2)
+        {
+            throw new InvalidOperationException($"The sequence {sequence.Name} cannot execute overlap on start unless it has at least two steps.");
+        }
+
+        var sequenceName = sequence.Name?.Replace('_', ' ') ?? "sequence";
+
+        return
+        [
+            CreateSetStep(sequence.Steps[1]).WithLeadingTrivia(Comment($"// Move to {sequenceName}.")),
+            GenerateCallStep(sequence.FirstStep)
+        ];
+    }
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateMoveToSequenceStart(StepSequence sequence)
+    {
+        yield return CreateSetStep(sequence.FirstStep);
+    }
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateExecuteSequenceOnStart(StepSequence sequence, string comment)
+    {
+        yield return GenerateCallStep(sequence.FirstStep)
+            .WithLeadingTrivia(Comment($"// {comment}"));
     }
 
     [Pure]

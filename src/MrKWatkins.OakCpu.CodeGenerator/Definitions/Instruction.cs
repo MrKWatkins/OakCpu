@@ -7,7 +7,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 public sealed class Instruction : StepSequence
 {
     private Instruction(string group, string mnemonic, string? opcodeTable, byte? prefix, byte opcode, NextOpcodeMode nextOpcode, IReadOnlyList<Step> steps, IReadOnlyDictionary<string, Expression> flags, IReadOnlyList<(byte? Prefix, byte Opcode, Step Step)> duplicates)
-        : base(steps, nextOpcode)
+        : base(null, steps, nextOpcode)
     {
         Group = group;
         Mnemonic = mnemonic;

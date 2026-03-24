@@ -3052,7 +3052,7 @@ public sealed unsafe partial class Z80Emulator
             return;
         }
 
-        // Move to halted cycle.
+        // Move to halted.
         emulator.currentStep = 9;
         Step7(emulator, ref actionRequired);
         emulator.address = emulator.PC;
@@ -12695,7 +12695,7 @@ public sealed unsafe partial class Z80Emulator
             return;
         }
 
-        // Move to halted cycle.
+        // Move to halted.
         emulator.currentStep = 9;
         Step7(emulator, ref actionRequired);
         emulator.address = emulator.PC;

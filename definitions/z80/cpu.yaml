@@ -14,11 +14,15 @@ cpu:
     - name: latch
       type: u8
 
-opcode_read:
-  - Address = PC; PC = PC + 1; request(action.opcode_read);
-  - 
-  - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);
-  - move_to_opcode();
+sequences:
+  - name: opcode_read
+    execute_overlap_on_start: true
+    next_opcode: custom
+    steps:
+      - Address = PC; PC = PC + 1; request(action.opcode_read);
+      - 
+      - Address = IR; R = (R & 0x80) | ((R + 1) & 0x7F);
+      - move_to_opcode();
 
 on_instruction_complete: |
   if instruction_updates_flags();

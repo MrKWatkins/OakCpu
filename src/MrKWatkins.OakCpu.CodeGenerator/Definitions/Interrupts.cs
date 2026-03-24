@@ -6,11 +6,11 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Interrupts
 {
-    private Interrupts(IReadOnlyDictionary<string, UserDefinedDataMember> properties, IReadOnlyList<Statement> handle, HaltedCycle haltedCycle, IReadOnlyList<InterruptMode> modes)
+    private Interrupts(IReadOnlyDictionary<string, UserDefinedDataMember> properties, IReadOnlyList<Statement> handle, StepSequence halted, IReadOnlyList<InterruptMode> modes)
     {
         Properties = properties;
         Handle = handle;
-        HaltedCycle = haltedCycle;
+        Halted = halted;
         Modes = modes;
     }
 
@@ -18,23 +18,31 @@ public sealed class Interrupts
 
     public IReadOnlyList<Statement> Handle { get; }
 
-    public HaltedCycle HaltedCycle { get; }
+    public StepSequence Halted { get; }
 
     public IReadOnlyList<InterruptMode> Modes { get; }
 
-    public IEnumerable<Step> AllSteps => HaltedCycle.Concat(Modes.SelectMany(m => m.Steps));
+    public IEnumerable<StepSequence> AllSequences => Enumerable.Repeat(Halted, 1).Concat(Modes.Select(m => m.Sequence)).Distinct();
+
+    public IEnumerable<Step> AllSteps => AllSequences.SelectMany(sequence => sequence.Steps);
 
     [Pure]
-    public static Interrupts Create(ParserContext context, InterruptsYaml yaml)
+    public static Interrupts Create(ParserContext context, InterruptsYaml yaml, IReadOnlyDictionary<string, StepSequence> availableSequences)
     {
         var properties = yaml.Properties.ToDictionary(p => p.Name, p => context.Configuration.UserDefinedDataMembers[p.Name]);
 
         var handle = Parser.ParseStatements(context, yaml.Handle);
 
-        var haltedCycle = HaltedCycle.Create(context, yaml);
+        var halted = yaml.HaltedCycle.Any()
+            ? NamedStepSequence.Create(context, "halted", yaml.HaltedCycle, NextOpcodeMode.Loop, true)
+            : availableSequences.TryGetValue("halted", out var sequence)
+                ? sequence
+                : availableSequences.TryGetValue("halted_cycle", out var legacySequence)
+                    ? legacySequence
+                    : throw new InvalidOperationException("No sequence named halted exists for the halted cycle.");
 
-        var modes = yaml.Modes.Select(mode => InterruptMode.Create(context, mode)).ToList();
+        var modes = yaml.Modes.Select(mode => InterruptMode.Create(context, mode, availableSequences)).ToList();
 
-        return new Interrupts(properties, handle, haltedCycle, modes);
+        return new Interrupts(properties, handle, halted, modes);
     }
 }

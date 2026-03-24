@@ -28,6 +28,8 @@ public sealed unsafe partial class Z80Emulator
 
     private static readonly ushort[] OpcodeStepTableFDCB;
 
+    private static readonly ushort[] InterruptModeStepTable;
+
     static Z80Emulator()
     {
         if (!BitConverter.IsLittleEndian)
@@ -1585,5 +1587,6 @@ public sealed unsafe partial class Z80Emulator
             6562, 6571, 6580, 6589, 6598, 6607, 6616, 6625, 6634, 6643, 
             6652, 6661, 6670, 6679, 6688, 6697
         ];
+        InterruptModeStepTable = [12, 17, 30];
     }
 }

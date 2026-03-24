@@ -1,6 +1,5 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
@@ -20,26 +19,8 @@ public sealed class EmulatorInterruptsGenerator : EmulatorClassGenerator
         classDeclaration
             .WithMembers(
             [
-                CreateInterruptModesField(context),
                 CreateHandleInterruptsMethod(context)
             ]);
-
-    [Pure]
-    private static MemberDeclarationSyntax CreateInterruptModesField(GeneratorContext context)
-    {
-        var initializer = EqualsValueClause(
-            CollectionExpression(
-                SeparatedList<CollectionElementSyntax>(
-                    context.Interrupts.Modes
-                        .Select(m => ExpressionElement(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(m.Steps[0].Index)))).ToArray())));
-
-        var variableDeclarator = VariableDeclarator(Identifier(InterruptModeStepTableFieldName)).WithInitializer(initializer);
-
-        var variable = VariableDeclaration(PreDefinedDataMember.OpcodeStepTable.TypeSyntax)
-            .WithVariables(SingletonSeparatedList(variableDeclarator));
-
-        return FieldDeclaration(variable).AddModifiers(Private, Static, ReadOnly);
-    }
 
     [Pure]
     private static MethodDeclarationSyntax CreateHandleInterruptsMethod(GeneratorContext context)

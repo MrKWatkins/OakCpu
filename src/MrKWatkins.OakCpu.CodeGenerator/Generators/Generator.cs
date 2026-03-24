@@ -1,3 +1,4 @@
+using System.Text;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -14,7 +15,6 @@ public abstract class Generator
     protected const string ActionRequiredParameterName = "actionRequired";
     protected const string ErrorMethodName = "Error";
     protected const string HandleInterruptsMethodName = "HandleInterrupts";
-    protected const string InterruptModeStepTableFieldName = "InterruptModeStepTable";
     private const string StepMethodPrefix = "Step";
 
     private protected Generator()
@@ -26,4 +26,21 @@ public abstract class Generator
         step.MethodIndex != null
             ? $"{StepMethodPrefix}{step.MethodIndex}"
             : throw new InvalidOperationException($"Step {step.Name} does not have a {nameof(step.MethodIndex)}.");
+
+    [Pure]
+    protected static string GetSequenceGroupStepTableFieldName(SequenceGroup group) => $"{ToPascalCase(group.Name)}StepTable";
+
+    [Pure]
+    private static string ToPascalCase(string value)
+    {
+        var builder = new StringBuilder();
+
+        foreach (var part in value.Split('_', StringSplitOptions.RemoveEmptyEntries))
+        {
+            builder.Append(char.ToUpperInvariant(part[0]));
+            builder.Append(part[1..]);
+        }
+
+        return builder.ToString();
+    }
 }

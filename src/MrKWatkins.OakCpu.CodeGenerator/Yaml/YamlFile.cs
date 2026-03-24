@@ -9,6 +9,7 @@ public sealed partial class YamlFile
     private IReadOnlyList<FlagYaml>? flags;
     private IReadOnlyList<InstructionYaml>? instructions;
     private IReadOnlyList<string?>? opcodeRead;
+    private IReadOnlyList<StepSequenceYaml>? sequences;
     private IReadOnlyList<FunctionYaml>? functions;
 
     private YamlFile()
@@ -39,8 +40,14 @@ public sealed partial class YamlFile
 
     public IReadOnlyList<string?> OpcodeRead
     {
-        get => opcodeRead ?? [];
+        get => opcodeRead ?? Sequences.FirstOrDefault(sequence => sequence.Name == "opcode_read")?.Steps ?? [];
         private set => opcodeRead = value;
+    }
+
+    public IReadOnlyList<StepSequenceYaml> Sequences
+    {
+        get => sequences ?? [];
+        private set => sequences = value;
     }
 
     public IReadOnlyList<FunctionYaml> Functions
@@ -60,6 +67,7 @@ public sealed partial class YamlFile
         string? onInstructionComplete = null;
         var registers = new List<RegisterYaml>();
         var opcodeRead = new List<string?>();
+        var sequences = new List<StepSequenceYaml>();
         var flags = new List<FlagYaml>();
         var instructions = new List<InstructionYaml>();
         var functions = new List<FunctionYaml>();
@@ -68,7 +76,11 @@ public sealed partial class YamlFile
             cpu ??= file.Cpu;
             interrupts ??= file.Interrupts;
             onInstructionComplete ??= file.OnInstructionComplete;
-            opcodeRead.AddRange(file.OpcodeRead);
+            if (file.opcodeRead != null)
+            {
+                opcodeRead.AddRange(file.opcodeRead);
+            }
+            sequences.AddRange(file.Sequences);
             registers.AddRange(file.Registers);
             flags.AddRange(file.Flags);
             instructions.AddRange(file.Instructions);
@@ -80,6 +92,7 @@ public sealed partial class YamlFile
             Interrupts = interrupts ?? throw new InvalidOperationException("No interrupts definition found."),
             OnInstructionComplete = onInstructionComplete,
             OpcodeRead = opcodeRead,
+            Sequences = sequences,
             Registers = registers,
             Flags = flags,
             Instructions = instructions,

@@ -37,6 +37,8 @@ public sealed class ParserTests
     [TestCase("R & 1 == 1 && R > 0", "R & 0x01 == 0x01 && R > 0x00")] // Bitwise, comparison, and logical operators
     [TestCase("$temp + R", "temp + R")] // $ prefix is stripped in the AST representation
     [TestCase("flag.X", "flag.X")]
+    [TestCase("sequence.halted", "sequence.halted")]
+    [TestCase("sequence_group.interrupt_mode", "sequence_group.interrupt_mode")]
     public void ParseExpression(string expressionText, string expectedParsedExpression)
     {
         var context = CreateContext();
@@ -71,6 +73,8 @@ public sealed class ParserTests
     [TestCase("R = R + R & 1;", 1, "R = R + R & 0x01")]
     [TestCase("R = R + (R & 1);", 1, "R = R + (R & 0x01)")]
     [TestCase("R = (R << 1) | flag.X;", 1, "R = R << 0x01 | flag.X")]
+    [TestCase("move_to_sequence(sequence.halted);", 1, "move_to_sequence(sequence.halted)")]
+    [TestCase("move_to_sequence_group(sequence_group.interrupt_mode, R);", 1, "move_to_sequence_group(sequence_group.interrupt_mode, R)")]
     public void ParseStatements(string statementsText, int expectedCount, params string[] expectedParsedExpressions)
     {
         var context = CreateContext();

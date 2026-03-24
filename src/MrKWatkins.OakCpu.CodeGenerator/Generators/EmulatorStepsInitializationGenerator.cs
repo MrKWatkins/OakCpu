@@ -28,6 +28,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
 
         members.AddRange(context.Configuration.OpcodeStepTables
             .Select(CreateOpcodeStepTableField)
+            .Concat(context.SequenceGroups.Values.OrderBy(group => group.Name).Select(CreateSequenceGroupStepTableField))
             .Append(CreateStaticConstructor(context)));
 
         return classDeclaration.AddMembers(members.ToArray());
@@ -120,6 +121,17 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
         return FieldDeclaration(variable).AddModifiers(Private, Static, ReadOnly);
     }
 
+    [Pure]
+    private static MemberDeclarationSyntax CreateSequenceGroupStepTableField(SequenceGroup sequenceGroup)
+    {
+        var variableDeclarator = VariableDeclarator(Identifier(GetSequenceGroupStepTableFieldName(sequenceGroup)));
+
+        var variable = VariableDeclaration(PreDefinedDataMember.OpcodeStepTable.TypeSyntax)
+            .WithVariables(SingletonSeparatedList(variableDeclarator));
+
+        return FieldDeclaration(variable).AddModifiers(Private, Static, ReadOnly);
+    }
+
     [MustUseReturnValue]
     private static ConstructorDeclarationSyntax CreateStaticConstructor(GeneratorContext context)
     {
@@ -148,6 +160,11 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
         foreach (var group in context.Instructions.GroupBy(context.Configuration.OpcodeStepTables.GetForInstruction))
         {
             statements.Add(CreateOpcodeStepTableInitializationStatement(context, group.Key, group, duplicatesByOpcodeTable.TryGetValue(group.Key, out var duplicates) ? duplicates : []));
+        }
+
+        foreach (var sequenceGroup in context.SequenceGroups.Values.OrderBy(group => group.Name))
+        {
+            statements.Add(CreateSequenceGroupStepTableInitializationStatement(context, sequenceGroup));
         }
 
         // Static constructor
@@ -240,6 +257,28 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
         var assignment = AssignmentExpression(
             SyntaxKind.SimpleAssignmentExpression,
             IdentifierName(opcodeStepTable.FieldName),
+            value);
+
+        return ExpressionStatement(assignment);
+    }
+
+    [Pure]
+    private static StatementSyntax CreateSequenceGroupStepTableInitializationStatement(GeneratorContext context, SequenceGroup sequenceGroup)
+    {
+        var stepIndices = Enumerable.Repeat(context.ErrorStepIndex, sequenceGroup.MaximumNumber + 1).ToArray();
+
+        foreach (var member in sequenceGroup.Members)
+        {
+            stepIndices[member.Key] = member.Value.FirstStep.Index;
+        }
+
+        var literals = stepIndices.Select(index => ExpressionElement(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(index))));
+
+        var value = CollectionExpression(SeparatedList<CollectionElementSyntax>(literals));
+
+        var assignment = AssignmentExpression(
+            SyntaxKind.SimpleAssignmentExpression,
+            IdentifierName(GetSequenceGroupStepTableFieldName(sequenceGroup)),
             value);
 
         return ExpressionStatement(assignment);

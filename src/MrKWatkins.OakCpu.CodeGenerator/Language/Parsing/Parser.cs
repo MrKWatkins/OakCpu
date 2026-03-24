@@ -260,6 +260,16 @@ public static class Parser
             return new OpcodeStepTableAccess(opcodeStepTable);
         }
 
+        if (identifier.StartsWith("sequence.", StringComparison.Ordinal))
+        {
+            return new SequenceAccess(identifier[9..]);
+        }
+
+        if (identifier.StartsWith("sequence_group.", StringComparison.Ordinal))
+        {
+            return new SequenceGroupAccess(identifier[15..]);
+        }
+
         throw new NotSupportedException($"Unsupported identifier {identifier}.");
     }
 

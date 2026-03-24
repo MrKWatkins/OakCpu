@@ -13,6 +13,8 @@ public sealed partial class InterruptModeYaml
 
     public byte Number { get; private set; }
 
+    public string? Sequence { get; private set; }
+
     public IReadOnlyList<string?> Steps
     {
         get => steps ?? [];
