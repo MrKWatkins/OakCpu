@@ -50,11 +50,36 @@ public sealed class StepDuplicateEqualityComparer : IEqualityComparer<Step>
             return false;
         }
 
+        if (x.ExecutesStoredOverlapOnStart != y.ExecutesStoredOverlapOnStart)
+        {
+            return false;
+        }
+
+        if (x.QueuesOverlapStep != y.QueuesOverlapStep)
+        {
+            return false;
+        }
+
+        if (x.Sequence.OverlappedSequenceName != y.Sequence.OverlappedSequenceName)
+        {
+            return false;
+        }
+
+        var xIsInstruction = x.Sequence is Instruction;
+        var yIsInstruction = y.Sequence is Instruction;
+        if (xIsInstruction != yIsInstruction)
+        {
+            return false;
+        }
+
         // The remaining checks only apply if they're part of instructions.
-        if (x.Sequence is not Instruction instructionX || y.Sequence is not Instruction instructionY)
+        if (!xIsInstruction)
         {
             return true;
         }
+
+        var instructionX = (Instruction)x.Sequence;
+        var instructionY = (Instruction)y.Sequence;
 
         if (instructionX.UpdatesFlags != instructionY.UpdatesFlags)
         {
@@ -78,6 +103,13 @@ public sealed class StepDuplicateEqualityComparer : IEqualityComparer<Step>
         {
             hashCode.Add(StatementDuplicateEqualityComparer.Instance.GetHashCode(statement));
         }
+
+        hashCode.Add(obj.NextOpcode);
+        hashCode.Add(obj.RequiresPrefixReset);
+        hashCode.Add(obj.ExecutesStoredOverlapOnStart);
+        hashCode.Add(obj.QueuesOverlapStep);
+        hashCode.Add(obj.Sequence.OverlappedSequenceName);
+        hashCode.Add(obj.Sequence is Instruction);
 
         return hashCode.ToHashCode();
     }

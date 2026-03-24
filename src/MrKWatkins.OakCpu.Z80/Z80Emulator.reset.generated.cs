@@ -22,6 +22,7 @@ public sealed unsafe partial class Z80Emulator
         im = 0;
         interrupt = false;
         latch = 0;
+        overlapPipeline = default(delegate*<Z80Emulator, void>);
         AF = 0;
         BC = 0;
         DE = 0;

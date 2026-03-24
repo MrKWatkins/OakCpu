@@ -6,8 +6,8 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Instruction : StepSequence
 {
-    private Instruction(string group, string mnemonic, string? opcodeTable, byte? prefix, byte opcode, NextOpcodeMode nextOpcode, IReadOnlyList<Step> steps, IReadOnlyDictionary<string, Expression> flags, IReadOnlyList<(byte? Prefix, byte Opcode, Step Step)> duplicates)
-        : base(null, steps, nextOpcode)
+    private Instruction(string group, string mnemonic, string? opcodeTable, byte? prefix, byte opcode, NextOpcodeMode nextOpcode, string? overlappedSequence, IReadOnlyList<Step> steps, IReadOnlyDictionary<string, Expression> flags, IReadOnlyList<(byte? Prefix, byte Opcode, Step Step)> duplicates)
+        : base(null, steps, nextOpcode, overlappedSequenceName: overlappedSequence)
     {
         Group = group;
         Mnemonic = mnemonic;
@@ -73,7 +73,7 @@ public sealed class Instruction : StepSequence
 
             ResolveTypesInFlagsExpressions(steps, flags);
 
-            yield return new Instruction(yaml.Group, mnemonic, yaml.OpcodeTable, opcodeYaml.PrefixByte, opcodeYaml.OpcodeByte, yaml.NextOpcode, steps, flags, duplicates);
+            yield return new Instruction(yaml.Group, mnemonic, yaml.OpcodeTable, opcodeYaml.PrefixByte, opcodeYaml.OpcodeByte, yaml.NextOpcode, yaml.OverlappedSequence, steps, flags, duplicates);
         }
     }
 

@@ -33,6 +33,7 @@ namespace MrKWatkins.OakCpu.Z80.Benchmarks;
 // | ZEXALL | aluop a,nn | 2.261 s | 0.0381 s | 0.0356 s |   x70.16 |   64.66 KB | 2025-12-05 After various code gen improvements. JITted code probably hasn't changed.
 // | ZEXALL | aluop a,nn | 2.122 s | 0.0263 s | 0.0246 s |   x74.76 |   64.66 KB | 2025-12-09 After sharing code for duplicate steps.
 // | ZEXALL | aluop a,nn | 2.032 s | 0.0405 s | 0.0688 s |   x78.10 |   64.66 KB | 2025-12-14 After removing instruction complete, a few optimizations and updating the test harness.
+// | ZEXALL | aluop a,nn | 3.007 s | 0.0479 s | 0.0448 s |   x52.76 |   64.66 KB | 2026-03-27 After changes to accurately emulate interrupt timings and contention.
 [MemoryDiagnoser]
 [Config(typeof(Config))]
 [SuppressMessage("ReSharper", "InconsistentNaming")]

@@ -12,6 +12,7 @@ public sealed class TypeGeneratorTests : TestFixture
         allGenerators.Should().NotBeNull();
         (allGenerators.Count > 0).Should().BeTrue();
         allGenerators.Contains(ActionRequiredGenerator.Instance).Should().BeTrue();
+        allGenerators.Contains(EmulatorOverlapsGenerator.Instance).Should().BeTrue();
         allGenerators.Contains(StepStructGenerator.Instance).Should().BeTrue();
         allGenerators.Contains(RegistersClassesGenerator.Instance).Should().BeTrue();
     }

@@ -23,24 +23,21 @@ public abstract class StatementGenerator : Generator
             throw new InvalidOperationException("Trying to generate statements for a step that does nothing.");
         }
 
-        // Reset the step table if we've started a prefixed instruction.
-        if (step.RequiresPrefixReset)
+        foreach (var statement in GenerateStepStatements(context, step))
         {
-            yield return GenerateSetOpcodeStepTable(input.Configuration.OpcodeStepTables.NoPrefix);
+            yield return statement;
         }
 
-        foreach (var stepStatement in step.Statements)
+        foreach (var statement in GenerateBoundaryStatements(context))
         {
-            foreach (var statement in GenerateStatements(context, stepStatement))
-            {
-                yield return statement;
-            }
+            yield return statement;
         }
 
         var trailingStatements = step.NextOpcode switch
         {
             NextOpcodeMode.Read => GenerateMoveToSequenceStart(context.GeneratorContext.OpcodeRead),
-            NextOpcodeMode.Overlapped => GenerateExecuteSequenceOnStart(context.GeneratorContext.OpcodeRead, "Overlapped opcode read."),
+            NextOpcodeMode.Overlapped when step.Sequence is PrefixJump => GenerateExecuteSequenceOnStart(context.GeneratorContext.OpcodeRead, "Overlapped opcode read."),
+            NextOpcodeMode.Overlapped => [],
             NextOpcodeMode.Custom => [],
             NextOpcodeMode.Loop => [],
             null => [],
@@ -62,6 +59,44 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
+    public static IEnumerable<StatementSyntax> GenerateOverlapStatements(GeneratorContext input, Step step)
+    {
+        var context = new StatementGeneratorContext(input, step).WithoutHandleInterrupts();
+
+        if (step.DoesNothing)
+        {
+            throw new InvalidOperationException("Trying to generate overlap statements for a step that does nothing.");
+        }
+
+        foreach (var statement in GenerateStepStatements(context, step))
+        {
+            yield return statement;
+        }
+    }
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateStepStatements(StatementGeneratorContext context, Step step)
+    {
+        if (step.RequiresPrefixReset)
+        {
+            yield return GenerateSetOpcodeStepTable(context.Configuration.OpcodeStepTables.NoPrefix);
+        }
+
+        if (step.ExecutesStoredOverlapOnStart)
+        {
+            yield return GenerateExecuteOverlap().WithLeadingTrivia(Comment("// Execute queued overlap."));
+        }
+
+        foreach (var stepStatement in step.Statements)
+        {
+            foreach (var statement in GenerateStatements(context, stepStatement))
+            {
+                yield return statement;
+            }
+        }
+    }
+
+    [Pure]
     private static IEnumerable<StatementSyntax> GenerateStatements(StatementGeneratorContext context, Statement statement) =>
         statement switch
         {
@@ -75,6 +110,11 @@ public abstract class StatementGenerator : Generator
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateCall(StatementGeneratorContext context, CallStatement callStatement)
     {
+        if (context.SkipHandleInterrupts && callStatement.Call.Function == PreDefinedFunction.HandleInterrupts)
+        {
+            return [];
+        }
+
         if (callStatement.Call.Function == PreDefinedFunction.Flags)
         {
             return FlagsGenerator.GenerateFlagsStatements(context);
@@ -89,7 +129,7 @@ public abstract class StatementGenerator : Generator
         }
         if (callStatement.Call.Function == PreDefinedFunction.HandleInterrupts)
         {
-            return GenerateHandleInterrupts(context);
+            return GenerateHandleInterrupts();
         }
         if (callStatement.Call.Function == PreDefinedFunction.MoveToInterruptMode)
         {
@@ -150,28 +190,9 @@ public abstract class StatementGenerator : Generator
 
     // TODO: If no overlapped read, skip the if altogether.
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateHandleInterrupts(StatementGeneratorContext context)
+    private static IEnumerable<StatementSyntax> GenerateHandleInterrupts()
     {
-        // We need to call the HandleInterrupts method, and if it returns true, then return from the step function.
-        // However... Overlapped reads come into play. So if we normally go on to do an overlapped read, we need to
-        // perform the first instruction of the interrupt handler, which we can do by calling Step.
-        var block = new List<StatementSyntax>();
-        if (context.Step != null && context.Step.Sequence.Steps.Last() == context.Step && context.Step.NextOpcode == NextOpcodeMode.Overlapped)
-        {
-            block.Add(
-                ExpressionStatement(
-                        AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(ActionRequiredParameterName), InvocationExpression(EmulatorMemberIdentifier("Step"))))
-                    .WithLeadingTrivia(Comment("// Overlapped interrupt handler.")));
-        }
-        block.Add(ReturnStatement());
-
-        yield return IfStatement(
-                InvocationExpression(IdentifierName(HandleInterruptsMethodName))
-                    .WithArgumentList(ArgumentList(SeparatedList([
-                        Argument(IdentifierName(EmulatorParameterName)),
-                        Argument(IdentifierName(ActionRequiredParameterName)).WithRefKindKeyword(Ref)
-                    ]))),
-                Block(block));
+        yield return GenerateHandleInterruptsAndReturnIfHandled();
     }
 
     [Pure]
@@ -351,35 +372,49 @@ public abstract class StatementGenerator : Generator
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateMoveToOpcode(StatementGeneratorContext context)
     {
+        const string selectedStepVariableName = "selectedStep";
+
         var getOpcode = CreateArrayGetWithoutBoundsCheck(
             context.GeneratorContext.RequiredUsings,
             EmulatorMemberIdentifier(PreDefinedDataMember.OpcodeStepTable.FieldName),
             EmulatorMemberIdentifier(PreDefinedDataMember.Data.FieldName));
 
         yield return CreateSetStep(getOpcode);
+
+        yield return LocalDeclarationStatement(
+            VariableDeclaration(IdentifierName("var"))
+                .WithVariables([
+                    VariableDeclarator(selectedStepVariableName)
+                        .WithInitializer(
+                            EqualsValueClause(
+                                CreateArrayGetWithoutBoundsCheck(
+                                    context.GeneratorContext.RequiredUsings,
+                                    IdentifierName("Steps"),
+                                    EmulatorMemberIdentifier(PreDefinedDataMember.CurrentStep.FieldName))))
+                ]));
+
+        var overlapStatements = new List<StatementSyntax>
+        {
+            GenerateQueueOverlap(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(selectedStepVariableName), IdentifierName(StepOverlapFieldName)))
+                .WithLeadingTrivia(Comment("// Queue overlap step.")),
+            ExpressionStatement(
+                AssignmentExpression(
+                    SyntaxKind.SimpleAssignmentExpression,
+                    EmulatorMemberIdentifier(PreDefinedDataMember.CurrentStep.FieldName),
+                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(selectedStepVariableName), IdentifierName(StepNextStepFieldName))))
+        };
+        overlapStatements.Add(GenerateHandleInterruptsAndReturnIfHandled().WithLeadingTrivia(Comment("// Check interrupts at the instruction boundary.")));
+
+        yield return IfStatement(
+            BinaryExpression(
+                SyntaxKind.NotEqualsExpression,
+                MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(selectedStepVariableName), IdentifierName(StepOverlapFieldName)),
+                LiteralExpression(SyntaxKind.DefaultLiteralExpression)),
+            Block(overlapStatements));
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateMoveToSequence(StepSequence sequence)
-    {
-        if (!sequence.ExecuteOverlapOnStart)
-        {
-            return GenerateMoveToSequenceStart(sequence);
-        }
-
-        if (sequence.Steps.Count < 2)
-        {
-            throw new InvalidOperationException($"The sequence {sequence.Name} cannot execute overlap on start unless it has at least two steps.");
-        }
-
-        var sequenceName = sequence.Name?.Replace('_', ' ') ?? "sequence";
-
-        return
-        [
-            CreateSetStep(sequence.Steps[1]).WithLeadingTrivia(Comment($"// Move to {sequenceName}.")),
-            GenerateCallStep(sequence.FirstStep)
-        ];
-    }
+    private static IEnumerable<StatementSyntax> GenerateMoveToSequence(StepSequence sequence) => GenerateMoveToSequenceStart(sequence);
 
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateMoveToSequenceStart(StepSequence sequence)
@@ -395,14 +430,59 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
+    private static StatementSyntax GenerateQueueOverlap(GeneratorContext context, Step step) =>
+        GenerateQueueOverlap(PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetOverlapMethodName(context, step))));
+
+    [Pure]
+    private static StatementSyntax GenerateQueueOverlap(ExpressionSyntax overlap) =>
+        ExpressionStatement(
+            AssignmentExpression(
+                SyntaxKind.SimpleAssignmentExpression,
+                EmulatorMemberIdentifier(PreDefinedDataMember.OverlapPipeline.FieldName),
+                overlap));
+
+    [Pure]
+    private static StatementSyntax GenerateExecuteOverlap() =>
+        ExpressionStatement(
+            InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(EmulatorParameterName), IdentifierName(ExecuteOverlapMethodName)))
+                .WithArgumentList(ArgumentList()));
+
+    [Pure]
     private static StatementSyntax GenerateCallStep(Step step) =>
         ExpressionStatement(
             InvocationExpression(IdentifierName(GetStepMethodName(step)))
+                .WithArgumentList(
+                    ArgumentList(
+                    [
+                        CreateEmulatorArgument(),
+                        Argument(RefExpression(IdentifierName(ActionRequiredParameterName)))
+                    ])));
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateBoundaryStatements(StatementGeneratorContext context)
+    {
+        if (context.Step is not { QueuesOverlapStep: true } step)
+        {
+            return [];
+        }
+
+        return
+        [
+            GenerateQueueOverlap(context.GeneratorContext, step.QueuedOverlapStep).WithLeadingTrivia(Comment("// Queue overlap step.")),
+            GenerateHandleInterruptsAndReturnIfHandled().WithLeadingTrivia(Comment("// Check interrupts at the instruction boundary."))
+        ];
+    }
+
+    [Pure]
+    private static StatementSyntax GenerateHandleInterruptsAndReturnIfHandled() =>
+        IfStatement(
+            InvocationExpression(IdentifierName(HandleInterruptsMethodName))
                 .WithArgumentList(ArgumentList(
                 [
                     CreateEmulatorArgument(),
                     Argument(RefExpression(IdentifierName(ActionRequiredParameterName)))
-                ])));
+                ])),
+            Block(ReturnStatement()));
 
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateSetOpcodeStepTable(StatementGeneratorContext context, Call callStatementCall)

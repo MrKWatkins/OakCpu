@@ -43,6 +43,7 @@ public abstract partial class TypeGenerator : Generator
         ActionRequiredGenerator.Instance,
         EmulatorInstanceDataMembersAndConstructorGenerator.Instance,
         EmulatorInterruptsGenerator.Instance,
+        EmulatorOverlapsGenerator.Instance,
         EmulatorResetGenerator.Instance,
         EmulatorSerializationGenerator.Instance,
         EmulatorStepsInitializationGenerator.Instance,
@@ -170,6 +171,16 @@ public abstract partial class TypeGenerator : Generator
 
     [Pure]
     protected static string GetInterruptsClassName(GeneratorContext context) => $"{context.Cpu.Name}Interrupts";
+
+    [Pure]
+    protected static FunctionPointerTypeSyntax CreateOverlapHandlerType(GeneratorContext context) =>
+        FunctionPointerType(
+            null,
+            FunctionPointerParameterList(
+            [
+                FunctionPointerParameter(IdentifierName(GetEmulatorClassName(context))),
+                FunctionPointerParameter(VoidType)
+            ]));
 
     [Pure]
     private static UsingDirectiveSyntax CreateUsingStatement(string @namespace) => UsingDirective(IdentifierName(@namespace));

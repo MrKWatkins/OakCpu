@@ -8,13 +8,18 @@ public abstract class Generator
 {
     protected const string ActionRequiredEnumName = "ActionRequired";
     protected const string StepStructName = "Step";
+    protected const string OverlapsFieldName = "Overlaps";
     protected const string StepHandlerFieldName = "Handler";
     protected const string StepNextStepFieldName = "NextStep";
     protected const string StepActionRequiredFieldName = "ActionRequired";
+    protected const string StepOverlapFieldName = "Overlap";
     protected const string EmulatorParameterName = "emulator";
     protected const string ActionRequiredParameterName = "actionRequired";
     protected const string ErrorMethodName = "Error";
     protected const string HandleInterruptsMethodName = "HandleInterrupts";
+    protected const string ExecuteOverlapMethodName = "ExecuteOverlap";
+    protected const string ExecuteStoredOverlapMethodName = "ExecuteStoredOverlap";
+    private const string OverlapMethodPrefix = "Overlap";
     private const string StepMethodPrefix = "Step";
 
     private protected Generator()
@@ -28,7 +33,13 @@ public abstract class Generator
             : throw new InvalidOperationException($"Step {step.Name} does not have a {nameof(step.MethodIndex)}.");
 
     [Pure]
+    protected static string GetOverlapMethodName(GeneratorContext context, Step step) => $"{OverlapMethodPrefix}{context.GetOverlapMethodIndex(step)}";
+
+    [Pure]
     protected static string GetSequenceGroupStepTableFieldName(SequenceGroup group) => $"{ToPascalCase(group.Name)}StepTable";
+
+    [Pure]
+    protected static string GetSequenceGroupOverlapTableFieldName(SequenceGroup group) => $"{ToPascalCase(group.Name)}OverlapTable";
 
     [Pure]
     private static string ToPascalCase(string value)

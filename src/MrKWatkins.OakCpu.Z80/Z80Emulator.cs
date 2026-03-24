@@ -20,7 +20,7 @@ public partial class Z80Emulator
     /// Executes a single instruction; used for testing. Assumes the processor is at the start of an instruction.
     /// </summary>
     /// <remarks>
-    /// Will not perform overlapped reads; it resets the state after overlapped read steps as if the read never happened.
+    /// Will not perform overlapped reads; it applies queued overlap work internally and stops before the next sequence start performs its external bus action.
     /// Will be slower than executing steps normally due to resetting the state at the end and delegate overhead from calling <paramref name="onStepComplete"/>.
     /// </remarks>
     /// <param name="onStepComplete">Called after every step. Use to perform any action required at the end of a step.</param>
@@ -33,6 +33,16 @@ public partial class Z80Emulator
         {
             onBeforeStep?.Invoke();
             var actionRequired = Step();
+
+            if (!readingOpcode && IsInstructionBoundaryStart(currentStep))
+            {
+                ExecuteOverlap();
+                if (actionRequired != ActionRequired.OpcodeRead)
+                {
+                    onStepComplete(actionRequired);
+                }
+                return;
+            }
 
             switch (currentStep)
             {
@@ -90,4 +100,7 @@ public partial class Z80Emulator
             onStepComplete(actionRequired);
         }
     }
+
+    [Pure]
+    private static bool IsInstructionBoundaryStart(ushort step) => step is OpcodeReadStep0 or HaltedStep0 or IM0Start or IM1Start or IM2Start;
 }

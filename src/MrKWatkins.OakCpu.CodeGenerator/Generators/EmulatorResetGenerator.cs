@@ -44,9 +44,12 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateResetDataMembers(GeneratorContext context) =>
         context.Configuration.AllDataMembers.Values
+            .Concat<DataMember>([PreDefinedDataMember.OverlapPipeline])
             .Where(m => m != PreDefinedDataMember.OpcodeStepTable)
             .OrderBy(m => m.Name)
-            .Select(m => GenerateReset(m.FieldName, m.Type));
+            .Select(m => m == PreDefinedDataMember.OverlapPipeline
+                ? GenerateResetOverlapPipeline(context)
+                : GenerateReset(m.FieldName, m.Type));
 
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateResetRegisters(GeneratorContext context) =>
@@ -58,6 +61,14 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
     [Pure]
     private static StatementSyntax GenerateReset(string fieldName, DataType type) =>
         ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(fieldName), ResetValue(type)));
+
+    [Pure]
+    private static StatementSyntax GenerateResetOverlapPipeline(GeneratorContext context) =>
+        ExpressionStatement(
+            AssignmentExpression(
+                SyntaxKind.SimpleAssignmentExpression,
+                IdentifierName(PreDefinedDataMember.OverlapPipeline.FieldName),
+                DefaultExpression(CreateOverlapHandlerType(context))));
 
     [Pure]
     private static LiteralExpressionSyntax ResetValue(DataType type) => type switch

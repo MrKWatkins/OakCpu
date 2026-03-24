@@ -23,7 +23,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration
             .AddMembers(CreateStepMethod(context), CreateErrorFunction(context))
-            .AddMembers(context.FunctionSteps.Where(s => !s.DoesNothing).Select(step => CreateStepMethod(context, step)).ToArray());
+            .AddMembers(context.FunctionSteps.Where(s => s is { DoesNothing: false, ExecutesAsOverlapOnly: false }).Select(step => CreateStepMethod(context, step)).ToArray());
 
     [Pure]
     private static MemberDeclarationSyntax CreateErrorFunction(GeneratorContext context)
@@ -122,4 +122,5 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
                 // return node.ActionRequired;
                 ReturnStatement(IdentifierName(ActionRequiredParameterName))));
     }
+
 }

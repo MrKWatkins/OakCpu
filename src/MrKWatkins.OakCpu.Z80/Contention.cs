@@ -1,11 +1,10 @@
 using System.Runtime.CompilerServices;
-using System.Reflection;
-
 namespace MrKWatkins.OakCpu.Z80;
 
 /// <summary>
 /// Applies ZX Spectrum 48K ULA contention to a <see cref="Z80Emulator" />. Memory and I/O accesses to contended
-/// addresses are delayed based on the current position in the frame. Also fires interrupts at frame boundaries.
+/// addresses are delayed based on the current position in the frame. Frame-position tracking is advanced one external
+/// T-state at a time so wrappers can assert the INT line before any kind of wrapped step, including contention delay.
 /// </summary>
 /// <remarks>
 /// Each bus cycle type has a known number of T-states: OpcodeRead (M1) = 4, MemoryRead/Write = 3, IoRead/Write = 4.
@@ -25,10 +24,6 @@ internal sealed class Contention
     // ReSharper disable once InconsistentNaming
     private const int TStatesPerFrame = ContentionTable.TStatesPerFrame;
 
-    // Precomputed per-step mask for boundaries where pre-asserting INT would be early. These are steps that
-    // emit an OpcodeRead and immediately continue at step 1, i.e. overlap opcode fetch with the previous instruction.
-    private static readonly bool[] SuppressImmediateInterruptByStep = CreateSuppressImmediateInterruptByStep();
-
     private readonly ContentionTable contentionTable;
 
     /// <summary>
@@ -36,34 +31,34 @@ internal sealed class Contention
     /// (OpcodeRead, MemoryRead, etc.), this is set to the number of subsequent None steps that are part
     /// of that cycle and should not be separately contended. It is decremented for each None step.
     /// </summary>
-    private int skipCount;
+    private byte skipCount;
 
     /// <summary>
     /// The contention delay that was applied by the most recent non-skipped None step. Used by
     /// <see cref="CalculateIoContention"/> to undo spurious memory contention from the I/O cycle's T1 step.
     /// </summary>
-    private int prevNoneDelay;
+    private byte prevNoneDelay;
 
     /// <summary>
-    /// True when the frame boundary was crossed on a step where pre-asserting the interrupt would have been early.
-    /// In that case we queue the request here and assert it at the next safe pre-step boundary.
+    /// Creates a contention tracker at the supplied frame position using either the early- or late-interrupt timing
+    /// table.
     /// </summary>
-    private bool frameInterruptPending;
-
-    public Contention(Z80Emulator z80, int tStatesInCurrentFrame = 0, bool earlyTimings = true)
+    public Contention(int tStatesInCurrentFrame = 0, bool earlyTimings = true)
     {
         ValidateTStatesInCurrentFrame(tStatesInCurrentFrame);
 
-        Z80 = z80;
         contentionTable = earlyTimings ? ContentionTable.EarlyTimings : ContentionTable.LateTimings;
         TStatesInCurrentFrame = tStatesInCurrentFrame;
     }
 
-    public Z80Emulator Z80 { get; }
-
     // ReSharper disable once InconsistentNaming
     public int TStatesInCurrentFrame { get; private set; }
 
+    public bool IsEarlyTimings => ReferenceEquals(contentionTable, ContentionTable.EarlyTimings);
+
+    /// <summary>
+    /// Repositions the tracker within the current frame and clears any in-flight cycle bookkeeping.
+    /// </summary>
     internal void ResynchroniseFrame(int tStatesInCurrentFrame)
     {
         ValidateTStatesInCurrentFrame(tStatesInCurrentFrame);
@@ -71,67 +66,50 @@ internal sealed class Contention
         TStatesInCurrentFrame = tStatesInCurrentFrame;
         skipCount = 0;
         prevNoneDelay = 0;
-        frameInterruptPending = false;
     }
 
     /// <summary>
-    /// Asserts the interrupt line on the Z80 before a step if this boundary should be visible to the emulator's
-    /// interrupt check in that step.
-    ///
-    /// Returns <c>true</c> when this method pre-asserted the interrupt for the current step. The caller must pass
-    /// that value to <see cref="Advance"/> so we do not queue the same interrupt again on frame wrap.
-    ///
-    /// Why the split:
-    /// - The emulator checks interrupts at specific instruction-boundary steps (including overlap handlers).
-    /// - Contention frame position advances after the step in <see cref="Advance"/>.
-    /// - For non-overlapped boundaries we can pre-assert when we know the next T-state will wrap.
-    /// - For overlapped opcode-read boundaries, pre-assert would be one boundary early, so we suppress pre-assert
-    ///   and queue the interrupt to be asserted on the next pre-step.
+    /// Writes the transient contention state so a wrapper can resume mid-frame without losing delay bookkeeping.
     /// </summary>
-    public bool CheckForFrameInterrupt()
+    internal void Serialize(BinaryWriter writer)
     {
-        if (frameInterruptPending)
-        {
-            Z80.interrupt = true;
-            frameInterruptPending = false;
-            return false;
-        }
+        ArgumentNullException.ThrowIfNull(writer);
 
-        // Steps that perform overlapped opcode reads (ActionRequired.OpcodeRead + next step 1) should not
-        // see a frame interrupt that occurs during that same step; the interrupt becomes visible on a later
-        // instruction boundary. For all other steps, preserve the existing pre-check behaviour.
-        if (!SuppressImmediateInterruptByStep[Z80.CurrentStep] &&
-            TStatesInCurrentFrame + 1 >= TStatesPerFrame)
-        {
-            Z80.interrupt = true;
-            return true;
-        }
-
-        return false;
+        writer.Write(TStatesInCurrentFrame);
+        writer.Write(skipCount);
+        writer.Write(prevNoneDelay);
     }
 
     /// <summary>
-    /// Returns the number of extra T-states (contention delay) to add for the given step and advances frame
-    /// position bookkeeping.
+    /// Restores the transient contention state previously written by <see cref="Serialize"/>.
+    /// </summary>
+    internal void Restore(BinaryReader reader)
+    {
+        ArgumentNullException.ThrowIfNull(reader);
+
+        var tStatesInCurrentFrame = reader.ReadInt32();
+        ValidateTStatesInCurrentFrame(tStatesInCurrentFrame);
+
+        TStatesInCurrentFrame = tStatesInCurrentFrame;
+        skipCount = reader.ReadByte();
+        prevNoneDelay = reader.ReadByte();
+    }
+
+    /// <summary>
+    /// Returns the number of extra T-states (contention delay) to add for the given step.
     ///
     /// The caller must save <c>emulator.Address</c> before calling <c>Step()</c> and pass it as
     /// <paramref name="preStepAddress"/>; this is the address that was on the bus at the start of the step,
     /// before any handler modified it.
-    ///
-    /// <paramref name="interruptPredictedThisStep"/> must match the return value from
-    /// <see cref="CheckForFrameInterrupt"/> for this step.
     /// </summary>
-    public int Advance(ActionRequired actionRequired, ushort address, ushort preStepAddress, bool interruptPredictedThisStep)
-    {
-        var delay = actionRequired switch
+    public int CalculateDelay(ActionRequired actionRequired, ushort address, ushort preStepAddress) =>
+        actionRequired switch
         {
             ActionRequired.OpcodeRead => CalculateOpcodeReadContention(address),
 
-            ActionRequired.MemoryRead or ActionRequired.MemoryWrite
-                => CalculateMemoryContention(address),
+            ActionRequired.MemoryRead or ActionRequired.MemoryWrite => CalculateMemoryContention(address),
 
-            ActionRequired.IoRead or ActionRequired.IoWrite
-                => IsInterruptAcknowledge() ? CalculateInterruptAcknowledgeContention() : CalculateIoContention(address),
+            ActionRequired.IoRead or ActionRequired.IoWrite => CalculateIoContention(address),
 
             // Use the pre-step address for internal cycles. Handlers may update Address to prepare for
             // the next bus cycle (e.g. OUTI sets Address=BC before IoWrite), but the ULA sees the
@@ -141,24 +119,31 @@ internal sealed class Contention
             _ => 0
         };
 
-        // Advance the frame position by the delay plus the normal 1 T-state for this step.
-        TStatesInCurrentFrame += delay + 1;
+    /// <summary>
+    /// Advances external time by the supplied number of T-states and wraps the frame position as needed.
+    /// </summary>
+    public void Elapse(int tStates = 1)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(tStates);
 
-        // Wrap at the frame boundary and queue the frame interrupt to be asserted before the next step.
-        if (TStatesInCurrentFrame >= TStatesPerFrame)
+        if (tStates == 0)
         {
-            TStatesInCurrentFrame -= TStatesPerFrame;
-            // If this step already pre-asserted interrupt visibility, do not queue again. Otherwise, queue so the
-            // next pre-step boundary can expose the interrupt to the emulator.
-            if (!interruptPredictedThisStep)
-            {
-                frameInterruptPending = true;
-            }
+            return;
         }
 
-        return delay;
+        var nextTStatesInCurrentFrame = TStatesInCurrentFrame + tStates;
+        if (nextTStatesInCurrentFrame < TStatesPerFrame)
+        {
+            TStatesInCurrentFrame = nextTStatesInCurrentFrame;
+            return;
+        }
+
+        TStatesInCurrentFrame = nextTStatesInCurrentFrame - TStatesPerFrame;
     }
 
+    /// <summary>
+    /// Applies contention for the first T-state of an M1 opcode-read cycle and records its three continuation slots.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CalculateOpcodeReadContention(ushort address)
     {
@@ -168,6 +153,9 @@ internal sealed class Contention
         return CalculateContention(address);
     }
 
+    /// <summary>
+    /// Applies contention for the first T-state of a memory read/write cycle and records its two continuation slots.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CalculateMemoryContention(ushort address)
     {
@@ -177,13 +165,16 @@ internal sealed class Contention
         return CalculateContention(address);
     }
 
+    /// <summary>
+    /// Recomputes the full four-T-state I/O cycle contention from T1, undoing any provisional None-step delay first.
+    /// </summary>
     private int CalculateIoContention(ushort port)
     {
         // The I/O cycle in the emulator is 4 steps: None (T1, sets port address) + IoRead/IoWrite (T2)
         // + 2 continuation None steps (T3, T4). The preceding None step (T1) may have added spurious
         // memory contention at the wrong address; undo it and recalculate from T1's frame position.
-        TStatesInCurrentFrame -= prevNoneDelay;
-        var posT1 = (TStatesInCurrentFrame - 1 + TStatesPerFrame) % TStatesPerFrame;
+        TStatesInCurrentFrame = WrapSubtract(TStatesInCurrentFrame, prevNoneDelay);
+        var posT1 = WrapSubtract(TStatesInCurrentFrame, 1);
 
         // 2 continuation steps remain after this IoRead/IoWrite (T3, T4).
         skipCount = 2;
@@ -199,64 +190,47 @@ internal sealed class Contention
         }
 
         var pos = posT1;
-        var total = 0;
+        int total;
 
         if (!highByteContended && isUlaPort)
         {
             // N:1, C:3 - no check at T1, contention check at T2.
-            pos = (pos + 1) % TStatesPerFrame;
-            total = contentionTable[pos];
+            pos = WrapAdd(pos, 1);
+            total = contentionTable.GetContentionAt(pos);
         }
         else if (highByteContended && isUlaPort)
         {
             // C:1, C:3 - contention check at T1 and T2.
-            var d1 = contentionTable[pos];
+            var d1 = contentionTable.GetContentionAt(pos);
             total = d1;
-            pos = (pos + d1 + 1) % TStatesPerFrame;
-            total += contentionTable[pos];
+            pos = WrapAdd(pos, d1 + 1);
+            total += contentionTable.GetContentionAt(pos);
         }
         else
         {
             // C:1, C:1, C:1, C:1 - contention check at each of the 4 T-states.
-            for (var i = 0; i < 4; i++)
-            {
-                var d = contentionTable[pos];
-                total += d;
-                pos = (pos + d + 1) % TStatesPerFrame;
-            }
+            var d = contentionTable.GetContentionAt(pos);
+            total = d;
+            pos = WrapAdd(pos, d + 1);
+
+            d = contentionTable.GetContentionAt(pos);
+            total += d;
+            pos = WrapAdd(pos, d + 1);
+
+            d = contentionTable.GetContentionAt(pos);
+            total += d;
+            pos = WrapAdd(pos, d + 1);
+
+            total += contentionTable.GetContentionAt(pos);
         }
 
         return total;
     }
 
     /// <summary>
-    /// The interrupt acknowledge IoRead/IoWrite is not a regular I/O cycle. FUSE adds 7 T-states flat
-    /// for the first part of the interrupt response with no contention. We detect the acknowledge by
-    /// checking if the emulator is now at the step after the IM handler's IoRead.
+    /// Applies contention for a None step only when it is a standalone internal cycle rather than a bus-cycle
+    /// continuation.
     /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsInterruptAcknowledge()
-    {
-        var step = Z80.CurrentStep;
-        return step == Z80Emulator.IM0Start + 2 ||
-               step == Z80Emulator.IM1Start + 2 ||
-               step == Z80Emulator.IM2Start + 2;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CalculateInterruptAcknowledgeContention()
-    {
-        // No IO contention for interrupt acknowledge. Undo any spurious memory contention from the
-        // preceding None step (IM handler T1). FUSE adds 7 flat T-states for the interrupt response
-        // with no contention at all. The IoRead step is step 2 of the 7-step sequence; skip the
-        // remaining 5 steps (3-7) so they are not independently contended.
-        TStatesInCurrentFrame -= prevNoneDelay;
-        skipCount = 5;
-        prevNoneDelay = 0;
-        return 0;
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CalculateNoneContention(ushort address)
     {
@@ -270,53 +244,59 @@ internal sealed class Contention
 
         // This is an independent internal 1-T-state machine cycle; contend based on address.
         var delay = CalculateContention(address);
-        prevNoneDelay = delay;
+        prevNoneDelay = (byte)delay;
         return delay;
     }
 
+    /// <summary>
+    /// Returns the contention delay for the current frame position if the supplied address is in contended RAM.
+    /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CalculateContention(ushort address)
     {
         if (IsContendedAddress(address))
         {
-            return contentionTable[TStatesInCurrentFrame];
+            return contentionTable.GetContentionAt(TStatesInCurrentFrame);
         }
 
         return 0;
     }
 
+    /// <summary>
+    /// Returns whether the address lies within the Spectrum 48K contended RAM window.
+    /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsContendedAddress(ushort address) => address is >= 0x4000 and <= 0x7FFF;
 
+    /// <summary>
+    /// Adds within the frame timeline, wrapping once at the frame boundary.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int WrapAdd(int value, int amount)
+    {
+        value += amount;
+        return value >= TStatesPerFrame ? value - TStatesPerFrame : value;
+    }
+
+    /// <summary>
+    /// Subtracts within the frame timeline, wrapping once when moving back before T-state zero.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int WrapSubtract(int value, int amount)
+    {
+        value -= amount;
+        return value < 0 ? value + TStatesPerFrame : value;
+    }
+
+    /// <summary>
+    /// Ensures a frame position is within the valid half-open range <c>[0, TStatesPerFrame)</c>.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ValidateTStatesInCurrentFrame(int tStatesInCurrentFrame)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(tStatesInCurrentFrame);
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(tStatesInCurrentFrame, TStatesPerFrame);
-    }
-
-    private static bool[] CreateSuppressImmediateInterruptByStep()
-    {
-        // We intentionally derive this from the generated step table so it stays correct if generation changes.
-        // Hard-coding step IDs would be brittle and easy to desynchronize from generated code.
-        var stepsField = typeof(Z80Emulator).GetField("Steps", BindingFlags.Static | BindingFlags.NonPublic) ??
-                         throw new InvalidOperationException("Unable to find Z80 step table.");
-        var steps = stepsField.GetValue(null) as Step[] ??
-                    throw new InvalidOperationException("Unable to load Z80 step table.");
-
-        var suppressByStep = new bool[steps.Length];
-        for (var i = 0; i < steps.Length; i++)
-        {
-            var step = steps[i];
-            // Overlapped opcode-read shape:
-            // - current action is opcode read,
-            // - next step is step 1 (refresh), meaning this fetch belongs to the next instruction.
-            // If we exposed INT before this step, the emulator could service one boundary too early.
-            suppressByStep[i] = step.ActionRequired == ActionRequired.OpcodeRead && step.NextStep == 1;
-        }
-
-        return suppressByStep;
     }
 }

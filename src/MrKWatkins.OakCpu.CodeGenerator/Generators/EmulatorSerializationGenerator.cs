@@ -9,6 +9,8 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public sealed class EmulatorSerializationGenerator : EmulatorClassGenerator
 {
+    private const string SerializeOverlapPipelineMethodName = "SerializeOverlapPipeline";
+    private const string RestoreOverlapPipelineMethodName = "RestoreOverlapPipeline";
     private const string SerializeMethodName = "Serialize";
     private const string DeserializeMethodName = "Deserialize";
     private const string RestoreMethodName = "Restore";
@@ -97,9 +99,12 @@ public sealed class EmulatorSerializationGenerator : EmulatorClassGenerator
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateRestoreDataMembers(GeneratorContext context) =>
         context.Configuration.AllDataMembers.Values
+            .Concat<DataMember>([PreDefinedDataMember.OverlapPipeline])
             .Where(m => m != PreDefinedDataMember.OpcodeStepTable)
             .OrderBy(m => m.Name)
-            .Select(m => GenerateRead(m.FieldName, m.Type));
+            .Select(m => m == PreDefinedDataMember.OverlapPipeline
+                ? GenerateRestoreOverlapPipeline()
+                : GenerateRead(m.FieldName, m.Type));
 
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateRestoreRegisters(GeneratorContext context) =>
@@ -130,9 +135,12 @@ public sealed class EmulatorSerializationGenerator : EmulatorClassGenerator
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateSerializeDataMembers(GeneratorContext context) =>
         context.Configuration.AllDataMembers.Values
+            .Concat<DataMember>([PreDefinedDataMember.OverlapPipeline])
             .Where(m => m != PreDefinedDataMember.OpcodeStepTable)
             .OrderBy(m => m.Name)
-            .Select(m => GenerateWrite(IdentifierName(m.FieldName)));
+            .Select(m => m == PreDefinedDataMember.OverlapPipeline
+                ? GenerateWrite(InvocationExpression(IdentifierName(SerializeOverlapPipelineMethodName)))
+                : GenerateWrite(IdentifierName(m.FieldName)));
 
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateSerializeRegisters(GeneratorContext context) =>
@@ -168,6 +176,12 @@ public sealed class EmulatorSerializationGenerator : EmulatorClassGenerator
             InvocationExpression(
                     MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(WriterParameterName), IdentifierName(nameof(BinaryWriter.Write))))
                 .WithArgumentList(ArgumentList([Argument(value)])));
+
+    [Pure]
+    private static StatementSyntax GenerateRestoreOverlapPipeline() =>
+        ExpressionStatement(
+            InvocationExpression(IdentifierName(RestoreOverlapPipelineMethodName))
+                .WithArgumentList(ArgumentList([Argument(GenerateReadExpression(DataType.U16))])));
 
     [Pure]
     private static StatementSyntax GenerateRead(string fieldName, DataType type) =>

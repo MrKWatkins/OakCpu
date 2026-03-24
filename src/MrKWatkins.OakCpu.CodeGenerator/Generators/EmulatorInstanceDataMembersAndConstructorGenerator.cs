@@ -43,10 +43,18 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         fieldOffset += 8;
 
         // Order by size descending so each field ends up aligned to its own width.
-        foreach (var dataMember in context.Configuration.AllDataMembers.Values.OrderByDescending(m => m.Size))
+        foreach (var dataMember in context.Configuration.AllDataMembers.Values.Concat<DataMember>([PreDefinedDataMember.OverlapPipeline]).OrderByDescending(m => m == PreDefinedDataMember.OverlapPipeline ? 8 : m.Size))
         {
-            members.AddRange(CreateDataMember(context, dataMember, fieldOffset));
-            fieldOffset += dataMember.Size;
+            if (dataMember == PreDefinedDataMember.OverlapPipeline)
+            {
+                members.Add(CreateOverlapPipelineField(context, fieldOffset));
+                fieldOffset += 8;
+            }
+            else
+            {
+                members.AddRange(CreateDataMember(context, dataMember, fieldOffset));
+                fieldOffset += dataMember.Size;
+            }
         }
 
         return classDeclaration
@@ -135,6 +143,10 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
             .WithModifiers(TokenList(Public))
             .WithAccessorList(AccessorList(List(accessors)));
     }
+
+    [Pure]
+    private static FieldDeclarationSyntax CreateOverlapPipelineField(GeneratorContext context, int fieldOffset) =>
+        CreateField(context, CreateOverlapHandlerType(context), PreDefinedDataMember.OverlapPipeline.FieldName, fieldOffset, PreDefinedDataMember.OverlapPipeline.FieldVisibility.ToSyntax());
 
     [Pure]
     private static int GetObjectPropertiesFieldOffset(GeneratorContext context)

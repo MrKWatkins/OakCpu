@@ -156,7 +156,11 @@ public class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80SteppableTestHarn
 
     public override void AssertFail(string message) => Assert.Fail(message + Environment.NewLine);
 
-    public override void Step() => PerformActionRequired(emulator.Step());
+    public override void Step()
+    {
+        var actionRequired = emulator.Step();
+        PerformActionRequired(actionRequired);
+    }
 
     public override void ExecuteInstruction() => ExecuteInstruction();
 

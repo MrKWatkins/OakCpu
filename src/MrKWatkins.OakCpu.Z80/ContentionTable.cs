@@ -17,15 +17,6 @@ internal sealed class ContentionTable
     private const int Rows = 192;
     private readonly byte[] table;
 
-    /// <summary>
-    /// Creates a contention table with a constant delay for all T-states. For testing only.
-    /// </summary>
-    internal ContentionTable(byte delay)
-    {
-        table = new byte[TStatesPerFrame];
-        Array.Fill(table, delay);
-    }
-
     private ContentionTable(bool isEarlyTimings)
     {
         Span<byte> pattern = [6, 5, 4, 3, 2, 1, 0, 0];
@@ -46,6 +37,10 @@ internal sealed class ContentionTable
     public byte this[int tStatesAfterInterrupt]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(table), tStatesAfterInterrupt);
+        get => GetContentionAt(tStatesAfterInterrupt);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal byte GetContentionAt(int tStatesAfterInterrupt) =>
+        Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(table), tStatesAfterInterrupt);
 }

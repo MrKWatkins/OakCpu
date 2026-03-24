@@ -9,6 +9,7 @@ public sealed class StepStructGenerator : TypeGenerator
     private const string StepHandlerParameterName = "handler";
     private const string StepNextStepParameterName = "nextStep";
     private const string StepActionRequiredParameterName = "actionRequired";
+    private const string StepOverlapParameterName = "overlap";
 
     public static readonly StepStructGenerator Instance = new();
 
@@ -27,9 +28,10 @@ public sealed class StepStructGenerator : TypeGenerator
                     FunctionPointerParameter(IdentifierName(GetEmulatorClassName(context))),
                     FunctionPointerParameter(IdentifierName(ActionRequiredEnumName)).WithModifiers([Ref]),
                     FunctionPointerParameter(VoidType)
-                ]));
+                 ]));
 
         var actionRequiredType = IdentifierName(ActionRequiredEnumName);
+        var overlapType = CreateOverlapHandlerType(context);
 
         return StructDeclaration(StepStructName)
             .WithModifiers(TokenList(Internal, Unsafe, ReadOnly))
@@ -38,13 +40,15 @@ public sealed class StepStructGenerator : TypeGenerator
                 [
                     Parameter(Identifier(StepHandlerParameterName)).WithType(actionType),
                     Parameter(Identifier(StepNextStepParameterName)).WithType(UShortType),
-                    Parameter(Identifier(StepActionRequiredParameterName)).WithType(actionRequiredType)
+                    Parameter(Identifier(StepActionRequiredParameterName)).WithType(actionRequiredType),
+                    Parameter(Identifier(StepOverlapParameterName)).WithType(overlapType)
                 ]))
             .WithMembers(
             [
                 CreateField(actionType, StepHandlerFieldName, StepHandlerParameterName),
                 CreateField(UShortType, StepNextStepFieldName, StepNextStepParameterName),
-                CreateField(actionRequiredType, StepActionRequiredFieldName, StepActionRequiredParameterName)
+                CreateField(actionRequiredType, StepActionRequiredFieldName, StepActionRequiredParameterName),
+                CreateField(overlapType, StepOverlapFieldName, StepOverlapParameterName)
             ]);
     }
 

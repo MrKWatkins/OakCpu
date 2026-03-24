@@ -17,6 +17,9 @@
       <Compile Update="Z80Emulator.interrupts.generated.cs">
         <DependentUpon>Z80Emulator.cs</DependentUpon>
       </Compile>
+      <Compile Update="Z80Emulator.overlaps.generated.cs">
+        <DependentUpon>Z80Emulator.cs</DependentUpon>
+      </Compile>
       <Compile Update="Z80Emulator.reset.generated.cs">
         <DependentUpon>Z80Emulator.cs</DependentUpon>
       </Compile>

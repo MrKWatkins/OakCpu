@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using MrKWatkins.OakCpu.CodeGenerator.Generators;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
@@ -46,20 +45,25 @@ public sealed class Step
     public IReadOnlyList<Step> ImplementationAndDuplicates => Duplicates.Prepend(Implementation).ToList();
 
     [Pure]
-    public Action GetAction(GeneratorContext context)
+    public Action RequiredAction
     {
-        if (NextOpcode is null or NextOpcodeMode.Custom)
+        get
         {
-            return specifiedAction ?? Action.None;
-        }
+            if (NextOpcode is null or NextOpcodeMode.Custom)
+            {
+                return OverlapAction;
+            }
 
-        if (specifiedAction != null)
-        {
-            throw new InvalidOperationException($"No {PreDefinedFunction.Request.Name} function should be specified for the last step in an instruction, unless the next_opcode mode is set to custom.");
-        }
+            if (specifiedAction != null)
+            {
+                throw new InvalidOperationException($"No {PreDefinedFunction.Request.Name} function should be specified for the last step in an instruction, unless the next_opcode mode is set to custom.");
+            }
 
-        return NextOpcode == NextOpcodeMode.Overlapped ? context.OpcodeRead.FirstStep.GetAction(context) : Action.None;
+            return Action.None;
+        }
     }
+
+    public Action OverlapAction => specifiedAction ?? Action.None;
 
     /// <summary>
     /// The next opcode operation to perform after this step.
@@ -68,7 +72,29 @@ public sealed class Step
 
     public bool RequiresPrefixReset => Sequence is Instruction { Prefix: not null } && Sequence.Steps[0] == this;
 
-    public bool DoesNothing => Statements.Count == 0 && !RequiresPrefixReset;
+    public bool ExecutesStoredOverlapOnStart => Sequence.ExecuteOverlapOnStart && Sequence.FirstStep == this;
+
+    public bool ExecutesAsOverlapOnly =>
+        Sequence is Instruction { NextOpcode: NextOpcodeMode.Overlapped } &&
+        (Sequence.Steps.Count == 1 ? Sequence.Steps[0] == this : Sequence.Steps[^1] == this);
+
+    public bool QueuesOverlapStep =>
+        Sequence is Instruction { NextOpcode: NextOpcodeMode.Overlapped } &&
+        Sequence.Steps.Count > 1 &&
+        Sequence.Steps[^2] == this;
+
+    public Step QueuedOverlapStep =>
+        QueuesOverlapStep
+            ? Sequence.Steps[^1]
+            : throw new InvalidOperationException($"The step {Name} does not queue an overlap step.");
+
+    public bool ContainsHandleInterruptsCall =>
+        Statements
+            .SelectMany(statement => statement.TraverseDepthFirst())
+            .OfType<CallStatement>()
+            .Any(statement => statement.Call.Function == PreDefinedFunction.HandleInterrupts);
+
+    public bool DoesNothing => Statements.Count == 0 && !RequiresPrefixReset && NextOpcode != NextOpcodeMode.Overlapped;
 
     public override string ToString() => $"{Name} => {string.Join("; ", Statements)};";
 

@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -23,7 +24,12 @@ public sealed class GeneratorContext
         IReadOnlyList<Instruction> instructions,
         IReadOnlyDictionary<byte, PrefixJump> prefixJumps,
         IReadOnlyList<Step> allSteps,
-        IReadOnlyList<Step> functionSteps)
+        IReadOnlyList<Step> functionSteps,
+        IReadOnlyList<Step> overlapSteps,
+        IReadOnlyDictionary<Step, Step> overlapImplementations,
+        IReadOnlyDictionary<Step, IReadOnlyList<Step>> overlapImplementationAndDuplicates,
+        IReadOnlyDictionary<Step, int> overlapMethodIndices,
+        IReadOnlyDictionary<Step, ushort> overlapIndices)
     {
         RootNamespace = rootNamespace;
         Configuration = configuration;
@@ -37,7 +43,17 @@ public sealed class GeneratorContext
         PrefixJumps = prefixJumps;
         AllSteps = allSteps;
         FunctionSteps = functionSteps;
+        OverlapSteps = overlapSteps;
+        this.overlapImplementations = overlapImplementations;
+        this.overlapImplementationAndDuplicates = overlapImplementationAndDuplicates;
+        this.overlapMethodIndices = overlapMethodIndices;
+        this.overlapIndices = overlapIndices;
     }
+
+    private readonly IReadOnlyDictionary<Step, Step> overlapImplementations;
+    private readonly IReadOnlyDictionary<Step, IReadOnlyList<Step>> overlapImplementationAndDuplicates;
+    private readonly IReadOnlyDictionary<Step, int> overlapMethodIndices;
+    private readonly IReadOnlyDictionary<Step, ushort> overlapIndices;
 
     public string RootNamespace { get; }
 
@@ -63,6 +79,8 @@ public sealed class GeneratorContext
 
     public IReadOnlyList<Step> AllSteps { get; }
 
+    public IReadOnlyList<Step> OverlapSteps { get; }
+
     public HashSet<string> RequiredUsings { get; } = new();
 
     public int ErrorStepIndex => AllSteps.Count;
@@ -74,6 +92,20 @@ public sealed class GeneratorContext
     [Pure]
     public SequenceGroup GetSequenceGroup(string name) =>
         SequenceGroups.TryGetValue(name, out var sequenceGroup) ? sequenceGroup : throw new InvalidOperationException($"No sequence group named {name} exists.");
+
+    [Pure]
+    public int GetOverlapMethodIndex(Step step) =>
+        overlapMethodIndices.TryGetValue(GetOverlapImplementation(step), out var index) ? index : throw new InvalidOperationException($"No overlap has been defined for step {step.Name}.");
+
+    [Pure]
+    public ushort GetOverlapIndex(Step step) =>
+        overlapIndices.TryGetValue(GetOverlapImplementation(step), out var index) ? index : throw new InvalidOperationException($"No overlap has been defined for step {step.Name}.");
+
+    [Pure]
+    public IReadOnlyList<Step> GetOverlapImplementationAndDuplicates(Step step) =>
+        overlapImplementationAndDuplicates.TryGetValue(GetOverlapImplementation(step), out var steps)
+            ? steps
+            : throw new InvalidOperationException($"No overlap has been defined for step {step.Name}.");
 
     [Pure]
     public FileScopedNamespaceDeclarationSyntax CreateRootNamespaceDeclaration() => SyntaxFactory.FileScopedNamespaceDeclaration(SyntaxFactory.ParseName(RootNamespace));
@@ -126,6 +158,7 @@ public sealed class GeneratorContext
         var prefixJumps = PrefixJump.Create(context, instructions);
 
         var interrupts = Interrupts.Create(context, yaml.Interrupts, namedSequences);
+        var cpu = Cpu.Create(yaml.Cpu);
 
         var sequences = namedSequences.Values
             .Append(opcodeRead)
@@ -155,11 +188,81 @@ public sealed class GeneratorContext
 
         Step.AssignMethodIndices(functionSteps);
 
-        return new GeneratorContext(rootNamespace, configuration, Cpu.Create(yaml.Cpu), interrupts, sequences, sequenceGroups, opcodeRead, context.OnInstructionComplete, instructions, prefixJumps, allSteps, functionSteps);
+        var overlapCandidates = allSteps
+            .Where(step => step.ExecutesAsOverlapOnly)
+            .ToList();
+
+        var overlapGroups = CreateOverlapGroups(rootNamespace, configuration, cpu, interrupts, sequences, sequenceGroups, opcodeRead, context.OnInstructionComplete, instructions, prefixJumps, allSteps, functionSteps, overlapCandidates);
+
+        var overlapSteps = overlapGroups
+            .Select(group => group.First())
+            .OrderBy(step => step.Index)
+            .ToList();
+
+        var overlapImplementations = overlapGroups
+            .SelectMany(group => group.Select(step => (Step: step, Implementation: group.First())))
+            .ToDictionary(x => x.Step, x => x.Implementation);
+
+        var overlapImplementationAndDuplicates = overlapGroups
+            .ToDictionary(group => group.First(), group => (IReadOnlyList<Step>)group.OrderBy(step => step.Index).ToList());
+
+        var overlapMethodIndices = overlapSteps
+            .Select((step, index) => (Step: step, Index: index))
+            .ToDictionary(x => x.Step, x => x.Index);
+
+        var overlapIndices = overlapSteps
+            .Select((step, index) => (Step: step, Index: (ushort)(index + 1)))
+            .ToDictionary(x => x.Step, x => x.Index);
+
+        return new GeneratorContext(rootNamespace, configuration, cpu, interrupts, sequences, sequenceGroups, opcodeRead, context.OnInstructionComplete, instructions, prefixJumps, allSteps, functionSteps, overlapSteps, overlapImplementations, overlapImplementationAndDuplicates, overlapMethodIndices, overlapIndices);
     }
 
     [Pure]
-    internal GeneratorContext WithRequiredUsings() => new(RootNamespace, Configuration, Cpu, Interrupts, Sequences, SequenceGroups, OpcodeRead, OnInstructionComplete, Instructions, PrefixJumps, AllSteps, FunctionSteps);
+    internal GeneratorContext WithRequiredUsings() => new(RootNamespace, Configuration, Cpu, Interrupts, Sequences, SequenceGroups, OpcodeRead, OnInstructionComplete, Instructions, PrefixJumps, AllSteps, FunctionSteps, OverlapSteps, overlapImplementations, overlapImplementationAndDuplicates, overlapMethodIndices, overlapIndices);
+
+    [Pure]
+    private Step GetOverlapImplementation(Step step) =>
+        overlapImplementations.TryGetValue(step, out var implementation) ? implementation : throw new InvalidOperationException($"No overlap implementation has been defined for step {step.Name}.");
+
+    [Pure]
+    private static IReadOnlyList<IReadOnlyList<Step>> CreateOverlapGroups(
+        string rootNamespace,
+        Configuration configuration,
+        Cpu cpu,
+        Interrupts interrupts,
+        IReadOnlyDictionary<string, StepSequence> sequences,
+        IReadOnlyDictionary<string, SequenceGroup> sequenceGroups,
+        StepSequence opcodeRead,
+        IReadOnlyList<Statement> onInstructionComplete,
+        IReadOnlyList<Instruction> instructions,
+        IReadOnlyDictionary<byte, PrefixJump> prefixJumps,
+        IReadOnlyList<Step> allSteps,
+        IReadOnlyList<Step> functionSteps,
+        IReadOnlyList<Step> overlapCandidates)
+    {
+        var temporaryContext = new GeneratorContext(rootNamespace, configuration, cpu, interrupts, sequences, sequenceGroups, opcodeRead, onInstructionComplete, instructions, prefixJumps, allSteps, functionSteps, [], new Dictionary<Step, Step>(), new Dictionary<Step, IReadOnlyList<Step>>(), new Dictionary<Step, int>(), new Dictionary<Step, ushort>());
+
+        var overlapBodies = overlapCandidates.ToDictionary(
+            step => step,
+            step => (IReadOnlyList<string>)StatementGenerator.GenerateOverlapStatements(temporaryContext, step)
+                .Select(statement => statement.NormalizeWhitespace().ToFullString())
+                .ToList());
+
+        var groups = new List<IReadOnlyList<Step>>();
+        foreach (var step in overlapCandidates)
+        {
+            var existingGroup = groups.FirstOrDefault(group => overlapBodies[group[0]].SequenceEqual(overlapBodies[step], StringComparer.Ordinal));
+            if (existingGroup is List<Step> mutableGroup)
+            {
+                mutableGroup.Add(step);
+                continue;
+            }
+
+            groups.Add(new List<Step> { step });
+        }
+
+        return groups;
+    }
 
     [Pure]
     private static IReadOnlyDictionary<string, StepSequence> CreateNamedSequences(ParserContext context, IReadOnlyList<StepSequenceYaml> yamls)

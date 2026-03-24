@@ -40,5 +40,7 @@ public sealed partial class InstructionYaml
 
     public NextOpcodeMode NextOpcode { get; private set; }
 
+    public string? OverlappedSequence { get; private set; }
+
     public override string ToString() => Mnemonic;
 }

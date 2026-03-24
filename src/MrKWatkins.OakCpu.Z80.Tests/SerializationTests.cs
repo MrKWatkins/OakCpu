@@ -61,6 +61,51 @@ public sealed class SerializationTests
         copy.Interrupts.IM.Should().Equal(1);
     }
 
+    [Test]
+    public void Serialization_includes_pending_overlap_pipeline()
+    {
+        var original = new Z80Emulator();
+        var originalHarness = new Z80EmulatorTestHarness(original);
+        original.Registers.BC = 0x1234;
+
+        originalHarness.WriteByteToMemory(0x0000, 0x04);
+        originalHarness.WriteByteToMemory(0x0001, 0x00);
+
+        originalHarness.Step(4);
+        original.Registers.B.Should().Equal(0x12);
+
+        using var stream = new MemoryStream();
+        original.Serialize(stream);
+        stream.Position = 0;
+
+        var copy = Z80Emulator.Deserialize(stream);
+        var copyHarness = new Z80EmulatorTestHarness(copy);
+        copyHarness.WriteByteToMemory(0x0000, 0x04);
+        copyHarness.WriteByteToMemory(0x0001, 0x00);
+
+        copy.Registers.B.Should().Equal(0x12);
+        copyHarness.Step();
+        copy.Registers.B.Should().Equal(0x13);
+        copy.Address.Should().Equal(0x0001);
+    }
+
+    [Test]
+    public void Contended_serialize_deserialize()
+    {
+        var original = new ContendedZ80Emulator(new Z80Emulator(), tStatesInCurrentFrame: 14335);
+        original.Registers.PC = 0x4000;
+
+        using var stream = new MemoryStream();
+        original.Serialize(stream);
+        stream.Position = 0;
+
+        var copy = ContendedZ80Emulator.Deserialize(stream);
+        copy.TStatesInCurrentFrame.Should().Equal(original.TStatesInCurrentFrame);
+        copy.Registers.PC.Should().Equal(original.Registers.PC);
+        copy.PendingDelay.Should().Equal(original.PendingDelay);
+        copy.HasPendingAction.Should().Equal(original.HasPendingAction);
+    }
+
     private static void AssertEqual(Z80Emulator actual, Z80Emulator expected)
     {
         actual.Address.Should().Equal(expected.Address);

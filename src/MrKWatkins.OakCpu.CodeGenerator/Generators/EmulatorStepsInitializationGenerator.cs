@@ -23,7 +23,8 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     {
         var members = new List<MemberDeclarationSyntax>
         {
-            CreateStepsField()
+            CreateStepsField(),
+            CreateOverlapsField(context)
         };
 
         members.AddRange(context.Configuration.OpcodeStepTables
@@ -45,6 +46,16 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
             .WithSemicolonToken(Semicolon);
 
     [Pure]
+    private static MemberDeclarationSyntax CreateOverlapsField(GeneratorContext context) =>
+        FieldDeclaration(
+                VariableDeclaration(
+                        ArrayType(CreateOverlapHandlerType(context))
+                            .WithRankSpecifiers([ArrayRankSpecifier([OmittedArraySizeExpression()])]))
+                    .WithVariables([VariableDeclarator(Identifier(OverlapsFieldName))]))
+            .WithModifiers([Private, Static, ReadOnly])
+            .WithSemicolonToken(Semicolon);
+
+    [Pure]
     private static StatementSyntax CreateInitializeStepsField(GeneratorContext context)
     {
         var stepCreations = context.AllSteps.Select(step => CreateStep(context, step)).Append(CreateErrorStep());
@@ -59,44 +70,65 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     }
 
     [Pure]
+    private static StatementSyntax CreateInitializeOverlapsField(GeneratorContext context)
+    {
+        var overlaps = context.OverlapSteps
+            .Select(step => (CollectionElementSyntax)ExpressionElement(CreateOverlap(context, step)))
+            .Prepend(ExpressionElement(DefaultExpression(CreateOverlapHandlerType(context))));
+
+        var value = CollectionExpression(SeparatedList(overlaps));
+
+        var assignment = AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(OverlapsFieldName), value);
+
+        return ExpressionStatement(assignment);
+    }
+
+    [Pure]
     private static ImplicitObjectCreationExpressionSyntax CreateErrorStep()
     {
         var handler = PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(ErrorMethodName));
 
-        return CreateStepCreation(handler, 0, Action.None);
+        return CreateStepCreation(handler, 0, Action.None, LiteralExpression(SyntaxKind.DefaultLiteralExpression));
     }
 
     [Pure]
     private static ImplicitObjectCreationExpressionSyntax CreateStep(GeneratorContext context, Step step)
     {
-        ExpressionSyntax handler;
-        if (step.DoesNothing)
-        {
-            // If we're an overlapped read and doing nothing, we still need to run step 0.
-            handler = step.NextOpcode == NextOpcodeMode.Overlapped
-                ? PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetStepMethodName(context.OpcodeRead.FirstStep)))
-                : LiteralExpression(SyntaxKind.DefaultLiteralExpression);
-        }
-        else
-        {
-            handler = PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetStepMethodName(step)));
-        }
+        ExpressionSyntax handler = step.DoesNothing || step.ExecutesAsOverlapOnly
+            ? LiteralExpression(SyntaxKind.DefaultLiteralExpression)
+            : PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetStepMethodName(step)));
 
         var nextStep = step.NextOpcode switch
         {
             NextOpcodeMode.Read => 0,
-            NextOpcodeMode.Overlapped => 1,
+            NextOpcodeMode.Overlapped when step.Sequence is PrefixJump => context.OpcodeRead.Steps[1].Index,
+            NextOpcodeMode.Overlapped => GetOverlappedNextStep(context, step.Sequence),
             NextOpcodeMode.Custom => context.ErrorStepIndex,
             NextOpcodeMode.Loop => step.Sequence.FirstStep.Index,
+            null when step.QueuesOverlapStep => context.OpcodeRead.FirstStep.Index,
             null => step.Index + 1,
             _ => throw new NotSupportedException($"The {nameof(NextOpcodeMode)} {step.NextOpcode} is not supported.")
         };
 
-        return CreateStepCreation(handler, nextStep, step.GetAction(context));
+        ExpressionSyntax overlap = step.ExecutesAsOverlapOnly
+            ? PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetOverlapMethodName(context, step)))
+            : LiteralExpression(SyntaxKind.DefaultLiteralExpression);
+
+        var action = step is { NextOpcode: NextOpcodeMode.Overlapped, Sequence: PrefixJump }
+            ? context.OpcodeRead.FirstStep.RequiredAction
+            : step.RequiredAction;
+
+        return CreateStepCreation(handler, nextStep, action, overlap);
     }
 
     [Pure]
-    private static ImplicitObjectCreationExpressionSyntax CreateStepCreation(ExpressionSyntax handler, int nextStep, Action action) =>
+    private static int GetOverlappedNextStep(GeneratorContext context, StepSequence sequence) =>
+        sequence.OverlappedSequenceName == null
+            ? context.OpcodeRead.FirstStep.Index
+            : context.GetSequence(sequence.OverlappedSequenceName).FirstStep.Index;
+
+    [Pure]
+    private static ImplicitObjectCreationExpressionSyntax CreateStepCreation(ExpressionSyntax handler, int nextStep, Action action, ExpressionSyntax overlap) =>
         ImplicitObjectCreationExpression()
             .WithArgumentList(
                 ArgumentList([
@@ -107,8 +139,15 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
                             SyntaxKind.SimpleMemberAccessExpression,
                             // TODO: static using for ActionRequired.
                             IdentifierName(ActionRequiredEnumName),
-                            IdentifierName(action.EnumName)))
+                            IdentifierName(action.EnumName))),
+                    Argument(overlap)
                 ]));
+
+    [Pure]
+    private static ExpressionSyntax CreateOverlap(GeneratorContext context, Step step) =>
+        step.DoesNothing
+            ? LiteralExpression(SyntaxKind.DefaultLiteralExpression)
+            : PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetOverlapMethodName(context, step)));
 
     [Pure]
     private static MemberDeclarationSyntax CreateOpcodeStepTableField(OpcodeStepTable opcodeStepTable)
@@ -138,7 +177,8 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
         var statements = new List<StatementSyntax>
         {
             CreateLittleEndianStatement(context),
-            CreateInitializeStepsField(context)
+            CreateInitializeStepsField(context),
+            CreateInitializeOverlapsField(context)
         };
 
         // This is not totally generic. But it does support everything I need. Doesn't support:

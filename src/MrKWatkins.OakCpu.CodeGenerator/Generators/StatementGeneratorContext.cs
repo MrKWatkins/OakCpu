@@ -7,11 +7,11 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public sealed class StatementGeneratorContext
 {
     public StatementGeneratorContext(GeneratorContext generatorContext, Step? step)
-        : this(generatorContext, step, new HashSet<string>(), ImmutableDictionary<string, Expression>.Empty, false, null)
+        : this(generatorContext, step, new HashSet<string>(), ImmutableDictionary<string, Expression>.Empty, false, null, false)
     {
     }
 
-    private StatementGeneratorContext(GeneratorContext generatorContext, Step? step, HashSet<string> initializedTemporaryVariables, ImmutableDictionary<string, Expression> argumentScope, bool inBooleanContext, Expression? parent)
+    private StatementGeneratorContext(GeneratorContext generatorContext, Step? step, HashSet<string> initializedTemporaryVariables, ImmutableDictionary<string, Expression> argumentScope, bool inBooleanContext, Expression? parent, bool skipHandleInterrupts)
     {
         GeneratorContext = generatorContext;
         Step = step;
@@ -19,6 +19,7 @@ public sealed class StatementGeneratorContext
         ArgumentScope = argumentScope;
         InBooleanContext = inBooleanContext;
         Parent = parent;
+        SkipHandleInterrupts = skipHandleInterrupts;
     }
 
     public GeneratorContext GeneratorContext { get; }
@@ -35,20 +36,25 @@ public sealed class StatementGeneratorContext
 
     public Expression? Parent { get; }
 
+    public bool SkipHandleInterrupts { get; }
+
     [Pure]
     public StatementGeneratorContext WithArguments(IEnumerable<string> parameters, IEnumerable<Expression> arguments)
     {
         var newScope = ArgumentScope.AddRange(parameters.Zip(arguments, (p, a) => new KeyValuePair<string, Expression>(p, a)).Where(t => !ArgumentScope.ContainsKey(t.Key)));
 
-        return new StatementGeneratorContext(GeneratorContext, Step, InitializedTemporaryVariables, newScope, InBooleanContext, Parent);
+        return new StatementGeneratorContext(GeneratorContext, Step, InitializedTemporaryVariables, newScope, InBooleanContext, Parent, SkipHandleInterrupts);
     }
 
     [Pure]
-    public StatementGeneratorContext WithBooleanContext() => new(GeneratorContext, Step, InitializedTemporaryVariables, ArgumentScope, true, Parent);
+    public StatementGeneratorContext WithBooleanContext() => new(GeneratorContext, Step, InitializedTemporaryVariables, ArgumentScope, true, Parent, SkipHandleInterrupts);
 
     [Pure]
-    public StatementGeneratorContext WithChildVariableScope() => new(GeneratorContext, Step, [.. InitializedTemporaryVariables], ArgumentScope, InBooleanContext, Parent);
+    public StatementGeneratorContext WithChildVariableScope() => new(GeneratorContext, Step, [.. InitializedTemporaryVariables], ArgumentScope, InBooleanContext, Parent, SkipHandleInterrupts);
 
     [Pure]
-    public StatementGeneratorContext WithParentExpression(Expression parent) => new(GeneratorContext, Step, InitializedTemporaryVariables, ArgumentScope, InBooleanContext, parent);
+    public StatementGeneratorContext WithParentExpression(Expression parent) => new(GeneratorContext, Step, InitializedTemporaryVariables, ArgumentScope, InBooleanContext, parent, SkipHandleInterrupts);
+
+    [Pure]
+    public StatementGeneratorContext WithoutHandleInterrupts() => new(GeneratorContext, Step, InitializedTemporaryVariables, ArgumentScope, InBooleanContext, Parent, true);
 }

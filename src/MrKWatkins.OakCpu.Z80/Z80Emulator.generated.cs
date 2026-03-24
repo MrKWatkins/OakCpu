@@ -176,6 +176,9 @@ public sealed unsafe partial class Z80Emulator
     private ushort[] opcodeStepTable;
 
     [FieldOffset(64)]
+    private delegate*<Z80Emulator, void> overlapPipeline;
+
+    [FieldOffset(72)]
     private ushort address;
 
     public ushort Address
@@ -184,28 +187,28 @@ public sealed unsafe partial class Z80Emulator
         get => address;
     }
 
-    [FieldOffset(66)]
+    [FieldOffset(74)]
     private ushort currentStep;
 
-    [FieldOffset(68)]
+    [FieldOffset(76)]
     private byte latch;
 
-    [FieldOffset(69)]
+    [FieldOffset(77)]
     internal byte im;
 
-    [FieldOffset(70)]
+    [FieldOffset(78)]
     internal bool iff1;
 
-    [FieldOffset(71)]
+    [FieldOffset(79)]
     internal bool iff2;
 
-    [FieldOffset(72)]
+    [FieldOffset(80)]
     internal bool halted;
 
-    [FieldOffset(73)]
+    [FieldOffset(81)]
     internal bool interrupt;
 
-    [FieldOffset(74)]
+    [FieldOffset(82)]
     private byte data;
 
     public byte Data

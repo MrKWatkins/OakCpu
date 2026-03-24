@@ -15,17 +15,19 @@ public sealed unsafe partial class Z80Emulator
 {
     private static bool HandleInterrupts(Z80Emulator emulator, ref ActionRequired actionRequired)
     {
-        if (emulator.interrupt & emulator.iff1)
+        if (emulator.interrupt)
         {
-            emulator.halted = false;
-            // Move to interrupt mode.
-            emulator.currentStep = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(InterruptModeStepTable), emulator.im);
             emulator.interrupt = false;
-            actionRequired = ActionRequired.None;
-            return true;
+            if (emulator.iff1)
+            {
+                emulator.halted = false;
+                // Move to interrupt mode.
+                emulator.currentStep = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(InterruptModeStepTable), emulator.im);
+                actionRequired = ActionRequired.None;
+                return true;
+            }
         }
 
-        emulator.interrupt = false;
         return false;
     }
 }
