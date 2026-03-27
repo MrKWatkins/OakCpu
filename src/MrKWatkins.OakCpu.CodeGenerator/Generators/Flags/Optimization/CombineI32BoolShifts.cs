@@ -5,7 +5,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Optimization;
 
 internal sealed class CombineI32BoolShifts : FlagOptimization<I32BoolExpression>
 {
-    protected override I32BoolExpression Optimize(StatementGeneratorContext context, I32BoolExpression action)
+    protected override FlagAction Optimize(StatementGeneratorContext context, I32BoolExpression action)
     {
         var inlined = action.Expression.InlineUserDefinedFunctions(context);
 

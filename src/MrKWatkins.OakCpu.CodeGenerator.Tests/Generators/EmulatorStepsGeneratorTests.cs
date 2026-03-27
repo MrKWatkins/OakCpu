@@ -17,4 +17,13 @@ public sealed class EmulatorStepsGeneratorTests : TestFixture
         prefixedNop.ExecutesAsOverlapOnly.Should().BeTrue();
         result.Contains($"private static void Step{prefixedNop.MethodIndex}", StringComparison.Ordinal).Should().BeFalse();
     }
+
+    [Test]
+    public void Generate_UsesBitExtractionForCarryFlag()
+    {
+        var result = EmulatorStepsGenerator.Instance.Generate(Z80GeneratorContext);
+
+        result.Contains("flags |= ((result) >> 8) & 1; // Set C if (result & 0x0100) == 0x0100 is true.", StringComparison.Ordinal).Should().BeTrue();
+        result.Contains("flags |= Unsafe.BitCast<bool, byte>((result & 0x0100) == 0x0100);", StringComparison.Ordinal).Should().BeFalse();
+    }
 }

@@ -859,7 +859,7 @@ public sealed unsafe partial class Z80Emulator
         // Reset N.
         int flags = emulator.H & 0b00101000; // Copy X and Y from H.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
         emulator.F = (byte)flags;
     }
@@ -1213,7 +1213,7 @@ public sealed unsafe partial class Z80Emulator
         // Reset N.
         int flags = emulator.H & 0b00101000; // Copy X and Y from H.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
         emulator.F = (byte)flags;
     }
@@ -1482,7 +1482,7 @@ public sealed unsafe partial class Z80Emulator
         // Reset N.
         int flags = emulator.H & 0b00101000; // Copy X and Y from H.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
         emulator.F = (byte)flags;
     }
@@ -1669,7 +1669,7 @@ public sealed unsafe partial class Z80Emulator
         // Reset N.
         int flags = emulator.H & 0b00101000; // Copy X and Y from H.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
         emulator.F = (byte)flags;
     }
@@ -1756,7 +1756,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N.
         int flags = result & 0b10101000; // Copy flag.X, flag.Y and S from result.
-        flags |= Unsafe.BitCast<bool, byte>((result & 0x0100) == 0x0100); // Set C if (result & 0x0100) == 0x0100 is true.
+        flags |= ((result) >> 8) & 1; // Set C if (result & 0x0100) == 0x0100 is true.
         flags |= ((result ^ left) & (result ^ right) & 0b10000000) >> 5; // Set PV if did_8_bit_addition_overflow(left, right, result) is true.
         flags |= (left ^ right ^ result) & 0b00010000; // Set H if did_8_bit_addition_half_carry(left, right, result) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 6; // Set Z if is_zero(A) is true.
@@ -1783,7 +1783,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N.
         int flags = result & 0b10101000; // Copy flag.X, flag.Y and S from result.
-        flags |= Unsafe.BitCast<bool, byte>((result & 0x0100) == 0x0100); // Set C if (result & 0x0100) == 0x0100 is true.
+        flags |= ((result) >> 8) & 1; // Set C if (result & 0x0100) == 0x0100 is true.
         flags |= ((result ^ left) & (result ^ right) & 0b10000000) >> 5; // Set PV if did_8_bit_addition_overflow(left, right, result) is true.
         flags |= (left ^ right ^ result) & 0b00010000; // Set H if did_8_bit_addition_half_carry(left, right, result) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 6; // Set Z if is_zero(A) is true.
@@ -1805,7 +1805,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         int flags = 0b00000010; // Set N.
         flags |= result & 0b10101000; // Copy flag.X, flag.Y and S from result.
-        flags |= Unsafe.BitCast<bool, byte>((result & 0x0100) == 0x0100); // Set C if (result & 0x0100) == 0x0100 is true.
+        flags |= ((result) >> 8) & 1; // Set C if (result & 0x0100) == 0x0100 is true.
         flags |= ((left ^ right) & (result ^ left) & 0b10000000) >> 5; // Set PV if did_8_bit_subtraction_overflow(left, right, result) is true.
         flags |= (left ^ right ^ result) & 0b00010000; // Set H if did_8_bit_subtraction_half_borrow(left, right, result) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 6; // Set Z if is_zero(A) is true.
@@ -1827,7 +1827,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         int flags = 0b00000010; // Set N.
         flags |= result & 0b10101000; // Copy flag.X, flag.Y and S from result.
-        flags |= Unsafe.BitCast<bool, byte>((result & 0x0100) == 0x0100); // Set C if (result & 0x0100) == 0x0100 is true.
+        flags |= ((result) >> 8) & 1; // Set C if (result & 0x0100) == 0x0100 is true.
         flags |= ((left ^ right) & (result ^ left) & 0b10000000) >> 5; // Set PV if did_8_bit_subtraction_overflow(left, right, result) is true.
         flags |= (left ^ right ^ result) & 0b00010000; // Set H if did_8_bit_subtraction_half_borrow(left, right, result) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 6; // Set Z if is_zero(A) is true.
@@ -1900,7 +1900,7 @@ public sealed unsafe partial class Z80Emulator
         int flags = 0b00000010; // Set N.
         flags |= right & 0b00101000; // Copy X and Y from right.
         flags |= result & 0b10000000; // Copy S from result.
-        flags |= Unsafe.BitCast<bool, byte>((result & 0x0100) == 0x0100); // Set C if (result & 0x0100) == 0x0100 is true.
+        flags |= ((result) >> 8) & 1; // Set C if (result & 0x0100) == 0x0100 is true.
         flags |= ((left ^ right) & (result ^ left) & 0b10000000) >> 5; // Set PV if did_8_bit_subtraction_overflow(left, right, result) is true.
         flags |= (left ^ right ^ result) & 0b00010000; // Set H if did_8_bit_subtraction_half_borrow(left, right, result) is true.
         flags |= (Unsafe.BitCast<bool, byte>(result == 0)) << 6; // Set Z if is_zero(result) is true.
@@ -2149,7 +2149,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N.
         int flags = result & 0b10101000; // Copy flag.X, flag.Y and S from result.
-        flags |= Unsafe.BitCast<bool, byte>((result & 0x0100) == 0x0100); // Set C if (result & 0x0100) == 0x0100 is true.
+        flags |= ((result) >> 8) & 1; // Set C if (result & 0x0100) == 0x0100 is true.
         flags |= ((result ^ left) & (result ^ right) & 0b10000000) >> 5; // Set PV if did_8_bit_addition_overflow(left, right, result) is true.
         flags |= (left ^ right ^ result) & 0b00010000; // Set H if did_8_bit_addition_half_carry(left, right, result) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 6; // Set Z if is_zero(A) is true.
@@ -2606,7 +2606,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -2640,7 +2640,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -2674,7 +2674,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -2708,7 +2708,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -3178,7 +3178,7 @@ public sealed unsafe partial class Z80Emulator
         // Reset N.
         int flags = emulator.IXH & 0b00101000; // Copy X and Y from IXH.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
         emulator.F = (byte)flags;
     }
@@ -3247,7 +3247,7 @@ public sealed unsafe partial class Z80Emulator
         // Reset N.
         int flags = emulator.IXH & 0b00101000; // Copy X and Y from IXH.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
         emulator.F = (byte)flags;
     }
@@ -3320,7 +3320,7 @@ public sealed unsafe partial class Z80Emulator
         // Reset N.
         int flags = emulator.IXH & 0b00101000; // Copy X and Y from IXH.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
         emulator.F = (byte)flags;
     }
@@ -3557,7 +3557,7 @@ public sealed unsafe partial class Z80Emulator
         // Reset N.
         int flags = emulator.IXH & 0b00101000; // Copy X and Y from IXH.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
         emulator.F = (byte)flags;
     }
@@ -3650,7 +3650,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N.
         int flags = result & 0b10101000; // Copy flag.X, flag.Y and S from result.
-        flags |= Unsafe.BitCast<bool, byte>((result & 0x0100) == 0x0100); // Set C if (result & 0x0100) == 0x0100 is true.
+        flags |= ((result) >> 8) & 1; // Set C if (result & 0x0100) == 0x0100 is true.
         flags |= ((result ^ left) & (result ^ right) & 0b10000000) >> 5; // Set PV if did_8_bit_addition_overflow(left, right, result) is true.
         flags |= (left ^ right ^ result) & 0b00010000; // Set H if did_8_bit_addition_half_carry(left, right, result) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 6; // Set Z if is_zero(A) is true.
@@ -3991,7 +3991,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         int flags = 0b00000010; // Set N.
         flags |= emulator.H & 0b10101000; // Copy flag.X, flag.Y and S from H.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ right) & (result ^ left) & 0x8000) >> 13; // Set PV if did_16_bit_subtraction_overflow(left, right, result) is true.
         flags |= ((left ^ right ^ result) & 0x1000) >> 8; // Set H if did_16_bit_subtraction_half_borrow(left, right, result) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.HL == 0)) << 6; // Set Z if is_zero(HL) is true.
@@ -4083,7 +4083,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N.
         int flags = emulator.H & 0b10101000; // Copy flag.X, flag.Y and S from H.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((result ^ left) & (result ^ right) & 0x8000) >> 13; // Set PV if did_16_bit_addition_overflow(left, right, result) is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.HL == 0)) << 6; // Set Z if is_zero(HL) is true.
@@ -4146,7 +4146,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         int flags = 0b00000010; // Set N.
         flags |= emulator.H & 0b10101000; // Copy flag.X, flag.Y and S from H.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ right) & (result ^ left) & 0x8000) >> 13; // Set PV if did_16_bit_subtraction_overflow(left, right, result) is true.
         flags |= ((left ^ right ^ result) & 0x1000) >> 8; // Set H if did_16_bit_subtraction_half_borrow(left, right, result) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.HL == 0)) << 6; // Set Z if is_zero(HL) is true.
@@ -4232,7 +4232,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N.
         int flags = emulator.H & 0b10101000; // Copy flag.X, flag.Y and S from H.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((result ^ left) & (result ^ right) & 0x8000) >> 13; // Set PV if did_16_bit_addition_overflow(left, right, result) is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.HL == 0)) << 6; // Set Z if is_zero(HL) is true.
@@ -4303,7 +4303,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         int flags = 0b00000010; // Set N.
         flags |= emulator.H & 0b10101000; // Copy flag.X, flag.Y and S from H.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ right) & (result ^ left) & 0x8000) >> 13; // Set PV if did_16_bit_subtraction_overflow(left, right, result) is true.
         flags |= ((left ^ right ^ result) & 0x1000) >> 8; // Set H if did_16_bit_subtraction_half_borrow(left, right, result) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.HL == 0)) << 6; // Set Z if is_zero(HL) is true.
@@ -4370,7 +4370,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N.
         int flags = emulator.H & 0b10101000; // Copy flag.X, flag.Y and S from H.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((result ^ left) & (result ^ right) & 0x8000) >> 13; // Set PV if did_16_bit_addition_overflow(left, right, result) is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.HL == 0)) << 6; // Set Z if is_zero(HL) is true.
@@ -4435,7 +4435,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         int flags = 0b00000010; // Set N.
         flags |= emulator.H & 0b10101000; // Copy flag.X, flag.Y and S from H.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ right) & (result ^ left) & 0x8000) >> 13; // Set PV if did_16_bit_subtraction_overflow(left, right, result) is true.
         flags |= ((left ^ right ^ result) & 0x1000) >> 8; // Set H if did_16_bit_subtraction_half_borrow(left, right, result) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.HL == 0)) << 6; // Set Z if is_zero(HL) is true.
@@ -4499,7 +4499,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N.
         int flags = emulator.H & 0b10101000; // Copy flag.X, flag.Y and S from H.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((result ^ left) & (result ^ right) & 0x8000) >> 13; // Set PV if did_16_bit_addition_overflow(left, right, result) is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.HL == 0)) << 6; // Set Z if is_zero(HL) is true.
@@ -5172,7 +5172,7 @@ public sealed unsafe partial class Z80Emulator
         // Reset N.
         int flags = emulator.IYH & 0b00101000; // Copy X and Y from IYH.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
         emulator.F = (byte)flags;
     }
@@ -5191,7 +5191,7 @@ public sealed unsafe partial class Z80Emulator
         // Reset N.
         int flags = emulator.IYH & 0b00101000; // Copy X and Y from IYH.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
         emulator.F = (byte)flags;
     }
@@ -5250,7 +5250,7 @@ public sealed unsafe partial class Z80Emulator
         // Reset N.
         int flags = emulator.IYH & 0b00101000; // Copy X and Y from IYH.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
         emulator.F = (byte)flags;
     }
@@ -5427,7 +5427,7 @@ public sealed unsafe partial class Z80Emulator
         // Reset N.
         int flags = emulator.IYH & 0b00101000; // Copy X and Y from IYH.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
-        flags |= Unsafe.BitCast<bool, byte>((result & 65536) == 65536); // Set C if (result & 65536) == 65536 is true.
+        flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
         emulator.F = (byte)flags;
     }
@@ -5648,7 +5648,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -5665,7 +5665,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -5682,7 +5682,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -5699,7 +5699,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -5716,7 +5716,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -5733,7 +5733,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -5750,7 +5750,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -5886,7 +5886,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -5903,7 +5903,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -5920,7 +5920,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -5937,7 +5937,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -5954,7 +5954,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -5971,7 +5971,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -5988,7 +5988,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -6124,7 +6124,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -6141,7 +6141,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -6158,7 +6158,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -6175,7 +6175,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -6192,7 +6192,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -6209,7 +6209,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -6226,7 +6226,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -6362,7 +6362,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -6379,7 +6379,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -6396,7 +6396,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -6413,7 +6413,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -6430,7 +6430,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -6447,7 +6447,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;
@@ -6464,7 +6464,7 @@ public sealed unsafe partial class Z80Emulator
         // Update flags.
         // Reset N and H.
         int flags = emulator.data & 0b10101000; // Copy flag.X, flag.Y and S from data.
-        flags |= Unsafe.BitCast<bool, byte>((temp & 0b10000000) == 0x80); // Set C if (temp & 0x80) == 0x80 is true.
+        flags |= ((temp) >> 7) & 1; // Set C if (temp & 0x80) == 0x80 is true.
         flags |= ((~BitOperations.PopCount(emulator.data) & 0b00000001)) << 2; // Set PV if even_parity(data) is true.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.data == 0)) << 6; // Set Z if is_zero(data) is true.
         emulator.F = (byte)flags;

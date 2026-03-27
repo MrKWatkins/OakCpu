@@ -12,6 +12,7 @@ internal abstract class FlagOptimization
     [
         new CombineConstants(),
         new CombineCopyFroms(),
+        new RewriteBoolBitTestsAsBitExtracts(),
         new CombineI32BoolShifts(),
         new RemoveUnnecessaryResets()
     ];
@@ -42,5 +43,5 @@ internal abstract class FlagOptimization<TAction> : FlagOptimization
     }
 
     [Pure]
-    protected abstract TAction Optimize(StatementGeneratorContext context, TAction action);
+    protected abstract FlagAction Optimize(StatementGeneratorContext context, TAction action);
 }
