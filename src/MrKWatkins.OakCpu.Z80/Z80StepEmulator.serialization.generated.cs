@@ -6,12 +6,13 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
+#nullable enable
 using System.IO;
 using System.Text;
 
 namespace MrKWatkins.OakCpu.Z80;
 
-public sealed unsafe partial class Z80Emulator
+public sealed unsafe partial class Z80StepEmulator
 {
     public void Serialize(Stream stream)
     {
@@ -86,9 +87,9 @@ public sealed unsafe partial class Z80Emulator
         writer.Write(Q);
     }
 
-    public static Z80Emulator Deserialize(Stream stream)
+    public static Z80StepEmulator Deserialize(Stream stream)
     {
-        var deserialized = new Z80Emulator();
+        var deserialized = new Z80StepEmulator();
         deserialized.Restore(stream);
         return deserialized;
     }

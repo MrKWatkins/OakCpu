@@ -6,6 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
+#nullable enable
 namespace MrKWatkins.OakCpu.Z80;
 
 public enum ActionRequired

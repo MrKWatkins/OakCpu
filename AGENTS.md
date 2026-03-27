@@ -39,9 +39,9 @@ update the code generator to produce the new files, and run the code generation 
 - **CodeGenerator** — Core code generation library (definitions parsing, AST, expression generation, optimizations)
 - **CodeGenerator.Console** — Console app that runs CodeGenerator and writes generated files to disk
 - **CodeGenerator.Tests** — Tests for the code generator
-- **Z80** — The emulator itself (`Z80Emulator` partial class, all code generated)
+- **Z80** — The emulator itself (`Z80Emulator` abstract base plus concrete `Z80StepEmulator` and `Z80InstructionEmulator`; generated code plus small handwritten runtime entrypoints)
 - **Z80.Tests** — Emulator tests using FUSE, ZEXALL, and other standard test suites. Some tests are marked explicit (long-running)
-- **Z80.Testing** — Test harness utilities (`Z80EmulatorTestHarness`)
+- **Z80.Testing** — Test harness utilities (`Z80StepEmulatorTestHarness`)
 - **Z80.Benchmarks** — BenchmarkDotNet performance tests — **never run in development**
 - **Z80.Disassemble** — JIT assembly analysis tool — **never run in development**
 

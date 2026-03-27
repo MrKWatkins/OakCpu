@@ -3,21 +3,21 @@ using System.Text;
 namespace MrKWatkins.OakCpu.Z80;
 
 /// <summary>
-/// Wraps a <see cref="Z80Emulator" /> and exposes the same public surface while applying ZX Spectrum contention to
+/// Wraps a <see cref="Z80StepEmulator" /> and exposes the same public surface while applying ZX Spectrum contention to
 /// <see cref="Step()" />.
 /// </summary>
-public sealed class ContendedZ80Emulator
+public sealed class ContendedZ80StepEmulator
 {
-    private readonly Z80Emulator emulator;
+    private readonly Z80StepEmulator emulator;
     private readonly Contention contention;
     private ActionRequired pendingActionRequired;
 
-    public ContendedZ80Emulator()
-        : this(new Z80Emulator())
+    public ContendedZ80StepEmulator()
+        : this(new Z80StepEmulator())
     {
     }
 
-    public ContendedZ80Emulator(Z80Emulator emulator, int tStatesInCurrentFrame = 0, bool earlyTimings = true)
+    public ContendedZ80StepEmulator(Z80StepEmulator emulator, int tStatesInCurrentFrame = 0, bool earlyTimings = true)
     {
         ArgumentNullException.ThrowIfNull(emulator);
         ArgumentOutOfRangeException.ThrowIfNegative(tStatesInCurrentFrame);
@@ -26,9 +26,9 @@ public sealed class ContendedZ80Emulator
         contention = new Contention(tStatesInCurrentFrame, earlyTimings);
     }
 
-    public const ushort IM0Start = Z80Emulator.IM0Start;
-    public const ushort IM1Start = Z80Emulator.IM1Start;
-    public const ushort IM2Start = Z80Emulator.IM2Start;
+    public const ushort IM0Start = Z80StepEmulator.IM0Start;
+    public const ushort IM1Start = Z80StepEmulator.IM1Start;
+    public const ushort IM2Start = Z80StepEmulator.IM2Start;
 
     public Z80Registers Registers => emulator.Registers;
 
@@ -124,11 +124,11 @@ public sealed class ContendedZ80Emulator
         emulator.Serialize(stream);
     }
 
-    public static ContendedZ80Emulator Deserialize(Stream stream)
+    public static ContendedZ80StepEmulator Deserialize(Stream stream)
     {
         using var reader = new BinaryReader(stream, Encoding.UTF8, true);
         var earlyTimings = reader.ReadBoolean();
-        var deserialized = new ContendedZ80Emulator(new Z80Emulator(), earlyTimings: earlyTimings);
+        var deserialized = new ContendedZ80StepEmulator(new Z80StepEmulator(), earlyTimings: earlyTimings);
         deserialized.Restore(stream, reader);
         return deserialized;
     }

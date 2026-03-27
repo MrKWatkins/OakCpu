@@ -7,6 +7,11 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public abstract class Generator
 {
     protected const string ActionRequiredEnumName = "ActionRequired";
+    protected const string InstructionActionCallbackParameterName = "onActionRequired";
+    protected const string InstructionIdleCallbackParameterName = "onIdle";
+    protected const string InstructionHandlersFieldName = "Instructions";
+    protected const string InstructionTStatesDeltaVariableName = "tStatesDelta";
+    protected const string TStatesParameterName = "tStates";
     protected const string StepStructName = "Step";
     protected const string OverlapsFieldName = "Overlaps";
     protected const string StepHandlerFieldName = "Handler";
@@ -16,6 +21,7 @@ public abstract class Generator
     protected const string EmulatorParameterName = "emulator";
     protected const string ActionRequiredParameterName = "actionRequired";
     protected const string ErrorMethodName = "Error";
+    protected const string CompleteInstructionMethodName = "CompleteInstruction";
     protected const string HandleInterruptsMethodName = "HandleInterrupts";
     protected const string ExecuteOverlapMethodName = "ExecuteOverlap";
     protected const string ExecuteStoredOverlapMethodName = "ExecuteStoredOverlap";

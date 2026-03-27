@@ -3,9 +3,9 @@ using MrKWatkins.OakCpu.Z80.Testing;
 namespace MrKWatkins.OakCpu.Z80.Tests;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
-public sealed class Z80EmulatorTests
+public sealed class Z80StepEmulatorTests
 {
-    static Z80EmulatorTests()
+    static Z80StepEmulatorTests()
     {
 #pragma warning disable CA1065
         if (!BitConverter.IsLittleEndian)
@@ -18,7 +18,7 @@ public sealed class Z80EmulatorTests
     [Test]
     public void AF()
     {
-        var emulator = new Z80Emulator();
+        var emulator = new Z80StepEmulator();
 
         emulator.A.Should().Equal(0x00);
         emulator.F.Should().Equal(0x00);
@@ -38,7 +38,7 @@ public sealed class Z80EmulatorTests
     [Test]
     public void Registers()
     {
-        var emulator = new Z80Emulator();
+        var emulator = new Z80StepEmulator();
 
         emulator.Registers.A.Should().Equal(0x00);
         emulator.Registers.F.Should().Equal(0x00);
@@ -61,7 +61,7 @@ public sealed class Z80EmulatorTests
     [Test]
     public void ShadowRegisters()
     {
-        var emulator = new Z80Emulator();
+        var emulator = new Z80StepEmulator();
 
         emulator.Registers.Shadow.AF.Should().Equal(0x0000);
 
@@ -73,7 +73,7 @@ public sealed class Z80EmulatorTests
     [Test]
     public void Flags()
     {
-        var emulator = new Z80Emulator();
+        var emulator = new Z80StepEmulator();
 
         emulator.Flags.X.Should().BeFalse();
         emulator.Flags.Y.Should().BeFalse();
@@ -102,7 +102,7 @@ public sealed class Z80EmulatorTests
     [Test]
     public void ExecuteInstruction_NoOverlappedRead()
     {
-        var z80 = new Z80EmulatorTestHarness();
+        var z80 = new Z80StepEmulatorTestHarness();
 
         // LD B, $42
         z80.WriteByteToMemory(0x0000, 0x06);
@@ -118,7 +118,7 @@ public sealed class Z80EmulatorTests
     [Test]
     public void ExecuteInstruction_OverlappedRead()
     {
-        var z80 = new Z80EmulatorTestHarness();
+        var z80 = new Z80StepEmulatorTestHarness();
 
         // INC B
         z80.WriteByteToMemory(0x0000, 0x04);
@@ -133,7 +133,7 @@ public sealed class Z80EmulatorTests
     [Test]
     public void ExecuteInstruction_Halt()
     {
-        var z80 = new Z80EmulatorTestHarness();
+        var z80 = new Z80StepEmulatorTestHarness();
 
         // HALT
         z80.WriteByteToMemory(0x0000, 0x76);

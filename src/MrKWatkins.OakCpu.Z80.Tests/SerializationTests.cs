@@ -28,15 +28,15 @@ public sealed class SerializationTests
         original.Serialize(stream);
         stream.Position = 0;
 
-        var copy = Z80Emulator.Deserialize(stream);
+        var copy = Z80StepEmulator.Deserialize(stream);
         AssertEqual(copy, original);
     }
 
     [Test]
     public void Serialization_includes_internal_state()
     {
-        var original = new Z80Emulator();
-        var originalHarness = new Z80EmulatorTestHarness(original);
+        var original = new Z80StepEmulator();
+        var originalHarness = new Z80StepEmulatorTestHarness(original);
 
         // IM 1.
         originalHarness.WriteByteToMemory(0x0000, 0xED);
@@ -50,8 +50,8 @@ public sealed class SerializationTests
         original.Serialize(stream);
         stream.Position = 0;
 
-        var copy = Z80Emulator.Deserialize(stream);
-        var copyHarness = new Z80EmulatorTestHarness(copy);
+        var copy = Z80StepEmulator.Deserialize(stream);
+        var copyHarness = new Z80StepEmulatorTestHarness(copy);
         copyHarness.WriteByteToMemory(0x0000, 0xED);
         copyHarness.WriteByteToMemory(0x0000, 0x56);
 
@@ -64,8 +64,8 @@ public sealed class SerializationTests
     [Test]
     public void Serialization_includes_pending_overlap_pipeline()
     {
-        var original = new Z80Emulator();
-        var originalHarness = new Z80EmulatorTestHarness(original);
+        var original = new Z80StepEmulator();
+        var originalHarness = new Z80StepEmulatorTestHarness(original);
         original.Registers.BC = 0x1234;
 
         originalHarness.WriteByteToMemory(0x0000, 0x04);
@@ -78,8 +78,8 @@ public sealed class SerializationTests
         original.Serialize(stream);
         stream.Position = 0;
 
-        var copy = Z80Emulator.Deserialize(stream);
-        var copyHarness = new Z80EmulatorTestHarness(copy);
+        var copy = Z80StepEmulator.Deserialize(stream);
+        var copyHarness = new Z80StepEmulatorTestHarness(copy);
         copyHarness.WriteByteToMemory(0x0000, 0x04);
         copyHarness.WriteByteToMemory(0x0001, 0x00);
 
@@ -92,21 +92,21 @@ public sealed class SerializationTests
     [Test]
     public void Contended_serialize_deserialize()
     {
-        var original = new ContendedZ80Emulator(new Z80Emulator(), tStatesInCurrentFrame: 14335);
+        var original = new ContendedZ80StepEmulator(new Z80StepEmulator(), tStatesInCurrentFrame: 14335);
         original.Registers.PC = 0x4000;
 
         using var stream = new MemoryStream();
         original.Serialize(stream);
         stream.Position = 0;
 
-        var copy = ContendedZ80Emulator.Deserialize(stream);
+        var copy = ContendedZ80StepEmulator.Deserialize(stream);
         copy.TStatesInCurrentFrame.Should().Equal(original.TStatesInCurrentFrame);
         copy.Registers.PC.Should().Equal(original.Registers.PC);
         copy.PendingDelay.Should().Equal(original.PendingDelay);
         copy.HasPendingAction.Should().Equal(original.HasPendingAction);
     }
 
-    private static void AssertEqual(Z80Emulator actual, Z80Emulator expected)
+    private static void AssertEqual(Z80StepEmulator actual, Z80StepEmulator expected)
     {
         actual.Address.Should().Equal(expected.Address);
         actual.Data.Should().Equal(expected.Data);
@@ -133,7 +133,7 @@ public sealed class SerializationTests
     }
 
     [Pure]
-    private static Z80Emulator CreateRandomEmulator() =>
+    private static Z80StepEmulator CreateRandomEmulator() =>
         new()
         {
             Data = Rng.NextByte(),

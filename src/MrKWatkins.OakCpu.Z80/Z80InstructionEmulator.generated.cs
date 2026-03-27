@@ -6,13 +6,14 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
+#nullable enable
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace MrKWatkins.OakCpu.Z80;
 
 [StructLayout(LayoutKind.Explicit)]
-public sealed unsafe partial class Z80Emulator
+public sealed unsafe partial class Z80InstructionEmulator
 {
     [FieldOffset(0)]
     internal ushort AF;
@@ -143,42 +144,15 @@ public sealed unsafe partial class Z80Emulator
     [FieldOffset(28)]
     internal byte Q;
 
-    public Z80Emulator()
+    public Z80InstructionEmulator()
     {
         opcodeStepTable = OpcodeStepTableNoPrefix;
-        Registers = new Z80Registers(this);
-        Flags = new Z80Flags(this);
-        Interrupts = new Z80Interrupts(this);
     }
 
-    [field: FieldOffset(32)]
-    public Z80Registers Registers
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-    }
-
-    [field: FieldOffset(40)]
-    public Z80Flags Flags
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-    }
-
-    [field: FieldOffset(48)]
-    public Z80Interrupts Interrupts
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-    }
-
-    [FieldOffset(56)]
+    [FieldOffset(32)]
     private ushort[] opcodeStepTable;
 
-    [FieldOffset(64)]
-    private delegate*<Z80Emulator, void> overlapPipeline;
-
-    [FieldOffset(72)]
+    [FieldOffset(40)]
     private ushort address;
 
     public ushort Address
@@ -187,28 +161,25 @@ public sealed unsafe partial class Z80Emulator
         get => address;
     }
 
-    [FieldOffset(74)]
-    private ushort currentStep;
-
-    [FieldOffset(76)]
+    [FieldOffset(42)]
     private byte latch;
 
-    [FieldOffset(77)]
+    [FieldOffset(43)]
     internal byte im;
 
-    [FieldOffset(78)]
+    [FieldOffset(44)]
     internal bool iff1;
 
-    [FieldOffset(79)]
+    [FieldOffset(45)]
     internal bool iff2;
 
-    [FieldOffset(80)]
+    [FieldOffset(46)]
     internal bool halted;
 
-    [FieldOffset(81)]
+    [FieldOffset(47)]
     internal bool interrupt;
 
-    [FieldOffset(82)]
+    [FieldOffset(48)]
     private byte data;
 
     public byte Data
@@ -218,4 +189,7 @@ public sealed unsafe partial class Z80Emulator
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         set => data = value;
     }
+
+    [FieldOffset(50)]
+    private ushort pendingInterruptStep;
 }

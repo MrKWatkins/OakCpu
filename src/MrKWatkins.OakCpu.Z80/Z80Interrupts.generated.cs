@@ -6,15 +6,16 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
+#nullable enable
 using System.Runtime.CompilerServices;
 
 namespace MrKWatkins.OakCpu.Z80;
 
 public sealed class Z80Interrupts
 {
-    private readonly Z80Emulator emulator;
+    private readonly Z80StepEmulator emulator;
 
-    internal Z80Interrupts(Z80Emulator emulator)
+    internal Z80Interrupts(Z80StepEmulator emulator)
     {
         this.emulator = emulator;
     }

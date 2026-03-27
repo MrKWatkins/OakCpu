@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 namespace MrKWatkins.OakCpu.Z80;
 
 /// <summary>
-/// Applies ZX Spectrum 48K ULA contention to a <see cref="Z80Emulator" />. Memory and I/O accesses to contended
+/// Applies ZX Spectrum 48K ULA contention to a <see cref="Z80StepEmulator" />. Memory and I/O accesses to contended
 /// addresses are delayed based on the current position in the frame. Frame-position tracking is advanced one external
 /// T-state at a time so wrappers can assert the INT line before any kind of wrapped step, including contention delay.
 /// </summary>

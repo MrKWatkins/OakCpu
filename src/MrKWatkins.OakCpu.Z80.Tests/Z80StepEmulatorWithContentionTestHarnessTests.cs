@@ -2,12 +2,12 @@ using MrKWatkins.OakCpu.Z80.Testing;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
 
-public sealed class Z80EmulatorWithContentionTestHarnessTests
+public sealed class Z80StepEmulatorWithContentionTestHarnessTests
 {
     [Test]
     public void Step_AdvancesOneTState_WhenContentionDelayIsPending()
     {
-        var z80 = new Z80EmulatorWithContentionTestHarness();
+        var z80 = new Z80StepEmulatorWithContentionTestHarness();
         z80.RegisterPC = 0x4000;
         z80.WriteByteToMemory(0x4000, 0x3E);
         z80.ResynchroniseFrame(14335);

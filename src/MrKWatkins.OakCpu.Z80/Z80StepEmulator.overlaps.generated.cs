@@ -6,12 +6,13 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
+#nullable enable
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace MrKWatkins.OakCpu.Z80;
 
-public sealed unsafe partial class Z80Emulator
+public sealed unsafe partial class Z80StepEmulator
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ExecuteOverlap()
@@ -21,7 +22,7 @@ public sealed unsafe partial class Z80Emulator
             return;
         }
 
-        delegate*<Z80Emulator, void> overlap = overlapPipeline;
+        delegate*<Z80StepEmulator, void> overlap = overlapPipeline;
         overlapPipeline = default;
         overlap(this);
     }
@@ -62,13 +63,13 @@ public sealed unsafe partial class Z80Emulator
     // Overlap 0x64: LD H, H [0]
     // Overlap 0x6D: LD L, L [0]
     // Overlap 0x7F: LD A, A [0]
-    private static void Overlap0(Z80Emulator emulator)
+    private static void Overlap0(Z80StepEmulator emulator)
     {
         emulator.Q = 0x00;
     }
 
     // Overlap 0x04: INC B [0]
-    private static void Overlap1(Z80Emulator emulator)
+    private static void Overlap1(Z80StepEmulator emulator)
     {
         emulator.B += 0x01;
 
@@ -85,7 +86,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x05: DEC B [0]
-    private static void Overlap2(Z80Emulator emulator)
+    private static void Overlap2(Z80StepEmulator emulator)
     {
         emulator.B -= 0x01;
 
@@ -102,7 +103,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x07: RLCA [0]
-    private static void Overlap3(Z80Emulator emulator)
+    private static void Overlap3(Z80StepEmulator emulator)
     {
         var temp = emulator.A;
         emulator.A = (byte)(emulator.A << 0x01 | emulator.A >> 0x07);
@@ -117,7 +118,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x08: EX AF; AF' [0]
-    private static void Overlap4(Z80Emulator emulator)
+    private static void Overlap4(Z80StepEmulator emulator)
     {
         var temp = emulator.Shadow_AF;
         emulator.Shadow_AF = emulator.AF;
@@ -126,7 +127,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x0C: INC C [0]
-    private static void Overlap5(Z80Emulator emulator)
+    private static void Overlap5(Z80StepEmulator emulator)
     {
         emulator.C += 0x01;
 
@@ -143,7 +144,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x0D: DEC C [0]
-    private static void Overlap6(Z80Emulator emulator)
+    private static void Overlap6(Z80StepEmulator emulator)
     {
         emulator.C -= 0x01;
 
@@ -160,7 +161,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x0F: RRCA [0]
-    private static void Overlap7(Z80Emulator emulator)
+    private static void Overlap7(Z80StepEmulator emulator)
     {
         var temp = emulator.A;
         emulator.A = (byte)(emulator.A >> 0x01 | emulator.A << 0x07);
@@ -175,7 +176,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x14: INC D [0]
-    private static void Overlap8(Z80Emulator emulator)
+    private static void Overlap8(Z80StepEmulator emulator)
     {
         emulator.D += 0x01;
 
@@ -192,7 +193,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x15: DEC D [0]
-    private static void Overlap9(Z80Emulator emulator)
+    private static void Overlap9(Z80StepEmulator emulator)
     {
         emulator.D -= 0x01;
 
@@ -209,7 +210,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x17: RLA [0]
-    private static void Overlap10(Z80Emulator emulator)
+    private static void Overlap10(Z80StepEmulator emulator)
     {
         var temp = emulator.A;
         emulator.A = (byte)(emulator.A << 0x01 | (emulator.F & 0b00000001 /* flag.C */));
@@ -224,7 +225,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x1C: INC E [0]
-    private static void Overlap11(Z80Emulator emulator)
+    private static void Overlap11(Z80StepEmulator emulator)
     {
         emulator.E += 0x01;
 
@@ -241,7 +242,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x1D: DEC E [0]
-    private static void Overlap12(Z80Emulator emulator)
+    private static void Overlap12(Z80StepEmulator emulator)
     {
         emulator.E -= 0x01;
 
@@ -258,7 +259,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x1F: RRA [0]
-    private static void Overlap13(Z80Emulator emulator)
+    private static void Overlap13(Z80StepEmulator emulator)
     {
         var temp = emulator.A;
         emulator.A = (byte)(emulator.A >> 0x01 | (emulator.F & 0b00000001 /* flag.C */) << 0x07);
@@ -273,7 +274,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x24: INC H [0]
-    private static void Overlap14(Z80Emulator emulator)
+    private static void Overlap14(Z80StepEmulator emulator)
     {
         emulator.H += 0x01;
 
@@ -290,7 +291,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x25: DEC H [0]
-    private static void Overlap15(Z80Emulator emulator)
+    private static void Overlap15(Z80StepEmulator emulator)
     {
         emulator.H -= 0x01;
 
@@ -307,7 +308,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x27: DAA [0]
-    private static void Overlap16(Z80Emulator emulator)
+    private static void Overlap16(Z80StepEmulator emulator)
     {
         var low_a = emulator.A & 0b00001111;
         var modifier = 0x00;
@@ -360,7 +361,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x2C: INC L [0]
-    private static void Overlap17(Z80Emulator emulator)
+    private static void Overlap17(Z80StepEmulator emulator)
     {
         emulator.L += 0x01;
 
@@ -377,7 +378,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x2D: DEC L [0]
-    private static void Overlap18(Z80Emulator emulator)
+    private static void Overlap18(Z80StepEmulator emulator)
     {
         emulator.L -= 0x01;
 
@@ -394,7 +395,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x2F: CPL [0]
-    private static void Overlap19(Z80Emulator emulator)
+    private static void Overlap19(Z80StepEmulator emulator)
     {
         emulator.A = (byte)~emulator.A;
 
@@ -407,7 +408,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x37: SCF [0]
-    private static void Overlap20(Z80Emulator emulator)
+    private static void Overlap20(Z80StepEmulator emulator)
     {
         var xy = emulator.Q ^ emulator.F | emulator.A;
 
@@ -420,7 +421,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x3C: INC A [0]
-    private static void Overlap21(Z80Emulator emulator)
+    private static void Overlap21(Z80StepEmulator emulator)
     {
         emulator.A += 0x01;
 
@@ -437,7 +438,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x3D: DEC A [0]
-    private static void Overlap22(Z80Emulator emulator)
+    private static void Overlap22(Z80StepEmulator emulator)
     {
         emulator.A -= 0x01;
 
@@ -454,7 +455,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x3F: CCF [0]
-    private static void Overlap23(Z80Emulator emulator)
+    private static void Overlap23(Z80StepEmulator emulator)
     {
         var xy = emulator.Q ^ emulator.F | emulator.A;
 
@@ -469,308 +470,308 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x41: LD B, C [0]
-    private static void Overlap24(Z80Emulator emulator)
+    private static void Overlap24(Z80StepEmulator emulator)
     {
         emulator.B = emulator.C;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x42: LD B, D [0]
-    private static void Overlap25(Z80Emulator emulator)
+    private static void Overlap25(Z80StepEmulator emulator)
     {
         emulator.B = emulator.D;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x43: LD B, E [0]
-    private static void Overlap26(Z80Emulator emulator)
+    private static void Overlap26(Z80StepEmulator emulator)
     {
         emulator.B = emulator.E;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x44: LD B, H [0]
-    private static void Overlap27(Z80Emulator emulator)
+    private static void Overlap27(Z80StepEmulator emulator)
     {
         emulator.B = emulator.H;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x45: LD B, L [0]
-    private static void Overlap28(Z80Emulator emulator)
+    private static void Overlap28(Z80StepEmulator emulator)
     {
         emulator.B = emulator.L;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x47: LD B, A [0]
-    private static void Overlap29(Z80Emulator emulator)
+    private static void Overlap29(Z80StepEmulator emulator)
     {
         emulator.B = emulator.A;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x48: LD C, B [0]
-    private static void Overlap30(Z80Emulator emulator)
+    private static void Overlap30(Z80StepEmulator emulator)
     {
         emulator.C = emulator.B;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x4A: LD C, D [0]
-    private static void Overlap31(Z80Emulator emulator)
+    private static void Overlap31(Z80StepEmulator emulator)
     {
         emulator.C = emulator.D;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x4B: LD C, E [0]
-    private static void Overlap32(Z80Emulator emulator)
+    private static void Overlap32(Z80StepEmulator emulator)
     {
         emulator.C = emulator.E;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x4C: LD C, H [0]
-    private static void Overlap33(Z80Emulator emulator)
+    private static void Overlap33(Z80StepEmulator emulator)
     {
         emulator.C = emulator.H;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x4D: LD C, L [0]
-    private static void Overlap34(Z80Emulator emulator)
+    private static void Overlap34(Z80StepEmulator emulator)
     {
         emulator.C = emulator.L;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x4F: LD C, A [0]
-    private static void Overlap35(Z80Emulator emulator)
+    private static void Overlap35(Z80StepEmulator emulator)
     {
         emulator.C = emulator.A;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x50: LD D, B [0]
-    private static void Overlap36(Z80Emulator emulator)
+    private static void Overlap36(Z80StepEmulator emulator)
     {
         emulator.D = emulator.B;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x51: LD D, C [0]
-    private static void Overlap37(Z80Emulator emulator)
+    private static void Overlap37(Z80StepEmulator emulator)
     {
         emulator.D = emulator.C;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x53: LD D, E [0]
-    private static void Overlap38(Z80Emulator emulator)
+    private static void Overlap38(Z80StepEmulator emulator)
     {
         emulator.D = emulator.E;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x54: LD D, H [0]
-    private static void Overlap39(Z80Emulator emulator)
+    private static void Overlap39(Z80StepEmulator emulator)
     {
         emulator.D = emulator.H;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x55: LD D, L [0]
-    private static void Overlap40(Z80Emulator emulator)
+    private static void Overlap40(Z80StepEmulator emulator)
     {
         emulator.D = emulator.L;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x57: LD D, A [0]
-    private static void Overlap41(Z80Emulator emulator)
+    private static void Overlap41(Z80StepEmulator emulator)
     {
         emulator.D = emulator.A;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x58: LD E, B [0]
-    private static void Overlap42(Z80Emulator emulator)
+    private static void Overlap42(Z80StepEmulator emulator)
     {
         emulator.E = emulator.B;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x59: LD E, C [0]
-    private static void Overlap43(Z80Emulator emulator)
+    private static void Overlap43(Z80StepEmulator emulator)
     {
         emulator.E = emulator.C;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x5A: LD E, D [0]
-    private static void Overlap44(Z80Emulator emulator)
+    private static void Overlap44(Z80StepEmulator emulator)
     {
         emulator.E = emulator.D;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x5C: LD E, H [0]
-    private static void Overlap45(Z80Emulator emulator)
+    private static void Overlap45(Z80StepEmulator emulator)
     {
         emulator.E = emulator.H;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x5D: LD E, L [0]
-    private static void Overlap46(Z80Emulator emulator)
+    private static void Overlap46(Z80StepEmulator emulator)
     {
         emulator.E = emulator.L;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x5F: LD E, A [0]
-    private static void Overlap47(Z80Emulator emulator)
+    private static void Overlap47(Z80StepEmulator emulator)
     {
         emulator.E = emulator.A;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x60: LD H, B [0]
-    private static void Overlap48(Z80Emulator emulator)
+    private static void Overlap48(Z80StepEmulator emulator)
     {
         emulator.H = emulator.B;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x61: LD H, C [0]
-    private static void Overlap49(Z80Emulator emulator)
+    private static void Overlap49(Z80StepEmulator emulator)
     {
         emulator.H = emulator.C;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x62: LD H, D [0]
-    private static void Overlap50(Z80Emulator emulator)
+    private static void Overlap50(Z80StepEmulator emulator)
     {
         emulator.H = emulator.D;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x63: LD H, E [0]
-    private static void Overlap51(Z80Emulator emulator)
+    private static void Overlap51(Z80StepEmulator emulator)
     {
         emulator.H = emulator.E;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x65: LD H, L [0]
-    private static void Overlap52(Z80Emulator emulator)
+    private static void Overlap52(Z80StepEmulator emulator)
     {
         emulator.H = emulator.L;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x67: LD H, A [0]
-    private static void Overlap53(Z80Emulator emulator)
+    private static void Overlap53(Z80StepEmulator emulator)
     {
         emulator.H = emulator.A;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x68: LD L, B [0]
-    private static void Overlap54(Z80Emulator emulator)
+    private static void Overlap54(Z80StepEmulator emulator)
     {
         emulator.L = emulator.B;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x69: LD L, C [0]
-    private static void Overlap55(Z80Emulator emulator)
+    private static void Overlap55(Z80StepEmulator emulator)
     {
         emulator.L = emulator.C;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x6A: LD L, D [0]
-    private static void Overlap56(Z80Emulator emulator)
+    private static void Overlap56(Z80StepEmulator emulator)
     {
         emulator.L = emulator.D;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x6B: LD L, E [0]
-    private static void Overlap57(Z80Emulator emulator)
+    private static void Overlap57(Z80StepEmulator emulator)
     {
         emulator.L = emulator.E;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x6C: LD L, H [0]
-    private static void Overlap58(Z80Emulator emulator)
+    private static void Overlap58(Z80StepEmulator emulator)
     {
         emulator.L = emulator.H;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x6F: LD L, A [0]
-    private static void Overlap59(Z80Emulator emulator)
+    private static void Overlap59(Z80StepEmulator emulator)
     {
         emulator.L = emulator.A;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x76: HALT [0]
-    private static void Overlap60(Z80Emulator emulator)
+    private static void Overlap60(Z80StepEmulator emulator)
     {
         emulator.halted = true;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x78: LD A, B [0]
-    private static void Overlap61(Z80Emulator emulator)
+    private static void Overlap61(Z80StepEmulator emulator)
     {
         emulator.A = emulator.B;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x79: LD A, C [0]
-    private static void Overlap62(Z80Emulator emulator)
+    private static void Overlap62(Z80StepEmulator emulator)
     {
         emulator.A = emulator.C;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x7A: LD A, D [0]
-    private static void Overlap63(Z80Emulator emulator)
+    private static void Overlap63(Z80StepEmulator emulator)
     {
         emulator.A = emulator.D;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x7B: LD A, E [0]
-    private static void Overlap64(Z80Emulator emulator)
+    private static void Overlap64(Z80StepEmulator emulator)
     {
         emulator.A = emulator.E;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x7C: LD A, H [0]
-    private static void Overlap65(Z80Emulator emulator)
+    private static void Overlap65(Z80StepEmulator emulator)
     {
         emulator.A = emulator.H;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x7D: LD A, L [0]
-    private static void Overlap66(Z80Emulator emulator)
+    private static void Overlap66(Z80StepEmulator emulator)
     {
         emulator.A = emulator.L;
         emulator.Q = 0x00;
     }
 
     // Overlap 0x80: ADD A, B [0]
-    private static void Overlap67(Z80Emulator emulator)
+    private static void Overlap67(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.B;
@@ -789,7 +790,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x81: ADD A, C [0]
-    private static void Overlap68(Z80Emulator emulator)
+    private static void Overlap68(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.C;
@@ -808,7 +809,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x82: ADD A, D [0]
-    private static void Overlap69(Z80Emulator emulator)
+    private static void Overlap69(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.D;
@@ -827,7 +828,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x83: ADD A, E [0]
-    private static void Overlap70(Z80Emulator emulator)
+    private static void Overlap70(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.E;
@@ -846,7 +847,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x84: ADD A, H [0]
-    private static void Overlap71(Z80Emulator emulator)
+    private static void Overlap71(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.H;
@@ -865,7 +866,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x85: ADD A, L [0]
-    private static void Overlap72(Z80Emulator emulator)
+    private static void Overlap72(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.L;
@@ -884,7 +885,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x87: ADD A, A [0]
-    private static void Overlap73(Z80Emulator emulator)
+    private static void Overlap73(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.A;
@@ -903,7 +904,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x88: ADC A, B [0]
-    private static void Overlap74(Z80Emulator emulator)
+    private static void Overlap74(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.B;
@@ -922,7 +923,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x89: ADC A, C [0]
-    private static void Overlap75(Z80Emulator emulator)
+    private static void Overlap75(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.C;
@@ -941,7 +942,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x8A: ADC A, D [0]
-    private static void Overlap76(Z80Emulator emulator)
+    private static void Overlap76(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.D;
@@ -960,7 +961,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x8B: ADC A, E [0]
-    private static void Overlap77(Z80Emulator emulator)
+    private static void Overlap77(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.E;
@@ -979,7 +980,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x8C: ADC A, H [0]
-    private static void Overlap78(Z80Emulator emulator)
+    private static void Overlap78(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.H;
@@ -998,7 +999,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x8D: ADC A, L [0]
-    private static void Overlap79(Z80Emulator emulator)
+    private static void Overlap79(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.L;
@@ -1017,7 +1018,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x8F: ADC A, A [0]
-    private static void Overlap80(Z80Emulator emulator)
+    private static void Overlap80(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.A;
@@ -1036,7 +1037,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x90: SUB B [0]
-    private static void Overlap81(Z80Emulator emulator)
+    private static void Overlap81(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.B;
@@ -1055,7 +1056,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x91: SUB C [0]
-    private static void Overlap82(Z80Emulator emulator)
+    private static void Overlap82(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.C;
@@ -1074,7 +1075,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x92: SUB D [0]
-    private static void Overlap83(Z80Emulator emulator)
+    private static void Overlap83(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.D;
@@ -1093,7 +1094,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x93: SUB E [0]
-    private static void Overlap84(Z80Emulator emulator)
+    private static void Overlap84(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.E;
@@ -1112,7 +1113,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x94: SUB H [0]
-    private static void Overlap85(Z80Emulator emulator)
+    private static void Overlap85(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.H;
@@ -1131,7 +1132,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x95: SUB L [0]
-    private static void Overlap86(Z80Emulator emulator)
+    private static void Overlap86(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.L;
@@ -1150,7 +1151,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x97: SUB A [0]
-    private static void Overlap87(Z80Emulator emulator)
+    private static void Overlap87(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.A;
@@ -1169,7 +1170,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x98: SBC B [0]
-    private static void Overlap88(Z80Emulator emulator)
+    private static void Overlap88(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.B;
@@ -1188,7 +1189,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x99: SBC C [0]
-    private static void Overlap89(Z80Emulator emulator)
+    private static void Overlap89(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.C;
@@ -1207,7 +1208,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x9A: SBC D [0]
-    private static void Overlap90(Z80Emulator emulator)
+    private static void Overlap90(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.D;
@@ -1226,7 +1227,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x9B: SBC E [0]
-    private static void Overlap91(Z80Emulator emulator)
+    private static void Overlap91(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.E;
@@ -1245,7 +1246,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x9C: SBC H [0]
-    private static void Overlap92(Z80Emulator emulator)
+    private static void Overlap92(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.H;
@@ -1264,7 +1265,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x9D: SBC L [0]
-    private static void Overlap93(Z80Emulator emulator)
+    private static void Overlap93(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.L;
@@ -1283,7 +1284,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0x9F: SBC A [0]
-    private static void Overlap94(Z80Emulator emulator)
+    private static void Overlap94(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.A;
@@ -1302,7 +1303,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xA0: AND B [0]
-    private static void Overlap95(Z80Emulator emulator)
+    private static void Overlap95(Z80StepEmulator emulator)
     {
         emulator.A &= emulator.B;
 
@@ -1316,7 +1317,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xA1: AND C [0]
-    private static void Overlap96(Z80Emulator emulator)
+    private static void Overlap96(Z80StepEmulator emulator)
     {
         emulator.A &= emulator.C;
 
@@ -1330,7 +1331,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xA2: AND D [0]
-    private static void Overlap97(Z80Emulator emulator)
+    private static void Overlap97(Z80StepEmulator emulator)
     {
         emulator.A &= emulator.D;
 
@@ -1344,7 +1345,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xA3: AND E [0]
-    private static void Overlap98(Z80Emulator emulator)
+    private static void Overlap98(Z80StepEmulator emulator)
     {
         emulator.A &= emulator.E;
 
@@ -1358,7 +1359,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xA4: AND H [0]
-    private static void Overlap99(Z80Emulator emulator)
+    private static void Overlap99(Z80StepEmulator emulator)
     {
         emulator.A &= emulator.H;
 
@@ -1372,7 +1373,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xA5: AND L [0]
-    private static void Overlap100(Z80Emulator emulator)
+    private static void Overlap100(Z80StepEmulator emulator)
     {
         emulator.A &= emulator.L;
 
@@ -1386,7 +1387,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xA7: AND A [0]
-    private static void Overlap101(Z80Emulator emulator)
+    private static void Overlap101(Z80StepEmulator emulator)
     {
         // Update flags.
         int flags = 0b00010000; // Set H. Reset C and N.
@@ -1398,7 +1399,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xA8: XOR B [0]
-    private static void Overlap102(Z80Emulator emulator)
+    private static void Overlap102(Z80StepEmulator emulator)
     {
         emulator.A ^= emulator.B;
 
@@ -1412,7 +1413,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xA9: XOR C [0]
-    private static void Overlap103(Z80Emulator emulator)
+    private static void Overlap103(Z80StepEmulator emulator)
     {
         emulator.A ^= emulator.C;
 
@@ -1426,7 +1427,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xAA: XOR D [0]
-    private static void Overlap104(Z80Emulator emulator)
+    private static void Overlap104(Z80StepEmulator emulator)
     {
         emulator.A ^= emulator.D;
 
@@ -1440,7 +1441,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xAB: XOR E [0]
-    private static void Overlap105(Z80Emulator emulator)
+    private static void Overlap105(Z80StepEmulator emulator)
     {
         emulator.A ^= emulator.E;
 
@@ -1454,7 +1455,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xAC: XOR H [0]
-    private static void Overlap106(Z80Emulator emulator)
+    private static void Overlap106(Z80StepEmulator emulator)
     {
         emulator.A ^= emulator.H;
 
@@ -1468,7 +1469,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xAD: XOR L [0]
-    private static void Overlap107(Z80Emulator emulator)
+    private static void Overlap107(Z80StepEmulator emulator)
     {
         emulator.A ^= emulator.L;
 
@@ -1482,7 +1483,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xAF: XOR A [0]
-    private static void Overlap108(Z80Emulator emulator)
+    private static void Overlap108(Z80StepEmulator emulator)
     {
         emulator.A = 0x00;
 
@@ -1496,7 +1497,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xB0: OR B [0]
-    private static void Overlap109(Z80Emulator emulator)
+    private static void Overlap109(Z80StepEmulator emulator)
     {
         emulator.A |= emulator.B;
 
@@ -1510,7 +1511,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xB1: OR C [0]
-    private static void Overlap110(Z80Emulator emulator)
+    private static void Overlap110(Z80StepEmulator emulator)
     {
         emulator.A |= emulator.C;
 
@@ -1524,7 +1525,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xB2: OR D [0]
-    private static void Overlap111(Z80Emulator emulator)
+    private static void Overlap111(Z80StepEmulator emulator)
     {
         emulator.A |= emulator.D;
 
@@ -1538,7 +1539,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xB3: OR E [0]
-    private static void Overlap112(Z80Emulator emulator)
+    private static void Overlap112(Z80StepEmulator emulator)
     {
         emulator.A |= emulator.E;
 
@@ -1552,7 +1553,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xB4: OR H [0]
-    private static void Overlap113(Z80Emulator emulator)
+    private static void Overlap113(Z80StepEmulator emulator)
     {
         emulator.A |= emulator.H;
 
@@ -1566,7 +1567,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xB5: OR L [0]
-    private static void Overlap114(Z80Emulator emulator)
+    private static void Overlap114(Z80StepEmulator emulator)
     {
         emulator.A |= emulator.L;
 
@@ -1580,7 +1581,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xB7: OR A [0]
-    private static void Overlap115(Z80Emulator emulator)
+    private static void Overlap115(Z80StepEmulator emulator)
     {
         // Update flags.
         // Reset flag.C, flag.N and H.
@@ -1592,7 +1593,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xB8: CP B [0]
-    private static void Overlap116(Z80Emulator emulator)
+    private static void Overlap116(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.B;
@@ -1611,7 +1612,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xB9: CP C [0]
-    private static void Overlap117(Z80Emulator emulator)
+    private static void Overlap117(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.C;
@@ -1630,7 +1631,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xBA: CP D [0]
-    private static void Overlap118(Z80Emulator emulator)
+    private static void Overlap118(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.D;
@@ -1649,7 +1650,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xBB: CP E [0]
-    private static void Overlap119(Z80Emulator emulator)
+    private static void Overlap119(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.E;
@@ -1668,7 +1669,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xBC: CP H [0]
-    private static void Overlap120(Z80Emulator emulator)
+    private static void Overlap120(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.H;
@@ -1687,7 +1688,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xBD: CP L [0]
-    private static void Overlap121(Z80Emulator emulator)
+    private static void Overlap121(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.L;
@@ -1706,7 +1707,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xBF: CP A [0]
-    private static void Overlap122(Z80Emulator emulator)
+    private static void Overlap122(Z80StepEmulator emulator)
     {
         var left = emulator.A;
         var right = emulator.A;
@@ -1725,7 +1726,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xD9: EXX [0]
-    private static void Overlap123(Z80Emulator emulator)
+    private static void Overlap123(Z80StepEmulator emulator)
     {
         var temp = emulator.Shadow_BC;
         emulator.Shadow_BC = emulator.BC;
@@ -1740,14 +1741,14 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xE9: JP HL [0]
-    private static void Overlap124(Z80Emulator emulator)
+    private static void Overlap124(Z80StepEmulator emulator)
     {
         emulator.PC = emulator.HL;
         emulator.Q = 0x00;
     }
 
     // Overlap 0xEB: EX DE; HL [0]
-    private static void Overlap125(Z80Emulator emulator)
+    private static void Overlap125(Z80StepEmulator emulator)
     {
         var temp = emulator.DE;
         emulator.DE = emulator.HL;
@@ -1756,7 +1757,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xF3: DI [0]
-    private static void Overlap126(Z80Emulator emulator)
+    private static void Overlap126(Z80StepEmulator emulator)
     {
         emulator.iff1 = false;
         emulator.iff2 = false;
@@ -1764,7 +1765,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x00: RLC B [0]
-    private static void Overlap127(Z80Emulator emulator)
+    private static void Overlap127(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.B;
@@ -1781,7 +1782,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x01: RLC C [0]
-    private static void Overlap128(Z80Emulator emulator)
+    private static void Overlap128(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.C;
@@ -1798,7 +1799,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x02: RLC D [0]
-    private static void Overlap129(Z80Emulator emulator)
+    private static void Overlap129(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.D;
@@ -1815,7 +1816,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x03: RLC E [0]
-    private static void Overlap130(Z80Emulator emulator)
+    private static void Overlap130(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.E;
@@ -1832,7 +1833,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x04: RLC H [0]
-    private static void Overlap131(Z80Emulator emulator)
+    private static void Overlap131(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.H;
@@ -1849,7 +1850,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x05: RLC L [0]
-    private static void Overlap132(Z80Emulator emulator)
+    private static void Overlap132(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.L;
@@ -1866,7 +1867,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x07: RLC A [0]
-    private static void Overlap133(Z80Emulator emulator)
+    private static void Overlap133(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.A;
@@ -1883,7 +1884,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x08: RRC B [0]
-    private static void Overlap134(Z80Emulator emulator)
+    private static void Overlap134(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.B;
@@ -1900,7 +1901,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x09: RRC C [0]
-    private static void Overlap135(Z80Emulator emulator)
+    private static void Overlap135(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.C;
@@ -1917,7 +1918,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x0A: RRC D [0]
-    private static void Overlap136(Z80Emulator emulator)
+    private static void Overlap136(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.D;
@@ -1934,7 +1935,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x0B: RRC E [0]
-    private static void Overlap137(Z80Emulator emulator)
+    private static void Overlap137(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.E;
@@ -1951,7 +1952,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x0C: RRC H [0]
-    private static void Overlap138(Z80Emulator emulator)
+    private static void Overlap138(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.H;
@@ -1968,7 +1969,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x0D: RRC L [0]
-    private static void Overlap139(Z80Emulator emulator)
+    private static void Overlap139(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.L;
@@ -1985,7 +1986,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x0F: RRC A [0]
-    private static void Overlap140(Z80Emulator emulator)
+    private static void Overlap140(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.A;
@@ -2002,7 +2003,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x10: RL B [0]
-    private static void Overlap141(Z80Emulator emulator)
+    private static void Overlap141(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.B;
@@ -2019,7 +2020,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x11: RL C [0]
-    private static void Overlap142(Z80Emulator emulator)
+    private static void Overlap142(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.C;
@@ -2036,7 +2037,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x12: RL D [0]
-    private static void Overlap143(Z80Emulator emulator)
+    private static void Overlap143(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.D;
@@ -2053,7 +2054,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x13: RL E [0]
-    private static void Overlap144(Z80Emulator emulator)
+    private static void Overlap144(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.E;
@@ -2070,7 +2071,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x14: RL H [0]
-    private static void Overlap145(Z80Emulator emulator)
+    private static void Overlap145(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.H;
@@ -2087,7 +2088,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x15: RL L [0]
-    private static void Overlap146(Z80Emulator emulator)
+    private static void Overlap146(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.L;
@@ -2104,7 +2105,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x17: RL A [0]
-    private static void Overlap147(Z80Emulator emulator)
+    private static void Overlap147(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.A;
@@ -2121,7 +2122,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x18: RR B [0]
-    private static void Overlap148(Z80Emulator emulator)
+    private static void Overlap148(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.B;
@@ -2138,7 +2139,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x19: RR C [0]
-    private static void Overlap149(Z80Emulator emulator)
+    private static void Overlap149(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.C;
@@ -2155,7 +2156,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x1A: RR D [0]
-    private static void Overlap150(Z80Emulator emulator)
+    private static void Overlap150(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.D;
@@ -2172,7 +2173,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x1B: RR E [0]
-    private static void Overlap151(Z80Emulator emulator)
+    private static void Overlap151(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.E;
@@ -2189,7 +2190,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x1C: RR H [0]
-    private static void Overlap152(Z80Emulator emulator)
+    private static void Overlap152(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.H;
@@ -2206,7 +2207,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x1D: RR L [0]
-    private static void Overlap153(Z80Emulator emulator)
+    private static void Overlap153(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.L;
@@ -2223,7 +2224,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x1F: RR A [0]
-    private static void Overlap154(Z80Emulator emulator)
+    private static void Overlap154(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.A;
@@ -2240,7 +2241,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x20: SLA B [0]
-    private static void Overlap155(Z80Emulator emulator)
+    private static void Overlap155(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.B;
@@ -2257,7 +2258,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x21: SLA C [0]
-    private static void Overlap156(Z80Emulator emulator)
+    private static void Overlap156(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.C;
@@ -2274,7 +2275,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x22: SLA D [0]
-    private static void Overlap157(Z80Emulator emulator)
+    private static void Overlap157(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.D;
@@ -2291,7 +2292,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x23: SLA E [0]
-    private static void Overlap158(Z80Emulator emulator)
+    private static void Overlap158(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.E;
@@ -2308,7 +2309,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x24: SLA H [0]
-    private static void Overlap159(Z80Emulator emulator)
+    private static void Overlap159(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.H;
@@ -2325,7 +2326,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x25: SLA L [0]
-    private static void Overlap160(Z80Emulator emulator)
+    private static void Overlap160(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.L;
@@ -2342,7 +2343,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x27: SLA A [0]
-    private static void Overlap161(Z80Emulator emulator)
+    private static void Overlap161(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.A;
@@ -2359,7 +2360,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x28: SRA B [0]
-    private static void Overlap162(Z80Emulator emulator)
+    private static void Overlap162(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.B;
@@ -2376,7 +2377,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x29: SRA C [0]
-    private static void Overlap163(Z80Emulator emulator)
+    private static void Overlap163(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.C;
@@ -2393,7 +2394,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x2A: SRA D [0]
-    private static void Overlap164(Z80Emulator emulator)
+    private static void Overlap164(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.D;
@@ -2410,7 +2411,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x2B: SRA E [0]
-    private static void Overlap165(Z80Emulator emulator)
+    private static void Overlap165(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.E;
@@ -2427,7 +2428,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x2C: SRA H [0]
-    private static void Overlap166(Z80Emulator emulator)
+    private static void Overlap166(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.H;
@@ -2444,7 +2445,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x2D: SRA L [0]
-    private static void Overlap167(Z80Emulator emulator)
+    private static void Overlap167(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.L;
@@ -2461,7 +2462,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x2F: SRA A [0]
-    private static void Overlap168(Z80Emulator emulator)
+    private static void Overlap168(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.A;
@@ -2478,7 +2479,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x30: SLL B [0]
-    private static void Overlap169(Z80Emulator emulator)
+    private static void Overlap169(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.B;
@@ -2495,7 +2496,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x31: SLL C [0]
-    private static void Overlap170(Z80Emulator emulator)
+    private static void Overlap170(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.C;
@@ -2512,7 +2513,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x32: SLL D [0]
-    private static void Overlap171(Z80Emulator emulator)
+    private static void Overlap171(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.D;
@@ -2529,7 +2530,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x33: SLL E [0]
-    private static void Overlap172(Z80Emulator emulator)
+    private static void Overlap172(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.E;
@@ -2546,7 +2547,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x34: SLL H [0]
-    private static void Overlap173(Z80Emulator emulator)
+    private static void Overlap173(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.H;
@@ -2563,7 +2564,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x35: SLL L [0]
-    private static void Overlap174(Z80Emulator emulator)
+    private static void Overlap174(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.L;
@@ -2580,7 +2581,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x37: SLL A [0]
-    private static void Overlap175(Z80Emulator emulator)
+    private static void Overlap175(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.A;
@@ -2597,7 +2598,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x38: SRL B [0]
-    private static void Overlap176(Z80Emulator emulator)
+    private static void Overlap176(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.B;
@@ -2614,7 +2615,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x39: SRL C [0]
-    private static void Overlap177(Z80Emulator emulator)
+    private static void Overlap177(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.C;
@@ -2631,7 +2632,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x3A: SRL D [0]
-    private static void Overlap178(Z80Emulator emulator)
+    private static void Overlap178(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.D;
@@ -2648,7 +2649,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x3B: SRL E [0]
-    private static void Overlap179(Z80Emulator emulator)
+    private static void Overlap179(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.E;
@@ -2665,7 +2666,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x3C: SRL H [0]
-    private static void Overlap180(Z80Emulator emulator)
+    private static void Overlap180(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.H;
@@ -2682,7 +2683,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x3D: SRL L [0]
-    private static void Overlap181(Z80Emulator emulator)
+    private static void Overlap181(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.L;
@@ -2699,7 +2700,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x3F: SRL A [0]
-    private static void Overlap182(Z80Emulator emulator)
+    private static void Overlap182(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.A;
@@ -2716,7 +2717,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x40: BIT 0x00, B [0]
-    private static void Overlap183(Z80Emulator emulator)
+    private static void Overlap183(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.B & 0b00000001;
@@ -2733,7 +2734,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x41: BIT 0x00, C [0]
-    private static void Overlap184(Z80Emulator emulator)
+    private static void Overlap184(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.C & 0b00000001;
@@ -2750,7 +2751,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x42: BIT 0x00, D [0]
-    private static void Overlap185(Z80Emulator emulator)
+    private static void Overlap185(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.D & 0b00000001;
@@ -2767,7 +2768,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x43: BIT 0x00, E [0]
-    private static void Overlap186(Z80Emulator emulator)
+    private static void Overlap186(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.E & 0b00000001;
@@ -2784,7 +2785,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x44: BIT 0x00, H [0]
-    private static void Overlap187(Z80Emulator emulator)
+    private static void Overlap187(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.H & 0b00000001;
@@ -2801,7 +2802,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x45: BIT 0x00, L [0]
-    private static void Overlap188(Z80Emulator emulator)
+    private static void Overlap188(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.L & 0b00000001;
@@ -2818,7 +2819,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x47: BIT 0x00, A [0]
-    private static void Overlap189(Z80Emulator emulator)
+    private static void Overlap189(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.A & 0b00000001;
@@ -2835,7 +2836,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x48: BIT 0x01, B [0]
-    private static void Overlap190(Z80Emulator emulator)
+    private static void Overlap190(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.B & 0b00000010;
@@ -2852,7 +2853,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x49: BIT 0x01, C [0]
-    private static void Overlap191(Z80Emulator emulator)
+    private static void Overlap191(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.C & 0b00000010;
@@ -2869,7 +2870,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x4A: BIT 0x01, D [0]
-    private static void Overlap192(Z80Emulator emulator)
+    private static void Overlap192(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.D & 0b00000010;
@@ -2886,7 +2887,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x4B: BIT 0x01, E [0]
-    private static void Overlap193(Z80Emulator emulator)
+    private static void Overlap193(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.E & 0b00000010;
@@ -2903,7 +2904,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x4C: BIT 0x01, H [0]
-    private static void Overlap194(Z80Emulator emulator)
+    private static void Overlap194(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.H & 0b00000010;
@@ -2920,7 +2921,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x4D: BIT 0x01, L [0]
-    private static void Overlap195(Z80Emulator emulator)
+    private static void Overlap195(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.L & 0b00000010;
@@ -2937,7 +2938,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x4F: BIT 0x01, A [0]
-    private static void Overlap196(Z80Emulator emulator)
+    private static void Overlap196(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.A & 0b00000010;
@@ -2954,7 +2955,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x50: BIT 0x02, B [0]
-    private static void Overlap197(Z80Emulator emulator)
+    private static void Overlap197(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.B & 0b00000100;
@@ -2971,7 +2972,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x51: BIT 0x02, C [0]
-    private static void Overlap198(Z80Emulator emulator)
+    private static void Overlap198(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.C & 0b00000100;
@@ -2988,7 +2989,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x52: BIT 0x02, D [0]
-    private static void Overlap199(Z80Emulator emulator)
+    private static void Overlap199(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.D & 0b00000100;
@@ -3005,7 +3006,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x53: BIT 0x02, E [0]
-    private static void Overlap200(Z80Emulator emulator)
+    private static void Overlap200(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.E & 0b00000100;
@@ -3022,7 +3023,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x54: BIT 0x02, H [0]
-    private static void Overlap201(Z80Emulator emulator)
+    private static void Overlap201(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.H & 0b00000100;
@@ -3039,7 +3040,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x55: BIT 0x02, L [0]
-    private static void Overlap202(Z80Emulator emulator)
+    private static void Overlap202(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.L & 0b00000100;
@@ -3056,7 +3057,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x57: BIT 0x02, A [0]
-    private static void Overlap203(Z80Emulator emulator)
+    private static void Overlap203(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.A & 0b00000100;
@@ -3073,7 +3074,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x58: BIT 0x03, B [0]
-    private static void Overlap204(Z80Emulator emulator)
+    private static void Overlap204(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.B & 0b00001000;
@@ -3090,7 +3091,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x59: BIT 0x03, C [0]
-    private static void Overlap205(Z80Emulator emulator)
+    private static void Overlap205(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.C & 0b00001000;
@@ -3107,7 +3108,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x5A: BIT 0x03, D [0]
-    private static void Overlap206(Z80Emulator emulator)
+    private static void Overlap206(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.D & 0b00001000;
@@ -3124,7 +3125,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x5B: BIT 0x03, E [0]
-    private static void Overlap207(Z80Emulator emulator)
+    private static void Overlap207(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.E & 0b00001000;
@@ -3141,7 +3142,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x5C: BIT 0x03, H [0]
-    private static void Overlap208(Z80Emulator emulator)
+    private static void Overlap208(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.H & 0b00001000;
@@ -3158,7 +3159,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x5D: BIT 0x03, L [0]
-    private static void Overlap209(Z80Emulator emulator)
+    private static void Overlap209(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.L & 0b00001000;
@@ -3175,7 +3176,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x5F: BIT 0x03, A [0]
-    private static void Overlap210(Z80Emulator emulator)
+    private static void Overlap210(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.A & 0b00001000;
@@ -3192,7 +3193,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x60: BIT 0x04, B [0]
-    private static void Overlap211(Z80Emulator emulator)
+    private static void Overlap211(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.B & 0b00010000;
@@ -3209,7 +3210,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x61: BIT 0x04, C [0]
-    private static void Overlap212(Z80Emulator emulator)
+    private static void Overlap212(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.C & 0b00010000;
@@ -3226,7 +3227,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x62: BIT 0x04, D [0]
-    private static void Overlap213(Z80Emulator emulator)
+    private static void Overlap213(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.D & 0b00010000;
@@ -3243,7 +3244,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x63: BIT 0x04, E [0]
-    private static void Overlap214(Z80Emulator emulator)
+    private static void Overlap214(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.E & 0b00010000;
@@ -3260,7 +3261,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x64: BIT 0x04, H [0]
-    private static void Overlap215(Z80Emulator emulator)
+    private static void Overlap215(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.H & 0b00010000;
@@ -3277,7 +3278,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x65: BIT 0x04, L [0]
-    private static void Overlap216(Z80Emulator emulator)
+    private static void Overlap216(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.L & 0b00010000;
@@ -3294,7 +3295,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x67: BIT 0x04, A [0]
-    private static void Overlap217(Z80Emulator emulator)
+    private static void Overlap217(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.A & 0b00010000;
@@ -3311,7 +3312,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x68: BIT 0x05, B [0]
-    private static void Overlap218(Z80Emulator emulator)
+    private static void Overlap218(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.B & 0b00100000;
@@ -3328,7 +3329,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x69: BIT 0x05, C [0]
-    private static void Overlap219(Z80Emulator emulator)
+    private static void Overlap219(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.C & 0b00100000;
@@ -3345,7 +3346,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x6A: BIT 0x05, D [0]
-    private static void Overlap220(Z80Emulator emulator)
+    private static void Overlap220(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.D & 0b00100000;
@@ -3362,7 +3363,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x6B: BIT 0x05, E [0]
-    private static void Overlap221(Z80Emulator emulator)
+    private static void Overlap221(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.E & 0b00100000;
@@ -3379,7 +3380,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x6C: BIT 0x05, H [0]
-    private static void Overlap222(Z80Emulator emulator)
+    private static void Overlap222(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.H & 0b00100000;
@@ -3396,7 +3397,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x6D: BIT 0x05, L [0]
-    private static void Overlap223(Z80Emulator emulator)
+    private static void Overlap223(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.L & 0b00100000;
@@ -3413,7 +3414,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x6F: BIT 0x05, A [0]
-    private static void Overlap224(Z80Emulator emulator)
+    private static void Overlap224(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.A & 0b00100000;
@@ -3430,7 +3431,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x70: BIT 0x06, B [0]
-    private static void Overlap225(Z80Emulator emulator)
+    private static void Overlap225(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.B & 0b01000000;
@@ -3447,7 +3448,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x71: BIT 0x06, C [0]
-    private static void Overlap226(Z80Emulator emulator)
+    private static void Overlap226(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.C & 0b01000000;
@@ -3464,7 +3465,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x72: BIT 0x06, D [0]
-    private static void Overlap227(Z80Emulator emulator)
+    private static void Overlap227(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.D & 0b01000000;
@@ -3481,7 +3482,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x73: BIT 0x06, E [0]
-    private static void Overlap228(Z80Emulator emulator)
+    private static void Overlap228(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.E & 0b01000000;
@@ -3498,7 +3499,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x74: BIT 0x06, H [0]
-    private static void Overlap229(Z80Emulator emulator)
+    private static void Overlap229(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.H & 0b01000000;
@@ -3515,7 +3516,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x75: BIT 0x06, L [0]
-    private static void Overlap230(Z80Emulator emulator)
+    private static void Overlap230(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.L & 0b01000000;
@@ -3532,7 +3533,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x77: BIT 0x06, A [0]
-    private static void Overlap231(Z80Emulator emulator)
+    private static void Overlap231(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.A & 0b01000000;
@@ -3549,7 +3550,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x78: BIT 0x07, B [0]
-    private static void Overlap232(Z80Emulator emulator)
+    private static void Overlap232(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.B & 0b10000000;
@@ -3566,7 +3567,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x79: BIT 0x07, C [0]
-    private static void Overlap233(Z80Emulator emulator)
+    private static void Overlap233(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.C & 0b10000000;
@@ -3583,7 +3584,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x7A: BIT 0x07, D [0]
-    private static void Overlap234(Z80Emulator emulator)
+    private static void Overlap234(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.D & 0b10000000;
@@ -3600,7 +3601,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x7B: BIT 0x07, E [0]
-    private static void Overlap235(Z80Emulator emulator)
+    private static void Overlap235(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.E & 0b10000000;
@@ -3617,7 +3618,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x7C: BIT 0x07, H [0]
-    private static void Overlap236(Z80Emulator emulator)
+    private static void Overlap236(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.H & 0b10000000;
@@ -3634,7 +3635,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x7D: BIT 0x07, L [0]
-    private static void Overlap237(Z80Emulator emulator)
+    private static void Overlap237(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.L & 0b10000000;
@@ -3651,7 +3652,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x7F: BIT 0x07, A [0]
-    private static void Overlap238(Z80Emulator emulator)
+    private static void Overlap238(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var comparison = emulator.A & 0b10000000;
@@ -3668,7 +3669,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x80: RES 0x00, B [0]
-    private static void Overlap239(Z80Emulator emulator)
+    private static void Overlap239(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B &= 0xFE;
@@ -3676,7 +3677,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x81: RES 0x00, C [0]
-    private static void Overlap240(Z80Emulator emulator)
+    private static void Overlap240(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C &= 0xFE;
@@ -3684,7 +3685,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x82: RES 0x00, D [0]
-    private static void Overlap241(Z80Emulator emulator)
+    private static void Overlap241(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D &= 0xFE;
@@ -3692,7 +3693,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x83: RES 0x00, E [0]
-    private static void Overlap242(Z80Emulator emulator)
+    private static void Overlap242(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E &= 0xFE;
@@ -3700,7 +3701,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x84: RES 0x00, H [0]
-    private static void Overlap243(Z80Emulator emulator)
+    private static void Overlap243(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.H &= 0xFE;
@@ -3708,7 +3709,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x85: RES 0x00, L [0]
-    private static void Overlap244(Z80Emulator emulator)
+    private static void Overlap244(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.L &= 0xFE;
@@ -3716,7 +3717,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x87: RES 0x00, A [0]
-    private static void Overlap245(Z80Emulator emulator)
+    private static void Overlap245(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A &= 0xFE;
@@ -3724,7 +3725,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x88: RES 0x01, B [0]
-    private static void Overlap246(Z80Emulator emulator)
+    private static void Overlap246(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B &= 0xFD;
@@ -3732,7 +3733,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x89: RES 0x01, C [0]
-    private static void Overlap247(Z80Emulator emulator)
+    private static void Overlap247(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C &= 0xFD;
@@ -3740,7 +3741,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x8A: RES 0x01, D [0]
-    private static void Overlap248(Z80Emulator emulator)
+    private static void Overlap248(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D &= 0xFD;
@@ -3748,7 +3749,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x8B: RES 0x01, E [0]
-    private static void Overlap249(Z80Emulator emulator)
+    private static void Overlap249(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E &= 0xFD;
@@ -3756,7 +3757,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x8C: RES 0x01, H [0]
-    private static void Overlap250(Z80Emulator emulator)
+    private static void Overlap250(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.H &= 0xFD;
@@ -3764,7 +3765,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x8D: RES 0x01, L [0]
-    private static void Overlap251(Z80Emulator emulator)
+    private static void Overlap251(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.L &= 0xFD;
@@ -3772,7 +3773,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x8F: RES 0x01, A [0]
-    private static void Overlap252(Z80Emulator emulator)
+    private static void Overlap252(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A &= 0xFD;
@@ -3780,7 +3781,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x90: RES 0x02, B [0]
-    private static void Overlap253(Z80Emulator emulator)
+    private static void Overlap253(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B &= 0xFB;
@@ -3788,7 +3789,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x91: RES 0x02, C [0]
-    private static void Overlap254(Z80Emulator emulator)
+    private static void Overlap254(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C &= 0xFB;
@@ -3796,7 +3797,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x92: RES 0x02, D [0]
-    private static void Overlap255(Z80Emulator emulator)
+    private static void Overlap255(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D &= 0xFB;
@@ -3804,7 +3805,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x93: RES 0x02, E [0]
-    private static void Overlap256(Z80Emulator emulator)
+    private static void Overlap256(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E &= 0xFB;
@@ -3812,7 +3813,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x94: RES 0x02, H [0]
-    private static void Overlap257(Z80Emulator emulator)
+    private static void Overlap257(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.H &= 0xFB;
@@ -3820,7 +3821,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x95: RES 0x02, L [0]
-    private static void Overlap258(Z80Emulator emulator)
+    private static void Overlap258(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.L &= 0xFB;
@@ -3828,7 +3829,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x97: RES 0x02, A [0]
-    private static void Overlap259(Z80Emulator emulator)
+    private static void Overlap259(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A &= 0xFB;
@@ -3836,7 +3837,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x98: RES 0x03, B [0]
-    private static void Overlap260(Z80Emulator emulator)
+    private static void Overlap260(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B &= 0xF7;
@@ -3844,7 +3845,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x99: RES 0x03, C [0]
-    private static void Overlap261(Z80Emulator emulator)
+    private static void Overlap261(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C &= 0xF7;
@@ -3852,7 +3853,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x9A: RES 0x03, D [0]
-    private static void Overlap262(Z80Emulator emulator)
+    private static void Overlap262(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D &= 0xF7;
@@ -3860,7 +3861,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x9B: RES 0x03, E [0]
-    private static void Overlap263(Z80Emulator emulator)
+    private static void Overlap263(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E &= 0xF7;
@@ -3868,7 +3869,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x9C: RES 0x03, H [0]
-    private static void Overlap264(Z80Emulator emulator)
+    private static void Overlap264(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.H &= 0xF7;
@@ -3876,7 +3877,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x9D: RES 0x03, L [0]
-    private static void Overlap265(Z80Emulator emulator)
+    private static void Overlap265(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.L &= 0xF7;
@@ -3884,7 +3885,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0x9F: RES 0x03, A [0]
-    private static void Overlap266(Z80Emulator emulator)
+    private static void Overlap266(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A &= 0xF7;
@@ -3892,7 +3893,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xA0: RES 0x04, B [0]
-    private static void Overlap267(Z80Emulator emulator)
+    private static void Overlap267(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B &= 0xEF;
@@ -3900,7 +3901,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xA1: RES 0x04, C [0]
-    private static void Overlap268(Z80Emulator emulator)
+    private static void Overlap268(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C &= 0xEF;
@@ -3908,7 +3909,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xA2: RES 0x04, D [0]
-    private static void Overlap269(Z80Emulator emulator)
+    private static void Overlap269(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D &= 0xEF;
@@ -3916,7 +3917,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xA3: RES 0x04, E [0]
-    private static void Overlap270(Z80Emulator emulator)
+    private static void Overlap270(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E &= 0xEF;
@@ -3924,7 +3925,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xA4: RES 0x04, H [0]
-    private static void Overlap271(Z80Emulator emulator)
+    private static void Overlap271(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.H &= 0xEF;
@@ -3932,7 +3933,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xA5: RES 0x04, L [0]
-    private static void Overlap272(Z80Emulator emulator)
+    private static void Overlap272(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.L &= 0xEF;
@@ -3940,7 +3941,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xA7: RES 0x04, A [0]
-    private static void Overlap273(Z80Emulator emulator)
+    private static void Overlap273(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A &= 0xEF;
@@ -3948,7 +3949,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xA8: RES 0x05, B [0]
-    private static void Overlap274(Z80Emulator emulator)
+    private static void Overlap274(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B &= 0xDF;
@@ -3956,7 +3957,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xA9: RES 0x05, C [0]
-    private static void Overlap275(Z80Emulator emulator)
+    private static void Overlap275(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C &= 0xDF;
@@ -3964,7 +3965,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xAA: RES 0x05, D [0]
-    private static void Overlap276(Z80Emulator emulator)
+    private static void Overlap276(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D &= 0xDF;
@@ -3972,7 +3973,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xAB: RES 0x05, E [0]
-    private static void Overlap277(Z80Emulator emulator)
+    private static void Overlap277(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E &= 0xDF;
@@ -3980,7 +3981,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xAC: RES 0x05, H [0]
-    private static void Overlap278(Z80Emulator emulator)
+    private static void Overlap278(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.H &= 0xDF;
@@ -3988,7 +3989,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xAD: RES 0x05, L [0]
-    private static void Overlap279(Z80Emulator emulator)
+    private static void Overlap279(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.L &= 0xDF;
@@ -3996,7 +3997,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xAF: RES 0x05, A [0]
-    private static void Overlap280(Z80Emulator emulator)
+    private static void Overlap280(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A &= 0xDF;
@@ -4004,7 +4005,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xB0: RES 0x06, B [0]
-    private static void Overlap281(Z80Emulator emulator)
+    private static void Overlap281(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B &= 0xBF;
@@ -4012,7 +4013,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xB1: RES 0x06, C [0]
-    private static void Overlap282(Z80Emulator emulator)
+    private static void Overlap282(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C &= 0xBF;
@@ -4020,7 +4021,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xB2: RES 0x06, D [0]
-    private static void Overlap283(Z80Emulator emulator)
+    private static void Overlap283(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D &= 0xBF;
@@ -4028,7 +4029,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xB3: RES 0x06, E [0]
-    private static void Overlap284(Z80Emulator emulator)
+    private static void Overlap284(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E &= 0xBF;
@@ -4036,7 +4037,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xB4: RES 0x06, H [0]
-    private static void Overlap285(Z80Emulator emulator)
+    private static void Overlap285(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.H &= 0xBF;
@@ -4044,7 +4045,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xB5: RES 0x06, L [0]
-    private static void Overlap286(Z80Emulator emulator)
+    private static void Overlap286(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.L &= 0xBF;
@@ -4052,7 +4053,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xB7: RES 0x06, A [0]
-    private static void Overlap287(Z80Emulator emulator)
+    private static void Overlap287(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A &= 0xBF;
@@ -4060,7 +4061,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xB8: RES 0x07, B [0]
-    private static void Overlap288(Z80Emulator emulator)
+    private static void Overlap288(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B &= 0x7F;
@@ -4068,7 +4069,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xB9: RES 0x07, C [0]
-    private static void Overlap289(Z80Emulator emulator)
+    private static void Overlap289(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C &= 0x7F;
@@ -4076,7 +4077,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xBA: RES 0x07, D [0]
-    private static void Overlap290(Z80Emulator emulator)
+    private static void Overlap290(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D &= 0x7F;
@@ -4084,7 +4085,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xBB: RES 0x07, E [0]
-    private static void Overlap291(Z80Emulator emulator)
+    private static void Overlap291(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E &= 0x7F;
@@ -4092,7 +4093,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xBC: RES 0x07, H [0]
-    private static void Overlap292(Z80Emulator emulator)
+    private static void Overlap292(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.H &= 0x7F;
@@ -4100,7 +4101,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xBD: RES 0x07, L [0]
-    private static void Overlap293(Z80Emulator emulator)
+    private static void Overlap293(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.L &= 0x7F;
@@ -4108,7 +4109,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xBF: RES 0x07, A [0]
-    private static void Overlap294(Z80Emulator emulator)
+    private static void Overlap294(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A &= 0x7F;
@@ -4116,7 +4117,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xC0: SET 0x00, B [0]
-    private static void Overlap295(Z80Emulator emulator)
+    private static void Overlap295(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B |= 0x01;
@@ -4124,7 +4125,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xC1: SET 0x00, C [0]
-    private static void Overlap296(Z80Emulator emulator)
+    private static void Overlap296(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C |= 0x01;
@@ -4132,7 +4133,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xC2: SET 0x00, D [0]
-    private static void Overlap297(Z80Emulator emulator)
+    private static void Overlap297(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D |= 0x01;
@@ -4140,7 +4141,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xC3: SET 0x00, E [0]
-    private static void Overlap298(Z80Emulator emulator)
+    private static void Overlap298(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E |= 0x01;
@@ -4148,7 +4149,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xC4: SET 0x00, H [0]
-    private static void Overlap299(Z80Emulator emulator)
+    private static void Overlap299(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.H |= 0x01;
@@ -4156,7 +4157,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xC5: SET 0x00, L [0]
-    private static void Overlap300(Z80Emulator emulator)
+    private static void Overlap300(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.L |= 0x01;
@@ -4164,7 +4165,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xC7: SET 0x00, A [0]
-    private static void Overlap301(Z80Emulator emulator)
+    private static void Overlap301(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A |= 0x01;
@@ -4172,7 +4173,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xC8: SET 0x01, B [0]
-    private static void Overlap302(Z80Emulator emulator)
+    private static void Overlap302(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B |= 0x02;
@@ -4180,7 +4181,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xC9: SET 0x01, C [0]
-    private static void Overlap303(Z80Emulator emulator)
+    private static void Overlap303(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C |= 0x02;
@@ -4188,7 +4189,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xCA: SET 0x01, D [0]
-    private static void Overlap304(Z80Emulator emulator)
+    private static void Overlap304(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D |= 0x02;
@@ -4196,7 +4197,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xCB: SET 0x01, E [0]
-    private static void Overlap305(Z80Emulator emulator)
+    private static void Overlap305(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E |= 0x02;
@@ -4204,7 +4205,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xCC: SET 0x01, H [0]
-    private static void Overlap306(Z80Emulator emulator)
+    private static void Overlap306(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.H |= 0x02;
@@ -4212,7 +4213,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xCD: SET 0x01, L [0]
-    private static void Overlap307(Z80Emulator emulator)
+    private static void Overlap307(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.L |= 0x02;
@@ -4220,7 +4221,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xCF: SET 0x01, A [0]
-    private static void Overlap308(Z80Emulator emulator)
+    private static void Overlap308(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A |= 0x02;
@@ -4228,7 +4229,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xD0: SET 0x02, B [0]
-    private static void Overlap309(Z80Emulator emulator)
+    private static void Overlap309(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B |= 0x04;
@@ -4236,7 +4237,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xD1: SET 0x02, C [0]
-    private static void Overlap310(Z80Emulator emulator)
+    private static void Overlap310(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C |= 0x04;
@@ -4244,7 +4245,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xD2: SET 0x02, D [0]
-    private static void Overlap311(Z80Emulator emulator)
+    private static void Overlap311(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D |= 0x04;
@@ -4252,7 +4253,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xD3: SET 0x02, E [0]
-    private static void Overlap312(Z80Emulator emulator)
+    private static void Overlap312(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E |= 0x04;
@@ -4260,7 +4261,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xD4: SET 0x02, H [0]
-    private static void Overlap313(Z80Emulator emulator)
+    private static void Overlap313(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.H |= 0x04;
@@ -4268,7 +4269,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xD5: SET 0x02, L [0]
-    private static void Overlap314(Z80Emulator emulator)
+    private static void Overlap314(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.L |= 0x04;
@@ -4276,7 +4277,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xD7: SET 0x02, A [0]
-    private static void Overlap315(Z80Emulator emulator)
+    private static void Overlap315(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A |= 0x04;
@@ -4284,7 +4285,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xD8: SET 0x03, B [0]
-    private static void Overlap316(Z80Emulator emulator)
+    private static void Overlap316(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B |= 0x08;
@@ -4292,7 +4293,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xD9: SET 0x03, C [0]
-    private static void Overlap317(Z80Emulator emulator)
+    private static void Overlap317(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C |= 0x08;
@@ -4300,7 +4301,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xDA: SET 0x03, D [0]
-    private static void Overlap318(Z80Emulator emulator)
+    private static void Overlap318(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D |= 0x08;
@@ -4308,7 +4309,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xDB: SET 0x03, E [0]
-    private static void Overlap319(Z80Emulator emulator)
+    private static void Overlap319(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E |= 0x08;
@@ -4316,7 +4317,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xDC: SET 0x03, H [0]
-    private static void Overlap320(Z80Emulator emulator)
+    private static void Overlap320(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.H |= 0x08;
@@ -4324,7 +4325,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xDD: SET 0x03, L [0]
-    private static void Overlap321(Z80Emulator emulator)
+    private static void Overlap321(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.L |= 0x08;
@@ -4332,7 +4333,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xDF: SET 0x03, A [0]
-    private static void Overlap322(Z80Emulator emulator)
+    private static void Overlap322(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A |= 0x08;
@@ -4340,7 +4341,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xE0: SET 0x04, B [0]
-    private static void Overlap323(Z80Emulator emulator)
+    private static void Overlap323(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B |= 0x10;
@@ -4348,7 +4349,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xE1: SET 0x04, C [0]
-    private static void Overlap324(Z80Emulator emulator)
+    private static void Overlap324(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C |= 0x10;
@@ -4356,7 +4357,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xE2: SET 0x04, D [0]
-    private static void Overlap325(Z80Emulator emulator)
+    private static void Overlap325(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D |= 0x10;
@@ -4364,7 +4365,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xE3: SET 0x04, E [0]
-    private static void Overlap326(Z80Emulator emulator)
+    private static void Overlap326(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E |= 0x10;
@@ -4372,7 +4373,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xE4: SET 0x04, H [0]
-    private static void Overlap327(Z80Emulator emulator)
+    private static void Overlap327(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.H |= 0x10;
@@ -4380,7 +4381,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xE5: SET 0x04, L [0]
-    private static void Overlap328(Z80Emulator emulator)
+    private static void Overlap328(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.L |= 0x10;
@@ -4388,7 +4389,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xE7: SET 0x04, A [0]
-    private static void Overlap329(Z80Emulator emulator)
+    private static void Overlap329(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A |= 0x10;
@@ -4396,7 +4397,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xE8: SET 0x05, B [0]
-    private static void Overlap330(Z80Emulator emulator)
+    private static void Overlap330(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B |= 0x20;
@@ -4404,7 +4405,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xE9: SET 0x05, C [0]
-    private static void Overlap331(Z80Emulator emulator)
+    private static void Overlap331(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C |= 0x20;
@@ -4412,7 +4413,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xEA: SET 0x05, D [0]
-    private static void Overlap332(Z80Emulator emulator)
+    private static void Overlap332(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D |= 0x20;
@@ -4420,7 +4421,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xEB: SET 0x05, E [0]
-    private static void Overlap333(Z80Emulator emulator)
+    private static void Overlap333(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E |= 0x20;
@@ -4428,7 +4429,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xEC: SET 0x05, H [0]
-    private static void Overlap334(Z80Emulator emulator)
+    private static void Overlap334(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.H |= 0x20;
@@ -4436,7 +4437,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xED: SET 0x05, L [0]
-    private static void Overlap335(Z80Emulator emulator)
+    private static void Overlap335(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.L |= 0x20;
@@ -4444,7 +4445,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xEF: SET 0x05, A [0]
-    private static void Overlap336(Z80Emulator emulator)
+    private static void Overlap336(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A |= 0x20;
@@ -4452,7 +4453,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xF0: SET 0x06, B [0]
-    private static void Overlap337(Z80Emulator emulator)
+    private static void Overlap337(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B |= 0x40;
@@ -4460,7 +4461,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xF1: SET 0x06, C [0]
-    private static void Overlap338(Z80Emulator emulator)
+    private static void Overlap338(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C |= 0x40;
@@ -4468,7 +4469,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xF2: SET 0x06, D [0]
-    private static void Overlap339(Z80Emulator emulator)
+    private static void Overlap339(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D |= 0x40;
@@ -4476,7 +4477,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xF3: SET 0x06, E [0]
-    private static void Overlap340(Z80Emulator emulator)
+    private static void Overlap340(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E |= 0x40;
@@ -4484,7 +4485,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xF4: SET 0x06, H [0]
-    private static void Overlap341(Z80Emulator emulator)
+    private static void Overlap341(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.H |= 0x40;
@@ -4492,7 +4493,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xF5: SET 0x06, L [0]
-    private static void Overlap342(Z80Emulator emulator)
+    private static void Overlap342(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.L |= 0x40;
@@ -4500,7 +4501,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xF7: SET 0x06, A [0]
-    private static void Overlap343(Z80Emulator emulator)
+    private static void Overlap343(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A |= 0x40;
@@ -4508,7 +4509,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xF8: SET 0x07, B [0]
-    private static void Overlap344(Z80Emulator emulator)
+    private static void Overlap344(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B |= 0x80;
@@ -4516,7 +4517,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xF9: SET 0x07, C [0]
-    private static void Overlap345(Z80Emulator emulator)
+    private static void Overlap345(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C |= 0x80;
@@ -4524,7 +4525,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xFA: SET 0x07, D [0]
-    private static void Overlap346(Z80Emulator emulator)
+    private static void Overlap346(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D |= 0x80;
@@ -4532,7 +4533,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xFB: SET 0x07, E [0]
-    private static void Overlap347(Z80Emulator emulator)
+    private static void Overlap347(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E |= 0x80;
@@ -4540,7 +4541,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xFC: SET 0x07, H [0]
-    private static void Overlap348(Z80Emulator emulator)
+    private static void Overlap348(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.H |= 0x80;
@@ -4548,7 +4549,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xFD: SET 0x07, L [0]
-    private static void Overlap349(Z80Emulator emulator)
+    private static void Overlap349(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.L |= 0x80;
@@ -4556,7 +4557,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xCB 0xFF: SET 0x07, A [0]
-    private static void Overlap350(Z80Emulator emulator)
+    private static void Overlap350(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A |= 0x80;
@@ -4573,14 +4574,14 @@ public sealed unsafe partial class Z80Emulator
     // Overlap 0xDD 0x7F: LD A, A [0]
     // Overlap 0xFD 0x64: LD IYH, IYH [0]
     // Overlap 0xFD 0x6D: LD IYL, IYL [0]
-    private static void Overlap351(Z80Emulator emulator)
+    private static void Overlap351(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.Q = 0x00;
     }
 
     // Overlap 0xDD 0x04: INC B [0]
-    private static void Overlap352(Z80Emulator emulator)
+    private static void Overlap352(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B += 0x01;
@@ -4598,7 +4599,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x05: DEC B [0]
-    private static void Overlap353(Z80Emulator emulator)
+    private static void Overlap353(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B -= 0x01;
@@ -4616,7 +4617,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x07: RLCA [0]
-    private static void Overlap354(Z80Emulator emulator)
+    private static void Overlap354(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.A;
@@ -4632,7 +4633,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x08: EX AF; AF' [0]
-    private static void Overlap355(Z80Emulator emulator)
+    private static void Overlap355(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.Shadow_AF;
@@ -4642,7 +4643,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x0C: INC C [0]
-    private static void Overlap356(Z80Emulator emulator)
+    private static void Overlap356(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C += 0x01;
@@ -4660,7 +4661,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x0D: DEC C [0]
-    private static void Overlap357(Z80Emulator emulator)
+    private static void Overlap357(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C -= 0x01;
@@ -4678,7 +4679,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x0F: RRCA [0]
-    private static void Overlap358(Z80Emulator emulator)
+    private static void Overlap358(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.A;
@@ -4694,7 +4695,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x14: INC D [0]
-    private static void Overlap359(Z80Emulator emulator)
+    private static void Overlap359(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D += 0x01;
@@ -4712,7 +4713,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x15: DEC D [0]
-    private static void Overlap360(Z80Emulator emulator)
+    private static void Overlap360(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D -= 0x01;
@@ -4730,7 +4731,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x17: RLA [0]
-    private static void Overlap361(Z80Emulator emulator)
+    private static void Overlap361(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.A;
@@ -4746,7 +4747,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x1C: INC E [0]
-    private static void Overlap362(Z80Emulator emulator)
+    private static void Overlap362(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E += 0x01;
@@ -4764,7 +4765,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x1D: DEC E [0]
-    private static void Overlap363(Z80Emulator emulator)
+    private static void Overlap363(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E -= 0x01;
@@ -4782,7 +4783,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x1F: RRA [0]
-    private static void Overlap364(Z80Emulator emulator)
+    private static void Overlap364(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.A;
@@ -4798,7 +4799,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x24: INC IXH [0]
-    private static void Overlap365(Z80Emulator emulator)
+    private static void Overlap365(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IXH += 0x01;
@@ -4816,7 +4817,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x25: DEC IXH [0]
-    private static void Overlap366(Z80Emulator emulator)
+    private static void Overlap366(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IXH -= 0x01;
@@ -4834,7 +4835,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x27: DAA [0]
-    private static void Overlap367(Z80Emulator emulator)
+    private static void Overlap367(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var low_a = emulator.A & 0b00001111;
@@ -4888,7 +4889,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x2C: INC IXL [0]
-    private static void Overlap368(Z80Emulator emulator)
+    private static void Overlap368(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IXL += 0x01;
@@ -4906,7 +4907,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x2D: DEC IXL [0]
-    private static void Overlap369(Z80Emulator emulator)
+    private static void Overlap369(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IXL -= 0x01;
@@ -4924,7 +4925,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x2F: CPL [0]
-    private static void Overlap370(Z80Emulator emulator)
+    private static void Overlap370(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A = (byte)~emulator.A;
@@ -4938,7 +4939,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x37: SCF [0]
-    private static void Overlap371(Z80Emulator emulator)
+    private static void Overlap371(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var xy = emulator.Q ^ emulator.F | emulator.A;
@@ -4952,7 +4953,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x3C: INC A [0]
-    private static void Overlap372(Z80Emulator emulator)
+    private static void Overlap372(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A += 0x01;
@@ -4970,7 +4971,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x3D: DEC A [0]
-    private static void Overlap373(Z80Emulator emulator)
+    private static void Overlap373(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A -= 0x01;
@@ -4988,7 +4989,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x3F: CCF [0]
-    private static void Overlap374(Z80Emulator emulator)
+    private static void Overlap374(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var xy = emulator.Q ^ emulator.F | emulator.A;
@@ -5004,7 +5005,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x41: LD B, C [0]
-    private static void Overlap375(Z80Emulator emulator)
+    private static void Overlap375(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B = emulator.C;
@@ -5012,7 +5013,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x42: LD B, D [0]
-    private static void Overlap376(Z80Emulator emulator)
+    private static void Overlap376(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B = emulator.D;
@@ -5020,7 +5021,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x43: LD B, E [0]
-    private static void Overlap377(Z80Emulator emulator)
+    private static void Overlap377(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B = emulator.E;
@@ -5028,7 +5029,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x44: LD B, IXH [0]
-    private static void Overlap378(Z80Emulator emulator)
+    private static void Overlap378(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B = emulator.IXH;
@@ -5036,7 +5037,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x45: LD B, IXL [0]
-    private static void Overlap379(Z80Emulator emulator)
+    private static void Overlap379(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B = emulator.IXL;
@@ -5044,7 +5045,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x47: LD B, A [0]
-    private static void Overlap380(Z80Emulator emulator)
+    private static void Overlap380(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B = emulator.A;
@@ -5052,7 +5053,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x48: LD C, B [0]
-    private static void Overlap381(Z80Emulator emulator)
+    private static void Overlap381(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C = emulator.B;
@@ -5060,7 +5061,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x4A: LD C, D [0]
-    private static void Overlap382(Z80Emulator emulator)
+    private static void Overlap382(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C = emulator.D;
@@ -5068,7 +5069,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x4B: LD C, E [0]
-    private static void Overlap383(Z80Emulator emulator)
+    private static void Overlap383(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C = emulator.E;
@@ -5076,7 +5077,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x4C: LD C, IXH [0]
-    private static void Overlap384(Z80Emulator emulator)
+    private static void Overlap384(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C = emulator.IXH;
@@ -5084,7 +5085,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x4D: LD C, IXL [0]
-    private static void Overlap385(Z80Emulator emulator)
+    private static void Overlap385(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C = emulator.IXL;
@@ -5092,7 +5093,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x4F: LD C, A [0]
-    private static void Overlap386(Z80Emulator emulator)
+    private static void Overlap386(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C = emulator.A;
@@ -5100,7 +5101,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x50: LD D, B [0]
-    private static void Overlap387(Z80Emulator emulator)
+    private static void Overlap387(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D = emulator.B;
@@ -5108,7 +5109,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x51: LD D, C [0]
-    private static void Overlap388(Z80Emulator emulator)
+    private static void Overlap388(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D = emulator.C;
@@ -5116,7 +5117,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x53: LD D, E [0]
-    private static void Overlap389(Z80Emulator emulator)
+    private static void Overlap389(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D = emulator.E;
@@ -5124,7 +5125,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x54: LD D, IXH [0]
-    private static void Overlap390(Z80Emulator emulator)
+    private static void Overlap390(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D = emulator.IXH;
@@ -5132,7 +5133,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x55: LD D, IXL [0]
-    private static void Overlap391(Z80Emulator emulator)
+    private static void Overlap391(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D = emulator.IXL;
@@ -5140,7 +5141,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x57: LD D, A [0]
-    private static void Overlap392(Z80Emulator emulator)
+    private static void Overlap392(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D = emulator.A;
@@ -5148,7 +5149,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x58: LD E, B [0]
-    private static void Overlap393(Z80Emulator emulator)
+    private static void Overlap393(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E = emulator.B;
@@ -5156,7 +5157,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x59: LD E, C [0]
-    private static void Overlap394(Z80Emulator emulator)
+    private static void Overlap394(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E = emulator.C;
@@ -5164,7 +5165,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x5A: LD E, D [0]
-    private static void Overlap395(Z80Emulator emulator)
+    private static void Overlap395(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E = emulator.D;
@@ -5172,7 +5173,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x5C: LD E, IXH [0]
-    private static void Overlap396(Z80Emulator emulator)
+    private static void Overlap396(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E = emulator.IXH;
@@ -5180,7 +5181,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x5D: LD E, IXL [0]
-    private static void Overlap397(Z80Emulator emulator)
+    private static void Overlap397(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E = emulator.IXL;
@@ -5188,7 +5189,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x5F: LD E, A [0]
-    private static void Overlap398(Z80Emulator emulator)
+    private static void Overlap398(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E = emulator.A;
@@ -5196,7 +5197,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x60: LD IXH, B [0]
-    private static void Overlap399(Z80Emulator emulator)
+    private static void Overlap399(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IXH = emulator.B;
@@ -5204,7 +5205,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x61: LD IXH, C [0]
-    private static void Overlap400(Z80Emulator emulator)
+    private static void Overlap400(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IXH = emulator.C;
@@ -5212,7 +5213,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x62: LD IXH, D [0]
-    private static void Overlap401(Z80Emulator emulator)
+    private static void Overlap401(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IXH = emulator.D;
@@ -5220,7 +5221,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x63: LD IXH, E [0]
-    private static void Overlap402(Z80Emulator emulator)
+    private static void Overlap402(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IXH = emulator.E;
@@ -5228,7 +5229,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x65: LD IXH, IXL [0]
-    private static void Overlap403(Z80Emulator emulator)
+    private static void Overlap403(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IXH = emulator.IXL;
@@ -5236,7 +5237,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x67: LD IXH, A [0]
-    private static void Overlap404(Z80Emulator emulator)
+    private static void Overlap404(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IXH = emulator.A;
@@ -5244,7 +5245,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x68: LD IXL, B [0]
-    private static void Overlap405(Z80Emulator emulator)
+    private static void Overlap405(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IXL = emulator.B;
@@ -5252,7 +5253,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x69: LD IXL, C [0]
-    private static void Overlap406(Z80Emulator emulator)
+    private static void Overlap406(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IXL = emulator.C;
@@ -5260,7 +5261,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x6A: LD IXL, D [0]
-    private static void Overlap407(Z80Emulator emulator)
+    private static void Overlap407(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IXL = emulator.D;
@@ -5268,7 +5269,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x6B: LD IXL, E [0]
-    private static void Overlap408(Z80Emulator emulator)
+    private static void Overlap408(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IXL = emulator.E;
@@ -5276,7 +5277,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x6C: LD IXL, IXH [0]
-    private static void Overlap409(Z80Emulator emulator)
+    private static void Overlap409(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IXL = emulator.IXH;
@@ -5284,7 +5285,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x6F: LD IXL, A [0]
-    private static void Overlap410(Z80Emulator emulator)
+    private static void Overlap410(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IXL = emulator.A;
@@ -5292,7 +5293,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x76: HALT [0]
-    private static void Overlap411(Z80Emulator emulator)
+    private static void Overlap411(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.halted = true;
@@ -5300,7 +5301,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x78: LD A, B [0]
-    private static void Overlap412(Z80Emulator emulator)
+    private static void Overlap412(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A = emulator.B;
@@ -5308,7 +5309,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x79: LD A, C [0]
-    private static void Overlap413(Z80Emulator emulator)
+    private static void Overlap413(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A = emulator.C;
@@ -5316,7 +5317,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x7A: LD A, D [0]
-    private static void Overlap414(Z80Emulator emulator)
+    private static void Overlap414(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A = emulator.D;
@@ -5324,7 +5325,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x7B: LD A, E [0]
-    private static void Overlap415(Z80Emulator emulator)
+    private static void Overlap415(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A = emulator.E;
@@ -5332,7 +5333,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x7C: LD A, IXH [0]
-    private static void Overlap416(Z80Emulator emulator)
+    private static void Overlap416(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A = emulator.IXH;
@@ -5340,7 +5341,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x7D: LD A, IXL [0]
-    private static void Overlap417(Z80Emulator emulator)
+    private static void Overlap417(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A = emulator.IXL;
@@ -5348,7 +5349,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x80: ADD A, B [0]
-    private static void Overlap418(Z80Emulator emulator)
+    private static void Overlap418(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5368,7 +5369,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x81: ADD A, C [0]
-    private static void Overlap419(Z80Emulator emulator)
+    private static void Overlap419(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5388,7 +5389,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x82: ADD A, D [0]
-    private static void Overlap420(Z80Emulator emulator)
+    private static void Overlap420(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5408,7 +5409,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x83: ADD A, E [0]
-    private static void Overlap421(Z80Emulator emulator)
+    private static void Overlap421(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5428,7 +5429,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x84: ADD A, IXH [0]
-    private static void Overlap422(Z80Emulator emulator)
+    private static void Overlap422(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5448,7 +5449,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x85: ADD A, IXL [0]
-    private static void Overlap423(Z80Emulator emulator)
+    private static void Overlap423(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5468,7 +5469,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x87: ADD A, A [0]
-    private static void Overlap424(Z80Emulator emulator)
+    private static void Overlap424(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5488,7 +5489,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x88: ADC A, B [0]
-    private static void Overlap425(Z80Emulator emulator)
+    private static void Overlap425(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5508,7 +5509,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x89: ADC A, C [0]
-    private static void Overlap426(Z80Emulator emulator)
+    private static void Overlap426(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5528,7 +5529,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x8A: ADC A, D [0]
-    private static void Overlap427(Z80Emulator emulator)
+    private static void Overlap427(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5548,7 +5549,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x8B: ADC A, E [0]
-    private static void Overlap428(Z80Emulator emulator)
+    private static void Overlap428(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5568,7 +5569,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x8C: ADC A, IXH [0]
-    private static void Overlap429(Z80Emulator emulator)
+    private static void Overlap429(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5588,7 +5589,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x8D: ADC A, IXL [0]
-    private static void Overlap430(Z80Emulator emulator)
+    private static void Overlap430(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5608,7 +5609,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x8F: ADC A, A [0]
-    private static void Overlap431(Z80Emulator emulator)
+    private static void Overlap431(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5628,7 +5629,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x90: SUB B [0]
-    private static void Overlap432(Z80Emulator emulator)
+    private static void Overlap432(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5648,7 +5649,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x91: SUB C [0]
-    private static void Overlap433(Z80Emulator emulator)
+    private static void Overlap433(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5668,7 +5669,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x92: SUB D [0]
-    private static void Overlap434(Z80Emulator emulator)
+    private static void Overlap434(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5688,7 +5689,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x93: SUB E [0]
-    private static void Overlap435(Z80Emulator emulator)
+    private static void Overlap435(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5708,7 +5709,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x94: SUB IXH [0]
-    private static void Overlap436(Z80Emulator emulator)
+    private static void Overlap436(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5728,7 +5729,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x95: SUB IXL [0]
-    private static void Overlap437(Z80Emulator emulator)
+    private static void Overlap437(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5748,7 +5749,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x97: SUB A [0]
-    private static void Overlap438(Z80Emulator emulator)
+    private static void Overlap438(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5768,7 +5769,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x98: SBC B [0]
-    private static void Overlap439(Z80Emulator emulator)
+    private static void Overlap439(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5788,7 +5789,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x99: SBC C [0]
-    private static void Overlap440(Z80Emulator emulator)
+    private static void Overlap440(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5808,7 +5809,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x9A: SBC D [0]
-    private static void Overlap441(Z80Emulator emulator)
+    private static void Overlap441(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5828,7 +5829,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x9B: SBC E [0]
-    private static void Overlap442(Z80Emulator emulator)
+    private static void Overlap442(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5848,7 +5849,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x9C: SBC IXH [0]
-    private static void Overlap443(Z80Emulator emulator)
+    private static void Overlap443(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5868,7 +5869,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x9D: SBC IXL [0]
-    private static void Overlap444(Z80Emulator emulator)
+    private static void Overlap444(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5888,7 +5889,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0x9F: SBC A [0]
-    private static void Overlap445(Z80Emulator emulator)
+    private static void Overlap445(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -5908,7 +5909,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xA0: AND B [0]
-    private static void Overlap446(Z80Emulator emulator)
+    private static void Overlap446(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A &= emulator.B;
@@ -5923,7 +5924,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xA1: AND C [0]
-    private static void Overlap447(Z80Emulator emulator)
+    private static void Overlap447(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A &= emulator.C;
@@ -5938,7 +5939,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xA2: AND D [0]
-    private static void Overlap448(Z80Emulator emulator)
+    private static void Overlap448(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A &= emulator.D;
@@ -5953,7 +5954,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xA3: AND E [0]
-    private static void Overlap449(Z80Emulator emulator)
+    private static void Overlap449(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A &= emulator.E;
@@ -5968,7 +5969,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xA4: AND IXH [0]
-    private static void Overlap450(Z80Emulator emulator)
+    private static void Overlap450(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A &= emulator.IXH;
@@ -5983,7 +5984,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xA5: AND IXL [0]
-    private static void Overlap451(Z80Emulator emulator)
+    private static void Overlap451(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A &= emulator.IXL;
@@ -5998,7 +5999,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xA7: AND A [0]
-    private static void Overlap452(Z80Emulator emulator)
+    private static void Overlap452(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
 
@@ -6012,7 +6013,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xA8: XOR B [0]
-    private static void Overlap453(Z80Emulator emulator)
+    private static void Overlap453(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A ^= emulator.B;
@@ -6027,7 +6028,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xA9: XOR C [0]
-    private static void Overlap454(Z80Emulator emulator)
+    private static void Overlap454(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A ^= emulator.C;
@@ -6042,7 +6043,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xAA: XOR D [0]
-    private static void Overlap455(Z80Emulator emulator)
+    private static void Overlap455(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A ^= emulator.D;
@@ -6057,7 +6058,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xAB: XOR E [0]
-    private static void Overlap456(Z80Emulator emulator)
+    private static void Overlap456(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A ^= emulator.E;
@@ -6072,7 +6073,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xAC: XOR IXH [0]
-    private static void Overlap457(Z80Emulator emulator)
+    private static void Overlap457(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A ^= emulator.IXH;
@@ -6087,7 +6088,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xAD: XOR IXL [0]
-    private static void Overlap458(Z80Emulator emulator)
+    private static void Overlap458(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A ^= emulator.IXL;
@@ -6102,7 +6103,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xAF: XOR A [0]
-    private static void Overlap459(Z80Emulator emulator)
+    private static void Overlap459(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A = 0x00;
@@ -6117,7 +6118,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xB0: OR B [0]
-    private static void Overlap460(Z80Emulator emulator)
+    private static void Overlap460(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A |= emulator.B;
@@ -6132,7 +6133,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xB1: OR C [0]
-    private static void Overlap461(Z80Emulator emulator)
+    private static void Overlap461(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A |= emulator.C;
@@ -6147,7 +6148,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xB2: OR D [0]
-    private static void Overlap462(Z80Emulator emulator)
+    private static void Overlap462(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A |= emulator.D;
@@ -6162,7 +6163,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xB3: OR E [0]
-    private static void Overlap463(Z80Emulator emulator)
+    private static void Overlap463(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A |= emulator.E;
@@ -6177,7 +6178,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xB4: OR IXH [0]
-    private static void Overlap464(Z80Emulator emulator)
+    private static void Overlap464(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A |= emulator.IXH;
@@ -6192,7 +6193,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xB5: OR IXL [0]
-    private static void Overlap465(Z80Emulator emulator)
+    private static void Overlap465(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A |= emulator.IXL;
@@ -6207,7 +6208,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xB7: OR A [0]
-    private static void Overlap466(Z80Emulator emulator)
+    private static void Overlap466(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
 
@@ -6221,7 +6222,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xB8: CP B [0]
-    private static void Overlap467(Z80Emulator emulator)
+    private static void Overlap467(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -6241,7 +6242,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xB9: CP C [0]
-    private static void Overlap468(Z80Emulator emulator)
+    private static void Overlap468(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -6261,7 +6262,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xBA: CP D [0]
-    private static void Overlap469(Z80Emulator emulator)
+    private static void Overlap469(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -6281,7 +6282,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xBB: CP E [0]
-    private static void Overlap470(Z80Emulator emulator)
+    private static void Overlap470(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -6301,7 +6302,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xBC: CP IXH [0]
-    private static void Overlap471(Z80Emulator emulator)
+    private static void Overlap471(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -6321,7 +6322,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xBD: CP IXL [0]
-    private static void Overlap472(Z80Emulator emulator)
+    private static void Overlap472(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -6341,7 +6342,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xBF: CP A [0]
-    private static void Overlap473(Z80Emulator emulator)
+    private static void Overlap473(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -6361,7 +6362,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xD9: EXX [0]
-    private static void Overlap474(Z80Emulator emulator)
+    private static void Overlap474(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.Shadow_BC;
@@ -6377,7 +6378,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xE9: JP IX [0]
-    private static void Overlap475(Z80Emulator emulator)
+    private static void Overlap475(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.PC = emulator.IX;
@@ -6385,7 +6386,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xEB: EX DE; HL [0]
-    private static void Overlap476(Z80Emulator emulator)
+    private static void Overlap476(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var temp = emulator.DE;
@@ -6396,7 +6397,7 @@ public sealed unsafe partial class Z80Emulator
 
     // Overlap 0xDD 0xED: DDED Redirect [0]
     // Overlap 0xFD 0xED: FDED Redirect [0]
-    private static void Overlap477(Z80Emulator emulator)
+    private static void Overlap477(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.opcodeStepTable = OpcodeStepTablePrefixED;
@@ -6404,7 +6405,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xF3: DI [0]
-    private static void Overlap478(Z80Emulator emulator)
+    private static void Overlap478(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.iff1 = false;
@@ -6413,7 +6414,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xDD 0xFD: DDFD Redirect [0]
-    private static void Overlap479(Z80Emulator emulator)
+    private static void Overlap479(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.opcodeStepTable = OpcodeStepTablePrefixFD;
@@ -6421,7 +6422,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xED 0x44: NEG [0]
-    private static void Overlap480(Z80Emulator emulator)
+    private static void Overlap480(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var value = emulator.A;
@@ -6439,7 +6440,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xED 0x46: IM 0 [0]
-    private static void Overlap481(Z80Emulator emulator)
+    private static void Overlap481(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.im = 0x00;
@@ -6447,7 +6448,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xED 0x56: IM 1 [0]
-    private static void Overlap482(Z80Emulator emulator)
+    private static void Overlap482(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.im = 0x01;
@@ -6455,7 +6456,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xED 0x5E: IM 2 [0]
-    private static void Overlap483(Z80Emulator emulator)
+    private static void Overlap483(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.im = 0x02;
@@ -6463,7 +6464,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x24: INC IYH [0]
-    private static void Overlap484(Z80Emulator emulator)
+    private static void Overlap484(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IYH += 0x01;
@@ -6481,7 +6482,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x25: DEC IYH [0]
-    private static void Overlap485(Z80Emulator emulator)
+    private static void Overlap485(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IYH -= 0x01;
@@ -6499,7 +6500,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x2C: INC IYL [0]
-    private static void Overlap486(Z80Emulator emulator)
+    private static void Overlap486(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IYL += 0x01;
@@ -6517,7 +6518,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x2D: DEC IYL [0]
-    private static void Overlap487(Z80Emulator emulator)
+    private static void Overlap487(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IYL -= 0x01;
@@ -6535,7 +6536,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x44: LD B, IYH [0]
-    private static void Overlap488(Z80Emulator emulator)
+    private static void Overlap488(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B = emulator.IYH;
@@ -6543,7 +6544,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x45: LD B, IYL [0]
-    private static void Overlap489(Z80Emulator emulator)
+    private static void Overlap489(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.B = emulator.IYL;
@@ -6551,7 +6552,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x4C: LD C, IYH [0]
-    private static void Overlap490(Z80Emulator emulator)
+    private static void Overlap490(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C = emulator.IYH;
@@ -6559,7 +6560,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x4D: LD C, IYL [0]
-    private static void Overlap491(Z80Emulator emulator)
+    private static void Overlap491(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.C = emulator.IYL;
@@ -6567,7 +6568,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x54: LD D, IYH [0]
-    private static void Overlap492(Z80Emulator emulator)
+    private static void Overlap492(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D = emulator.IYH;
@@ -6575,7 +6576,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x55: LD D, IYL [0]
-    private static void Overlap493(Z80Emulator emulator)
+    private static void Overlap493(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.D = emulator.IYL;
@@ -6583,7 +6584,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x5C: LD E, IYH [0]
-    private static void Overlap494(Z80Emulator emulator)
+    private static void Overlap494(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E = emulator.IYH;
@@ -6591,7 +6592,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x5D: LD E, IYL [0]
-    private static void Overlap495(Z80Emulator emulator)
+    private static void Overlap495(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.E = emulator.IYL;
@@ -6599,7 +6600,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x60: LD IYH, B [0]
-    private static void Overlap496(Z80Emulator emulator)
+    private static void Overlap496(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IYH = emulator.B;
@@ -6607,7 +6608,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x61: LD IYH, C [0]
-    private static void Overlap497(Z80Emulator emulator)
+    private static void Overlap497(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IYH = emulator.C;
@@ -6615,7 +6616,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x62: LD IYH, D [0]
-    private static void Overlap498(Z80Emulator emulator)
+    private static void Overlap498(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IYH = emulator.D;
@@ -6623,7 +6624,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x63: LD IYH, E [0]
-    private static void Overlap499(Z80Emulator emulator)
+    private static void Overlap499(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IYH = emulator.E;
@@ -6631,7 +6632,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x65: LD IYH, IYL [0]
-    private static void Overlap500(Z80Emulator emulator)
+    private static void Overlap500(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IYH = emulator.IYL;
@@ -6639,7 +6640,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x67: LD IYH, A [0]
-    private static void Overlap501(Z80Emulator emulator)
+    private static void Overlap501(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IYH = emulator.A;
@@ -6647,7 +6648,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x68: LD IYL, B [0]
-    private static void Overlap502(Z80Emulator emulator)
+    private static void Overlap502(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IYL = emulator.B;
@@ -6655,7 +6656,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x69: LD IYL, C [0]
-    private static void Overlap503(Z80Emulator emulator)
+    private static void Overlap503(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IYL = emulator.C;
@@ -6663,7 +6664,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x6A: LD IYL, D [0]
-    private static void Overlap504(Z80Emulator emulator)
+    private static void Overlap504(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IYL = emulator.D;
@@ -6671,7 +6672,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x6B: LD IYL, E [0]
-    private static void Overlap505(Z80Emulator emulator)
+    private static void Overlap505(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IYL = emulator.E;
@@ -6679,7 +6680,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x6C: LD IYL, IYH [0]
-    private static void Overlap506(Z80Emulator emulator)
+    private static void Overlap506(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IYL = emulator.IYH;
@@ -6687,7 +6688,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x6F: LD IYL, A [0]
-    private static void Overlap507(Z80Emulator emulator)
+    private static void Overlap507(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IYL = emulator.A;
@@ -6695,7 +6696,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x7C: LD A, IYH [0]
-    private static void Overlap508(Z80Emulator emulator)
+    private static void Overlap508(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A = emulator.IYH;
@@ -6703,7 +6704,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x7D: LD A, IYL [0]
-    private static void Overlap509(Z80Emulator emulator)
+    private static void Overlap509(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A = emulator.IYL;
@@ -6711,7 +6712,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x84: ADD A, IYH [0]
-    private static void Overlap510(Z80Emulator emulator)
+    private static void Overlap510(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -6731,7 +6732,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x85: ADD A, IYL [0]
-    private static void Overlap511(Z80Emulator emulator)
+    private static void Overlap511(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -6751,7 +6752,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x8C: ADC A, IYH [0]
-    private static void Overlap512(Z80Emulator emulator)
+    private static void Overlap512(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -6771,7 +6772,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x8D: ADC A, IYL [0]
-    private static void Overlap513(Z80Emulator emulator)
+    private static void Overlap513(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -6791,7 +6792,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x94: SUB IYH [0]
-    private static void Overlap514(Z80Emulator emulator)
+    private static void Overlap514(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -6811,7 +6812,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x95: SUB IYL [0]
-    private static void Overlap515(Z80Emulator emulator)
+    private static void Overlap515(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -6831,7 +6832,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x9C: SBC IYH [0]
-    private static void Overlap516(Z80Emulator emulator)
+    private static void Overlap516(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -6851,7 +6852,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0x9D: SBC IYL [0]
-    private static void Overlap517(Z80Emulator emulator)
+    private static void Overlap517(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -6871,7 +6872,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0xA4: AND IYH [0]
-    private static void Overlap518(Z80Emulator emulator)
+    private static void Overlap518(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A &= emulator.IYH;
@@ -6886,7 +6887,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0xA5: AND IYL [0]
-    private static void Overlap519(Z80Emulator emulator)
+    private static void Overlap519(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A &= emulator.IYL;
@@ -6901,7 +6902,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0xAC: XOR IYH [0]
-    private static void Overlap520(Z80Emulator emulator)
+    private static void Overlap520(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A ^= emulator.IYH;
@@ -6916,7 +6917,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0xAD: XOR IYL [0]
-    private static void Overlap521(Z80Emulator emulator)
+    private static void Overlap521(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A ^= emulator.IYL;
@@ -6931,7 +6932,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0xB4: OR IYH [0]
-    private static void Overlap522(Z80Emulator emulator)
+    private static void Overlap522(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A |= emulator.IYH;
@@ -6946,7 +6947,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0xB5: OR IYL [0]
-    private static void Overlap523(Z80Emulator emulator)
+    private static void Overlap523(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A |= emulator.IYL;
@@ -6961,7 +6962,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0xBC: CP IYH [0]
-    private static void Overlap524(Z80Emulator emulator)
+    private static void Overlap524(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -6981,7 +6982,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0xBD: CP IYL [0]
-    private static void Overlap525(Z80Emulator emulator)
+    private static void Overlap525(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.A;
@@ -7001,7 +7002,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0xDD: FDDD Redirect [0]
-    private static void Overlap526(Z80Emulator emulator)
+    private static void Overlap526(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.opcodeStepTable = OpcodeStepTablePrefixDD;
@@ -7009,7 +7010,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Overlap 0xFD 0xE9: JP IY [0]
-    private static void Overlap527(Z80Emulator emulator)
+    private static void Overlap527(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.PC = emulator.IY;

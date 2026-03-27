@@ -6,9 +6,10 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
+#nullable enable
 namespace MrKWatkins.OakCpu.Z80;
 
-public sealed unsafe partial class Z80Emulator
+public sealed unsafe partial class Z80StepEmulator
 {
     public void Reset()
     {
@@ -22,7 +23,7 @@ public sealed unsafe partial class Z80Emulator
         im = 0;
         interrupt = false;
         latch = 0;
-        overlapPipeline = default(delegate*<Z80Emulator, void>);
+        overlapPipeline = default(delegate*<Z80StepEmulator, void>);
         AF = 0;
         BC = 0;
         DE = 0;

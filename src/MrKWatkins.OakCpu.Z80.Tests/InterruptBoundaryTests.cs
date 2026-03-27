@@ -10,7 +10,7 @@ public sealed class InterruptBoundaryTests
     [TestCase((byte)2, (byte)0x5E)]
     public void Step_InterruptAfterOverlappedInstruction_CompletesOverlapBeforeInterruptHandling(byte mode, byte interruptModeOpcode)
     {
-        var z80 = new Z80EmulatorTestHarness
+        var z80 = new Z80StepEmulatorTestHarness
         {
             RecordCycles = true,
             RegisterSP = 0x0100
@@ -52,7 +52,7 @@ public sealed class InterruptBoundaryTests
         StepAndAssertEvent(z80, CycleType.IORead);
     }
 
-    private static void Load(Z80EmulatorTestHarness z80, ushort address, ReadOnlySpan<byte> bytes)
+    private static void Load(Z80StepEmulatorTestHarness z80, ushort address, ReadOnlySpan<byte> bytes)
     {
         for (var i = 0; i < bytes.Length; i++)
         {
@@ -60,7 +60,7 @@ public sealed class InterruptBoundaryTests
         }
     }
 
-    private static void StepAndAssertEvent(Z80EmulatorTestHarness z80, CycleType expectedType)
+    private static void StepAndAssertEvent(Z80StepEmulatorTestHarness z80, CycleType expectedType)
     {
         z80.Step();
         z80.Cycles[^1].Type.Should().Equal(expectedType);

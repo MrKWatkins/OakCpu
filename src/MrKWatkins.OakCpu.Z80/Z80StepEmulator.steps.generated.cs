@@ -6,13 +6,14 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
+#nullable enable
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace MrKWatkins.OakCpu.Z80;
 
-public sealed unsafe partial class Z80Emulator
+public sealed unsafe partial class Z80StepEmulator
 {
     public ActionRequired Step()
     {
@@ -27,14 +28,14 @@ public sealed unsafe partial class Z80Emulator
         return actionRequired;
     }
 
-    private static void Error(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Error(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         throw new NotSupportedException("Opcode not supported");
     }
 
     // Opcode read [0]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void Step0(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step0(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         // Execute queued overlap.
         emulator.ExecuteOverlap();
@@ -47,7 +48,7 @@ public sealed unsafe partial class Z80Emulator
     // Interrupt Mode 0 [3]
     // Interrupt Mode 1 [3]
     // Interrupt Mode 2 [3]
-    private static void Step1(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.IR;
         emulator.R = (byte)(emulator.R & 0b10000000 | emulator.R + 0x01 & 0b01111111);
@@ -55,7 +56,7 @@ public sealed unsafe partial class Z80Emulator
 
     // Opcode read [3]
     // Interrupt Mode 0 [4]
-    private static void Step2(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step2(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.currentStep = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(emulator.opcodeStepTable), emulator.data);
         var selectedStep = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(Steps), emulator.currentStep);
@@ -73,7 +74,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Read opcode after prefix 0xCB [0]
-    private static void Step3(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step3(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTablePrefixCB;
         // Overlapped opcode read.
@@ -81,7 +82,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Read opcode after prefix 0xDD [0]
-    private static void Step4(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step4(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTablePrefixDD;
         // Overlapped opcode read.
@@ -89,7 +90,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Read opcode after prefix 0xED [0]
-    private static void Step5(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step5(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTablePrefixED;
         // Overlapped opcode read.
@@ -97,7 +98,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Read opcode after prefix 0xFD [0]
-    private static void Step6(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step6(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTablePrefixFD;
         // Overlapped opcode read.
@@ -105,7 +106,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Halt cycle [0]
-    private static void Step7(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step7(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         // Execute queued overlap.
         emulator.ExecuteOverlap();
@@ -113,7 +114,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Halt cycle [3]
-    private static void Step8(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step8(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if (HandleInterrupts(emulator, ref actionRequired))
         {
@@ -124,7 +125,7 @@ public sealed unsafe partial class Z80Emulator
     // Interrupt Mode 0 [0]
     // Interrupt Mode 1 [0]
     // Interrupt Mode 2 [0]
-    private static void Step9(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step9(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         // Execute queued overlap.
         emulator.ExecuteOverlap();
@@ -134,7 +135,7 @@ public sealed unsafe partial class Z80Emulator
 
     // Interrupt Mode 1 [7]
     // Interrupt Mode 2 [7]
-    private static void Step10(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step10(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -142,7 +143,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Interrupt Mode 1 [10]
-    private static void Step11(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step11(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -153,13 +154,13 @@ public sealed unsafe partial class Z80Emulator
 
     // Interrupt Mode 2 [2]
     // Interrupt Mode 2 [14]
-    private static void Step12(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step12(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.latch = emulator.data;
     }
 
     // Interrupt Mode 2 [10]
-    private static void Step13(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step13(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -169,20 +170,20 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // Interrupt Mode 2 [13]
-    private static void Step14(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step14(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
         emulator.WZ += 0x01;
     }
 
     // Interrupt Mode 2 [16]
-    private static void Step15(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step15(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
     }
 
     // Interrupt Mode 2 [17]
-    private static void Step16(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step16(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.W = emulator.data;
         emulator.Z = emulator.latch;
@@ -299,7 +300,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xFD 0x2A: LD IY, (nn) [3]
     // 0xFD 0x36: LD (IY + d), n [3]
     // 0xFD 0xCB: FDCB Redirect [3]
-    private static void Step18(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step18(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
@@ -315,7 +316,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0xC1: POP BC [1]
     // 0xED 0x4B: LD BC, (nn) [7]
     // 0xFD 0x4E: LD C, (IY + d) [9]
-    private static void Step19(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step19(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.C = emulator.data;
     }
@@ -330,7 +331,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0xC1: POP BC [4]
     // 0xED 0x4B: LD BC, (nn) [10]
     // 0xFD 0x46: LD B, (IY + d) [9]
-    private static void Step20(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step20(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.B = emulator.data;
     }
@@ -820,7 +821,7 @@ public sealed unsafe partial class Z80Emulator
     // FDCB 0xFD: SET 0x07, (IY + d), L [8]
     // FDCB 0xFE: SET 0x07, (IY + d) [8]
     // FDCB 0xFF: SET 0x07, (IY + d), A [8]
-    private static void Step21(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step21(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.Q = 0x00;
         if (HandleInterrupts(emulator, ref actionRequired))
@@ -832,7 +833,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0x02: LD (BC), A [0]
-    private static void Step22(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step22(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.BC;
         emulator.data = emulator.A;
@@ -841,13 +842,13 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0x03: INC BC [0]
-    private static void Step23(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step23(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.BC += 0x01;
     }
 
     // 0x09: ADD HL, BC [0]
-    private static void Step28(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step28(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var left = emulator.HL;
         var right = emulator.BC;
@@ -1085,7 +1086,7 @@ public sealed unsafe partial class Z80Emulator
     // FDCB 0x68: BIT 0x05, (IY + d) [5]
     // FDCB 0x70: BIT 0x06, (IY + d) [5]
     // FDCB 0x78: BIT 0x07, (IY + d) [5]
-    private static void Step29(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step29(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.Q = emulator.F;
         if (HandleInterrupts(emulator, ref actionRequired))
@@ -1097,28 +1098,28 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0x0A: LD A, (BC) [0]
-    private static void Step30(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step30(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.BC;
     }
 
     // 0x0A: LD A, (BC) [1]
     // 0xDD 0x0A: LD A, (BC) [1]
-    private static void Step31(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step31(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.A = emulator.data;
         emulator.WZ = (ushort)(emulator.BC + 0x01);
     }
 
     // 0x0B: DEC BC [0]
-    private static void Step32(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step32(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.BC -= 0x01;
     }
 
     // 0x10: DJNZ d [3]
     // 0xDD 0x10: DJNZ d [3]
-    private static void Step36(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step36(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.B -= 0x01;
         if (emulator.B == 0x00)
@@ -1149,7 +1150,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0xD1: POP DE [1]
     // 0xED 0x5B: LD DE, (nn) [7]
     // 0xFD 0x5E: LD E, (IY + d) [9]
-    private static void Step37(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step37(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.E = emulator.data;
     }
@@ -1164,13 +1165,13 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0xD1: POP DE [4]
     // 0xED 0x5B: LD DE, (nn) [10]
     // 0xFD 0x56: LD D, (IY + d) [9]
-    private static void Step38(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step38(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.D = emulator.data;
     }
 
     // 0x12: LD (DE), A [0]
-    private static void Step39(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step39(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.DE;
         emulator.data = emulator.A;
@@ -1179,7 +1180,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0x13: INC DE [0]
-    private static void Step40(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step40(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.DE += 0x01;
     }
@@ -1194,14 +1195,14 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0x28: JR Z, d [3]
     // 0xDD 0x30: JR NC, d [3]
     // 0xDD 0x38: JR C, d [3]
-    private static void Step44(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step44(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.PC = (ushort)(emulator.PC + (sbyte)emulator.data);
         emulator.WZ = emulator.PC;
     }
 
     // 0x19: ADD HL, DE [0]
-    private static void Step45(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step45(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var left = emulator.HL;
         var right = emulator.DE;
@@ -1219,21 +1220,21 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0x1A: LD A, (DE) [0]
-    private static void Step46(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step46(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.DE;
     }
 
     // 0x1A: LD A, (DE) [1]
     // 0xDD 0x1A: LD A, (DE) [1]
-    private static void Step47(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step47(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.A = emulator.data;
         emulator.WZ = (ushort)(emulator.DE + 0x01);
     }
 
     // 0x1B: DEC DE [0]
-    private static void Step48(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step48(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.DE -= 0x01;
     }
@@ -1243,7 +1244,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xC4: CALL NZ, nn [5]
     // 0xDD 0x20: JR NZ, d [2]
     // 0xDD 0xC4: CALL NZ, nn [5]
-    private static void Step52(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step52(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b01000000) == 0b01000000 /* !condition.NZ */)
         {
@@ -1266,7 +1267,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0x6E: LD L, (IX + d) [9]
     // 0xED 0x6B: LD HL, (nn) [7]
     // 0xFD 0x6E: LD L, (IY + d) [9]
-    private static void Step53(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step53(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.L = emulator.data;
     }
@@ -1279,7 +1280,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0x66: LD H, (IX + d) [9]
     // 0xED 0x6B: LD HL, (nn) [10]
     // 0xFD 0x66: LD H, (IY + d) [9]
-    private static void Step54(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step54(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.H = emulator.data;
     }
@@ -1361,7 +1362,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xFD 0x22: LD (nn), IY [1]
     // 0xFD 0x2A: LD IY, (nn) [1]
     // 0xFD 0xE3: EX (SP); IY [1]
-    private static void Step55(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step55(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.Z = emulator.data;
     }
@@ -1421,14 +1422,14 @@ public sealed unsafe partial class Z80Emulator
     // 0xFD 0x22: LD (nn), IY [4]
     // 0xFD 0x2A: LD IY, (nn) [4]
     // 0xFD 0xE3: EX (SP); IY [4]
-    private static void Step56(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step56(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.W = emulator.data;
     }
 
     // 0x22: LD (nn), HL [6]
     // 0xED 0x63: LD (nn), HL [6]
-    private static void Step57(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step57(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
         emulator.data = emulator.L;
@@ -1437,14 +1438,14 @@ public sealed unsafe partial class Z80Emulator
 
     // 0x22: LD (nn), HL [9]
     // 0xED 0x63: LD (nn), HL [9]
-    private static void Step58(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step58(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
         emulator.data = emulator.H;
     }
 
     // 0x23: INC HL [0]
-    private static void Step59(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step59(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.HL += 0x01;
     }
@@ -1454,7 +1455,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCC: CALL Z, nn [5]
     // 0xDD 0x28: JR Z, d [2]
     // 0xDD 0xCC: CALL Z, nn [5]
-    private static void Step63(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step63(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b01000000) == 0b00000000 /* !condition.Z */)
         {
@@ -1470,7 +1471,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0x29: ADD HL, HL [0]
-    private static void Step64(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step64(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var left = emulator.HL;
         var right = emulator.HL;
@@ -1496,7 +1497,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xED 0x6B: LD HL, (nn) [6]
     // 0xED 0x7B: LD SP, (nn) [6]
     // 0xFD 0x2A: LD IY, (nn) [6]
-    private static void Step65(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step65(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
         emulator.WZ += 0x01;
@@ -1509,13 +1510,13 @@ public sealed unsafe partial class Z80Emulator
     // 0xED 0x6B: LD HL, (nn) [9]
     // 0xED 0x7B: LD SP, (nn) [9]
     // 0xFD 0x2A: LD IY, (nn) [9]
-    private static void Step66(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step66(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
     }
 
     // 0x2B: DEC HL [0]
-    private static void Step67(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step67(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.HL -= 0x01;
     }
@@ -1525,7 +1526,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xD4: CALL NC, nn [5]
     // 0xDD 0x30: JR NC, d [2]
     // 0xDD 0xD4: CALL NC, nn [5]
-    private static void Step71(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step71(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b00000001) == 0b00000001 /* !condition.NC */)
         {
@@ -1543,7 +1544,7 @@ public sealed unsafe partial class Z80Emulator
     // 0x31: LD SP, nn [1]
     // 0xDD 0x31: LD SP, nn [1]
     // 0xED 0x7B: LD SP, (nn) [7]
-    private static void Step72(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step72(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SPL = emulator.data;
     }
@@ -1551,14 +1552,14 @@ public sealed unsafe partial class Z80Emulator
     // 0x31: LD SP, nn [4]
     // 0xDD 0x31: LD SP, nn [4]
     // 0xED 0x7B: LD SP, (nn) [10]
-    private static void Step73(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step73(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SPH = emulator.data;
     }
 
     // 0x32: LD (nn), A [6]
     // 0xDD 0x32: LD (nn), A [6]
-    private static void Step74(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step74(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
         emulator.data = emulator.A;
@@ -1567,7 +1568,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0x33: INC SP [0]
-    private static void Step75(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step75(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP += 0x01;
     }
@@ -1582,7 +1583,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xAE: XOR (HL) [0]
     // 0xB6: OR (HL) [0]
     // 0xBE: CP (HL) [0]
-    private static void Step76(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step76(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.HL;
     }
@@ -1590,7 +1591,7 @@ public sealed unsafe partial class Z80Emulator
     // 0x34: INC (HL) [2]
     // 0xDD 0x34: INC (IX + d) [10]
     // 0xFD 0x34: INC (IY + d) [10]
-    private static void Step77(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step77(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data += 0x01;
 
@@ -1608,7 +1609,7 @@ public sealed unsafe partial class Z80Emulator
     // 0x35: DEC (HL) [2]
     // 0xDD 0x35: DEC (IX + d) [10]
     // 0xFD 0x35: DEC (IY + d) [10]
-    private static void Step78(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step78(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data -= 0x01;
 
@@ -1631,7 +1632,7 @@ public sealed unsafe partial class Z80Emulator
     // 0x66: LD H, (HL) [0]
     // 0x6E: LD L, (HL) [0]
     // 0x7E: LD A, (HL) [0]
-    private static void Step79(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step79(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.HL;
     }
@@ -1641,7 +1642,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDC: CALL C, nn [5]
     // 0xDD 0x38: JR C, d [2]
     // 0xDD 0xDC: CALL C, nn [5]
-    private static void Step81(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step81(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b00000001) == 0b00000000 /* !condition.C */)
         {
@@ -1657,7 +1658,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0x39: ADD HL, SP [0]
-    private static void Step82(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step82(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var left = emulator.HL;
         var right = emulator.SP;
@@ -1683,61 +1684,61 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0x7E: LD A, (IX + d) [9]
     // 0xDD 0xF1: POP AF [4]
     // 0xFD 0x7E: LD A, (IY + d) [9]
-    private static void Step83(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step83(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.A = emulator.data;
     }
 
     // 0x3B: DEC SP [0]
-    private static void Step84(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step84(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
     }
 
     // 0x70: LD (HL), B [0]
-    private static void Step130(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step130(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.HL;
         emulator.data = emulator.B;
     }
 
     // 0x71: LD (HL), C [0]
-    private static void Step131(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step131(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.HL;
         emulator.data = emulator.C;
     }
 
     // 0x72: LD (HL), D [0]
-    private static void Step132(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step132(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.HL;
         emulator.data = emulator.D;
     }
 
     // 0x73: LD (HL), E [0]
-    private static void Step133(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step133(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.HL;
         emulator.data = emulator.E;
     }
 
     // 0x74: LD (HL), H [0]
-    private static void Step134(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step134(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.HL;
         emulator.data = emulator.H;
     }
 
     // 0x75: LD (HL), L [0]
-    private static void Step135(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step135(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.HL;
         emulator.data = emulator.L;
     }
 
     // 0x77: LD (HL), A [0]
-    private static void Step137(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step137(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.HL;
         emulator.data = emulator.A;
@@ -1746,7 +1747,7 @@ public sealed unsafe partial class Z80Emulator
     // 0x86: ADD A, (HL) [2]
     // 0xC6: ADD A, n [2]
     // 0xDD 0xC6: ADD A, n [2]
-    private static void Step151(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step151(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var left = emulator.A;
         var right = emulator.data;
@@ -1773,7 +1774,7 @@ public sealed unsafe partial class Z80Emulator
     // 0x8E: ADC A, (HL) [1]
     // 0xDD 0x8E: ADC A, (IX + n) [9]
     // 0xFD 0x8E: ADC A, (IY + n) [9]
-    private static void Step159(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step159(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var left = emulator.A;
         var right = emulator.data;
@@ -1795,7 +1796,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0x96: SUB (IX + n) [9]
     // 0xDD 0xD6: SUB n [1]
     // 0xFD 0x96: SUB (IY + n) [9]
-    private static void Step167(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step167(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var left = emulator.A;
         var right = emulator.data;
@@ -1817,7 +1818,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0x9E: SBC (IX + n) [9]
     // 0xDD 0xDE: SBC n [1]
     // 0xFD 0x9E: SBC (IY + n) [9]
-    private static void Step175(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step175(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var left = emulator.A;
         var right = emulator.data;
@@ -1839,7 +1840,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0xA6: AND (IX + n) [9]
     // 0xDD 0xE6: AND n [1]
     // 0xFD 0xA6: AND (IY + n) [9]
-    private static void Step183(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step183(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.A &= emulator.data;
 
@@ -1856,7 +1857,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0xAE: XOR (IX + n) [9]
     // 0xDD 0xEE: XOR n [1]
     // 0xFD 0xAE: XOR (IY + n) [9]
-    private static void Step191(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step191(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.A ^= emulator.data;
 
@@ -1873,7 +1874,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0xB6: OR (IX + n) [9]
     // 0xDD 0xF6: OR n [1]
     // 0xFD 0xB6: OR (IY + n) [9]
-    private static void Step199(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step199(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.A |= emulator.data;
 
@@ -1890,7 +1891,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0xBE: CP (IX + n) [9]
     // 0xDD 0xFE: CP n [1]
     // 0xFD 0xBE: CP (IY + n) [9]
-    private static void Step207(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step207(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var left = emulator.A;
         var right = emulator.data;
@@ -1957,7 +1958,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xED 0x45: RETN [3]
     // 0xED 0x4D: RETI [3]
     // 0xFD 0xE1: POP IY [3]
-    private static void Step209(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step209(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.SP;
         emulator.SP += 0x01;
@@ -1985,7 +1986,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0xF8: RET M [5]
     // 0xED 0x45: RETN [4]
     // 0xED 0x4D: RETI [4]
-    private static void Step210(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step210(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.W = emulator.data;
         emulator.PC = emulator.WZ;
@@ -1993,7 +1994,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xC2: JP NZ [5]
     // 0xDD 0xC2: JP NZ [5]
-    private static void Step211(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step211(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b01000000) == 0b00000000 /* condition.NZ */)
         {
@@ -2043,7 +2044,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0xF7: RST 0x30 [1]
     // 0xDD 0xFC: CALL M, nn [7]
     // 0xDD 0xFF: RST 0x38 [1]
-    private static void Step212(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step212(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2068,7 +2069,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0xEC: CALL PE, nn [10]
     // 0xDD 0xF4: CALL P, nn [10]
     // 0xDD 0xFC: CALL M, nn [10]
-    private static void Step213(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step213(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2078,7 +2079,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xC5: PUSH BC [1]
     // 0xDD 0xC5: PUSH BC [1]
-    private static void Step214(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step214(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2087,7 +2088,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xC5: PUSH BC [4]
     // 0xDD 0xC5: PUSH BC [4]
-    private static void Step215(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step215(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2102,7 +2103,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xEE: XOR n [0]
     // 0xF6: OR n [0]
     // 0xFE: CP n [0]
-    private static void Step216(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step216(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
@@ -2110,7 +2111,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xC7: RST 0x00 [4]
     // 0xDD 0xC7: RST 0x00 [4]
-    private static void Step217(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step217(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2121,7 +2122,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xCA: JP Z [5]
     // 0xDD 0xCA: JP Z [5]
-    private static void Step218(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step218(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b01000000) == 0b01000000 /* condition.Z */)
         {
@@ -2139,7 +2140,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xCE: ADC A, n [2]
     // 0xDD 0xCE: ADC A, n [2]
-    private static void Step219(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step219(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var left = emulator.A;
         var right = emulator.data;
@@ -2165,7 +2166,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xCF: RST 0x08 [4]
     // 0xDD 0xCF: RST 0x08 [4]
-    private static void Step220(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step220(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2176,7 +2177,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xD2: JP NC [5]
     // 0xDD 0xD2: JP NC [5]
-    private static void Step221(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step221(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b00000001) == 0b00000000 /* condition.NC */)
         {
@@ -2196,7 +2197,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDB: IN A, (n) [1]
     // 0xDD 0xD3: OUT (n), A [1]
     // 0xDD 0xDB: IN A, (n) [1]
-    private static void Step222(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step222(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.Z = emulator.data;
         emulator.W = emulator.A;
@@ -2206,7 +2207,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDB: IN A, (n) [3]
     // 0xDD 0xD3: OUT (n), A [3]
     // 0xDD 0xDB: IN A, (n) [3]
-    private static void Step223(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step223(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
         emulator.data = emulator.A;
@@ -2214,14 +2215,14 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xD3: OUT (n), A [5]
     // 0xDD 0xD3: OUT (n), A [5]
-    private static void Step224(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step224(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.Z += 0x01;
     }
 
     // 0xD5: PUSH DE [1]
     // 0xDD 0xD5: PUSH DE [1]
-    private static void Step225(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step225(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2230,7 +2231,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xD5: PUSH DE [4]
     // 0xDD 0xD5: PUSH DE [4]
-    private static void Step226(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step226(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2239,7 +2240,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xD7: RST 0x10 [4]
     // 0xDD 0xD7: RST 0x10 [4]
-    private static void Step227(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step227(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2250,7 +2251,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xDA: JP C [5]
     // 0xDD 0xDA: JP C [5]
-    private static void Step229(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step229(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b00000001) == 0b00000001 /* condition.C */)
         {
@@ -2268,7 +2269,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xDB: IN A, (n) [5]
     // 0xDD 0xDB: IN A, (n) [5]
-    private static void Step230(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step230(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.A = emulator.data;
         emulator.WZ += 0x01;
@@ -2276,7 +2277,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xDF: RST 0x18 [4]
     // 0xDD 0xDF: RST 0x18 [4]
-    private static void Step231(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step231(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2288,7 +2289,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xE0: RET PO [0]
     // 0xE4: CALL PO, nn [5]
     // 0xDD 0xE4: CALL PO, nn [5]
-    private static void Step232(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step232(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b00000100) == 0b00000100 /* !condition.PO */)
         {
@@ -2305,7 +2306,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xE2: JP PO [5]
     // 0xDD 0xE2: JP PO [5]
-    private static void Step233(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step233(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b00000100) == 0b00000000 /* condition.PO */)
         {
@@ -2322,7 +2323,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xE3: EX (SP); HL [0]
-    private static void Step234(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step234(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.SP;
     }
@@ -2330,26 +2331,26 @@ public sealed unsafe partial class Z80Emulator
     // 0xE3: EX (SP); HL [3]
     // 0xDD 0xE3: EX (SP); IX [3]
     // 0xFD 0xE3: EX (SP); IY [3]
-    private static void Step235(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step235(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.SP + 0x01);
     }
 
     // 0xE3: EX (SP); HL [7]
-    private static void Step236(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step236(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data = emulator.H;
     }
 
     // 0xE3: EX (SP); HL [10]
-    private static void Step237(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step237(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.SP;
         emulator.data = emulator.L;
     }
 
     // 0xE3: EX (SP); HL [14]
-    private static void Step238(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step238(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.HL = emulator.WZ;
         emulator.Q = 0x00;
@@ -2362,7 +2363,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xE5: PUSH HL [1]
-    private static void Step239(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step239(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2370,7 +2371,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xE5: PUSH HL [4]
-    private static void Step240(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step240(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2379,7 +2380,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xE7: RST 0x20 [4]
     // 0xDD 0xE7: RST 0x20 [4]
-    private static void Step241(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step241(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2391,7 +2392,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xE8: RET PE [0]
     // 0xEC: CALL PE, nn [5]
     // 0xDD 0xEC: CALL PE, nn [5]
-    private static void Step242(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step242(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b00000100) == 0b00000000 /* !condition.PE */)
         {
@@ -2408,7 +2409,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xEA: JP PE [5]
     // 0xDD 0xEA: JP PE [5]
-    private static void Step244(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step244(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b00000100) == 0b00000100 /* condition.PE */)
         {
@@ -2426,7 +2427,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xEF: RST 0x28 [4]
     // 0xDD 0xEF: RST 0x28 [4]
-    private static void Step246(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step246(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2438,7 +2439,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xF0: RET P [0]
     // 0xF4: CALL P, nn [5]
     // 0xDD 0xF4: CALL P, nn [5]
-    private static void Step247(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step247(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b10000000) == 0b10000000 /* !condition.P */)
         {
@@ -2455,14 +2456,14 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xF1: POP AF [1]
     // 0xDD 0xF1: POP AF [1]
-    private static void Step248(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step248(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.F = emulator.data;
     }
 
     // 0xF2: JP P [5]
     // 0xDD 0xF2: JP P [5]
-    private static void Step249(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step249(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b10000000) == 0b00000000 /* condition.P */)
         {
@@ -2480,7 +2481,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xF5: PUSH AF [1]
     // 0xDD 0xF5: PUSH AF [1]
-    private static void Step251(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step251(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2489,7 +2490,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xF5: PUSH AF [4]
     // 0xDD 0xF5: PUSH AF [4]
-    private static void Step252(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step252(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2498,7 +2499,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xF7: RST 0x30 [4]
     // 0xDD 0xF7: RST 0x30 [4]
-    private static void Step253(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step253(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2510,7 +2511,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xF8: RET M [0]
     // 0xFC: CALL M, nn [5]
     // 0xDD 0xFC: CALL M, nn [5]
-    private static void Step254(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step254(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b10000000) == 0b00000000 /* !condition.M */)
         {
@@ -2526,14 +2527,14 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xF9: LD SP, HL [0]
-    private static void Step255(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step255(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP = emulator.HL;
     }
 
     // 0xFA: JP M [5]
     // 0xDD 0xFA: JP M [5]
-    private static void Step256(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step256(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b10000000) == 0b10000000 /* condition.M */)
         {
@@ -2550,7 +2551,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xFB: EI [0]
-    private static void Step257(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step257(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.iff1 = true;
         emulator.iff2 = true;
@@ -2562,7 +2563,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xFF: RST 0x38 [4]
     // 0xDD 0xFF: RST 0x38 [4]
-    private static void Step258(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step258(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -2589,7 +2590,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0x7E: BIT 0x07, (HL) [0]
     // 0xED 0x67: RRD [0]
     // 0xED 0x6F: RLD [0]
-    private static void Step265(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step265(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.HL;
@@ -2598,7 +2599,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0x06: RLC (HL) [3]
     // DDCB 0x06: RLC (IX + d) [5]
     // FDCB 0x06: RLC (IY + d) [5]
-    private static void Step266(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step266(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | emulator.data >> 0x07);
@@ -2615,7 +2616,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0x0E: RRC (HL) [3]
     // DDCB 0x0E: RRC (IX + d) [5]
     // FDCB 0x0E: RRC (IY + d) [5]
-    private static void Step274(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step274(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | emulator.data << 0x07);
@@ -2632,7 +2633,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0x16: RL (HL) [3]
     // DDCB 0x16: RL (IX + d) [5]
     // FDCB 0x16: RL (IY + d) [5]
-    private static void Step282(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step282(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | (emulator.F & 0b00000001 /* flag.C */));
@@ -2649,7 +2650,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0x1E: RR (HL) [3]
     // DDCB 0x1E: RR (IX + d) [5]
     // FDCB 0x1E: RR (IY + d) [5]
-    private static void Step290(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step290(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | (emulator.F & 0b00000001 /* flag.C */) << 0x07);
@@ -2666,7 +2667,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0x26: SLA (HL) [3]
     // DDCB 0x26: SLA (IX + d) [5]
     // FDCB 0x26: SLA (IY + d) [5]
-    private static void Step298(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step298(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data <<= 0x01;
@@ -2683,7 +2684,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0x2E: SRA (HL) [3]
     // DDCB 0x2E: SRA (IX + d) [5]
     // FDCB 0x2E: SRA (IY + d) [5]
-    private static void Step306(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step306(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | emulator.data & 0b10000000);
@@ -2700,7 +2701,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0x36: SLL (HL) [3]
     // DDCB 0x36: SLL (IX + d) [5]
     // FDCB 0x36: SLL (IY + d) [5]
-    private static void Step314(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step314(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | 0b00000001);
@@ -2717,7 +2718,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0x3E: SRL (HL) [3]
     // DDCB 0x3E: SRL (IX + d) [5]
     // FDCB 0x3E: SRL (IY + d) [5]
-    private static void Step322(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step322(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 & 0b01111111);
@@ -2732,7 +2733,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xCB 0x46: BIT 0x00, (HL) [3]
-    private static void Step330(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step330(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var comparison = emulator.data & 0b00000001;
 
@@ -2754,7 +2755,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xCB 0x4E: BIT 0x01, (HL) [3]
-    private static void Step338(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step338(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var comparison = emulator.data & 0b00000010;
 
@@ -2776,7 +2777,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xCB 0x56: BIT 0x02, (HL) [3]
-    private static void Step346(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step346(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var comparison = emulator.data & 0b00000100;
 
@@ -2798,7 +2799,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xCB 0x5E: BIT 0x03, (HL) [3]
-    private static void Step354(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step354(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var comparison = emulator.data & 0b00001000;
 
@@ -2820,7 +2821,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xCB 0x66: BIT 0x04, (HL) [3]
-    private static void Step362(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step362(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var comparison = emulator.data & 0b00010000;
 
@@ -2842,7 +2843,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xCB 0x6E: BIT 0x05, (HL) [3]
-    private static void Step370(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step370(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var comparison = emulator.data & 0b00100000;
 
@@ -2864,7 +2865,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xCB 0x76: BIT 0x06, (HL) [3]
-    private static void Step378(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step378(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var comparison = emulator.data & 0b01000000;
 
@@ -2886,7 +2887,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xCB 0x7E: BIT 0x07, (HL) [3]
-    private static void Step386(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step386(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var comparison = emulator.data & 0b10000000;
 
@@ -2923,7 +2924,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0xEE: SET 0x05, (HL) [0]
     // 0xCB 0xF6: SET 0x06, (HL) [0]
     // 0xCB 0xFE: SET 0x07, (HL) [0]
-    private static void Step394(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step394(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.HL;
@@ -2932,7 +2933,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0x86: RES 0x00, (HL) [4]
     // DDCB 0x86: RES 0x00, (IX + d) [6]
     // FDCB 0x86: RES 0x00, (IY + d) [6]
-    private static void Step395(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step395(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFE;
     }
@@ -2940,7 +2941,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0x8E: RES 0x01, (HL) [4]
     // DDCB 0x8E: RES 0x01, (IX + d) [6]
     // FDCB 0x8E: RES 0x01, (IY + d) [6]
-    private static void Step403(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step403(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFD;
     }
@@ -2948,7 +2949,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0x96: RES 0x02, (HL) [4]
     // DDCB 0x96: RES 0x02, (IX + d) [6]
     // FDCB 0x96: RES 0x02, (IY + d) [6]
-    private static void Step411(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step411(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFB;
     }
@@ -2956,7 +2957,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0x9E: RES 0x03, (HL) [4]
     // DDCB 0x9E: RES 0x03, (IX + d) [6]
     // FDCB 0x9E: RES 0x03, (IY + d) [6]
-    private static void Step419(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step419(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xF7;
     }
@@ -2964,7 +2965,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0xA6: RES 0x04, (HL) [4]
     // DDCB 0xA6: RES 0x04, (IX + d) [6]
     // FDCB 0xA6: RES 0x04, (IY + d) [6]
-    private static void Step427(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step427(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xEF;
     }
@@ -2972,7 +2973,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0xAE: RES 0x05, (HL) [4]
     // DDCB 0xAE: RES 0x05, (IX + d) [6]
     // FDCB 0xAE: RES 0x05, (IY + d) [6]
-    private static void Step435(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step435(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xDF;
     }
@@ -2980,7 +2981,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0xB6: RES 0x06, (HL) [4]
     // DDCB 0xB6: RES 0x06, (IX + d) [6]
     // FDCB 0xB6: RES 0x06, (IY + d) [6]
-    private static void Step443(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step443(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xBF;
     }
@@ -2988,7 +2989,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0xBE: RES 0x07, (HL) [4]
     // DDCB 0xBE: RES 0x07, (IX + d) [6]
     // FDCB 0xBE: RES 0x07, (IY + d) [6]
-    private static void Step451(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step451(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0x7F;
     }
@@ -2996,7 +2997,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0xC6: SET 0x00, (HL) [3]
     // DDCB 0xC6: SET 0x00, (IX + d) [6]
     // FDCB 0xC6: SET 0x00, (IY + d) [6]
-    private static void Step459(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step459(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x01;
     }
@@ -3004,7 +3005,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0xCE: SET 0x01, (HL) [3]
     // DDCB 0xCE: SET 0x01, (IX + d) [6]
     // FDCB 0xCE: SET 0x01, (IY + d) [6]
-    private static void Step467(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step467(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x02;
     }
@@ -3012,7 +3013,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0xD6: SET 0x02, (HL) [3]
     // DDCB 0xD6: SET 0x02, (IX + d) [6]
     // FDCB 0xD6: SET 0x02, (IY + d) [6]
-    private static void Step475(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step475(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x04;
     }
@@ -3020,7 +3021,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0xDE: SET 0x03, (HL) [3]
     // DDCB 0xDE: SET 0x03, (IX + d) [6]
     // FDCB 0xDE: SET 0x03, (IY + d) [6]
-    private static void Step483(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step483(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x08;
     }
@@ -3028,7 +3029,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0xE6: SET 0x04, (HL) [3]
     // DDCB 0xE6: SET 0x04, (IX + d) [6]
     // FDCB 0xE6: SET 0x04, (IY + d) [6]
-    private static void Step491(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step491(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x10;
     }
@@ -3036,7 +3037,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0xEE: SET 0x05, (HL) [3]
     // DDCB 0xEE: SET 0x05, (IX + d) [6]
     // FDCB 0xEE: SET 0x05, (IY + d) [6]
-    private static void Step499(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step499(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x20;
     }
@@ -3044,7 +3045,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0xF6: SET 0x06, (HL) [3]
     // DDCB 0xF6: SET 0x06, (IX + d) [6]
     // FDCB 0xF6: SET 0x06, (IY + d) [6]
-    private static void Step507(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step507(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x40;
     }
@@ -3052,7 +3053,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xCB 0xFE: SET 0x07, (HL) [3]
     // DDCB 0xFE: SET 0x07, (IX + d) [6]
     // FDCB 0xFE: SET 0x07, (IY + d) [6]
-    private static void Step515(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step515(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x80;
     }
@@ -3140,7 +3141,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xFD 0x75: LD (IY + d), L [0]
     // 0xFD 0x77: LD (IY + d), A [0]
     // 0xFD 0x7E: LD A, (IY + d) [0]
-    private static void Step518(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step518(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.PC;
@@ -3148,7 +3149,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0x02: LD (BC), A [0]
-    private static void Step519(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step519(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
@@ -3158,14 +3159,14 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0x03: INC BC [0]
-    private static void Step520(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step520(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.BC += 0x01;
     }
 
     // 0xDD 0x09: ADD IX, BC [0]
-    private static void Step525(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step525(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.IX;
@@ -3184,14 +3185,14 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0x0A: LD A, (BC) [0]
-    private static void Step526(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step526(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
     }
 
     // 0xDD 0x0B: DEC BC [0]
-    private static void Step527(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step527(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.BC -= 0x01;
@@ -3211,13 +3212,13 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0xF7: RST 0x30 [0]
     // 0xDD 0xFF: RST 0x38 [0]
     // 0xFD 0xE5: PUSH IY [0]
-    private static void Step531(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step531(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
     }
 
     // 0xDD 0x12: LD (DE), A [0]
-    private static void Step532(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step532(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.DE;
@@ -3227,14 +3228,14 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0x13: INC DE [0]
-    private static void Step533(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step533(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.DE += 0x01;
     }
 
     // 0xDD 0x19: ADD IX, DE [0]
-    private static void Step537(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step537(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.IX;
@@ -3253,14 +3254,14 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0x1A: LD A, (DE) [0]
-    private static void Step538(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step538(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.DE;
     }
 
     // 0xDD 0x1B: DEC DE [0]
-    private static void Step539(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step539(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.DE -= 0x01;
@@ -3270,7 +3271,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0x2A: LD IX, (nn) [7]
     // 0xDD 0x2E: LD IXL, n [1]
     // 0xDD 0xE1: POP IX [1]
-    private static void Step543(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step543(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.IXL = emulator.data;
     }
@@ -3279,13 +3280,13 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0x26: LD IXH, n [1]
     // 0xDD 0x2A: LD IX, (nn) [10]
     // 0xDD 0xE1: POP IX [4]
-    private static void Step544(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step544(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.IXH = emulator.data;
     }
 
     // 0xDD 0x22: LD (nn), IX [6]
-    private static void Step545(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step545(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
         emulator.data = emulator.IXL;
@@ -3293,21 +3294,21 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0x22: LD (nn), IX [9]
-    private static void Step546(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step546(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
         emulator.data = emulator.IXH;
     }
 
     // 0xDD 0x23: INC IX [0]
-    private static void Step547(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step547(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IX += 0x01;
     }
 
     // 0xDD 0x29: ADD IX, IX [0]
-    private static void Step551(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step551(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.IX;
@@ -3326,14 +3327,14 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0x2B: DEC IX [0]
-    private static void Step552(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step552(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IX -= 0x01;
     }
 
     // 0xDD 0x33: INC SP [0]
-    private static void Step556(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step556(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.SP += 0x01;
@@ -3367,7 +3368,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xFD 0xAE: XOR (IY + n) [0]
     // 0xFD 0xB6: OR (IY + n) [0]
     // 0xFD 0xBE: CP (IY + n) [0]
-    private static void Step557(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step557(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.PC;
@@ -3378,7 +3379,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0x35: DEC (IX + d) [1]
     // 0xFD 0x34: INC (IY + d) [1]
     // 0xFD 0x35: DEC (IY + d) [1]
-    private static void Step558(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step558(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.latch = emulator.data;
     }
@@ -3393,7 +3394,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0xAE: XOR (IX + n) [8]
     // 0xDD 0xB6: OR (IX + n) [8]
     // 0xDD 0xBE: CP (IX + n) [8]
-    private static void Step559(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step559(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IX + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
@@ -3403,7 +3404,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0xCB: DDCB Redirect [1]
     // 0xFD 0x36: LD (IY + d), n [1]
     // 0xFD 0xCB: FDCB Redirect [1]
-    private static void Step560(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step560(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.latch = emulator.data;
     }
@@ -3537,14 +3538,14 @@ public sealed unsafe partial class Z80Emulator
     // DDCB 0xFD: SET 0x07, (IX + d), L [2]
     // DDCB 0xFE: SET 0x07, (IX + d) [2]
     // DDCB 0xFF: SET 0x07, (IX + d), A [2]
-    private static void Step561(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step561(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IX + (sbyte)emulator.latch);
         emulator.address = emulator.WZ;
     }
 
     // 0xDD 0x39: ADD IX, SP [0]
-    private static void Step563(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step563(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.IX;
@@ -3563,7 +3564,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0x3B: DEC SP [0]
-    private static void Step564(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step564(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.SP -= 0x01;
@@ -3576,14 +3577,14 @@ public sealed unsafe partial class Z80Emulator
     // 0xDD 0x66: LD H, (IX + d) [8]
     // 0xDD 0x6E: LD L, (IX + d) [8]
     // 0xDD 0x7E: LD A, (IX + d) [8]
-    private static void Step574(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step574(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IX + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
     }
 
     // 0xDD 0x70: LD (IX + d), B [8]
-    private static void Step611(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step611(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IX + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
@@ -3591,7 +3592,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0x71: LD (IX + d), C [8]
-    private static void Step612(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step612(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IX + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
@@ -3599,7 +3600,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0x72: LD (IX + d), D [8]
-    private static void Step613(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step613(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IX + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
@@ -3607,7 +3608,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0x73: LD (IX + d), E [8]
-    private static void Step614(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step614(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IX + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
@@ -3615,7 +3616,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0x74: LD (IX + d), H [8]
-    private static void Step615(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step615(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IX + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
@@ -3623,7 +3624,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0x75: LD (IX + d), L [8]
-    private static void Step616(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step616(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IX + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
@@ -3631,7 +3632,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0x77: LD (IX + d), A [8]
-    private static void Step618(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step618(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IX + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
@@ -3640,7 +3641,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xDD 0x86: ADD A, (IX + n) [9]
     // 0xFD 0x86: ADD A, (IY + n) [9]
-    private static void Step632(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step632(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var left = emulator.A;
         var right = emulator.data;
@@ -3658,7 +3659,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0xC0: RET NZ [0]
-    private static void Step683(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step683(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         if ((emulator.F & 0b01000000) == 0b01000000 /* !condition.NZ */)
@@ -3682,7 +3683,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xED 0x45: RETN [0]
     // 0xED 0x4D: RETI [0]
     // 0xFD 0xE1: POP IY [0]
-    private static void Step684(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step684(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.SP;
@@ -3690,7 +3691,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0xC8: RET Z [0]
-    private static void Step685(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step685(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         if ((emulator.F & 0b01000000) == 0b00000000 /* !condition.Z */)
@@ -3707,7 +3708,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0xCB: DDCB Redirect [0]
-    private static void Step686(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step686(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.opcodeStepTable = OpcodeStepTableDDCB;
@@ -3717,7 +3718,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xDD 0xCB: DDCB Redirect [5]
     // 0xFD 0xCB: FDCB Redirect [5]
-    private static void Step687(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step687(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.currentStep = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(emulator.opcodeStepTable), emulator.data);
         var selectedStep = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(Steps), emulator.currentStep);
@@ -3737,7 +3738,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0xD0: RET NC [0]
-    private static void Step688(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step688(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         if ((emulator.F & 0b00000001) == 0b00000001 /* !condition.NC */)
@@ -3754,7 +3755,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0xD8: RET C [0]
-    private static void Step689(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step689(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         if ((emulator.F & 0b00000001) == 0b00000000 /* !condition.C */)
@@ -3771,7 +3772,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0xE0: RET PO [0]
-    private static void Step691(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step691(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         if ((emulator.F & 0b00000100) == 0b00000100 /* !condition.PO */)
@@ -3789,27 +3790,27 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xDD 0xE3: EX (SP); IX [0]
     // 0xFD 0xE3: EX (SP); IY [0]
-    private static void Step692(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step692(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.SP;
     }
 
     // 0xDD 0xE3: EX (SP); IX [7]
-    private static void Step693(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step693(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data = emulator.IXH;
     }
 
     // 0xDD 0xE3: EX (SP); IX [10]
-    private static void Step694(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step694(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.SP;
         emulator.data = emulator.IXL;
     }
 
     // 0xDD 0xE3: EX (SP); IX [14]
-    private static void Step695(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step695(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.IX = emulator.WZ;
         emulator.Q = 0x00;
@@ -3822,7 +3823,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0xE5: PUSH IX [1]
-    private static void Step696(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step696(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -3830,7 +3831,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0xE5: PUSH IX [4]
-    private static void Step697(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step697(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -3838,7 +3839,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0xE8: RET PE [0]
-    private static void Step698(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step698(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         if ((emulator.F & 0b00000100) == 0b00000000 /* !condition.PE */)
@@ -3855,7 +3856,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0xF0: RET P [0]
-    private static void Step702(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step702(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         if ((emulator.F & 0b10000000) == 0b10000000 /* !condition.P */)
@@ -3872,7 +3873,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0xF8: RET M [0]
-    private static void Step704(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step704(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         if ((emulator.F & 0b10000000) == 0b00000000 /* !condition.M */)
@@ -3889,14 +3890,14 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xDD 0xF9: LD SP, IX [0]
-    private static void Step705(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step705(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.SP = emulator.IX;
     }
 
     // 0xDD 0xFB: EI [0]
-    private static void Step706(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step706(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.iff1 = true;
@@ -3915,7 +3916,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xED 0x68: IN L, (C) [0]
     // 0xED 0x70: IN (C) [0]
     // 0xED 0x78: IN A, (C) [0]
-    private static void Step708(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step708(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
@@ -3931,13 +3932,13 @@ public sealed unsafe partial class Z80Emulator
     // 0xED 0x78: IN A, (C) [2]
     // 0xED 0xA3: OUTI [6]
     // 0xED 0xB3: OTIR [6]
-    private static void Step709(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step709(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.BC + 0x01);
     }
 
     // 0xED 0x40: IN B, (C) [3]
-    private static void Step710(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step710(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.B = emulator.data;
 
@@ -3958,7 +3959,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x41: OUT B, (C) [0]
-    private static void Step711(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step711(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
@@ -3973,13 +3974,13 @@ public sealed unsafe partial class Z80Emulator
     // 0xED 0x69: OUT L, (C) [2]
     // 0xED 0x71: OUT (C) [2]
     // 0xED 0x79: OUT A, (C) [2]
-    private static void Step712(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step712(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.BC + 0x01);
     }
 
     // 0xED 0x42: SBC HL, BC [0]
-    private static void Step713(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step713(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.HL;
@@ -3999,7 +4000,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x43: LD (nn), BC [6]
-    private static void Step714(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step714(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
         emulator.data = emulator.C;
@@ -4007,7 +4008,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x43: LD (nn), BC [9]
-    private static void Step715(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step715(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
         emulator.data = emulator.B;
@@ -4015,7 +4016,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xED 0x45: RETN [5]
     // 0xED 0x4D: RETI [5]
-    private static void Step717(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step717(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.iff1 = emulator.iff2;
         emulator.Q = 0x00;
@@ -4028,7 +4029,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x47: LD I, A [0]
-    private static void Step719(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step719(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.I = emulator.A;
@@ -4042,7 +4043,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x48: IN C, (C) [3]
-    private static void Step720(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step720(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.C = emulator.data;
 
@@ -4063,7 +4064,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x49: OUT C, (C) [0]
-    private static void Step721(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step721(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
@@ -4071,7 +4072,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x4A: ADC HL, BC [0]
-    private static void Step722(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step722(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.HL;
@@ -4091,7 +4092,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x4F: LD R, A [0]
-    private static void Step723(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step723(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.R = emulator.A;
@@ -4105,7 +4106,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x50: IN D, (C) [3]
-    private static void Step724(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step724(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.D = emulator.data;
 
@@ -4126,7 +4127,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x51: OUT D, (C) [0]
-    private static void Step725(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step725(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
@@ -4134,7 +4135,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x52: SBC HL, DE [0]
-    private static void Step726(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step726(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.HL;
@@ -4154,7 +4155,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x53: LD (nn), DE [6]
-    private static void Step727(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step727(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
         emulator.data = emulator.E;
@@ -4162,14 +4163,14 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x53: LD (nn), DE [9]
-    private static void Step728(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step728(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
         emulator.data = emulator.D;
     }
 
     // 0xED 0x57: LD A, I [0]
-    private static void Step730(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step730(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A = emulator.I;
@@ -4191,7 +4192,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x58: IN E, (C) [3]
-    private static void Step731(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step731(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.E = emulator.data;
 
@@ -4212,7 +4213,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x59: OUT E, (C) [0]
-    private static void Step732(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step732(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
@@ -4220,7 +4221,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x5A: ADC HL, DE [0]
-    private static void Step733(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step733(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.HL;
@@ -4240,7 +4241,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x5F: LD A, R [0]
-    private static void Step735(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step735(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.A = emulator.R;
@@ -4262,7 +4263,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x60: IN H, (C) [3]
-    private static void Step736(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step736(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.H = emulator.data;
 
@@ -4283,7 +4284,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x61: OUT H, (C) [0]
-    private static void Step737(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step737(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
@@ -4291,7 +4292,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x62: SBC HL, HL [0]
-    private static void Step738(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step738(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.HL;
@@ -4311,7 +4312,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x67: RRD [7]
-    private static void Step739(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step739(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var lowA = emulator.A & 0b00001111;
         emulator.A = (byte)(emulator.A & 0b11110000 | emulator.data & 0b00001111);
@@ -4329,7 +4330,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x68: IN L, (C) [3]
-    private static void Step740(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step740(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.L = emulator.data;
 
@@ -4350,7 +4351,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x69: OUT L, (C) [0]
-    private static void Step741(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step741(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
@@ -4358,7 +4359,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x6A: ADC HL, HL [0]
-    private static void Step742(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step742(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.HL;
@@ -4378,7 +4379,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x6F: RLD [7]
-    private static void Step743(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step743(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var lowA = emulator.A & 0b00001111;
         emulator.A = (byte)(emulator.A & 0b11110000 | emulator.data >> 0x04);
@@ -4396,7 +4397,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x70: IN (C) [3]
-    private static void Step744(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step744(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         // Update flags.
         // Reset N and H.
@@ -4415,7 +4416,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x71: OUT (C) [0]
-    private static void Step745(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step745(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
@@ -4423,7 +4424,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x72: SBC HL, SP [0]
-    private static void Step746(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step746(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.HL;
@@ -4443,7 +4444,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x73: LD (nn), SP [6]
-    private static void Step747(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step747(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
         emulator.data = emulator.SPL;
@@ -4451,14 +4452,14 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x73: LD (nn), SP [9]
-    private static void Step748(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step748(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
         emulator.data = emulator.SPH;
     }
 
     // 0xED 0x78: IN A, (C) [3]
-    private static void Step749(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step749(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.A = emulator.data;
 
@@ -4479,7 +4480,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x79: OUT A, (C) [0]
-    private static void Step750(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step750(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
@@ -4487,7 +4488,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0x7A: ADC HL, SP [0]
-    private static void Step751(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step751(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.HL;
@@ -4510,7 +4511,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xED 0xA1: CPI [0]
     // 0xED 0xB0: LDIR [0]
     // 0xED 0xB1: CPIR [0]
-    private static void Step752(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step752(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.HL;
@@ -4519,7 +4520,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xED 0xA0: LDI [3]
     // 0xED 0xB0: LDIR [3]
-    private static void Step753(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step753(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.DE;
         emulator.DE += 0x01;
@@ -4527,7 +4528,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xED 0xA0: LDI [7]
     // 0xED 0xA8: LDD [7]
-    private static void Step754(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step754(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var result = emulator.A + emulator.data;
         emulator.BC -= 0x01;
@@ -4549,7 +4550,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0xA1: CPI [7]
-    private static void Step755(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step755(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.BC -= 0x01;
         emulator.WZ += 0x01;
@@ -4588,7 +4589,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xED 0xB3: OTIR [0]
     // 0xED 0xBA: INDR [0]
     // 0xED 0xBB: OTDR [0]
-    private static void Step756(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step756(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
     }
@@ -4601,21 +4602,21 @@ public sealed unsafe partial class Z80Emulator
     // 0xED 0xB3: OTIR [4]
     // 0xED 0xBA: INDR [1]
     // 0xED 0xBB: OTDR [4]
-    private static void Step757(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step757(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.BC;
     }
 
     // 0xED 0xA2: INI [3]
     // 0xED 0xB2: INIR [3]
-    private static void Step758(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step758(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         emulator.B -= 0x01;
     }
 
     // 0xED 0xA2: INI [5]
-    private static void Step759(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step759(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.HL;
         emulator.HL += 0x01;
@@ -4637,7 +4638,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xED 0xA3: OUTI [1]
     // 0xED 0xB2: INIR [5]
     // 0xED 0xB3: OTIR [1]
-    private static void Step760(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step760(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.HL;
         emulator.HL += 0x01;
@@ -4647,14 +4648,14 @@ public sealed unsafe partial class Z80Emulator
     // 0xED 0xAB: OUTD [2]
     // 0xED 0xB3: OTIR [2]
     // 0xED 0xBB: OTDR [2]
-    private static void Step761(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step761(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.B -= 0x01;
     }
 
     // 0xED 0xA3: OUTI [7]
     // 0xED 0xAB: OUTD [7]
-    private static void Step762(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step762(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data + (emulator.L & 0b11111111);
         var pv = temp & 0b00000111 ^ emulator.B;
@@ -4681,7 +4682,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xED 0xA9: CPD [0]
     // 0xED 0xB8: LDDR [0]
     // 0xED 0xB9: CPDR [0]
-    private static void Step763(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step763(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.HL;
@@ -4690,14 +4691,14 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xED 0xA8: LDD [3]
     // 0xED 0xB8: LDDR [3]
-    private static void Step764(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step764(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.DE;
         emulator.DE -= 0x01;
     }
 
     // 0xED 0xA9: CPD [7]
-    private static void Step765(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step765(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.BC -= 0x01;
         emulator.WZ -= 0x01;
@@ -4730,14 +4731,14 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xED 0xAA: IND [3]
     // 0xED 0xBA: INDR [3]
-    private static void Step766(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step766(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.BC - 0x01);
         emulator.B -= 0x01;
     }
 
     // 0xED 0xAA: IND [5]
-    private static void Step767(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step767(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.HL;
         emulator.HL -= 0x01;
@@ -4759,7 +4760,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xED 0xAB: OUTD [1]
     // 0xED 0xBA: INDR [5]
     // 0xED 0xBB: OTDR [1]
-    private static void Step768(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step768(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.HL;
         emulator.HL -= 0x01;
@@ -4767,14 +4768,14 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xED 0xAB: OUTD [6]
     // 0xED 0xBB: OTDR [6]
-    private static void Step769(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step769(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.BC - 0x01);
     }
 
     // 0xED 0xB0: LDIR [7]
     // 0xED 0xB8: LDDR [7]
-    private static void Step770(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step770(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var result = emulator.A + emulator.data;
         emulator.BC -= 0x01;
@@ -4803,7 +4804,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xED 0xB0: LDIR [9]
     // 0xED 0xB8: LDDR [9]
-    private static void Step771(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step771(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.PC -= 0x01;
         emulator.WZ = emulator.PC;
@@ -4821,7 +4822,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0xB1: CPIR [7]
-    private static void Step772(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step772(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.BC -= 0x01;
         emulator.WZ += 0x01;
@@ -4855,7 +4856,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xED 0xB1: CPIR [9]
     // 0xED 0xB9: CPDR [9]
-    private static void Step773(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step773(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.PC -= 0x01;
         emulator.WZ = emulator.PC;
@@ -4876,7 +4877,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0xB2: INIR [7]
-    private static void Step774(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step774(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if (emulator.B == 0x00)
         {
@@ -4912,14 +4913,14 @@ public sealed unsafe partial class Z80Emulator
     // 0xED 0xB3: OTIR [9]
     // 0xED 0xBA: INDR [9]
     // 0xED 0xBB: OTDR [9]
-    private static void Step775(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step775(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.PC -= 0x02;
         emulator.WZ = (ushort)(emulator.PC + 0x01);
     }
 
     // 0xED 0xB2: INIR [12]
-    private static void Step776(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step776(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var carry_modifier = emulator.C + 0x01;
         var temp = emulator.data + (carry_modifier & 0b11111111);
@@ -4967,7 +4968,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xED 0xB3: OTIR [7]
     // 0xED 0xBB: OTDR [7]
-    private static void Step777(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step777(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if (emulator.B == 0x00)
         {
@@ -5000,7 +5001,7 @@ public sealed unsafe partial class Z80Emulator
 
     // 0xED 0xB3: OTIR [12]
     // 0xED 0xBB: OTDR [12]
-    private static void Step778(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step778(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data + (emulator.L & 0b11111111);
         var x = (emulator.PCH & 0b00001000) != 0x00;
@@ -5046,7 +5047,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0xB9: CPDR [7]
-    private static void Step779(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step779(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.BC -= 0x01;
         emulator.WZ -= 0x01;
@@ -5079,7 +5080,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0xBA: INDR [7]
-    private static void Step780(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step780(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if (emulator.B == 0x00)
         {
@@ -5112,7 +5113,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xED 0xBA: INDR [12]
-    private static void Step781(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step781(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var carry_modifier = emulator.C - 0x01;
         var temp = emulator.data + (carry_modifier & 0b11111111);
@@ -5159,7 +5160,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xFD 0x09: ADD IY, BC [0]
-    private static void Step782(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step782(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.IY;
@@ -5178,7 +5179,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xFD 0x19: ADD IY, DE [0]
-    private static void Step783(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step783(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.IY;
@@ -5200,7 +5201,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xFD 0x2A: LD IY, (nn) [7]
     // 0xFD 0x2E: LD IYL, n [1]
     // 0xFD 0xE1: POP IY [1]
-    private static void Step784(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step784(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.IYL = emulator.data;
     }
@@ -5209,13 +5210,13 @@ public sealed unsafe partial class Z80Emulator
     // 0xFD 0x26: LD IYH, n [1]
     // 0xFD 0x2A: LD IY, (nn) [10]
     // 0xFD 0xE1: POP IY [4]
-    private static void Step785(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step785(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.IYH = emulator.data;
     }
 
     // 0xFD 0x22: LD (nn), IY [6]
-    private static void Step786(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step786(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
         emulator.data = emulator.IYL;
@@ -5223,21 +5224,21 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xFD 0x22: LD (nn), IY [9]
-    private static void Step787(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step787(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.WZ;
         emulator.data = emulator.IYH;
     }
 
     // 0xFD 0x23: INC IY [0]
-    private static void Step788(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step788(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IY += 0x01;
     }
 
     // 0xFD 0x29: ADD IY, IY [0]
-    private static void Step791(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step791(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.IY;
@@ -5256,7 +5257,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xFD 0x2B: DEC IY [0]
-    private static void Step792(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step792(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.IY -= 0x01;
@@ -5272,7 +5273,7 @@ public sealed unsafe partial class Z80Emulator
     // 0xFD 0xAE: XOR (IY + n) [8]
     // 0xFD 0xB6: OR (IY + n) [8]
     // 0xFD 0xBE: CP (IY + n) [8]
-    private static void Step795(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step795(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IY + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
@@ -5407,14 +5408,14 @@ public sealed unsafe partial class Z80Emulator
     // FDCB 0xFD: SET 0x07, (IY + d), L [2]
     // FDCB 0xFE: SET 0x07, (IY + d) [2]
     // FDCB 0xFF: SET 0x07, (IY + d), A [2]
-    private static void Step796(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step796(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IY + (sbyte)emulator.latch);
         emulator.address = emulator.WZ;
     }
 
     // 0xFD 0x39: ADD IY, SP [0]
-    private static void Step797(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step797(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         var left = emulator.IY;
@@ -5439,14 +5440,14 @@ public sealed unsafe partial class Z80Emulator
     // 0xFD 0x66: LD H, (IY + d) [8]
     // 0xFD 0x6E: LD L, (IY + d) [8]
     // 0xFD 0x7E: LD A, (IY + d) [8]
-    private static void Step800(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step800(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IY + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
     }
 
     // 0xFD 0x70: LD (IY + d), B [8]
-    private static void Step821(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step821(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IY + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
@@ -5454,7 +5455,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xFD 0x71: LD (IY + d), C [8]
-    private static void Step822(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step822(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IY + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
@@ -5462,7 +5463,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xFD 0x72: LD (IY + d), D [8]
-    private static void Step823(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step823(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IY + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
@@ -5470,7 +5471,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xFD 0x73: LD (IY + d), E [8]
-    private static void Step824(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step824(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IY + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
@@ -5478,7 +5479,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xFD 0x74: LD (IY + d), H [8]
-    private static void Step825(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step825(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IY + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
@@ -5486,7 +5487,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xFD 0x75: LD (IY + d), L [8]
-    private static void Step826(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step826(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IY + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
@@ -5494,7 +5495,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xFD 0x77: LD (IY + d), A [8]
-    private static void Step827(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step827(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IY + (sbyte)emulator.data);
         emulator.address = emulator.WZ;
@@ -5502,7 +5503,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xFD 0xCB: FDCB Redirect [0]
-    private static void Step846(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step846(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.opcodeStepTable = OpcodeStepTableFDCB;
@@ -5511,20 +5512,20 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xFD 0xE3: EX (SP); IY [7]
-    private static void Step848(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step848(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data = emulator.IYH;
     }
 
     // 0xFD 0xE3: EX (SP); IY [10]
-    private static void Step849(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step849(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.SP;
         emulator.data = emulator.IYL;
     }
 
     // 0xFD 0xE3: EX (SP); IY [14]
-    private static void Step850(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step850(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.IY = emulator.WZ;
         emulator.Q = 0x00;
@@ -5537,7 +5538,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xFD 0xE5: PUSH IY [1]
-    private static void Step851(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step851(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -5545,7 +5546,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xFD 0xE5: PUSH IY [4]
-    private static void Step852(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step852(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
@@ -5553,7 +5554,7 @@ public sealed unsafe partial class Z80Emulator
     }
 
     // 0xFD 0xF9: LD SP, IY [0]
-    private static void Step854(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step854(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.SP = emulator.IY;
@@ -5631,7 +5632,7 @@ public sealed unsafe partial class Z80Emulator
     // DDCB 0x68: BIT 0x05, (IX + d) [2]
     // DDCB 0x70: BIT 0x06, (IX + d) [2]
     // DDCB 0x78: BIT 0x07, (IX + d) [2]
-    private static void Step855(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step855(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IX + (sbyte)emulator.latch);
         emulator.address = emulator.WZ;
@@ -5639,7 +5640,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x00: RLC (IX + d), B [5]
     // FDCB 0x00: RLC (IY + d), B [5]
-    private static void Step856(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step856(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | emulator.data >> 0x07);
@@ -5656,7 +5657,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x01: RLC (IX + d), C [5]
     // FDCB 0x01: RLC (IY + d), C [5]
-    private static void Step857(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step857(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | emulator.data >> 0x07);
@@ -5673,7 +5674,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x02: RLC (IX + d), D [5]
     // FDCB 0x02: RLC (IY + d), D [5]
-    private static void Step858(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step858(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | emulator.data >> 0x07);
@@ -5690,7 +5691,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x03: RLC (IX + d), E [5]
     // FDCB 0x03: RLC (IY + d), E [5]
-    private static void Step859(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step859(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | emulator.data >> 0x07);
@@ -5707,7 +5708,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x04: RLC (IX + d), H [5]
     // FDCB 0x04: RLC (IY + d), H [5]
-    private static void Step860(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step860(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | emulator.data >> 0x07);
@@ -5724,7 +5725,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x05: RLC (IX + d), L [5]
     // FDCB 0x05: RLC (IY + d), L [5]
-    private static void Step861(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step861(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | emulator.data >> 0x07);
@@ -5741,7 +5742,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x07: RLC (IX + d), A [5]
     // FDCB 0x07: RLC (IY + d), A [5]
-    private static void Step862(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step862(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | emulator.data >> 0x07);
@@ -5758,7 +5759,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x08: RRC (IX + d), B [5]
     // FDCB 0x08: RRC (IY + d), B [5]
-    private static void Step863(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step863(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | emulator.data << 0x07);
@@ -5775,7 +5776,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x09: RRC (IX + d), C [5]
     // FDCB 0x09: RRC (IY + d), C [5]
-    private static void Step864(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step864(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | emulator.data << 0x07);
@@ -5792,7 +5793,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x0A: RRC (IX + d), D [5]
     // FDCB 0x0A: RRC (IY + d), D [5]
-    private static void Step865(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step865(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | emulator.data << 0x07);
@@ -5809,7 +5810,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x0B: RRC (IX + d), E [5]
     // FDCB 0x0B: RRC (IY + d), E [5]
-    private static void Step866(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step866(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | emulator.data << 0x07);
@@ -5826,7 +5827,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x0C: RRC (IX + d), H [5]
     // FDCB 0x0C: RRC (IY + d), H [5]
-    private static void Step867(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step867(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | emulator.data << 0x07);
@@ -5843,7 +5844,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x0D: RRC (IX + d), L [5]
     // FDCB 0x0D: RRC (IY + d), L [5]
-    private static void Step868(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step868(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | emulator.data << 0x07);
@@ -5860,7 +5861,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x0F: RRC (IX + d), A [5]
     // FDCB 0x0F: RRC (IY + d), A [5]
-    private static void Step869(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step869(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | emulator.data << 0x07);
@@ -5877,7 +5878,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x10: RL (IX + d), B [5]
     // FDCB 0x10: RL (IY + d), B [5]
-    private static void Step870(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step870(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | (emulator.F & 0b00000001 /* flag.C */));
@@ -5894,7 +5895,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x11: RL (IX + d), C [5]
     // FDCB 0x11: RL (IY + d), C [5]
-    private static void Step871(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step871(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | (emulator.F & 0b00000001 /* flag.C */));
@@ -5911,7 +5912,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x12: RL (IX + d), D [5]
     // FDCB 0x12: RL (IY + d), D [5]
-    private static void Step872(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step872(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | (emulator.F & 0b00000001 /* flag.C */));
@@ -5928,7 +5929,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x13: RL (IX + d), E [5]
     // FDCB 0x13: RL (IY + d), E [5]
-    private static void Step873(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step873(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | (emulator.F & 0b00000001 /* flag.C */));
@@ -5945,7 +5946,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x14: RL (IX + d), H [5]
     // FDCB 0x14: RL (IY + d), H [5]
-    private static void Step874(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step874(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | (emulator.F & 0b00000001 /* flag.C */));
@@ -5962,7 +5963,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x15: RL (IX + d), L [5]
     // FDCB 0x15: RL (IY + d), L [5]
-    private static void Step875(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step875(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | (emulator.F & 0b00000001 /* flag.C */));
@@ -5979,7 +5980,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x17: RL (IX + d), A [5]
     // FDCB 0x17: RL (IY + d), A [5]
-    private static void Step876(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step876(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | (emulator.F & 0b00000001 /* flag.C */));
@@ -5996,7 +5997,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x18: RR (IX + d), B [5]
     // FDCB 0x18: RR (IY + d), B [5]
-    private static void Step877(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step877(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | (emulator.F & 0b00000001 /* flag.C */) << 0x07);
@@ -6013,7 +6014,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x19: RR (IX + d), C [5]
     // FDCB 0x19: RR (IY + d), C [5]
-    private static void Step878(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step878(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | (emulator.F & 0b00000001 /* flag.C */) << 0x07);
@@ -6030,7 +6031,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x1A: RR (IX + d), D [5]
     // FDCB 0x1A: RR (IY + d), D [5]
-    private static void Step879(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step879(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | (emulator.F & 0b00000001 /* flag.C */) << 0x07);
@@ -6047,7 +6048,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x1B: RR (IX + d), E [5]
     // FDCB 0x1B: RR (IY + d), E [5]
-    private static void Step880(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step880(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | (emulator.F & 0b00000001 /* flag.C */) << 0x07);
@@ -6064,7 +6065,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x1C: RR (IX + d), H [5]
     // FDCB 0x1C: RR (IY + d), H [5]
-    private static void Step881(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step881(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | (emulator.F & 0b00000001 /* flag.C */) << 0x07);
@@ -6081,7 +6082,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x1D: RR (IX + d), L [5]
     // FDCB 0x1D: RR (IY + d), L [5]
-    private static void Step882(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step882(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | (emulator.F & 0b00000001 /* flag.C */) << 0x07);
@@ -6098,7 +6099,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x1F: RR (IX + d), A [5]
     // FDCB 0x1F: RR (IY + d), A [5]
-    private static void Step883(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step883(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | (emulator.F & 0b00000001 /* flag.C */) << 0x07);
@@ -6115,7 +6116,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x20: SLA (IX + d), B [5]
     // FDCB 0x20: SLA (IY + d), B [5]
-    private static void Step884(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step884(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data <<= 0x01;
@@ -6132,7 +6133,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x21: SLA (IX + d), C [5]
     // FDCB 0x21: SLA (IY + d), C [5]
-    private static void Step885(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step885(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data <<= 0x01;
@@ -6149,7 +6150,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x22: SLA (IX + d), D [5]
     // FDCB 0x22: SLA (IY + d), D [5]
-    private static void Step886(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step886(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data <<= 0x01;
@@ -6166,7 +6167,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x23: SLA (IX + d), E [5]
     // FDCB 0x23: SLA (IY + d), E [5]
-    private static void Step887(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step887(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data <<= 0x01;
@@ -6183,7 +6184,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x24: SLA (IX + d), H [5]
     // FDCB 0x24: SLA (IY + d), H [5]
-    private static void Step888(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step888(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data <<= 0x01;
@@ -6200,7 +6201,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x25: SLA (IX + d), L [5]
     // FDCB 0x25: SLA (IY + d), L [5]
-    private static void Step889(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step889(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data <<= 0x01;
@@ -6217,7 +6218,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x27: SLA (IX + d), A [5]
     // FDCB 0x27: SLA (IY + d), A [5]
-    private static void Step890(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step890(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data <<= 0x01;
@@ -6234,7 +6235,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x28: SRA (IX + d), B [5]
     // FDCB 0x28: SRA (IY + d), B [5]
-    private static void Step891(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step891(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | emulator.data & 0b10000000);
@@ -6251,7 +6252,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x29: SRA (IX + d), C [5]
     // FDCB 0x29: SRA (IY + d), C [5]
-    private static void Step892(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step892(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | emulator.data & 0b10000000);
@@ -6268,7 +6269,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x2A: SRA (IX + d), D [5]
     // FDCB 0x2A: SRA (IY + d), D [5]
-    private static void Step893(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step893(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | emulator.data & 0b10000000);
@@ -6285,7 +6286,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x2B: SRA (IX + d), E [5]
     // FDCB 0x2B: SRA (IY + d), E [5]
-    private static void Step894(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step894(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | emulator.data & 0b10000000);
@@ -6302,7 +6303,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x2C: SRA (IX + d), H [5]
     // FDCB 0x2C: SRA (IY + d), H [5]
-    private static void Step895(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step895(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | emulator.data & 0b10000000);
@@ -6319,7 +6320,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x2D: SRA (IX + d), L [5]
     // FDCB 0x2D: SRA (IY + d), L [5]
-    private static void Step896(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step896(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | emulator.data & 0b10000000);
@@ -6336,7 +6337,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x2F: SRA (IX + d), A [5]
     // FDCB 0x2F: SRA (IY + d), A [5]
-    private static void Step897(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step897(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 | emulator.data & 0b10000000);
@@ -6353,7 +6354,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x30: SLL (IX + d), B [5]
     // FDCB 0x30: SLL (IY + d), B [5]
-    private static void Step898(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step898(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | 0b00000001);
@@ -6370,7 +6371,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x31: SLL (IX + d), C [5]
     // FDCB 0x31: SLL (IY + d), C [5]
-    private static void Step899(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step899(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | 0b00000001);
@@ -6387,7 +6388,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x32: SLL (IX + d), D [5]
     // FDCB 0x32: SLL (IY + d), D [5]
-    private static void Step900(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step900(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | 0b00000001);
@@ -6404,7 +6405,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x33: SLL (IX + d), E [5]
     // FDCB 0x33: SLL (IY + d), E [5]
-    private static void Step901(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step901(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | 0b00000001);
@@ -6421,7 +6422,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x34: SLL (IX + d), H [5]
     // FDCB 0x34: SLL (IY + d), H [5]
-    private static void Step902(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step902(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | 0b00000001);
@@ -6438,7 +6439,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x35: SLL (IX + d), L [5]
     // FDCB 0x35: SLL (IY + d), L [5]
-    private static void Step903(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step903(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | 0b00000001);
@@ -6455,7 +6456,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x37: SLL (IX + d), A [5]
     // FDCB 0x37: SLL (IY + d), A [5]
-    private static void Step904(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step904(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data << 0x01 | 0b00000001);
@@ -6472,7 +6473,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x38: SRL (IX + d), B [5]
     // FDCB 0x38: SRL (IY + d), B [5]
-    private static void Step905(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step905(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 & 0b01111111);
@@ -6489,7 +6490,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x39: SRL (IX + d), C [5]
     // FDCB 0x39: SRL (IY + d), C [5]
-    private static void Step906(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step906(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 & 0b01111111);
@@ -6506,7 +6507,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x3A: SRL (IX + d), D [5]
     // FDCB 0x3A: SRL (IY + d), D [5]
-    private static void Step907(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step907(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 & 0b01111111);
@@ -6523,7 +6524,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x3B: SRL (IX + d), E [5]
     // FDCB 0x3B: SRL (IY + d), E [5]
-    private static void Step908(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step908(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 & 0b01111111);
@@ -6540,7 +6541,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x3C: SRL (IX + d), H [5]
     // FDCB 0x3C: SRL (IY + d), H [5]
-    private static void Step909(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step909(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 & 0b01111111);
@@ -6557,7 +6558,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x3D: SRL (IX + d), L [5]
     // FDCB 0x3D: SRL (IY + d), L [5]
-    private static void Step910(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step910(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 & 0b01111111);
@@ -6574,7 +6575,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x3F: SRL (IX + d), A [5]
     // FDCB 0x3F: SRL (IY + d), A [5]
-    private static void Step911(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step911(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var temp = emulator.data;
         emulator.data = (byte)(emulator.data >> 0x01 & 0b01111111);
@@ -6591,7 +6592,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x40: BIT 0x00, (IX + d) [4]
     // FDCB 0x40: BIT 0x00, (IY + d) [4]
-    private static void Step912(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step912(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var comparison = emulator.data & 0b00000001;
 
@@ -6607,7 +6608,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x48: BIT 0x01, (IX + d) [4]
     // FDCB 0x48: BIT 0x01, (IY + d) [4]
-    private static void Step913(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step913(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var comparison = emulator.data & 0b00000010;
 
@@ -6623,7 +6624,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x50: BIT 0x02, (IX + d) [4]
     // FDCB 0x50: BIT 0x02, (IY + d) [4]
-    private static void Step914(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step914(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var comparison = emulator.data & 0b00000100;
 
@@ -6639,7 +6640,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x58: BIT 0x03, (IX + d) [4]
     // FDCB 0x58: BIT 0x03, (IY + d) [4]
-    private static void Step915(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step915(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var comparison = emulator.data & 0b00001000;
 
@@ -6655,7 +6656,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x60: BIT 0x04, (IX + d) [4]
     // FDCB 0x60: BIT 0x04, (IY + d) [4]
-    private static void Step916(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step916(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var comparison = emulator.data & 0b00010000;
 
@@ -6671,7 +6672,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x68: BIT 0x05, (IX + d) [4]
     // FDCB 0x68: BIT 0x05, (IY + d) [4]
-    private static void Step917(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step917(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var comparison = emulator.data & 0b00100000;
 
@@ -6687,7 +6688,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x70: BIT 0x06, (IX + d) [4]
     // FDCB 0x70: BIT 0x06, (IY + d) [4]
-    private static void Step918(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step918(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var comparison = emulator.data & 0b01000000;
 
@@ -6703,7 +6704,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x78: BIT 0x07, (IX + d) [4]
     // FDCB 0x78: BIT 0x07, (IY + d) [4]
-    private static void Step919(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step919(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var comparison = emulator.data & 0b10000000;
 
@@ -6719,7 +6720,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x80: RES 0x00, (IX + d), B [6]
     // FDCB 0x80: RES 0x00, (IY + d), B [6]
-    private static void Step920(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step920(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFE;
         emulator.B = emulator.data;
@@ -6727,7 +6728,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x81: RES 0x00, (IX + d), C [6]
     // FDCB 0x81: RES 0x00, (IY + d), C [6]
-    private static void Step921(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step921(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFE;
         emulator.C = emulator.data;
@@ -6735,7 +6736,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x82: RES 0x00, (IX + d), D [6]
     // FDCB 0x82: RES 0x00, (IY + d), D [6]
-    private static void Step922(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step922(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFE;
         emulator.D = emulator.data;
@@ -6743,7 +6744,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x83: RES 0x00, (IX + d), E [6]
     // FDCB 0x83: RES 0x00, (IY + d), E [6]
-    private static void Step923(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step923(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFE;
         emulator.E = emulator.data;
@@ -6751,7 +6752,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x84: RES 0x00, (IX + d), H [6]
     // FDCB 0x84: RES 0x00, (IY + d), H [6]
-    private static void Step924(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step924(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFE;
         emulator.H = emulator.data;
@@ -6759,7 +6760,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x85: RES 0x00, (IX + d), L [6]
     // FDCB 0x85: RES 0x00, (IY + d), L [6]
-    private static void Step925(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step925(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFE;
         emulator.L = emulator.data;
@@ -6767,7 +6768,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x87: RES 0x00, (IX + d), A [6]
     // FDCB 0x87: RES 0x00, (IY + d), A [6]
-    private static void Step926(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step926(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFE;
         emulator.A = emulator.data;
@@ -6775,7 +6776,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x88: RES 0x01, (IX + d), B [6]
     // FDCB 0x88: RES 0x01, (IY + d), B [6]
-    private static void Step927(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step927(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFD;
         emulator.B = emulator.data;
@@ -6783,7 +6784,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x89: RES 0x01, (IX + d), C [6]
     // FDCB 0x89: RES 0x01, (IY + d), C [6]
-    private static void Step928(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step928(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFD;
         emulator.C = emulator.data;
@@ -6791,7 +6792,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x8A: RES 0x01, (IX + d), D [6]
     // FDCB 0x8A: RES 0x01, (IY + d), D [6]
-    private static void Step929(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step929(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFD;
         emulator.D = emulator.data;
@@ -6799,7 +6800,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x8B: RES 0x01, (IX + d), E [6]
     // FDCB 0x8B: RES 0x01, (IY + d), E [6]
-    private static void Step930(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step930(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFD;
         emulator.E = emulator.data;
@@ -6807,7 +6808,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x8C: RES 0x01, (IX + d), H [6]
     // FDCB 0x8C: RES 0x01, (IY + d), H [6]
-    private static void Step931(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step931(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFD;
         emulator.H = emulator.data;
@@ -6815,7 +6816,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x8D: RES 0x01, (IX + d), L [6]
     // FDCB 0x8D: RES 0x01, (IY + d), L [6]
-    private static void Step932(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step932(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFD;
         emulator.L = emulator.data;
@@ -6823,7 +6824,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x8F: RES 0x01, (IX + d), A [6]
     // FDCB 0x8F: RES 0x01, (IY + d), A [6]
-    private static void Step933(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step933(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFD;
         emulator.A = emulator.data;
@@ -6831,7 +6832,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x90: RES 0x02, (IX + d), B [6]
     // FDCB 0x90: RES 0x02, (IY + d), B [6]
-    private static void Step934(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step934(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFB;
         emulator.B = emulator.data;
@@ -6839,7 +6840,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x91: RES 0x02, (IX + d), C [6]
     // FDCB 0x91: RES 0x02, (IY + d), C [6]
-    private static void Step935(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step935(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFB;
         emulator.C = emulator.data;
@@ -6847,7 +6848,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x92: RES 0x02, (IX + d), D [6]
     // FDCB 0x92: RES 0x02, (IY + d), D [6]
-    private static void Step936(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step936(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFB;
         emulator.D = emulator.data;
@@ -6855,7 +6856,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x93: RES 0x02, (IX + d), E [6]
     // FDCB 0x93: RES 0x02, (IY + d), E [6]
-    private static void Step937(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step937(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFB;
         emulator.E = emulator.data;
@@ -6863,7 +6864,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x94: RES 0x02, (IX + d), H [6]
     // FDCB 0x94: RES 0x02, (IY + d), H [6]
-    private static void Step938(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step938(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFB;
         emulator.H = emulator.data;
@@ -6871,7 +6872,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x95: RES 0x02, (IX + d), L [6]
     // FDCB 0x95: RES 0x02, (IY + d), L [6]
-    private static void Step939(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step939(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFB;
         emulator.L = emulator.data;
@@ -6879,7 +6880,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x97: RES 0x02, (IX + d), A [6]
     // FDCB 0x97: RES 0x02, (IY + d), A [6]
-    private static void Step940(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step940(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xFB;
         emulator.A = emulator.data;
@@ -6887,7 +6888,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x98: RES 0x03, (IX + d), B [6]
     // FDCB 0x98: RES 0x03, (IY + d), B [6]
-    private static void Step941(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step941(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xF7;
         emulator.B = emulator.data;
@@ -6895,7 +6896,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x99: RES 0x03, (IX + d), C [6]
     // FDCB 0x99: RES 0x03, (IY + d), C [6]
-    private static void Step942(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step942(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xF7;
         emulator.C = emulator.data;
@@ -6903,7 +6904,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x9A: RES 0x03, (IX + d), D [6]
     // FDCB 0x9A: RES 0x03, (IY + d), D [6]
-    private static void Step943(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step943(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xF7;
         emulator.D = emulator.data;
@@ -6911,7 +6912,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x9B: RES 0x03, (IX + d), E [6]
     // FDCB 0x9B: RES 0x03, (IY + d), E [6]
-    private static void Step944(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step944(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xF7;
         emulator.E = emulator.data;
@@ -6919,7 +6920,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x9C: RES 0x03, (IX + d), H [6]
     // FDCB 0x9C: RES 0x03, (IY + d), H [6]
-    private static void Step945(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step945(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xF7;
         emulator.H = emulator.data;
@@ -6927,7 +6928,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x9D: RES 0x03, (IX + d), L [6]
     // FDCB 0x9D: RES 0x03, (IY + d), L [6]
-    private static void Step946(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step946(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xF7;
         emulator.L = emulator.data;
@@ -6935,7 +6936,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0x9F: RES 0x03, (IX + d), A [6]
     // FDCB 0x9F: RES 0x03, (IY + d), A [6]
-    private static void Step947(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step947(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xF7;
         emulator.A = emulator.data;
@@ -6943,7 +6944,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xA0: RES 0x04, (IX + d), B [6]
     // FDCB 0xA0: RES 0x04, (IY + d), B [6]
-    private static void Step948(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step948(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xEF;
         emulator.B = emulator.data;
@@ -6951,7 +6952,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xA1: RES 0x04, (IX + d), C [6]
     // FDCB 0xA1: RES 0x04, (IY + d), C [6]
-    private static void Step949(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step949(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xEF;
         emulator.C = emulator.data;
@@ -6959,7 +6960,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xA2: RES 0x04, (IX + d), D [6]
     // FDCB 0xA2: RES 0x04, (IY + d), D [6]
-    private static void Step950(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step950(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xEF;
         emulator.D = emulator.data;
@@ -6967,7 +6968,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xA3: RES 0x04, (IX + d), E [6]
     // FDCB 0xA3: RES 0x04, (IY + d), E [6]
-    private static void Step951(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step951(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xEF;
         emulator.E = emulator.data;
@@ -6975,7 +6976,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xA4: RES 0x04, (IX + d), H [6]
     // FDCB 0xA4: RES 0x04, (IY + d), H [6]
-    private static void Step952(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step952(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xEF;
         emulator.H = emulator.data;
@@ -6983,7 +6984,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xA5: RES 0x04, (IX + d), L [6]
     // FDCB 0xA5: RES 0x04, (IY + d), L [6]
-    private static void Step953(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step953(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xEF;
         emulator.L = emulator.data;
@@ -6991,7 +6992,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xA7: RES 0x04, (IX + d), A [6]
     // FDCB 0xA7: RES 0x04, (IY + d), A [6]
-    private static void Step954(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step954(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xEF;
         emulator.A = emulator.data;
@@ -6999,7 +7000,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xA8: RES 0x05, (IX + d), B [6]
     // FDCB 0xA8: RES 0x05, (IY + d), B [6]
-    private static void Step955(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step955(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xDF;
         emulator.B = emulator.data;
@@ -7007,7 +7008,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xA9: RES 0x05, (IX + d), C [6]
     // FDCB 0xA9: RES 0x05, (IY + d), C [6]
-    private static void Step956(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step956(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xDF;
         emulator.C = emulator.data;
@@ -7015,7 +7016,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xAA: RES 0x05, (IX + d), D [6]
     // FDCB 0xAA: RES 0x05, (IY + d), D [6]
-    private static void Step957(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step957(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xDF;
         emulator.D = emulator.data;
@@ -7023,7 +7024,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xAB: RES 0x05, (IX + d), E [6]
     // FDCB 0xAB: RES 0x05, (IY + d), E [6]
-    private static void Step958(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step958(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xDF;
         emulator.E = emulator.data;
@@ -7031,7 +7032,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xAC: RES 0x05, (IX + d), H [6]
     // FDCB 0xAC: RES 0x05, (IY + d), H [6]
-    private static void Step959(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step959(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xDF;
         emulator.H = emulator.data;
@@ -7039,7 +7040,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xAD: RES 0x05, (IX + d), L [6]
     // FDCB 0xAD: RES 0x05, (IY + d), L [6]
-    private static void Step960(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step960(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xDF;
         emulator.L = emulator.data;
@@ -7047,7 +7048,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xAF: RES 0x05, (IX + d), A [6]
     // FDCB 0xAF: RES 0x05, (IY + d), A [6]
-    private static void Step961(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step961(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xDF;
         emulator.A = emulator.data;
@@ -7055,7 +7056,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xB0: RES 0x06, (IX + d), B [6]
     // FDCB 0xB0: RES 0x06, (IY + d), B [6]
-    private static void Step962(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step962(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xBF;
         emulator.B = emulator.data;
@@ -7063,7 +7064,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xB1: RES 0x06, (IX + d), C [6]
     // FDCB 0xB1: RES 0x06, (IY + d), C [6]
-    private static void Step963(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step963(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xBF;
         emulator.C = emulator.data;
@@ -7071,7 +7072,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xB2: RES 0x06, (IX + d), D [6]
     // FDCB 0xB2: RES 0x06, (IY + d), D [6]
-    private static void Step964(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step964(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xBF;
         emulator.D = emulator.data;
@@ -7079,7 +7080,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xB3: RES 0x06, (IX + d), E [6]
     // FDCB 0xB3: RES 0x06, (IY + d), E [6]
-    private static void Step965(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step965(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xBF;
         emulator.E = emulator.data;
@@ -7087,7 +7088,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xB4: RES 0x06, (IX + d), H [6]
     // FDCB 0xB4: RES 0x06, (IY + d), H [6]
-    private static void Step966(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step966(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xBF;
         emulator.H = emulator.data;
@@ -7095,7 +7096,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xB5: RES 0x06, (IX + d), L [6]
     // FDCB 0xB5: RES 0x06, (IY + d), L [6]
-    private static void Step967(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step967(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xBF;
         emulator.L = emulator.data;
@@ -7103,7 +7104,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xB7: RES 0x06, (IX + d), A [6]
     // FDCB 0xB7: RES 0x06, (IY + d), A [6]
-    private static void Step968(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step968(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0xBF;
         emulator.A = emulator.data;
@@ -7111,7 +7112,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xB8: RES 0x07, (IX + d), B [6]
     // FDCB 0xB8: RES 0x07, (IY + d), B [6]
-    private static void Step969(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step969(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0x7F;
         emulator.B = emulator.data;
@@ -7119,7 +7120,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xB9: RES 0x07, (IX + d), C [6]
     // FDCB 0xB9: RES 0x07, (IY + d), C [6]
-    private static void Step970(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step970(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0x7F;
         emulator.C = emulator.data;
@@ -7127,7 +7128,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xBA: RES 0x07, (IX + d), D [6]
     // FDCB 0xBA: RES 0x07, (IY + d), D [6]
-    private static void Step971(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step971(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0x7F;
         emulator.D = emulator.data;
@@ -7135,7 +7136,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xBB: RES 0x07, (IX + d), E [6]
     // FDCB 0xBB: RES 0x07, (IY + d), E [6]
-    private static void Step972(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step972(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0x7F;
         emulator.E = emulator.data;
@@ -7143,7 +7144,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xBC: RES 0x07, (IX + d), H [6]
     // FDCB 0xBC: RES 0x07, (IY + d), H [6]
-    private static void Step973(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step973(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0x7F;
         emulator.H = emulator.data;
@@ -7151,7 +7152,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xBD: RES 0x07, (IX + d), L [6]
     // FDCB 0xBD: RES 0x07, (IY + d), L [6]
-    private static void Step974(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step974(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0x7F;
         emulator.L = emulator.data;
@@ -7159,7 +7160,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xBF: RES 0x07, (IX + d), A [6]
     // FDCB 0xBF: RES 0x07, (IY + d), A [6]
-    private static void Step975(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step975(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data &= 0x7F;
         emulator.A = emulator.data;
@@ -7167,7 +7168,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xC0: SET 0x00, (IX + d), B [6]
     // FDCB 0xC0: SET 0x00, (IY + d), B [6]
-    private static void Step976(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step976(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x01;
         emulator.B = emulator.data;
@@ -7175,7 +7176,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xC1: SET 0x00, (IX + d), C [6]
     // FDCB 0xC1: SET 0x00, (IY + d), C [6]
-    private static void Step977(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step977(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x01;
         emulator.C = emulator.data;
@@ -7183,7 +7184,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xC2: SET 0x00, (IX + d), D [6]
     // FDCB 0xC2: SET 0x00, (IY + d), D [6]
-    private static void Step978(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step978(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x01;
         emulator.D = emulator.data;
@@ -7191,7 +7192,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xC3: SET 0x00, (IX + d), E [6]
     // FDCB 0xC3: SET 0x00, (IY + d), E [6]
-    private static void Step979(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step979(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x01;
         emulator.E = emulator.data;
@@ -7199,7 +7200,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xC4: SET 0x00, (IX + d), H [6]
     // FDCB 0xC4: SET 0x00, (IY + d), H [6]
-    private static void Step980(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step980(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x01;
         emulator.H = emulator.data;
@@ -7207,7 +7208,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xC5: SET 0x00, (IX + d), L [6]
     // FDCB 0xC5: SET 0x00, (IY + d), L [6]
-    private static void Step981(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step981(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x01;
         emulator.L = emulator.data;
@@ -7215,7 +7216,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xC7: SET 0x00, (IX + d), A [6]
     // FDCB 0xC7: SET 0x00, (IY + d), A [6]
-    private static void Step982(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step982(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x01;
         emulator.A = emulator.data;
@@ -7223,7 +7224,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xC8: SET 0x01, (IX + d), B [6]
     // FDCB 0xC8: SET 0x01, (IY + d), B [6]
-    private static void Step983(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step983(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x02;
         emulator.B = emulator.data;
@@ -7231,7 +7232,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xC9: SET 0x01, (IX + d), C [6]
     // FDCB 0xC9: SET 0x01, (IY + d), C [6]
-    private static void Step984(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step984(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x02;
         emulator.C = emulator.data;
@@ -7239,7 +7240,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xCA: SET 0x01, (IX + d), D [6]
     // FDCB 0xCA: SET 0x01, (IY + d), D [6]
-    private static void Step985(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step985(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x02;
         emulator.D = emulator.data;
@@ -7247,7 +7248,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xCB: SET 0x01, (IX + d), E [6]
     // FDCB 0xCB: SET 0x01, (IY + d), E [6]
-    private static void Step986(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step986(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x02;
         emulator.E = emulator.data;
@@ -7255,7 +7256,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xCC: SET 0x01, (IX + d), H [6]
     // FDCB 0xCC: SET 0x01, (IY + d), H [6]
-    private static void Step987(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step987(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x02;
         emulator.H = emulator.data;
@@ -7263,7 +7264,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xCD: SET 0x01, (IX + d), L [6]
     // FDCB 0xCD: SET 0x01, (IY + d), L [6]
-    private static void Step988(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step988(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x02;
         emulator.L = emulator.data;
@@ -7271,7 +7272,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xCF: SET 0x01, (IX + d), A [6]
     // FDCB 0xCF: SET 0x01, (IY + d), A [6]
-    private static void Step989(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step989(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x02;
         emulator.A = emulator.data;
@@ -7279,7 +7280,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xD0: SET 0x02, (IX + d), B [6]
     // FDCB 0xD0: SET 0x02, (IY + d), B [6]
-    private static void Step990(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step990(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x04;
         emulator.B = emulator.data;
@@ -7287,7 +7288,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xD1: SET 0x02, (IX + d), C [6]
     // FDCB 0xD1: SET 0x02, (IY + d), C [6]
-    private static void Step991(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step991(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x04;
         emulator.C = emulator.data;
@@ -7295,7 +7296,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xD2: SET 0x02, (IX + d), D [6]
     // FDCB 0xD2: SET 0x02, (IY + d), D [6]
-    private static void Step992(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step992(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x04;
         emulator.D = emulator.data;
@@ -7303,7 +7304,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xD3: SET 0x02, (IX + d), E [6]
     // FDCB 0xD3: SET 0x02, (IY + d), E [6]
-    private static void Step993(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step993(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x04;
         emulator.E = emulator.data;
@@ -7311,7 +7312,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xD4: SET 0x02, (IX + d), H [6]
     // FDCB 0xD4: SET 0x02, (IY + d), H [6]
-    private static void Step994(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step994(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x04;
         emulator.H = emulator.data;
@@ -7319,7 +7320,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xD5: SET 0x02, (IX + d), L [6]
     // FDCB 0xD5: SET 0x02, (IY + d), L [6]
-    private static void Step995(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step995(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x04;
         emulator.L = emulator.data;
@@ -7327,7 +7328,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xD7: SET 0x02, (IX + d), A [6]
     // FDCB 0xD7: SET 0x02, (IY + d), A [6]
-    private static void Step996(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step996(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x04;
         emulator.A = emulator.data;
@@ -7335,7 +7336,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xD8: SET 0x03, (IX + d), B [6]
     // FDCB 0xD8: SET 0x03, (IY + d), B [6]
-    private static void Step997(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step997(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x08;
         emulator.B = emulator.data;
@@ -7343,7 +7344,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xD9: SET 0x03, (IX + d), C [6]
     // FDCB 0xD9: SET 0x03, (IY + d), C [6]
-    private static void Step998(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step998(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x08;
         emulator.C = emulator.data;
@@ -7351,7 +7352,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xDA: SET 0x03, (IX + d), D [6]
     // FDCB 0xDA: SET 0x03, (IY + d), D [6]
-    private static void Step999(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step999(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x08;
         emulator.D = emulator.data;
@@ -7359,7 +7360,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xDB: SET 0x03, (IX + d), E [6]
     // FDCB 0xDB: SET 0x03, (IY + d), E [6]
-    private static void Step1000(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1000(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x08;
         emulator.E = emulator.data;
@@ -7367,7 +7368,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xDC: SET 0x03, (IX + d), H [6]
     // FDCB 0xDC: SET 0x03, (IY + d), H [6]
-    private static void Step1001(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1001(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x08;
         emulator.H = emulator.data;
@@ -7375,7 +7376,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xDD: SET 0x03, (IX + d), L [6]
     // FDCB 0xDD: SET 0x03, (IY + d), L [6]
-    private static void Step1002(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1002(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x08;
         emulator.L = emulator.data;
@@ -7383,7 +7384,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xDF: SET 0x03, (IX + d), A [6]
     // FDCB 0xDF: SET 0x03, (IY + d), A [6]
-    private static void Step1003(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1003(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x08;
         emulator.A = emulator.data;
@@ -7391,7 +7392,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xE0: SET 0x04, (IX + d), B [6]
     // FDCB 0xE0: SET 0x04, (IY + d), B [6]
-    private static void Step1004(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1004(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x10;
         emulator.B = emulator.data;
@@ -7399,7 +7400,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xE1: SET 0x04, (IX + d), C [6]
     // FDCB 0xE1: SET 0x04, (IY + d), C [6]
-    private static void Step1005(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1005(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x10;
         emulator.C = emulator.data;
@@ -7407,7 +7408,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xE2: SET 0x04, (IX + d), D [6]
     // FDCB 0xE2: SET 0x04, (IY + d), D [6]
-    private static void Step1006(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1006(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x10;
         emulator.D = emulator.data;
@@ -7415,7 +7416,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xE3: SET 0x04, (IX + d), E [6]
     // FDCB 0xE3: SET 0x04, (IY + d), E [6]
-    private static void Step1007(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1007(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x10;
         emulator.E = emulator.data;
@@ -7423,7 +7424,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xE4: SET 0x04, (IX + d), H [6]
     // FDCB 0xE4: SET 0x04, (IY + d), H [6]
-    private static void Step1008(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1008(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x10;
         emulator.H = emulator.data;
@@ -7431,7 +7432,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xE5: SET 0x04, (IX + d), L [6]
     // FDCB 0xE5: SET 0x04, (IY + d), L [6]
-    private static void Step1009(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1009(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x10;
         emulator.L = emulator.data;
@@ -7439,7 +7440,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xE7: SET 0x04, (IX + d), A [6]
     // FDCB 0xE7: SET 0x04, (IY + d), A [6]
-    private static void Step1010(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1010(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x10;
         emulator.A = emulator.data;
@@ -7447,7 +7448,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xE8: SET 0x05, (IX + d), B [6]
     // FDCB 0xE8: SET 0x05, (IY + d), B [6]
-    private static void Step1011(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1011(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x20;
         emulator.B = emulator.data;
@@ -7455,7 +7456,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xE9: SET 0x05, (IX + d), C [6]
     // FDCB 0xE9: SET 0x05, (IY + d), C [6]
-    private static void Step1012(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1012(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x20;
         emulator.C = emulator.data;
@@ -7463,7 +7464,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xEA: SET 0x05, (IX + d), D [6]
     // FDCB 0xEA: SET 0x05, (IY + d), D [6]
-    private static void Step1013(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1013(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x20;
         emulator.D = emulator.data;
@@ -7471,7 +7472,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xEB: SET 0x05, (IX + d), E [6]
     // FDCB 0xEB: SET 0x05, (IY + d), E [6]
-    private static void Step1014(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1014(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x20;
         emulator.E = emulator.data;
@@ -7479,7 +7480,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xEC: SET 0x05, (IX + d), H [6]
     // FDCB 0xEC: SET 0x05, (IY + d), H [6]
-    private static void Step1015(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1015(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x20;
         emulator.H = emulator.data;
@@ -7487,7 +7488,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xED: SET 0x05, (IX + d), L [6]
     // FDCB 0xED: SET 0x05, (IY + d), L [6]
-    private static void Step1016(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1016(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x20;
         emulator.L = emulator.data;
@@ -7495,7 +7496,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xEF: SET 0x05, (IX + d), A [6]
     // FDCB 0xEF: SET 0x05, (IY + d), A [6]
-    private static void Step1017(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1017(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x20;
         emulator.A = emulator.data;
@@ -7503,7 +7504,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xF0: SET 0x06, (IX + d), B [6]
     // FDCB 0xF0: SET 0x06, (IY + d), B [6]
-    private static void Step1018(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1018(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x40;
         emulator.B = emulator.data;
@@ -7511,7 +7512,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xF1: SET 0x06, (IX + d), C [6]
     // FDCB 0xF1: SET 0x06, (IY + d), C [6]
-    private static void Step1019(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1019(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x40;
         emulator.C = emulator.data;
@@ -7519,7 +7520,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xF2: SET 0x06, (IX + d), D [6]
     // FDCB 0xF2: SET 0x06, (IY + d), D [6]
-    private static void Step1020(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1020(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x40;
         emulator.D = emulator.data;
@@ -7527,7 +7528,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xF3: SET 0x06, (IX + d), E [6]
     // FDCB 0xF3: SET 0x06, (IY + d), E [6]
-    private static void Step1021(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1021(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x40;
         emulator.E = emulator.data;
@@ -7535,7 +7536,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xF4: SET 0x06, (IX + d), H [6]
     // FDCB 0xF4: SET 0x06, (IY + d), H [6]
-    private static void Step1022(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1022(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x40;
         emulator.H = emulator.data;
@@ -7543,7 +7544,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xF5: SET 0x06, (IX + d), L [6]
     // FDCB 0xF5: SET 0x06, (IY + d), L [6]
-    private static void Step1023(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1023(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x40;
         emulator.L = emulator.data;
@@ -7551,7 +7552,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xF7: SET 0x06, (IX + d), A [6]
     // FDCB 0xF7: SET 0x06, (IY + d), A [6]
-    private static void Step1024(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1024(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x40;
         emulator.A = emulator.data;
@@ -7559,7 +7560,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xF8: SET 0x07, (IX + d), B [6]
     // FDCB 0xF8: SET 0x07, (IY + d), B [6]
-    private static void Step1025(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1025(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x80;
         emulator.B = emulator.data;
@@ -7567,7 +7568,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xF9: SET 0x07, (IX + d), C [6]
     // FDCB 0xF9: SET 0x07, (IY + d), C [6]
-    private static void Step1026(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1026(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x80;
         emulator.C = emulator.data;
@@ -7575,7 +7576,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xFA: SET 0x07, (IX + d), D [6]
     // FDCB 0xFA: SET 0x07, (IY + d), D [6]
-    private static void Step1027(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1027(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x80;
         emulator.D = emulator.data;
@@ -7583,7 +7584,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xFB: SET 0x07, (IX + d), E [6]
     // FDCB 0xFB: SET 0x07, (IY + d), E [6]
-    private static void Step1028(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1028(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x80;
         emulator.E = emulator.data;
@@ -7591,7 +7592,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xFC: SET 0x07, (IX + d), H [6]
     // FDCB 0xFC: SET 0x07, (IY + d), H [6]
-    private static void Step1029(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1029(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x80;
         emulator.H = emulator.data;
@@ -7599,7 +7600,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xFD: SET 0x07, (IX + d), L [6]
     // FDCB 0xFD: SET 0x07, (IY + d), L [6]
-    private static void Step1030(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1030(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x80;
         emulator.L = emulator.data;
@@ -7607,7 +7608,7 @@ public sealed unsafe partial class Z80Emulator
 
     // DDCB 0xFF: SET 0x07, (IX + d), A [6]
     // FDCB 0xFF: SET 0x07, (IY + d), A [6]
-    private static void Step1031(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1031(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data |= 0x80;
         emulator.A = emulator.data;
@@ -7685,7 +7686,7 @@ public sealed unsafe partial class Z80Emulator
     // FDCB 0x68: BIT 0x05, (IY + d) [2]
     // FDCB 0x70: BIT 0x06, (IY + d) [2]
     // FDCB 0x78: BIT 0x07, (IY + d) [2]
-    private static void Step1032(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static void Step1032(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.IY + (sbyte)emulator.latch);
         emulator.address = emulator.WZ;

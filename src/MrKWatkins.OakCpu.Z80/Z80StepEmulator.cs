@@ -1,6 +1,6 @@
 namespace MrKWatkins.OakCpu.Z80;
 
-public partial class Z80Emulator
+public partial class Z80StepEmulator
 {
     private const ushort OpcodeReadStep0 = 0;
     private const ushort OpcodeReadStep1 = 1;

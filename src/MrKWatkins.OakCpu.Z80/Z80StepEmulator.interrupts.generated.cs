@@ -6,14 +6,15 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
+#nullable enable
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace MrKWatkins.OakCpu.Z80;
 
-public sealed unsafe partial class Z80Emulator
+public sealed unsafe partial class Z80StepEmulator
 {
-    private static bool HandleInterrupts(Z80Emulator emulator, ref ActionRequired actionRequired)
+    private static bool HandleInterrupts(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if (emulator.interrupt)
         {

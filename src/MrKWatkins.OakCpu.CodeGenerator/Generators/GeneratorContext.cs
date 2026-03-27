@@ -54,6 +54,10 @@ public sealed class GeneratorContext
     private readonly IReadOnlyDictionary<Step, IReadOnlyList<Step>> overlapImplementationAndDuplicates;
     private readonly IReadOnlyDictionary<Step, int> overlapMethodIndices;
     private readonly IReadOnlyDictionary<Step, ushort> overlapIndices;
+    private IReadOnlyList<StepSequence>? instructionEmulatorSequences;
+    private IReadOnlyDictionary<StepSequence, ushort>? instructionEmulatorSequenceIndices;
+    private IReadOnlyDictionary<byte, ushort>? instructionEmulatorPrefixIndices;
+    private ushort? instructionEmulatorErrorIndex;
 
     public string RootNamespace { get; }
 
@@ -85,6 +89,45 @@ public sealed class GeneratorContext
 
     public int ErrorStepIndex => AllSteps.Count;
 
+    public IReadOnlyList<StepSequence> InstructionEmulatorSequences
+    {
+        get
+        {
+            EnsureInstructionEmulatorDispatchInfo();
+            return instructionEmulatorSequences!;
+        }
+    }
+
+    public int InstructionEmulatorDispatchCount
+    {
+        get
+        {
+            EnsureInstructionEmulatorDispatchInfo();
+            return instructionEmulatorErrorIndex!.Value + 1;
+        }
+    }
+
+    public ushort InstructionEmulatorErrorIndex
+    {
+        get
+        {
+            EnsureInstructionEmulatorDispatchInfo();
+            return instructionEmulatorErrorIndex!.Value;
+        }
+    }
+
+    public ushort GetInstructionEmulatorSequenceIndex(StepSequence sequence)
+    {
+        EnsureInstructionEmulatorDispatchInfo();
+        return instructionEmulatorSequenceIndices![sequence];
+    }
+
+    public ushort GetInstructionEmulatorPrefixIndex(byte prefix)
+    {
+        EnsureInstructionEmulatorDispatchInfo();
+        return instructionEmulatorPrefixIndices![prefix];
+    }
+
     [Pure]
     public StepSequence GetSequence(string name) =>
         Sequences.TryGetValue(name, out var sequence) ? sequence : throw new InvalidOperationException($"No sequence named {name} exists.");
@@ -92,6 +135,32 @@ public sealed class GeneratorContext
     [Pure]
     public SequenceGroup GetSequenceGroup(string name) =>
         SequenceGroups.TryGetValue(name, out var sequenceGroup) ? sequenceGroup : throw new InvalidOperationException($"No sequence group named {name} exists.");
+
+    private void EnsureInstructionEmulatorDispatchInfo()
+    {
+        if (instructionEmulatorSequences != null)
+        {
+            return;
+        }
+
+        instructionEmulatorSequences = Instructions
+            .Concat(SequenceGroups.Values.SelectMany(group => group.Members.Values))
+            .Concat(Interrupts.AllSequences)
+            .Distinct()
+            .OrderBy(sequence => sequence.FirstStep.Index)
+            .ToList();
+
+        instructionEmulatorSequenceIndices = instructionEmulatorSequences
+            .Select((sequence, index) => (sequence, Index: (ushort)index))
+            .ToDictionary(x => x.sequence, x => x.Index);
+
+        instructionEmulatorPrefixIndices = PrefixJumps.Values
+            .OrderBy(prefix => prefix.Prefix)
+            .Select((prefix, index) => (prefix.Prefix, Index: (ushort)(instructionEmulatorSequences.Count + index)))
+            .ToDictionary(x => x.Prefix, x => x.Index);
+
+        instructionEmulatorErrorIndex = (ushort)(instructionEmulatorSequences.Count + instructionEmulatorPrefixIndices.Count);
+    }
 
     [Pure]
     public int GetOverlapMethodIndex(Step step) =>

@@ -3,20 +3,22 @@ using NUnit.Framework;
 
 namespace MrKWatkins.OakCpu.Z80.Testing;
 
-public class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80SteppableTestHarness
+public sealed class Z80InstructionEmulatorTestHarness : Z80TestHarness
 {
+    private readonly Z80InstructionEmulator emulator;
     private readonly byte[] memory = new byte[65536];
+    private readonly Action<ActionRequired, ushort, byte> performActionRequiredCallback;
 
-    public Z80EmulatorTestHarness()
-        : this(new Z80Emulator())
+    public Z80InstructionEmulatorTestHarness()
+        : this(new Z80InstructionEmulator())
     {
     }
 
-    // TODO: Remove.
-    public ReadOnlySpan<byte> Memory => memory;
-
-    // TODO: Remove.
-    public Z80Emulator Emulator => emulator;
+    private Z80InstructionEmulatorTestHarness(Z80InstructionEmulator emulator)
+    {
+        this.emulator = emulator;
+        performActionRequiredCallback = PerformActionRequired;
+    }
 
     public override ushort RegisterAF
     {
@@ -156,68 +158,67 @@ public class Z80EmulatorTestHarness(Z80Emulator emulator) : Z80SteppableTestHarn
 
     public override void AssertFail(string message) => Assert.Fail(message + Environment.NewLine);
 
-    public override void Step()
+    public int LastInstructionTStates { get; private set; }
+
+    public override void ExecuteInstruction()
     {
-        var actionRequired = emulator.Step();
-        PerformActionRequired(actionRequired);
+        var instructionStartTStates = TStates;
+        LastInstructionTStates = emulator.ExecuteInstruction(performActionRequiredCallback);
+        TStates = instructionStartTStates + (ulong)LastInstructionTStates;
     }
 
-    public override void ExecuteInstruction() => ExecuteInstruction();
-
-    public void ExecuteInstruction(Action? onBeforeStep = null) => emulator.ExecuteInstruction(PerformActionRequired, onBeforeStep);
-
-    protected void PerformActionRequired(ActionRequired actionRequired)
+    private void PerformActionRequired(ActionRequired actionRequired, ushort address, byte data)
     {
         switch (actionRequired)
         {
             case ActionRequired.OpcodeRead:
             case ActionRequired.MemoryRead:
-                emulator.Data = ReadByteFromMemory(emulator.Address);
+                emulator.Data = ReadByteFromMemory(address);
+                data = emulator.Data;
                 break;
 
             case ActionRequired.MemoryWrite:
-                if (RomArea == null || emulator.Address < RomArea.Value.Start || emulator.Address > RomArea.Value.End)
+                if (RomArea == null || address < RomArea.Value.Start || address > RomArea.Value.End)
                 {
-                    WriteByteToMemory(emulator.Address, emulator.Data);
+                    WriteByteToMemory(address, data);
                 }
                 break;
 
             case ActionRequired.IoRead:
-                emulator.Data = IOReader.Read(emulator.Address);
+                emulator.Data = IOReader.Read(address);
+                data = emulator.Data;
                 break;
 
             case ActionRequired.IoWrite:
-                IOWriter.Write(emulator.Address, emulator.Data);
+                IOWriter.Write(address, data);
                 break;
         }
 
-        MutableCycles?.Add(CreateCycle(actionRequired));
+        MutableCycles?.Add(CreateCycle(actionRequired, address, data));
         TStates++;
     }
 
     [Pure]
-    private Cycle CreateCycle(ActionRequired actionRequired)
+    private Cycle CreateCycle(ActionRequired actionRequired, ushort address, byte data)
     {
         switch (actionRequired)
         {
-            case ActionRequired.None:
-                return new Cycle(CycleType.None, TStates, emulator.Address, emulator.Data);
-
             case ActionRequired.OpcodeRead:
-                return new Cycle(CycleType.MemoryRead, TStates, emulator.Address, emulator.Data, true);
+                return new Cycle(CycleType.MemoryRead, TStates, address, data, true);
 
             case ActionRequired.MemoryRead:
-                return new Cycle(CycleType.MemoryRead, TStates, emulator.Address, emulator.Data);
+                return new Cycle(CycleType.MemoryRead, TStates, address, data);
 
             case ActionRequired.MemoryWrite:
-                return new Cycle(CycleType.MemoryWrite, TStates, emulator.Address, emulator.Data);
+                return new Cycle(CycleType.MemoryWrite, TStates, address, data);
 
             case ActionRequired.IoRead:
-                return new Cycle(CycleType.IORead, TStates, emulator.Address, emulator.Data);
+                return new Cycle(CycleType.IORead, TStates, address, data);
 
             case ActionRequired.IoWrite:
-                return new Cycle(CycleType.IOWrite, TStates, emulator.Address, emulator.Data);
+                return new Cycle(CycleType.IOWrite, TStates, address, data);
         }
+
         throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");
     }
 }

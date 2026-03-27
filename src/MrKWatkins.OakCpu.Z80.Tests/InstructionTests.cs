@@ -7,7 +7,7 @@ public sealed class InstructionTests
     [Test]
     public void PrefixedAlternativesResetOpcodeTable()
     {
-        var emulator = new Z80EmulatorTestHarness
+        var emulator = new Z80StepEmulatorTestHarness
         {
             RegisterPC = 0x8335,
             RegisterAF = 0xA3C5,

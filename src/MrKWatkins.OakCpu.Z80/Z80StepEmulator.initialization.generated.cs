@@ -6,15 +6,16 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
+#nullable enable
 using System;
 
 namespace MrKWatkins.OakCpu.Z80;
 
-public sealed unsafe partial class Z80Emulator
+public sealed unsafe partial class Z80StepEmulator
 {
     private static readonly Step[] Steps;
 
-    private static readonly delegate*<Z80Emulator, void>[] Overlaps;
+    private static readonly delegate*<Z80StepEmulator, void>[] Overlaps;
 
     private static readonly ushort[] OpcodeStepTableNoPrefix;
 
@@ -32,7 +33,7 @@ public sealed unsafe partial class Z80Emulator
 
     private static readonly ushort[] InterruptModeStepTable;
 
-    static Z80Emulator()
+    static Z80StepEmulator()
     {
         if (!BitConverter.IsLittleEndian)
         {
@@ -1388,7 +1389,7 @@ public sealed unsafe partial class Z80Emulator
         ];
         Overlaps = 
         [
-            default(delegate*<Z80Emulator, void>), &Overlap0, &Overlap1, &Overlap2, &Overlap3, 
+            default(delegate*<Z80StepEmulator, void>), &Overlap0, &Overlap1, &Overlap2, &Overlap3, 
             &Overlap4, &Overlap5, &Overlap6, &Overlap7, &Overlap8, 
             &Overlap9, &Overlap10, &Overlap11, &Overlap12, &Overlap13, 
             &Overlap14, &Overlap15, &Overlap16, &Overlap17, &Overlap18, 

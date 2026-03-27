@@ -6,15 +6,16 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
+#nullable enable
 using System.Runtime.CompilerServices;
 
 namespace MrKWatkins.OakCpu.Z80;
 
 public sealed class Z80Registers
 {
-    private readonly Z80Emulator emulator;
+    private readonly Z80StepEmulator emulator;
 
-    internal Z80Registers(Z80Emulator emulator)
+    internal Z80Registers(Z80StepEmulator emulator)
     {
         this.emulator = emulator;
         Shadow = new Z80ShadowRegisters(emulator);
@@ -245,9 +246,9 @@ public sealed class Z80Registers
 
 public sealed class Z80ShadowRegisters
 {
-    private readonly Z80Emulator emulator;
+    private readonly Z80StepEmulator emulator;
 
-    internal Z80ShadowRegisters(Z80Emulator emulator)
+    internal Z80ShadowRegisters(Z80StepEmulator emulator)
     {
         this.emulator = emulator;
     }

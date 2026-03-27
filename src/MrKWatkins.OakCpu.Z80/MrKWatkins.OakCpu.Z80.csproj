@@ -8,26 +8,29 @@
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
             <_Parameter1>MrKWatkins.OakCpu.Z80.Testing</_Parameter1>
         </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>MrKWatkins.OakCpu.Z80.Benchmarks</_Parameter1>
+        </AssemblyAttribute>
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Z80Emulator.initialization.generated.cs">
-        <DependentUpon>Z80Emulator.cs</DependentUpon>
+      <Compile Update="Z80StepEmulator.initialization.generated.cs">
+        <DependentUpon>Z80StepEmulator.cs</DependentUpon>
       </Compile>
-      <Compile Update="Z80Emulator.interrupts.generated.cs">
-        <DependentUpon>Z80Emulator.cs</DependentUpon>
+      <Compile Update="Z80StepEmulator.interrupts.generated.cs">
+        <DependentUpon>Z80StepEmulator.cs</DependentUpon>
       </Compile>
-      <Compile Update="Z80Emulator.overlaps.generated.cs">
-        <DependentUpon>Z80Emulator.cs</DependentUpon>
+      <Compile Update="Z80StepEmulator.overlaps.generated.cs">
+        <DependentUpon>Z80StepEmulator.cs</DependentUpon>
       </Compile>
-      <Compile Update="Z80Emulator.reset.generated.cs">
-        <DependentUpon>Z80Emulator.cs</DependentUpon>
+      <Compile Update="Z80StepEmulator.reset.generated.cs">
+        <DependentUpon>Z80StepEmulator.cs</DependentUpon>
       </Compile>
-      <Compile Update="Z80Emulator.serialization.generated.cs">
-        <DependentUpon>Z80Emulator.cs</DependentUpon>
+      <Compile Update="Z80StepEmulator.serialization.generated.cs">
+        <DependentUpon>Z80StepEmulator.cs</DependentUpon>
       </Compile>
-      <Compile Update="Z80Emulator.steps.generated.cs">
-        <DependentUpon>Z80Emulator.cs</DependentUpon>
+      <Compile Update="Z80StepEmulator.steps.generated.cs">
+        <DependentUpon>Z80StepEmulator.cs</DependentUpon>
       </Compile>
     </ItemGroup>
 </Project>

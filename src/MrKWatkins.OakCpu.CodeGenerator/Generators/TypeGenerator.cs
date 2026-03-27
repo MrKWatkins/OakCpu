@@ -21,6 +21,7 @@ public abstract partial class TypeGenerator : Generator
                                       //     the code is regenerated.
                                       // </auto-generated>
                                       //------------------------------------------------------------------------------
+                                      #nullable enable
 
                                       """;
 
@@ -43,6 +44,11 @@ public abstract partial class TypeGenerator : Generator
         ActionRequiredGenerator.Instance,
         EmulatorInstanceDataMembersAndConstructorGenerator.Instance,
         EmulatorInterruptsGenerator.Instance,
+        InstructionEmulatorStateGenerator.Instance,
+        InstructionEmulatorInterruptsGenerator.Instance,
+        InstructionEmulatorGenerator.Instance,
+        InstructionEmulatorResetGenerator.Instance,
+        InstructionEmulatorTablesGenerator.Instance,
         EmulatorOverlapsGenerator.Instance,
         EmulatorResetGenerator.Instance,
         EmulatorSerializationGenerator.Instance,
@@ -158,10 +164,51 @@ public abstract partial class TypeGenerator : Generator
             .WithModifiers(TokenList(Private, ReadOnly));
 
     [Pure]
-    protected static string GetEmulatorClassName(GeneratorContext context) => $"{context.Cpu.Name}Emulator";
+    protected static string GetEmulatorClassName(GeneratorContext context) => $"{context.Cpu.Name}StepEmulator";
 
     [Pure]
     protected static IdentifierNameSyntax GetEmulatorClassIdentifier(GeneratorContext context) => IdentifierName(GetEmulatorClassName(context));
+
+    [Pure]
+    protected static string GetInstructionEmulatorClassName(GeneratorContext context) => $"{context.Cpu.Name}InstructionEmulator";
+
+    [Pure]
+    protected static IdentifierNameSyntax GetInstructionEmulatorClassIdentifier(GeneratorContext context) => IdentifierName(GetInstructionEmulatorClassName(context));
+
+    [Pure]
+    protected static ParameterSyntax CreateInstructionEmulatorParameter(GeneratorContext context) => Parameter(Identifier(EmulatorParameterName)).WithType(GetInstructionEmulatorClassIdentifier(context));
+
+    [Pure]
+    protected static FunctionPointerTypeSyntax CreateInstructionHandlerType(GeneratorContext context) =>
+        FunctionPointerType(
+            null,
+            FunctionPointerParameterList(
+            [
+                FunctionPointerParameter(IdentifierName(GetInstructionEmulatorClassName(context))),
+                FunctionPointerParameter(
+                    GenericName(Identifier("Action"))
+                        .WithTypeArgumentList(
+                            TypeArgumentList(
+                                SeparatedList<TypeSyntax>(
+                                [
+                                    IdentifierName(ActionRequiredEnumName),
+                                    Token(SyntaxKind.CommaToken),
+                                    UShortType,
+                                    Token(SyntaxKind.CommaToken),
+                                    ByteType
+                                ])))),
+                FunctionPointerParameter(IntType)
+            ]));
+
+    [Pure]
+    protected static FunctionPointerTypeSyntax CreateInstructionOverlapHandlerType(GeneratorContext context) =>
+        FunctionPointerType(
+            null,
+            FunctionPointerParameterList(
+            [
+                FunctionPointerParameter(IdentifierName(GetInstructionEmulatorClassName(context))),
+                FunctionPointerParameter(VoidType)
+            ]));
 
     [Pure]
     protected static string GetRegistersClassName(GeneratorContext context, string? category = null) => $"{context.Cpu.Name}{category}Registers";
