@@ -102,22 +102,52 @@ internal sealed class Contention
     /// <paramref name="preStepAddress"/>; this is the address that was on the bus at the start of the step,
     /// before any handler modified it.
     /// </summary>
-    public int CalculateDelay(ActionRequired actionRequired, ushort address, ushort preStepAddress) =>
-        actionRequired switch
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int CalculateDelay(ActionRequired actionRequired, ushort address, ushort preStepAddress)
+    {
+        // None is the common case, and most None steps are either bus-cycle continuations or hit
+        // uncontended addresses, so fast-path those before touching the less common external cycles.
+        if (actionRequired == ActionRequired.None)
         {
-            ActionRequired.OpcodeRead => CalculateOpcodeReadContention(address),
-
-            ActionRequired.MemoryRead or ActionRequired.MemoryWrite => CalculateMemoryContention(address),
-
-            ActionRequired.IoRead or ActionRequired.IoWrite => CalculateIoContention(address),
+            if (skipCount != 0)
+            {
+                skipCount--;
+                prevNoneDelay = 0;
+                return 0;
+            }
 
             // Use the pre-step address for internal cycles. Handlers may update Address to prepare for
             // the next bus cycle (e.g. OUTI sets Address=BC before IoWrite), but the ULA sees the
             // address that was on the bus at the start of the step.
-            ActionRequired.None => CalculateNoneContention(preStepAddress),
+            if (!IsContendedAddress(preStepAddress))
+            {
+                prevNoneDelay = 0;
+                return 0;
+            }
 
-            _ => 0
-        };
+            var delay = contentionTable.GetContentionAt(TStatesInCurrentFrame);
+            prevNoneDelay = delay;
+            return delay;
+        }
+
+        if (actionRequired == ActionRequired.OpcodeRead)
+        {
+            // M1 cycle is 4 T-states: 1 OpcodeRead + 3 None continuation steps.
+            skipCount = 3;
+            prevNoneDelay = 0;
+            return IsContendedAddress(address) ? contentionTable.GetContentionAt(TStatesInCurrentFrame) : 0;
+        }
+
+        if (actionRequired is ActionRequired.MemoryRead or ActionRequired.MemoryWrite)
+        {
+            // Memory read/write cycle is 3 T-states: 1 MemoryRead/Write + 2 None continuation steps.
+            skipCount = 2;
+            prevNoneDelay = 0;
+            return IsContendedAddress(address) ? contentionTable.GetContentionAt(TStatesInCurrentFrame) : 0;
+        }
+
+        return actionRequired is ActionRequired.IoRead or ActionRequired.IoWrite ? CalculateIoContention(address) : 0;
+    }
 
     /// <summary>
     /// Advances external time by the supplied number of T-states and wraps the frame position as needed.
@@ -139,30 +169,6 @@ internal sealed class Contention
         }
 
         TStatesInCurrentFrame = nextTStatesInCurrentFrame - TStatesPerFrame;
-    }
-
-    /// <summary>
-    /// Applies contention for the first T-state of an M1 opcode-read cycle and records its three continuation slots.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CalculateOpcodeReadContention(ushort address)
-    {
-        // M1 cycle is 4 T-states: 1 OpcodeRead + 3 None continuation steps.
-        skipCount = 3;
-        prevNoneDelay = 0;
-        return CalculateContention(address);
-    }
-
-    /// <summary>
-    /// Applies contention for the first T-state of a memory read/write cycle and records its two continuation slots.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CalculateMemoryContention(ushort address)
-    {
-        // Memory read/write cycle is 3 T-states: 1 MemoryRead/Write + 2 None continuation steps.
-        skipCount = 2;
-        prevNoneDelay = 0;
-        return CalculateContention(address);
     }
 
     /// <summary>
@@ -228,47 +234,11 @@ internal sealed class Contention
     }
 
     /// <summary>
-    /// Applies contention for a None step only when it is a standalone internal cycle rather than a bus-cycle
-    /// continuation.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CalculateNoneContention(ushort address)
-    {
-        // If this None step is a continuation of the previous bus cycle, don't contend it.
-        if (skipCount > 0)
-        {
-            skipCount--;
-            prevNoneDelay = 0;
-            return 0;
-        }
-
-        // This is an independent internal 1-T-state machine cycle; contend based on address.
-        var delay = CalculateContention(address);
-        prevNoneDelay = (byte)delay;
-        return delay;
-    }
-
-    /// <summary>
-    /// Returns the contention delay for the current frame position if the supplied address is in contended RAM.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CalculateContention(ushort address)
-    {
-        if (IsContendedAddress(address))
-        {
-            return contentionTable.GetContentionAt(TStatesInCurrentFrame);
-        }
-
-        return 0;
-    }
-
-    /// <summary>
     /// Returns whether the address lies within the Spectrum 48K contended RAM window.
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsContendedAddress(ushort address) => address is >= 0x4000 and <= 0x7FFF;
+    private static bool IsContendedAddress(ushort address) => (address & 0xC000) == 0x4000;
 
     /// <summary>
     /// Adds within the frame timeline, wrapping once at the frame boundary.

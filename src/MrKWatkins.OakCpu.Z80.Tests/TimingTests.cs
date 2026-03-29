@@ -6,7 +6,7 @@ namespace MrKWatkins.OakCpu.Z80.Tests;
 public sealed class TimingTests
 {
     [TestCaseSource(nameof(TestCases))]
-    public void Timing(TimingTestCase testCase) => testCase.Execute<Z80StepEmulatorWithContentionTestHarness>(TestContext.Progress);
+    public void Timing(TimingTestCase testCase) => testCase.Execute<ContendedZ80StepEmulatorTestHarness>(TestContext.Progress);
 
     [Pure]
     public static IEnumerable<TestCaseData> TestCases() => TimingTestSuite.Instance.TestCases.ToTestCaseData();

@@ -8,6 +8,7 @@ namespace MrKWatkins.OakCpu.Z80.Tests;
 [Parallelizable(ParallelScope.All)]
 [TestFixture(typeof(Z80StepEmulatorTestHarness))]
 [TestFixture(typeof(Z80InstructionEmulatorTestHarness))]
+[TestFixture(typeof(ContendedZ80StepEmulatorTestHarness))]
 public sealed class ZEXALLTests<THarness>
     where THarness : Z80TestHarness, new()
 {

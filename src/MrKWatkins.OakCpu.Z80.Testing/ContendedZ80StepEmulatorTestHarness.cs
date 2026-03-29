@@ -1,20 +1,14 @@
 namespace MrKWatkins.OakCpu.Z80.Testing;
 
-public sealed class Z80StepEmulatorWithContentionTestHarness : Z80StepEmulatorTestHarness
+public sealed class ContendedZ80StepEmulatorTestHarness(Z80StepEmulator emulator) : Z80StepEmulatorTestHarness(emulator)
 {
     private const int FinalTStateInFrame = ContentionTable.TStatesPerFrame - 1;
 
-    private readonly ContendedZ80StepEmulator contended;
+    private readonly ContendedZ80StepEmulator contended = new(emulator);
 
-    public Z80StepEmulatorWithContentionTestHarness()
+    public ContendedZ80StepEmulatorTestHarness()
         : this(new Z80StepEmulator())
     {
-    }
-
-    public Z80StepEmulatorWithContentionTestHarness(Z80StepEmulator emulator)
-        : base(emulator)
-    {
-        contended = new ContendedZ80StepEmulator(emulator);
     }
 
     public override void Reset()
