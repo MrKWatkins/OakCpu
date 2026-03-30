@@ -92,8 +92,13 @@ public sealed class SerializationTests
     [Test]
     public void Contended_serialize_deserialize()
     {
-        var original = new ContendedZ80StepEmulator(new Z80StepEmulator(), tStatesInCurrentFrame: 14335);
-        original.Registers.PC = 0x4000;
+        var original = new ContendedZ80StepEmulator(new Z80StepEmulator(), tStatesInCurrentFrame: 14335)
+        {
+            Registers =
+            {
+                PC = 0x4000
+            }
+        };
 
         using var stream = new MemoryStream();
         original.Serialize(stream);

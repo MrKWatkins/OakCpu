@@ -17,6 +17,11 @@ public sealed class StatementGeneratorContextTests : TestFixture
         context.InitializedTemporaryVariables.Should().BeEmpty();
         context.InBooleanContext.Should().BeFalse();
         context.Parent.Should().BeNull();
+        context.Mode.Should().Equal(StatementGenerationMode.Normal);
+        context.SkipHandleInterrupts.Should().BeFalse();
+        context.InstructionEmulatorMode.Should().BeFalse();
+        context.InstructionStepMode.Should().BeFalse();
+        context.InstructionStep.Should().BeNull();
     }
 
     [Test]
@@ -29,12 +34,17 @@ public sealed class StatementGeneratorContextTests : TestFixture
         context.InitializedTemporaryVariables.Should().BeEmpty();
         context.InBooleanContext.Should().BeFalse();
         context.Parent.Should().BeNull();
+        context.Mode.Should().Equal(StatementGenerationMode.Normal);
+        context.SkipHandleInterrupts.Should().BeFalse();
+        context.InstructionEmulatorMode.Should().BeFalse();
+        context.InstructionStepMode.Should().BeFalse();
+        context.InstructionStep.Should().BeNull();
     }
 
     [Test]
     public void WithArguments()
     {
-        var context = new StatementGeneratorContext(Z80GeneratorContext, Step);
+        var context = CreateInstructionStepContext();
 
         var parameters = new[] { "x", "y" };
         var arguments = new[] { CreateExpression("5"), CreateExpression("true") };
@@ -45,6 +55,8 @@ public sealed class StatementGeneratorContextTests : TestFixture
         newContext.InitializedTemporaryVariables.Should().BeTheSameInstanceAs(context.InitializedTemporaryVariables);
         newContext.InBooleanContext.Should().BeFalse();
         newContext.Parent.Should().BeNull();
+        newContext.Mode.Should().Equal(StatementGenerationMode.InstructionStep);
+        newContext.InstructionStep.Should().BeTheSameInstanceAs(context.InstructionStep);
 
         newContext.ArgumentScope.Should().HaveCount(2);
         newContext.ArgumentScope["x"].Should().BeTheSameInstanceAs(arguments[0]);
@@ -54,7 +66,7 @@ public sealed class StatementGeneratorContextTests : TestFixture
     [Test]
     public void WithBooleanContext()
     {
-        var context = new StatementGeneratorContext(Z80GeneratorContext, Step);
+        var context = CreateInstructionStepContext();
 
         var newContext = context.WithBooleanContext();
         newContext.GeneratorContext.Should().BeTheSameInstanceAs(Z80GeneratorContext);
@@ -62,6 +74,8 @@ public sealed class StatementGeneratorContextTests : TestFixture
         newContext.ArgumentScope.Should().BeTheSameInstanceAs(context.ArgumentScope);
         newContext.InitializedTemporaryVariables.Should().BeTheSameInstanceAs(context.InitializedTemporaryVariables);
         newContext.Parent.Should().BeNull();
+        newContext.Mode.Should().Equal(StatementGenerationMode.InstructionStep);
+        newContext.InstructionStep.Should().BeTheSameInstanceAs(context.InstructionStep);
 
         newContext.InBooleanContext.Should().BeTrue();
     }
@@ -69,7 +83,7 @@ public sealed class StatementGeneratorContextTests : TestFixture
     [Test]
     public void WithChildVariableScope()
     {
-        var context = new StatementGeneratorContext(Z80GeneratorContext, Step);
+        var context = CreateInstructionStepContext();
         context.InitializedTemporaryVariables.Add("test");
 
         var newContext = context.WithChildVariableScope();
@@ -78,6 +92,8 @@ public sealed class StatementGeneratorContextTests : TestFixture
         newContext.ArgumentScope.Should().BeTheSameInstanceAs(context.ArgumentScope);
         newContext.InBooleanContext.Should().BeFalse();
         newContext.Parent.Should().BeNull();
+        newContext.Mode.Should().Equal(StatementGenerationMode.InstructionStep);
+        newContext.InstructionStep.Should().BeTheSameInstanceAs(context.InstructionStep);
 
         newContext.InitializedTemporaryVariables.Should().NotBeTheSameInstanceAs(context.InitializedTemporaryVariables);
         newContext.InitializedTemporaryVariables.Should().HaveCount(1);
@@ -87,7 +103,7 @@ public sealed class StatementGeneratorContextTests : TestFixture
     [Test]
     public void WithParentExpression()
     {
-        var context = new StatementGeneratorContext(Z80GeneratorContext, Step);
+        var context = CreateInstructionStepContext();
 
         var parent = CreateExpression("10");
 
@@ -97,8 +113,64 @@ public sealed class StatementGeneratorContextTests : TestFixture
         newContext.ArgumentScope.Should().BeTheSameInstanceAs(context.ArgumentScope);
         newContext.InitializedTemporaryVariables.Should().BeTheSameInstanceAs(context.InitializedTemporaryVariables);
         newContext.InBooleanContext.Should().BeFalse();
+        newContext.Mode.Should().Equal(StatementGenerationMode.InstructionStep);
+        newContext.InstructionStep.Should().BeTheSameInstanceAs(context.InstructionStep);
 
         newContext.Parent.Should().BeTheSameInstanceAs(parent);
+    }
+
+    [Test]
+    public void WithoutHandleInterrupts()
+    {
+        var context = new StatementGeneratorContext(Z80GeneratorContext, Step);
+
+        var newContext = context.WithoutHandleInterrupts();
+
+        newContext.Mode.Should().Equal(StatementGenerationMode.Overlap);
+        newContext.SkipHandleInterrupts.Should().BeTrue();
+        newContext.InstructionEmulatorMode.Should().BeFalse();
+        newContext.InstructionStepMode.Should().BeFalse();
+        newContext.InstructionStep.Should().BeNull();
+    }
+
+    [Test]
+    public void WithInstructionEmulatorMode()
+    {
+        var context = CreateInstructionStepContext();
+
+        var newContext = context.WithInstructionEmulatorMode();
+
+        newContext.Mode.Should().Equal(StatementGenerationMode.InstructionEmulator);
+        newContext.SkipHandleInterrupts.Should().BeFalse();
+        newContext.InstructionEmulatorMode.Should().BeTrue();
+        newContext.InstructionStepMode.Should().BeFalse();
+        newContext.InstructionStep.Should().BeNull();
+    }
+
+    [Test]
+    public void WithInstructionStepMode()
+    {
+        var context = new StatementGeneratorContext(Z80GeneratorContext, Step);
+
+        var newContext = context.WithInstructionStepMode("nextInstruction", Step, 7);
+
+        newContext.Mode.Should().Equal(StatementGenerationMode.InstructionStep);
+        newContext.SkipHandleInterrupts.Should().BeFalse();
+        newContext.InstructionEmulatorMode.Should().BeTrue();
+        newContext.InstructionStepMode.Should().BeTrue();
+
+        var instructionStep = newContext.RequiredInstructionStep;
+        instructionStep.NextInstructionVariableName.Should().Equal("nextInstruction");
+        instructionStep.ExitOverlapStep.Should().BeTheSameInstanceAs(Step);
+        instructionStep.TStatesBeforeStep.Should().Equal(7);
+    }
+
+    [Test]
+    public void RequiredInstructionStep_ThrowsOutsideInstructionStepMode()
+    {
+        var context = new StatementGeneratorContext(Z80GeneratorContext, Step);
+
+        Assert.Throws<InvalidOperationException>(() => _ = context.RequiredInstructionStep);
     }
 
     [Pure]
@@ -107,6 +179,8 @@ public sealed class StatementGeneratorContextTests : TestFixture
         var context = new ParserContext(Z80GeneratorContext.Configuration);
         return Parser.ParseExpression(context, text);
     }
+
+    private static StatementGeneratorContext CreateInstructionStepContext() => new StatementGeneratorContext(Z80GeneratorContext, Step).WithInstructionStepMode("nextInstruction", Step, 7);
 
     private static Step Step => Z80GeneratorContext.Instructions[0].FirstStep;
 }

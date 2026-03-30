@@ -7,7 +7,7 @@ internal sealed class CombineConstants : CombineOptimization<Constant>
 {
     private protected override IEnumerable<Constant> Combine(StatementGeneratorContext context, IReadOnlyList<Constant> constants)
     {
-        if (constants.Count == 0)
+        if (constants.Count == 1)
         {
             yield return constants[0];
             yield break;

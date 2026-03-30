@@ -52,6 +52,44 @@ public sealed class InterruptBoundaryTests
         StepAndAssertEvent(z80, CycleType.IORead);
     }
 
+    [Test]
+    public void ExecuteInstruction_InterruptHeldWhileDisabled_PersistsUntilInstructionAfterEiCompletes()
+    {
+        var z80 = new Z80StepEmulatorTestHarness
+        {
+            IM = 1
+        };
+
+        Load(z80, 0x0000,
+        [
+            0xF3,             // DI
+            0xFB,             // EI
+            0xC3, 0x05, 0x00, // JP 0x0005
+            0x00              // NOP
+        ]);
+
+        z80.Interrupt = true;
+
+        z80.ExecuteInstruction(); // DI
+        z80.Interrupt.Should().BeTrue();
+        z80.IFF1.Should().BeFalse();
+        z80.IFF2.Should().BeFalse();
+
+        z80.ExecuteInstruction(); // EI
+        z80.Interrupt.Should().BeTrue();
+        z80.IFF1.Should().BeTrue();
+        z80.IFF2.Should().BeTrue();
+
+        z80.ExecuteInstruction(); // JP 0x0005
+        z80.Interrupt.Should().BeTrue();
+        z80.Emulator.CurrentStep.Should().Equal(Z80StepEmulator.IM1Start);
+        z80.RegisterPC.Should().Equal(0x0005);
+
+        z80.Step();
+        z80.IFF1.Should().BeFalse();
+        z80.IFF2.Should().BeFalse();
+    }
+
     private static void Load(Z80StepEmulatorTestHarness z80, ushort address, ReadOnlySpan<byte> bytes)
     {
         for (var i = 0; i < bytes.Length; i++)

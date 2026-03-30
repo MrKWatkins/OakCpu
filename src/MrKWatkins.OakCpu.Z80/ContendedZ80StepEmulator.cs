@@ -17,7 +17,12 @@ public sealed class ContendedZ80StepEmulator
     {
     }
 
-    public ContendedZ80StepEmulator(Z80StepEmulator emulator, int tStatesInCurrentFrame = 0, bool earlyTimings = true)
+    public ContendedZ80StepEmulator(Z80StepEmulator emulator, bool earlyTimings = true)
+        : this(emulator, 0, earlyTimings)
+    {
+    }
+
+    internal ContendedZ80StepEmulator(Z80StepEmulator emulator, int tStatesInCurrentFrame, bool earlyTimings = true)
     {
         ArgumentNullException.ThrowIfNull(emulator);
         ArgumentOutOfRangeException.ThrowIfNegative(tStatesInCurrentFrame);
@@ -59,23 +64,23 @@ public sealed class ContendedZ80StepEmulator
         PendingDelay = 0;
         pendingActionRequired = ActionRequired.None;
         HasPendingAction = false;
-        contention.ResynchroniseFrame(0);
+        contention.StartFrame();
     }
 
     /// <summary>
-    /// Resynchronises frame-position and wrapper transient state.
+    /// Starts a new frame and clears the contention bookkeeping for the current wrapper state.
     /// </summary>
     /// <remarks>
     /// This can only be called when no delay or action is pending from a previous <see cref="Step"/> call.
     /// </remarks>
-    public void ResynchroniseFrame(int tStatesInCurrentFrame)
+    public void StartFrame()
     {
         if (PendingDelay != 0 || HasPendingAction)
         {
-            throw new InvalidOperationException("Cannot resynchronise frame while a delayed cycle is pending.");
+            throw new InvalidOperationException("Cannot start frame while a delayed cycle is pending.");
         }
 
-        contention.ResynchroniseFrame(tStatesInCurrentFrame);
+        contention.StartFrame();
     }
 
     public ActionRequired Step()
@@ -101,16 +106,6 @@ public sealed class ContendedZ80StepEmulator
         HasPendingAction = false;
         contention.Elapse();
         return actionRequired;
-    }
-
-    public void ExecuteInstruction(Action<ActionRequired> onStepComplete, Action? onBeforeStep = null)
-    {
-        if (PendingDelay != 0 || HasPendingAction)
-        {
-            throw new InvalidOperationException("Cannot execute an instruction while a delayed cycle is pending.");
-        }
-
-        emulator.ExecuteInstruction(onStepComplete, onBeforeStep);
     }
 
     public void Serialize(Stream stream)

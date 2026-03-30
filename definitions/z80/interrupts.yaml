@@ -17,14 +17,10 @@ interrupts:
       type: bool
   
   handle: |
-    if interrupt;  
-      interrupt = false;
-    
-      if IFF1;  
-        halted = false;     
-        move_to_sequence_group(sequence_group.interrupt_mode, IM);
-        handled();
-      endif;
+    if interrupt & IFF1;  
+      halted = false;     
+      move_to_sequence_group(sequence_group.interrupt_mode, IM);
+      handled();
     endif;
 
 sequences:

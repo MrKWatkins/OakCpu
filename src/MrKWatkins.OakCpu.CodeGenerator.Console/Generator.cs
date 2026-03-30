@@ -6,21 +6,37 @@ public static class Generator
 {
     public static async Task GenerateAsync(string cpu, string project)
     {
-        var solutionDirectory = FindSolutionDirectory();
-        var definitionsDirectory = GetChildDirectory(solutionDirectory, "../", "definitions", cpu);
+        System.Console.WriteLine($"Generating code for {cpu} in {project}...");
 
-        var generatorContext = await GeneratorContext.CreateAsync(project, definitionsDirectory);
-
-        var projectDirectory = GetChildDirectory(solutionDirectory, project);
-
-        foreach (var generator in TypeGenerator.AllGenerators)
+        try
         {
-            await GenerateAsync(projectDirectory, generatorContext, generator);
+            var solutionDirectory = FindSolutionDirectory();
+            var definitionsDirectory = GetChildDirectory(solutionDirectory, "../", "definitions", cpu);
+
+            var generatorContext = await GeneratorContext.CreateAsync(project, definitionsDirectory);
+
+            var projectDirectory = GetChildDirectory(solutionDirectory, project);
+
+            foreach (var generator in TypeGenerator.AllGenerators)
+            {
+                await GenerateAsync(projectDirectory, generatorContext, generator);
+            }
+
+            System.Console.WriteLine($"Generation of code for {cpu} in {project} complete.");
+        }
+        catch (Exception exception)
+        {
+            var foregroundColour = System.Console.ForegroundColor;
+            System.Console.ForegroundColor = ConsoleColor.Red;
+            System.Console.WriteLine($"Exception generating code for {cpu} in {project}: {exception}");
+            System.Console.ForegroundColor = foregroundColour;
+            throw;
         }
     }
 
     private static async Task GenerateAsync(DirectoryInfo projectDirectory, GeneratorContext generatorContext, TypeGenerator generator)
     {
+        System.Console.WriteLine($"Running {generator.GetType().Name}...");
         var fileName = generator.GetFileName(generatorContext);
         try
         {

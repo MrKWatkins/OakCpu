@@ -201,16 +201,6 @@ public abstract partial class TypeGenerator : Generator
             ]));
 
     [Pure]
-    protected static FunctionPointerTypeSyntax CreateInstructionOverlapHandlerType(GeneratorContext context) =>
-        FunctionPointerType(
-            null,
-            FunctionPointerParameterList(
-            [
-                FunctionPointerParameter(IdentifierName(GetInstructionEmulatorClassName(context))),
-                FunctionPointerParameter(VoidType)
-            ]));
-
-    [Pure]
     protected static string GetRegistersClassName(GeneratorContext context, string? category = null) => $"{context.Cpu.Name}{category}Registers";
 
     [Pure]

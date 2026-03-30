@@ -28,5 +28,6 @@ jobs:
       - name: Publish to NuGet
         uses: MrKWatkins/nuget-publish@main
         with:
+          directory: src
           nuget-api-key: ${{ secrets.NUGET_API_KEY }}
           version: ${{ inputs.version }}

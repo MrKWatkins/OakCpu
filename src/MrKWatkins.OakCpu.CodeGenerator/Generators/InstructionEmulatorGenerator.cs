@@ -14,7 +14,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public sealed class InstructionEmulatorGenerator : TypeGenerator
 {
     private const string ExecuteDecodedInstructionMethodName = "ExecuteDecodedInstruction";
-    private const string NextInstructionVariableName = "nextInstruction";
+    private const string NextInstructionVariableNamePrefix = "nextInstruction";
     private const string TrySetPrefixOpcodeStepTableMethodName = "TrySetPrefixOpcodeStepTable";
     private const ushort NoNextInstructionValue = ushort.MaxValue;
     public static readonly InstructionEmulatorGenerator Instance = new();
@@ -314,18 +314,18 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
                                 ByteType
                             ]))));
 
-    #pragma warning disable CA1506
+#pragma warning disable CA1506
     [Pure]
     private static MemberDeclarationSyntax CreateInstructionMethod(GeneratorContext context, StepSequence sequence, IReadOnlyList<Step> steps)
     {
         var overlapStep = sequence.Steps.FirstOrDefault(step => step.ExecutesAsOverlapOnly);
-        var overlapTrailingStatementsToSkip = overlapStep == null ? 0 : GetImplicitInstructionCompleteStatementCount(context, overlapStep);
+        var overlapTrailingStatementsToSkip = overlapStep == null ? 0 : context.GetImplicitInstructionCompleteStatementCount(overlapStep);
         var overlapStatements = overlapStep == null ? [] : StatementGenerator.GenerateOverlapStatements(context, overlapStep, overlapTrailingStatementsToSkip).ToArray();
         var statements = new List<StatementSyntax>();
         var terminated = false;
         var completesInstructionImplicitly = overlapStep != null
             ? overlapTrailingStatementsToSkip != 0
-            : steps.Count != 0 && GetImplicitInstructionCompleteStatementCount(context, steps[^1]) != 0;
+            : steps.Count != 0 && context.GetImplicitInstructionCompleteStatementCount(steps[^1]) != 0;
 
         var comments = new[] { Comment($"// {GetInstructionMethodComment(sequence)}") };
 
@@ -446,14 +446,14 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
         var action = StepMetadata.GetAction(context, step);
         var containsRedirect = ContainsRedirectCall(step);
         var rollsBackOpcodeRead = ShouldRollbackOpcodeRead(step, action);
-        var nextInstructionVariableName = containsRedirect ? $"{NextInstructionVariableName}{step.Index}" : null;
-        var trailingStatementsToSkip = GetImplicitInstructionCompleteStatementCount(context, step);
+        var nextInstructionVariableName = containsRedirect ? $"{NextInstructionVariableNamePrefix}{step.Index}" : null;
+        var trailingStatementsToSkip = context.GetImplicitInstructionCompleteStatementCount(step);
         var requiresBody = !step.DoesNothing || step.QueuesOverlapStep || containsRedirect || ContainsCall(step.Statements, PreDefinedFunction.HandleInterrupts) || ContainsCall(step.Statements, PreDefinedFunction.InstructionComplete);
         var stepStatements = requiresBody
             ? StatementGenerator.GenerateInstructionStatements(context, step, nextInstructionVariableName, instructionExitOverlapStep, instructionTStatesBeforeStep, trailingStatementsToSkip).ToList()
             : [];
 
-        return new InstructionStepInfo(step, action, rollsBackOpcodeRead, nextInstructionVariableName, stepStatements);
+        return new InstructionStepInfo(action, rollsBackOpcodeRead, nextInstructionVariableName, stepStatements);
     }
 
     [Pure]
@@ -557,32 +557,11 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
                     ])));
     }
 
-    [Pure]
-    private static int GetImplicitInstructionCompleteStatementCount(GeneratorContext context, Step step)
-    {
-        var suffix = context.OnInstructionComplete;
-        if (suffix.Count == 0 || step.Statements.Count < suffix.Count)
-        {
-            return 0;
-        }
-
-        for (var i = 0; i < suffix.Count; i++)
-        {
-            if (!ReferenceEquals(step.Statements[step.Statements.Count - suffix.Count + i], suffix[i]))
-            {
-                return 0;
-            }
-        }
-
-        return suffix.Count;
-    }
-
     private sealed record InstructionStepInfo(
-        Step Step,
         Action Action,
         bool RollsBackOpcodeRead,
         string? NextInstructionVariableName,
         IReadOnlyList<StatementSyntax> StepStatements);
 
-    #pragma warning restore CA1506
+#pragma warning restore CA1506
 }

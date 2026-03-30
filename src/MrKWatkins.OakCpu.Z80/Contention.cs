@@ -40,10 +40,14 @@ internal sealed class Contention
     private byte prevNoneDelay;
 
     /// <summary>
-    /// Creates a contention tracker at the supplied frame position using either the early- or late-interrupt timing
-    /// table.
+    /// Creates a contention tracker at the start of a frame using either the early- or late-interrupt timing table.
     /// </summary>
-    public Contention(int tStatesInCurrentFrame = 0, bool earlyTimings = true)
+    public Contention(bool earlyTimings = true)
+        : this(0, earlyTimings)
+    {
+    }
+
+    internal Contention(int tStatesInCurrentFrame, bool earlyTimings)
     {
         ValidateTStatesInCurrentFrame(tStatesInCurrentFrame);
 
@@ -57,13 +61,11 @@ internal sealed class Contention
     public bool IsEarlyTimings => ReferenceEquals(contentionTable, ContentionTable.EarlyTimings);
 
     /// <summary>
-    /// Repositions the tracker within the current frame and clears any in-flight cycle bookkeeping.
+    /// Resets the tracker to the start of a frame and clears any in-flight cycle bookkeeping.
     /// </summary>
-    internal void ResynchroniseFrame(int tStatesInCurrentFrame)
+    internal void StartFrame()
     {
-        ValidateTStatesInCurrentFrame(tStatesInCurrentFrame);
-
-        TStatesInCurrentFrame = tStatesInCurrentFrame;
+        TStatesInCurrentFrame = 0;
         skipCount = 0;
         prevNoneDelay = 0;
     }

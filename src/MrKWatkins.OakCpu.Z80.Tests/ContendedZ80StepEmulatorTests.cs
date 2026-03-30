@@ -8,8 +8,13 @@ public sealed class ContendedZ80StepEmulatorTests
         var memory = new byte[65536];
         memory[0x4000] = 0x3E;
 
-        var z80 = new Z80StepEmulator();
-        z80.Registers.PC = 0x4000;
+        var z80 = new Z80StepEmulator
+        {
+            Registers =
+            {
+                PC = 0x4000
+            }
+        };
 
         var contended = new ContendedZ80StepEmulator(z80, tStatesInCurrentFrame: 14335);
 
@@ -33,24 +38,34 @@ public sealed class ContendedZ80StepEmulatorTests
     }
 
     [Test]
-    public void ResynchroniseFrame_ThrowsWhenDelayIsPending()
+    public void StartFrame_ThrowsWhenDelayIsPending()
     {
-        var z80 = new Z80StepEmulator();
-        z80.Registers.PC = 0x4000;
+        var z80 = new Z80StepEmulator
+        {
+            Registers =
+            {
+                PC = 0x4000
+            }
+        };
 
         var contended = new ContendedZ80StepEmulator(z80, tStatesInCurrentFrame: 14335);
         contended.Step().Should().Equal(ActionRequired.None);
 
-        contended.Invoking(c => c.ResynchroniseFrame(0))
+        contended.Invoking(c => c.StartFrame())
             .Should().Throw<InvalidOperationException>()
-            .That.Should().HaveMessage("Cannot resynchronise frame while a delayed cycle is pending.");
+            .That.Should().HaveMessage("Cannot start frame while a delayed cycle is pending.");
     }
 
     [Test]
-    public void ResynchroniseFrame_ThrowsWhenActionIsPending()
+    public void StartFrame_ThrowsWhenActionIsPending()
     {
-        var z80 = new Z80StepEmulator();
-        z80.Registers.PC = 0x4000;
+        var z80 = new Z80StepEmulator
+        {
+            Registers =
+            {
+                PC = 0x4000
+            }
+        };
 
         var contended = new ContendedZ80StepEmulator(z80, tStatesInCurrentFrame: 14335);
         for (var i = 0; i < 6; i++)
@@ -58,19 +73,19 @@ public sealed class ContendedZ80StepEmulatorTests
             contended.Step();
         }
 
-        contended.Invoking(c => c.ResynchroniseFrame(0))
+        contended.Invoking(c => c.StartFrame())
             .Should().Throw<InvalidOperationException>()
-            .That.Should().HaveMessage("Cannot resynchronise frame while a delayed cycle is pending.");
+            .That.Should().HaveMessage("Cannot start frame while a delayed cycle is pending.");
     }
 
     [Test]
-    public void ResynchroniseFrame_UpdatesFramePosition()
+    public void StartFrame_ResetsFramePosition()
     {
         var contended = new ContendedZ80StepEmulator(new Z80StepEmulator(), tStatesInCurrentFrame: 1234);
 
         contended.TStatesInCurrentFrame.Should().Equal(1234);
-        contended.ResynchroniseFrame(5678);
-        contended.TStatesInCurrentFrame.Should().Equal(5678);
+        contended.StartFrame();
+        contended.TStatesInCurrentFrame.Should().Equal(0);
         contended.PendingDelay.Should().Equal(0);
         contended.HasPendingAction.Should().BeFalse();
     }

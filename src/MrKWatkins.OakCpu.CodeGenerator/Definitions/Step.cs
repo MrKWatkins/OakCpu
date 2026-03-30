@@ -88,12 +88,6 @@ public sealed class Step
             ? Sequence.Steps[^1]
             : throw new InvalidOperationException($"The step {Name} does not queue an overlap step.");
 
-    public bool ContainsHandleInterruptsCall =>
-        Statements
-            .SelectMany(statement => statement.TraverseDepthFirst())
-            .OfType<CallStatement>()
-            .Any(statement => statement.Call.Function == PreDefinedFunction.HandleInterrupts);
-
     public bool DoesNothing => Statements.Count == 0 && !RequiresPrefixReset && NextOpcode != NextOpcodeMode.Overlapped;
 
     public override string ToString() => $"{Name} => {string.Join("; ", Statements)};";

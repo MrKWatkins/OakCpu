@@ -7,10 +7,11 @@ public sealed class ContendedZ80StepEmulatorTestHarnessTests
     [Test]
     public void Step_AdvancesOneTState_WhenContentionDelayIsPending()
     {
-        var z80 = new ContendedZ80StepEmulatorTestHarness();
-        z80.RegisterPC = 0x4000;
+        var z80 = new ContendedZ80StepEmulatorTestHarness(new Z80StepEmulator(), tStatesInCurrentFrame: 14335)
+        {
+            RegisterPC = 0x4000
+        };
         z80.WriteByteToMemory(0x4000, 0x3E);
-        z80.ResynchroniseFrame(14335);
 
         for (var step = 1UL; step <= 6; step++)
         {

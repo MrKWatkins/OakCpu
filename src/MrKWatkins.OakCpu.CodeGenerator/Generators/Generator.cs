@@ -1,4 +1,3 @@
-using System.Text;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -8,10 +7,7 @@ public abstract class Generator
 {
     protected const string ActionRequiredEnumName = "ActionRequired";
     protected const string InstructionActionCallbackParameterName = "onActionRequired";
-    protected const string InstructionIdleCallbackParameterName = "onIdle";
     protected const string InstructionHandlersFieldName = "Instructions";
-    protected const string InstructionTStatesDeltaVariableName = "tStatesDelta";
-    protected const string TStatesParameterName = "tStates";
     protected const string StepStructName = "Step";
     protected const string OverlapsFieldName = "Overlaps";
     protected const string StepHandlerFieldName = "Handler";
@@ -24,7 +20,6 @@ public abstract class Generator
     protected const string CompleteInstructionMethodName = "CompleteInstruction";
     protected const string HandleInterruptsMethodName = "HandleInterrupts";
     protected const string ExecuteOverlapMethodName = "ExecuteOverlap";
-    protected const string ExecuteStoredOverlapMethodName = "ExecuteStoredOverlap";
     private const string OverlapMethodPrefix = "Overlap";
     private const string StepMethodPrefix = "Step";
 
@@ -42,22 +37,5 @@ public abstract class Generator
     protected static string GetOverlapMethodName(GeneratorContext context, Step step) => $"{OverlapMethodPrefix}{context.GetOverlapMethodIndex(step)}";
 
     [Pure]
-    protected static string GetSequenceGroupStepTableFieldName(SequenceGroup group) => $"{ToPascalCase(group.Name)}StepTable";
-
-    [Pure]
-    protected static string GetSequenceGroupOverlapTableFieldName(SequenceGroup group) => $"{ToPascalCase(group.Name)}OverlapTable";
-
-    [Pure]
-    private static string ToPascalCase(string value)
-    {
-        var builder = new StringBuilder();
-
-        foreach (var part in value.Split('_', StringSplitOptions.RemoveEmptyEntries))
-        {
-            builder.Append(char.ToUpperInvariant(part[0]));
-            builder.Append(part[1..]);
-        }
-
-        return builder.ToString();
-    }
+    protected static string GetSequenceGroupStepTableFieldName(SequenceGroup group) => $"{group.Name.ToUpperCamelCaseFromSnakeCase()}StepTable";
 }

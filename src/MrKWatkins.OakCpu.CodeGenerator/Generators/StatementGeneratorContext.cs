@@ -7,7 +7,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public sealed class StatementGeneratorContext
 {
     public StatementGeneratorContext(GeneratorContext generatorContext, Step? step)
-        : this(generatorContext, step, new HashSet<string>(), ImmutableDictionary<string, Expression>.Empty, false, null, false, null, false, null, null, false, 0)
+        : this(generatorContext, step, new HashSet<string>(), ImmutableDictionary<string, Expression>.Empty, false, null, StatementGenerationMode.Normal, null)
     {
     }
 
@@ -18,27 +18,27 @@ public sealed class StatementGeneratorContext
         ImmutableDictionary<string, Expression> argumentScope,
         bool inBooleanContext,
         Expression? parent,
-        bool skipHandleInterrupts,
-        string? stepCompleteLabel,
-        bool instructionStepMode,
-        string? nextInstructionVariableName,
-        Step? instructionExitOverlapStep,
-        bool instructionEmulatorMode,
-        int instructionTStatesBeforeStep)
+        StatementGenerationMode mode,
+        InstructionStepState? instructionStep)
     {
+        if (mode == StatementGenerationMode.InstructionStep && instructionStep == null)
+        {
+            throw new InvalidOperationException("Instruction-step mode requires instruction-step state.");
+        }
+
+        if (mode != StatementGenerationMode.InstructionStep && instructionStep != null)
+        {
+            throw new InvalidOperationException("Instruction-step state is only valid in instruction-step mode.");
+        }
+
         GeneratorContext = generatorContext;
         Step = step;
         InitializedTemporaryVariables = initializedTemporaryVariables;
         ArgumentScope = argumentScope;
         InBooleanContext = inBooleanContext;
         Parent = parent;
-        SkipHandleInterrupts = skipHandleInterrupts;
-        StepCompleteLabel = stepCompleteLabel;
-        InstructionStepMode = instructionStepMode;
-        NextInstructionVariableName = nextInstructionVariableName;
-        InstructionExitOverlapStep = instructionExitOverlapStep;
-        InstructionEmulatorMode = instructionEmulatorMode;
-        InstructionTStatesBeforeStep = instructionTStatesBeforeStep;
+        Mode = mode;
+        InstructionStep = instructionStep;
     }
 
     public GeneratorContext GeneratorContext { get; }
@@ -55,49 +55,77 @@ public sealed class StatementGeneratorContext
 
     public Expression? Parent { get; }
 
-    public bool SkipHandleInterrupts { get; }
+    public StatementGenerationMode Mode { get; }
 
-    public string? StepCompleteLabel { get; }
+    public InstructionStepState? InstructionStep { get; }
 
-    public bool InstructionStepMode { get; }
+    public bool SkipHandleInterrupts => Mode == StatementGenerationMode.Overlap;
 
-    public string? NextInstructionVariableName { get; }
+    public bool InstructionStepMode => Mode == StatementGenerationMode.InstructionStep;
 
-    public Step? InstructionExitOverlapStep { get; }
-
-    public bool InstructionEmulatorMode { get; }
-
-    public int InstructionTStatesBeforeStep { get; }
+    public bool InstructionEmulatorMode => Mode is StatementGenerationMode.InstructionEmulator or StatementGenerationMode.InstructionStep;
 
     [Pure]
     public StatementGeneratorContext WithArguments(IEnumerable<string> parameters, IEnumerable<Expression> arguments)
     {
         var newScope = ArgumentScope.AddRange(parameters.Zip(arguments, (p, a) => new KeyValuePair<string, Expression>(p, a)).Where(t => !ArgumentScope.ContainsKey(t.Key)));
 
-        return new StatementGeneratorContext(GeneratorContext, Step, InitializedTemporaryVariables, newScope, InBooleanContext, Parent, SkipHandleInterrupts, StepCompleteLabel, InstructionStepMode, NextInstructionVariableName, InstructionExitOverlapStep, InstructionEmulatorMode, InstructionTStatesBeforeStep);
+        return With(argumentScope: newScope);
     }
 
     [Pure]
-    public StatementGeneratorContext WithBooleanContext() =>
-        new(GeneratorContext, Step, InitializedTemporaryVariables, ArgumentScope, true, Parent, SkipHandleInterrupts, StepCompleteLabel, InstructionStepMode, NextInstructionVariableName, InstructionExitOverlapStep, InstructionEmulatorMode, InstructionTStatesBeforeStep);
+    public StatementGeneratorContext WithBooleanContext() => With(inBooleanContext: true);
 
     [Pure]
-    public StatementGeneratorContext WithChildVariableScope() =>
-        new(GeneratorContext, Step, [.. InitializedTemporaryVariables], ArgumentScope, InBooleanContext, Parent, SkipHandleInterrupts, StepCompleteLabel, InstructionStepMode, NextInstructionVariableName, InstructionExitOverlapStep, InstructionEmulatorMode, InstructionTStatesBeforeStep);
+    public StatementGeneratorContext WithChildVariableScope() => With(initializedTemporaryVariables: [.. InitializedTemporaryVariables]);
 
     [Pure]
-    public StatementGeneratorContext WithParentExpression(Expression parent) =>
-        new(GeneratorContext, Step, InitializedTemporaryVariables, ArgumentScope, InBooleanContext, parent, SkipHandleInterrupts, StepCompleteLabel, InstructionStepMode, NextInstructionVariableName, InstructionExitOverlapStep, InstructionEmulatorMode, InstructionTStatesBeforeStep);
+    public StatementGeneratorContext WithParentExpression(Expression parent) => With(parent: parent, updateParent: true);
 
     [Pure]
-    public StatementGeneratorContext WithoutHandleInterrupts() =>
-        new(GeneratorContext, Step, InitializedTemporaryVariables, ArgumentScope, InBooleanContext, Parent, true, StepCompleteLabel, InstructionStepMode, NextInstructionVariableName, InstructionExitOverlapStep, InstructionEmulatorMode, InstructionTStatesBeforeStep);
+    public StatementGeneratorContext WithoutHandleInterrupts() => With(mode: StatementGenerationMode.Overlap);
 
     [Pure]
     public StatementGeneratorContext WithInstructionStepMode(string? nextInstructionVariableName, Step? instructionExitOverlapStep, int instructionTStatesBeforeStep) =>
-        new(GeneratorContext, Step, InitializedTemporaryVariables, ArgumentScope, InBooleanContext, Parent, SkipHandleInterrupts, StepCompleteLabel, true, nextInstructionVariableName, instructionExitOverlapStep, true, instructionTStatesBeforeStep);
+        With(mode: StatementGenerationMode.InstructionStep, instructionStep: new InstructionStepState(nextInstructionVariableName, instructionExitOverlapStep, instructionTStatesBeforeStep), updateInstructionStep: true);
 
     [Pure]
-    public StatementGeneratorContext WithInstructionEmulatorMode() =>
-        new(GeneratorContext, Step, InitializedTemporaryVariables, ArgumentScope, InBooleanContext, Parent, SkipHandleInterrupts, StepCompleteLabel, false, null, null, true, InstructionTStatesBeforeStep);
+    public StatementGeneratorContext WithInstructionEmulatorMode() => With(mode: StatementGenerationMode.InstructionEmulator);
+
+    [Pure]
+    public InstructionStepState RequiredInstructionStep => InstructionStep ?? throw new InvalidOperationException("Instruction-step state is only available in instruction-step mode.");
+
+    [Pure]
+    private StatementGeneratorContext With(
+        HashSet<string>? initializedTemporaryVariables = null,
+        ImmutableDictionary<string, Expression>? argumentScope = null,
+        bool? inBooleanContext = null,
+        Expression? parent = null,
+        bool updateParent = false,
+        StatementGenerationMode? mode = null,
+        InstructionStepState? instructionStep = null,
+        bool updateInstructionStep = false)
+    {
+        var updatedMode = mode ?? Mode;
+        var updatedInstructionStep = updateInstructionStep
+            ? instructionStep
+            : updatedMode == Mode
+                ? InstructionStep
+                : null;
+
+        return new StatementGeneratorContext(
+            GeneratorContext,
+            Step,
+            initializedTemporaryVariables ?? InitializedTemporaryVariables,
+            argumentScope ?? ArgumentScope,
+            inBooleanContext ?? InBooleanContext,
+            updateParent ? parent : Parent,
+            updatedMode,
+            updatedInstructionStep);
+    }
+
+    public sealed record InstructionStepState(
+        string? NextInstructionVariableName,
+        Step? ExitOverlapStep,
+        int TStatesBeforeStep);
 }

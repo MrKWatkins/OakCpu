@@ -415,24 +415,16 @@ public abstract class StatementGenerator : Generator
             throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToSequence.Name} must have exactly one argument.");
         }
 
-        if (call.Arguments[0] is not SequenceAccess sequenceAccess)
-        {
-            throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToSequence.Name} must use a sequence.<name> argument.");
-        }
-
-        return GenerateMoveToSequence(context, context.GeneratorContext.GetSequence(sequenceAccess.SequenceName));
+        return call.Arguments[0] is SequenceAccess sequenceAccess
+            ? GenerateMoveToSequence(context, context.GeneratorContext.GetSequence(sequenceAccess.SequenceName))
+            : throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToSequence.Name} must use a sequence.<name> argument.");
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateMoveToInterruptMode(StatementGeneratorContext context, Call call)
-    {
-        if (call.Arguments.Count != 1)
-        {
-            throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToInterruptMode} must have exactly one argument.");
-        }
-
-        return GenerateMoveToSequenceGroup(context, context.GeneratorContext.GetSequenceGroup(InterruptMode.SequenceGroupName), call.Arguments[0]);
-    }
+    private static IEnumerable<StatementSyntax> GenerateMoveToInterruptMode(StatementGeneratorContext context, Call call) =>
+        call.Arguments.Count == 1
+            ? GenerateMoveToSequenceGroup(context, context.GeneratorContext.GetSequenceGroup(InterruptMode.SequenceGroupName), call.Arguments[0])
+            : throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToInterruptMode} must have exactly one argument.");
 
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateMoveToSequenceGroup(StatementGeneratorContext context, Call call)
@@ -442,12 +434,9 @@ public abstract class StatementGenerator : Generator
             throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToSequenceGroup.Name} must have exactly two arguments.");
         }
 
-        if (call.Arguments[0] is not SequenceGroupAccess sequenceGroupAccess)
-        {
-            throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToSequenceGroup.Name} must use a sequence_group.<name> argument.");
-        }
-
-        return GenerateMoveToSequenceGroup(context, context.GeneratorContext.GetSequenceGroup(sequenceGroupAccess.SequenceGroupName), call.Arguments[1]);
+        return call.Arguments[0] is SequenceGroupAccess sequenceGroupAccess
+            ? GenerateMoveToSequenceGroup(context, context.GeneratorContext.GetSequenceGroup(sequenceGroupAccess.SequenceGroupName), call.Arguments[1])
+            : throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToSequenceGroup.Name} must use a sequence_group.<name> argument.");
     }
 
     [Pure]
@@ -472,8 +461,7 @@ public abstract class StatementGenerator : Generator
                             SyntaxKind.SimpleMemberAccessExpression,
                             IdentifierName(EmulatorParameterName),
                             IdentifierName(QueueInterruptMethodName)))
-                    .WithArgumentList(ArgumentList([Argument(getSequence)])))
-                .WithLeadingTrivia(Comment($"// Queue {sequenceGroup.Name.Replace('_', ' ')} interrupt."));
+                    .WithArgumentList(ArgumentList([Argument(getSequence)])));
             yield break;
         }
 
@@ -495,41 +483,6 @@ public abstract class StatementGenerator : Generator
         }
 
         const string selectedStepVariableName = "selectedStep";
-
-        if (context.StepCompleteLabel != null)
-        {
-            yield return LocalDeclarationStatement(
-                VariableDeclaration(UShortType)
-                    .WithVariables([
-                        VariableDeclarator(selectedStepVariableName)
-                            .WithInitializer(EqualsValueClause(getOpcode))
-                    ]));
-
-            yield return CreateSetStep(IdentifierName(selectedStepVariableName));
-
-            var overlapAccess = ElementAccessExpression(IdentifierName("InstructionOverlaps"))
-                .WithArgumentList(BracketedArgumentList([Argument(IdentifierName(selectedStepVariableName))]));
-
-            var instructionOverlapStatements = new List<StatementSyntax>
-            {
-                GenerateQueueOverlap(overlapAccess).WithLeadingTrivia(Comment("// Queue overlap step.")),
-                ExpressionStatement(
-                    AssignmentExpression(
-                        SyntaxKind.SimpleAssignmentExpression,
-                        EmulatorMemberIdentifier(PreDefinedDataMember.CurrentStep.FieldName),
-                        ElementAccessExpression(IdentifierName("InstructionNextSteps"))
-                            .WithArgumentList(BracketedArgumentList([Argument(IdentifierName(selectedStepVariableName))]))))
-            };
-            instructionOverlapStatements.Add(GenerateHandleInterruptsAndReturnIfHandled(context).WithLeadingTrivia(Comment("// Check interrupts at the instruction boundary.")));
-
-            yield return IfStatement(
-                BinaryExpression(
-                    SyntaxKind.NotEqualsExpression,
-                    overlapAccess,
-                    LiteralExpression(SyntaxKind.DefaultLiteralExpression)),
-                Block(instructionOverlapStatements));
-            yield break;
-        }
 
         yield return CreateSetStep(getOpcode);
 
@@ -553,9 +506,9 @@ public abstract class StatementGenerator : Generator
                 AssignmentExpression(
                     SyntaxKind.SimpleAssignmentExpression,
                     EmulatorMemberIdentifier(PreDefinedDataMember.CurrentStep.FieldName),
-                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(selectedStepVariableName), IdentifierName(StepNextStepFieldName))))
+                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(selectedStepVariableName), IdentifierName(StepNextStepFieldName)))),
+            GenerateHandleInterruptsAndReturnIfHandled(context).WithLeadingTrivia(Comment("// Check interrupts at the instruction boundary."))
         };
-        overlapStatements.Add(GenerateHandleInterruptsAndReturnIfHandled(context).WithLeadingTrivia(Comment("// Check interrupts at the instruction boundary.")));
 
         yield return IfStatement(
             BinaryExpression(
@@ -573,12 +526,9 @@ public abstract class StatementGenerator : Generator
             return [CreateSetNextInstruction(context, GenerateNumericLiteralExpression(context.GeneratorContext.GetInstructionEmulatorSequenceIndex(sequence)))];
         }
 
-        if (context.InstructionEmulatorMode)
-        {
-            throw new InvalidOperationException("move_to_sequence is only supported when generating instruction-emulator steps.");
-        }
-
-        return GenerateMoveToSequenceStart(sequence);
+        return !context.InstructionEmulatorMode
+            ? GenerateMoveToSequenceStart(sequence)
+            : throw new InvalidOperationException("move_to_sequence is only supported when generating instruction-emulator steps.");
     }
 
     [Pure]
@@ -595,11 +545,11 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    private static StatementSyntax GenerateQueueOverlap(GeneratorContext context, Step step) =>
+    private static ExpressionStatementSyntax GenerateQueueOverlap(GeneratorContext context, Step step) =>
         GenerateQueueOverlap(PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetOverlapMethodName(context, step))));
 
     [Pure]
-    private static StatementSyntax GenerateQueueOverlap(ExpressionSyntax overlap) =>
+    private static ExpressionStatementSyntax GenerateQueueOverlap(ExpressionSyntax overlap) =>
         ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
@@ -607,13 +557,13 @@ public abstract class StatementGenerator : Generator
                 overlap));
 
     [Pure]
-    private static StatementSyntax GenerateExecuteOverlap() =>
+    private static ExpressionStatementSyntax GenerateExecuteOverlap() =>
         ExpressionStatement(
             InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(EmulatorParameterName), IdentifierName(ExecuteOverlapMethodName)))
                 .WithArgumentList(ArgumentList()));
 
     [Pure]
-    private static StatementSyntax GenerateCallStep(Step step) =>
+    private static ExpressionStatementSyntax GenerateCallStep(Step step) =>
         ExpressionStatement(
             InvocationExpression(IdentifierName(GetStepMethodName(step)))
                 .WithArgumentList(
@@ -647,17 +597,18 @@ public abstract class StatementGenerator : Generator
     }
 
     [Pure]
-    private static StatementSyntax GenerateHandleInterruptsAndReturnIfHandled(StatementGeneratorContext context)
+    private static IfStatementSyntax GenerateHandleInterruptsAndReturnIfHandled(StatementGeneratorContext context)
     {
         if (context.InstructionStepMode)
         {
+            var instructionStep = context.RequiredInstructionStep;
             if (context.Step?.Sequence is not Instruction)
             {
                 return IfStatement(
                     InvocationExpression(IdentifierName(HandleInterruptsMethodName))
                         .WithArgumentList(ArgumentList([CreateEmulatorArgument()])),
                     Block(SingletonList<StatementSyntax>(
-                        ReturnStatement(GenerateNumericLiteralExpression(context.InstructionTStatesBeforeStep + 1)))));
+                        ReturnStatement(GenerateNumericLiteralExpression(instructionStep.TStatesBeforeStep + 1)))));
             }
 
             return IfStatement(
@@ -671,10 +622,6 @@ public abstract class StatementGenerator : Generator
             throw new InvalidOperationException("handle_interrupts is only supported when generating instruction-emulator steps.");
         }
 
-        StatementSyntax onHandled = context.StepCompleteLabel == null
-            ? ReturnStatement()
-            : BreakStatement();
-
         return IfStatement(
             InvocationExpression(IdentifierName(HandleInterruptsMethodName))
                 .WithArgumentList(ArgumentList(
@@ -682,7 +629,7 @@ public abstract class StatementGenerator : Generator
                     CreateEmulatorArgument(),
                     Argument(RefExpression(IdentifierName(ActionRequiredParameterName)))
                 ])),
-            Block(onHandled));
+            Block(ReturnStatement()));
     }
 
     [Pure]
@@ -694,23 +641,24 @@ public abstract class StatementGenerator : Generator
         }
 
         var argument = callStatementCall.Arguments[0];
-        if (argument is Number number)
+        return argument switch
         {
-            return [GenerateSetOpcodeStepTable(context.Configuration.OpcodeStepTables.GetForPrefix((byte)number.Value))];
-        }
-
-        if (argument is OpcodeStepTableAccess opcodeStepTableAccess)
-        {
-            return [GenerateSetOpcodeStepTable(opcodeStepTableAccess.OpcodeStepTable)];
-        }
-
-        throw new NotSupportedException($"The argument {argument} is not supported for {PreDefinedFunction.SetOpcodeStepTable.Name}.");
+            Number number => [GenerateSetOpcodeStepTable(context.Configuration.OpcodeStepTables.GetForPrefix((byte)number.Value))],
+            OpcodeStepTableAccess opcodeStepTableAccess => [GenerateSetOpcodeStepTable(opcodeStepTableAccess.OpcodeStepTable)],
+            _ => throw new NotSupportedException($"The argument {argument} is not supported for {PreDefinedFunction.SetOpcodeStepTable.Name}.")
+        };
     }
 
     [Pure]
-    private static StatementSyntax CreateSetNextInstruction(StatementGeneratorContext context, ExpressionSyntax index)
+    private static ExpressionStatementSyntax CreateSetNextInstruction(StatementGeneratorContext context, ExpressionSyntax index)
     {
-        if (!context.InstructionStepMode || context.NextInstructionVariableName == null)
+        if (!context.InstructionStepMode)
+        {
+            throw new InvalidOperationException("Instruction-emulator step redirects require a next-instruction variable.");
+        }
+
+        var instructionStep = context.RequiredInstructionStep;
+        if (instructionStep.NextInstructionVariableName == null)
         {
             throw new InvalidOperationException("Instruction-emulator step redirects require a next-instruction variable.");
         }
@@ -718,7 +666,7 @@ public abstract class StatementGenerator : Generator
         return ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName(context.NextInstructionVariableName),
+                IdentifierName(instructionStep.NextInstructionVariableName),
                 index));
     }
 
@@ -730,9 +678,11 @@ public abstract class StatementGenerator : Generator
             throw new InvalidOperationException("Instruction completion statements can only be generated for instruction-emulator steps.");
         }
 
-        if (context.InstructionExitOverlapStep != null)
+        var instructionStep = context.RequiredInstructionStep;
+
+        if (instructionStep.ExitOverlapStep != null)
         {
-            foreach (var statement in GenerateOverlapStatements(context.GeneratorContext, context.InstructionExitOverlapStep, GetImplicitInstructionCompleteStatementCount(context.GeneratorContext, context.InstructionExitOverlapStep)))
+            foreach (var statement in GenerateOverlapStatements(context.GeneratorContext, instructionStep.ExitOverlapStep, context.GeneratorContext.GetImplicitInstructionCompleteStatementCount(instructionStep.ExitOverlapStep)))
             {
                 yield return statement;
             }
@@ -748,43 +698,18 @@ public abstract class StatementGenerator : Generator
                     ArgumentList(
                     [
                         Argument(GenerateInstructionUpdatesFlagsLiteralExpression(context)),
-                        Argument(GenerateNumericLiteralExpression(context.InstructionTStatesBeforeStep + 1))
+                        Argument(GenerateNumericLiteralExpression(instructionStep.TStatesBeforeStep + 1))
                     ])));
     }
 
     [Pure]
-    private static int GetImplicitInstructionCompleteStatementCount(GeneratorContext context, Step step)
-    {
-        var suffix = context.OnInstructionComplete;
-        if (suffix.Count == 0 || step.Statements.Count < suffix.Count)
-        {
-            return 0;
-        }
-
-        for (var i = 0; i < suffix.Count; i++)
-        {
-            if (!ReferenceEquals(step.Statements[step.Statements.Count - suffix.Count + i], suffix[i]))
-            {
-                return 0;
-            }
-        }
-
-        return suffix.Count;
-    }
+    private static LiteralExpressionSyntax GenerateInstructionUpdatesFlagsLiteralExpression(StatementGeneratorContext context) =>
+        context.Step?.Sequence is Instruction instruction
+            ? LiteralExpression(instruction.UpdatesFlags ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression)
+            : throw new InvalidOperationException("Instruction completion can only be generated inside an instruction.");
 
     [Pure]
-    private static ExpressionSyntax GenerateInstructionUpdatesFlagsLiteralExpression(StatementGeneratorContext context)
-    {
-        if (context.Step?.Sequence is not Instruction instruction)
-        {
-            throw new InvalidOperationException("Instruction completion can only be generated inside an instruction.");
-        }
-
-        return LiteralExpression(instruction.UpdatesFlags ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
-    }
-
-    [Pure]
-    private static StatementSyntax GenerateSetOpcodeStepTable(OpcodeStepTable opcodeStepTable) =>
+    private static ExpressionStatementSyntax GenerateSetOpcodeStepTable(OpcodeStepTable opcodeStepTable) =>
         ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
@@ -792,10 +717,10 @@ public abstract class StatementGenerator : Generator
                 IdentifierName(opcodeStepTable.FieldName)));
 
     [Pure]
-    private static StatementSyntax CreateSetStep(Step step) => CreateSetStep(GenerateNumericLiteralExpression(step.Index));
+    private static ExpressionStatementSyntax CreateSetStep(Step step) => CreateSetStep(GenerateNumericLiteralExpression(step.Index));
 
     [Pure]
-    private static StatementSyntax CreateSetStep(ExpressionSyntax value) =>
+    private static ExpressionStatementSyntax CreateSetStep(ExpressionSyntax value) =>
         ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,

@@ -25,8 +25,11 @@ public sealed class EmulatorInterruptsGenerator : EmulatorClassGenerator
     [Pure]
     private static MethodDeclarationSyntax CreateHandleInterruptsMethod(GeneratorContext context)
     {
-        var statements = StatementGenerator.GenerateStatements(context, context.Interrupts.Handle).ToList();
-        statements.Add(ReturnStatement(LiteralExpression(SyntaxKind.FalseLiteralExpression)));
+        StatementSyntax[] statements =
+        [
+            .. StatementGenerator.GenerateStatements(context, context.Interrupts.Handle),
+            ReturnStatement(LiteralExpression(SyntaxKind.FalseLiteralExpression))
+        ];
 
         return MethodDeclaration(
                 BoolType,

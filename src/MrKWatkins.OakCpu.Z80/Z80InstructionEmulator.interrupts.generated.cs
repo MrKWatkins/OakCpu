@@ -16,16 +16,11 @@ public sealed unsafe partial class Z80InstructionEmulator
 {
     private static bool HandleInterrupts(Z80InstructionEmulator emulator)
     {
-        if (emulator.interrupt)
+        if (emulator.interrupt & emulator.iff1)
         {
-            emulator.interrupt = false;
-            if (emulator.iff1)
-            {
-                emulator.halted = false;
-                // Queue interrupt mode interrupt.
-                emulator.QueueInterrupt(Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(InterruptModeStepTable), emulator.im));
-                return true;
-            }
+            emulator.halted = false;
+            emulator.QueueInterrupt(Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(InterruptModeStepTable), emulator.im));
+            return true;
         }
 
         return false;

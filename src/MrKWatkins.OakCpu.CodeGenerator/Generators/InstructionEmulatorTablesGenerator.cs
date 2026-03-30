@@ -1,4 +1,3 @@
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -19,9 +18,7 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
 
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
     {
-        var members = context.Configuration.OpcodeStepTables
-            .Select(CreateOpcodeStepTableField)
-            .Concat(context.SequenceGroups.Values.OrderBy(group => group.Name).Select(CreateSequenceGroupStepTableField))
+        var members = TableGeneration.CreateStepTableFields(context, GetSequenceGroupStepTableFieldName)
             .Prepend(CreateInstructionsField(context))
             .Append(CreateStaticConstructor(context))
             .ToArray();
@@ -41,46 +38,15 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
             .AddModifiers(Private, Static, ReadOnly);
 
     [Pure]
-    private static MemberDeclarationSyntax CreateOpcodeStepTableField(OpcodeStepTable opcodeStepTable) =>
-        FieldDeclaration(VariableDeclaration(PreDefinedDataMember.OpcodeStepTable.TypeSyntax).WithVariables([VariableDeclarator(Identifier(opcodeStepTable.FieldName))]))
-            .AddModifiers(Private, Static, ReadOnly);
-
-    [Pure]
-    private static MemberDeclarationSyntax CreateSequenceGroupStepTableField(SequenceGroup sequenceGroup) =>
-        FieldDeclaration(VariableDeclaration(PreDefinedDataMember.OpcodeStepTable.TypeSyntax).WithVariables([VariableDeclarator(Identifier(GetSequenceGroupStepTableFieldName(sequenceGroup)))]))
-            .AddModifiers(Private, Static, ReadOnly);
-
-    [Pure]
     private static ConstructorDeclarationSyntax CreateStaticConstructor(GeneratorContext context)
     {
         var statements = new List<StatementSyntax>
         {
-            CreateLittleEndianStatement(context),
+            TableGeneration.CreateLittleEndianStatement(context),
             CreateInstructionsInitializationStatement(context)
         };
 
-        var duplicatesWithPrefix = context.Instructions
-            .Where(i => i.OpcodeTable == null)
-            .SelectMany(i => i.Duplicates)
-            .GroupBy(d => context.Configuration.OpcodeStepTables.GetForPrefix(d.Prefix!.Value))
-            .Select(g => (g.Key, Items: g.Select(d => (d.Opcode, d.Step))));
-
-        var duplicatesWithinOpcodeTable = context.Instructions
-            .Where(i => i.OpcodeTable != null)
-            .GroupBy(context.Configuration.OpcodeStepTables.GetForInstruction)
-            .Select(g => (g.Key, Items: g.SelectMany(i => i.Duplicates.Select(d => (d.Opcode, d.Step)))));
-
-        var duplicatesByOpcodeTable = duplicatesWithPrefix.Concat(duplicatesWithinOpcodeTable).ToDictionary(x => x.Key, x => x.Items.ToList());
-
-        foreach (var group in context.Instructions.GroupBy(context.Configuration.OpcodeStepTables.GetForInstruction))
-        {
-            statements.Add(CreateOpcodeStepTableInitializationStatement(context, group.Key, group, duplicatesByOpcodeTable.TryGetValue(group.Key, out var duplicates) ? duplicates : []));
-        }
-
-        foreach (var sequenceGroup in context.SequenceGroups.Values.OrderBy(group => group.Name))
-        {
-            statements.Add(CreateSequenceGroupStepTableInitializationStatement(context, sequenceGroup));
-        }
+        statements.AddRange(TableGeneration.CreateTableInitializationStatements(context, CreateOpcodeStepTableInitializationStatement, CreateSequenceGroupStepTableInitializationStatement));
 
         return ConstructorDeclaration(GetInstructionEmulatorClassName(context))
             .WithModifiers(TokenList(Static))
@@ -104,37 +70,6 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
                 SyntaxKind.SimpleAssignmentExpression,
                 IdentifierName(InstructionHandlersFieldName),
                 CollectionExpression(SeparatedList<CollectionElementSyntax>(handlers.Select(ExpressionElement)))));
-    }
-
-    [Pure]
-    private static IfStatementSyntax CreateLittleEndianStatement(GeneratorContext context)
-    {
-        context.RequiredUsings.Add(typeof(BitConverter).Namespace!);
-        context.RequiredUsings.Add(typeof(NotSupportedException).Namespace!);
-
-        var throwStatement = ThrowStatement(
-            ObjectCreationExpression(IdentifierName(nameof(NotSupportedException)))
-                .WithArgumentList(
-                    ArgumentList(
-                        SingletonSeparatedList(
-                            Argument(
-                                LiteralExpression(
-                                    SyntaxKind.StringLiteralExpression,
-                                    Literal("Only little endian systems are supported.")))))));
-
-        var pragmaDisable = PragmaWarningDirectiveTrivia(Token(SyntaxKind.DisableKeyword), SeparatedList<ExpressionSyntax>().Add(IdentifierName("CA1065")), true);
-        var pragmaRestore = PragmaWarningDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), SeparatedList<ExpressionSyntax>().Add(IdentifierName("CA1065")), true);
-
-        return IfStatement(
-            PrefixUnaryExpression(
-                SyntaxKind.LogicalNotExpression,
-                MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName(nameof(BitConverter)),
-                    IdentifierName(nameof(BitConverter.IsLittleEndian)))),
-            Block(
-                List<StatementSyntax>()
-                    .Add(throwStatement.WithLeadingTrivia(Trivia(pragmaDisable)).WithTrailingTrivia(Trivia(pragmaRestore)))));
     }
 
     [Pure]

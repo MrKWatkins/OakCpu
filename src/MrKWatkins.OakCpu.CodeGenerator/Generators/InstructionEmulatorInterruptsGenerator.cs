@@ -17,8 +17,11 @@ public sealed class InstructionEmulatorInterruptsGenerator : TypeGenerator
 
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
     {
-        var statements = StatementGenerator.GenerateStatements(context, context.Interrupts.Handle, instructionEmulatorMode: true).ToList();
-        statements.Add(ReturnStatement(LiteralExpression(SyntaxKind.FalseLiteralExpression)));
+        StatementSyntax[] statements =
+        [
+            .. StatementGenerator.GenerateStatements(context, context.Interrupts.Handle, instructionEmulatorMode: true),
+            ReturnStatement(LiteralExpression(SyntaxKind.FalseLiteralExpression))
+        ];
 
         return ClassDeclaration(GetInstructionEmulatorClassName(context))
             .AddModifiers(Public, Sealed, Unsafe, Partial)

@@ -11,6 +11,9 @@
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
             <_Parameter1>MrKWatkins.OakCpu.Z80.Benchmarks</_Parameter1>
         </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>MrKWatkins.OakCpu.Z80.Tests</_Parameter1>
+        </AssemblyAttribute>
     </ItemGroup>
 
     <ItemGroup>
@@ -30,6 +33,24 @@
         <DependentUpon>Z80StepEmulator.cs</DependentUpon>
       </Compile>
       <Compile Update="Z80StepEmulator.steps.generated.cs">
+        <DependentUpon>Z80StepEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80InstructionEmulator.generated.cs">
+        <DependentUpon>Z80InstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80InstructionEmulator.instructions.generated.cs">
+        <DependentUpon>Z80InstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80InstructionEmulator.interrupts.generated.cs">
+        <DependentUpon>Z80InstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80InstructionEmulator.reset.generated.cs">
+        <DependentUpon>Z80InstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80InstructionEmulator.tables.generated.cs">
+        <DependentUpon>Z80InstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80StepEmulator.generated.cs">
         <DependentUpon>Z80StepEmulator.cs</DependentUpon>
       </Compile>
     </ItemGroup>

@@ -129,6 +129,22 @@ public sealed class GeneratorContext
     }
 
     [Pure]
+    internal int GetImplicitInstructionCompleteStatementCount(Step step)
+    {
+        if (OnInstructionComplete.Count == 0 || step.Statements.Count < OnInstructionComplete.Count)
+        {
+            return 0;
+        }
+
+        return step.Statements
+            .Skip(step.Statements.Count - OnInstructionComplete.Count)
+            .Zip(OnInstructionComplete, ReferenceEquals)
+            .All(match => match)
+                ? OnInstructionComplete.Count
+                : 0;
+    }
+
+    [Pure]
     public StepSequence GetSequence(string name) =>
         Sequences.TryGetValue(name, out var sequence) ? sequence : throw new InvalidOperationException($"No sequence named {name} exists.");
 
