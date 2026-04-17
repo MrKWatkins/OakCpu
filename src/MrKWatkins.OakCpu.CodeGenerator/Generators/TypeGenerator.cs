@@ -50,6 +50,7 @@ public abstract partial class TypeGenerator : Generator
         InstructionEmulatorInterruptsGenerator.Instance,
         InstructionEmulatorGenerator.Instance,
         InstructionEmulatorResetGenerator.Instance,
+        InstructionEmulatorSerializationGenerator.Instance,
         InstructionEmulatorTablesGenerator.Instance,
         EmulatorOverlapsGenerator.Instance,
         EmulatorResetGenerator.Instance,

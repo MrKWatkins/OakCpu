@@ -77,5 +77,8 @@
       <Compile Update="Z80InstructionShadowRegisters.generated.cs">
         <DependentUpon>Z80InstructionEmulator.cs</DependentUpon>
       </Compile>
+      <Compile Update="Z80InstructionEmulator.serialization.generated.cs">
+        <DependentUpon>Z80InstructionEmulator.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>
