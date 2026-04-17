@@ -11,21 +11,13 @@ using System.Runtime.CompilerServices;
 
 namespace MrKWatkins.OakCpu.Z80;
 
-public abstract class Z80Flags
+public abstract class Z80ShadowRegisters
 {
-    public abstract bool C { get; set; }
+    public abstract ushort AF { get; set; }
 
-    public abstract bool N { get; set; }
+    public abstract ushort BC { get; set; }
 
-    public abstract bool PV { get; set; }
+    public abstract ushort DE { get; set; }
 
-    public abstract bool X { get; set; }
-
-    public abstract bool H { get; set; }
-
-    public abstract bool Y { get; set; }
-
-    public abstract bool Z { get; set; }
-
-    public abstract bool S { get; set; }
+    public abstract ushort HL { get; set; }
 }

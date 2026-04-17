@@ -147,12 +147,36 @@ public sealed unsafe partial class Z80InstructionEmulator
     public Z80InstructionEmulator()
     {
         opcodeStepTable = OpcodeStepTableNoPrefix;
+        Registers = new Z80InstructionRegisters(this);
+        Flags = new Z80InstructionFlags(this);
+        Interrupts = new Z80InstructionInterrupts(this);
     }
 
-    [FieldOffset(32)]
+    [field: FieldOffset(32)]
+    public Z80Registers Registers
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
+
+    [field: FieldOffset(40)]
+    public Z80Flags Flags
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
+
+    [field: FieldOffset(48)]
+    public Z80Interrupts Interrupts
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
+
+    [FieldOffset(56)]
     private ushort[] opcodeStepTable;
 
-    [FieldOffset(40)]
+    [FieldOffset(64)]
     private ushort address;
 
     public ushort Address
@@ -161,25 +185,25 @@ public sealed unsafe partial class Z80InstructionEmulator
         get => address;
     }
 
-    [FieldOffset(42)]
+    [FieldOffset(66)]
     private byte latch;
 
-    [FieldOffset(43)]
+    [FieldOffset(67)]
     internal byte im;
 
-    [FieldOffset(44)]
+    [FieldOffset(68)]
     internal bool iff1;
 
-    [FieldOffset(45)]
+    [FieldOffset(69)]
     internal bool iff2;
 
-    [FieldOffset(46)]
+    [FieldOffset(70)]
     internal bool halted;
 
-    [FieldOffset(47)]
+    [FieldOffset(71)]
     internal bool interrupt;
 
-    [FieldOffset(48)]
+    [FieldOffset(72)]
     private byte data;
 
     public byte Data
@@ -190,6 +214,6 @@ public sealed unsafe partial class Z80InstructionEmulator
         set => data = value;
     }
 
-    [FieldOffset(50)]
+    [FieldOffset(74)]
     private ushort pendingInterruptStep;
 }

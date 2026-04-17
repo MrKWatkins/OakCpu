@@ -9,6 +9,9 @@ namespace MrKWatkins.OakCpu.CodeGenerator;
 internal static class CommonSyntax
 {
     [Pure]
+    public static SyntaxToken Abstract => Token(SyntaxKind.AbstractKeyword);
+
+    [Pure]
     public static PredefinedTypeSyntax BoolType => PredefinedType(Token(SyntaxKind.BoolKeyword));
 
     [Pure]
@@ -30,10 +33,16 @@ internal static class CommonSyntax
     public static SyntaxToken Internal => Token(SyntaxKind.InternalKeyword);
 
     [Pure]
+    public static SyntaxToken Override => Token(SyntaxKind.OverrideKeyword);
+
+    [Pure]
     public static SyntaxToken Partial => Token(SyntaxKind.PartialKeyword);
 
     [Pure]
     public static SyntaxToken Private => Token(SyntaxKind.PrivateKeyword);
+
+    [Pure]
+    public static SyntaxToken Protected => Token(SyntaxKind.ProtectedKeyword);
 
     [Pure]
     public static SyntaxToken Public => Token(SyntaxKind.PublicKeyword);

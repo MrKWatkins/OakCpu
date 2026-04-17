@@ -10,6 +10,9 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public sealed class InstructionEmulatorStateGenerator : TypeGenerator
 {
+    private const string RegistersPropertyName = "Registers";
+    private const string FlagsPropertyName = "Flags";
+    private const string InterruptsPropertyName = "Interrupts";
     private const string PendingInterruptStepFieldName = "pendingInterruptStep";
     public static readonly InstructionEmulatorStateGenerator Instance = new();
 
@@ -25,6 +28,15 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         members.Add(CreateConstructor(context));
 
         var fieldOffset = GetObjectPropertiesFieldOffset(context);
+        members.Add(CreateGetOnlyProperty(context, GetRegistersClassName(context), RegistersPropertyName, fieldOffset));
+        fieldOffset += 8;
+
+        members.Add(CreateGetOnlyProperty(context, GetFlagsClassName(context), FlagsPropertyName, fieldOffset));
+        fieldOffset += 8;
+
+        members.Add(CreateGetOnlyProperty(context, GetInterruptsClassName(context), InterruptsPropertyName, fieldOffset));
+        fieldOffset += 8;
+
         foreach (var dataMember in context.Configuration.AllDataMembers.Values.Where(m => m != PreDefinedDataMember.CurrentStep).OrderByDescending(m => m.Size))
         {
             members.AddRange(CreateDataMember(context, dataMember, fieldOffset));
@@ -54,7 +66,10 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
                         AssignmentExpression(
                             SyntaxKind.SimpleAssignmentExpression,
                             IdentifierName(PreDefinedDataMember.OpcodeStepTable.FieldName),
-                            IdentifierName(context.Configuration.OpcodeStepTables.NoPrefix.FieldName)))));
+                            IdentifierName(context.Configuration.OpcodeStepTables.NoPrefix.FieldName))),
+                    CreateNewObjectAndAssignToProperty(RegistersPropertyName, GetInstructionRegistersClassName(context), ThisExpression()),
+                    CreateNewObjectAndAssignToProperty(FlagsPropertyName, GetInstructionFlagsClassName(context), ThisExpression()),
+                    CreateNewObjectAndAssignToProperty(InterruptsPropertyName, GetInstructionInterruptsClassName(context), ThisExpression())));
 
     [Pure]
     private static IEnumerable<MemberDeclarationSyntax> CreateDataMember(GeneratorContext context, DataMember member, int fieldOffset)
@@ -104,6 +119,15 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
     [Pure]
     private static FieldDeclarationSyntax CreatePendingInterruptStepField(GeneratorContext context, int fieldOffset) =>
         CreateField(context, UShortType, PendingInterruptStepFieldName, fieldOffset, Private);
+
+    [Pure]
+    private static PropertyDeclarationSyntax CreateGetOnlyProperty(GeneratorContext context, string typeName, string propertyName, int fieldOffset)
+    {
+        var attributeList = AttributeList(SingletonSeparatedList(CreateFieldOffsetAttribute(context, fieldOffset)))
+            .WithTarget(AttributeTargetSpecifier(Field));
+
+        return TypeGenerator.CreateGetOnlyProperty(context, typeName, propertyName).AddAttributeLists(attributeList);
+    }
 
     [Pure]
     private static int GetObjectPropertiesFieldOffset(GeneratorContext context)

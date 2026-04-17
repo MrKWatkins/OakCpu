@@ -31,12 +31,14 @@ public sealed class Generator() : IncrementalGenerator(nameof(Generator))
         {
             try
             {
-                var source = generator.Generate(generatorContext);
-                context.AddSource(generator.FileName, SourceText.From(source, Encoding.UTF8));
+                foreach (var generatedFile in generator.GenerateFiles(generatorContext))
+                {
+                    context.AddSource(generatedFile.FileName, SourceText.From(generatedFile.Source, Encoding.UTF8));
+                }
             }
             catch (Exception exception)
             {
-                Logger.Error(exception, $"Error generating {generator.FileName}.");
+                Logger.Error(exception, $"Error generating output from {generator.GetType().Name}.");
                 context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("CS8032", "Exception", $"Exception during {nameof(TypeGenerator)} {generator.GetType().Name}: {exception}", "Build", DiagnosticSeverity.Error, true), Location.None));
             }
         }

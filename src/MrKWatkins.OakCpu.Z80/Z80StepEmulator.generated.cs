@@ -147,9 +147,9 @@ public sealed unsafe partial class Z80StepEmulator
     public Z80StepEmulator()
     {
         opcodeStepTable = OpcodeStepTableNoPrefix;
-        Registers = new Z80Registers(this);
-        Flags = new Z80Flags(this);
-        Interrupts = new Z80Interrupts(this);
+        Registers = new Z80StepRegisters(this);
+        Flags = new Z80StepFlags(this);
+        Interrupts = new Z80StepInterrupts(this);
     }
 
     [field: FieldOffset(32)]

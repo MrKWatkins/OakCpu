@@ -11,52 +11,15 @@ using System.Runtime.CompilerServices;
 
 namespace MrKWatkins.OakCpu.Z80;
 
-public sealed class Z80Interrupts
+public abstract class Z80Interrupts
 {
-    private readonly Z80StepEmulator emulator;
+    public abstract bool Halted { get; set; }
 
-    internal Z80Interrupts(Z80StepEmulator emulator)
-    {
-        this.emulator = emulator;
-    }
+    public abstract bool IFF1 { get; set; }
 
-    public bool Halted
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => emulator.halted; 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        set => emulator.halted = value;
-    }
+    public abstract bool IFF2 { get; set; }
 
-    public bool IFF1
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => emulator.iff1; 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        set => emulator.iff1 = value;
-    }
+    public abstract byte IM { get; set; }
 
-    public bool IFF2
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => emulator.iff2; 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        set => emulator.iff2 = value;
-    }
-
-    public byte IM
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => emulator.im; 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        set => emulator.im = value;
-    }
-
-    public bool Interrupt
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => emulator.interrupt; 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        set => emulator.interrupt = value;
-    }
+    public abstract bool Interrupt { get; set; }
 }

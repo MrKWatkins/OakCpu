@@ -16,89 +16,165 @@ public sealed class RegistersClassesGenerator : TypeGenerator
 
     protected override string GetBaseFileName(GeneratorContext context) => GetRegistersClassName(context);
 
+    [Pure]
+    public override IReadOnlyList<GeneratedFile> GenerateFiles(GeneratorContext context) => GenerateOneFilePerType(context);
+
     protected override IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(GeneratorContext context)
     {
-        yield return CreateClass(context, null);
-
-        foreach (var category in GetCategories(context))
+        foreach (var category in GetAllCategories(context))
         {
-            yield return CreateClass(context, category);
+            yield return CreateBaseClass(context, category);
+            yield return CreateConcreteClass(context, category, GetStepRegistersClassName(context, category), GetEmulatorClassIdentifier(context), GetStepRegistersClassName);
+            yield return CreateConcreteClass(context, category, GetInstructionRegistersClassName(context, category), GetInstructionEmulatorClassIdentifier(context), GetInstructionRegistersClassName);
         }
     }
 
-    private static ClassDeclarationSyntax CreateClass(GeneratorContext context, string? category)
+    [Pure]
+    private static ClassDeclarationSyntax CreateBaseClass(GeneratorContext context, string? category)
     {
-        var members = new List<MemberDeclarationSyntax>
-        {
-            CreateEmulatorField(context),
-            CreateConstructor(context, category)
-        };
+        var members = new List<MemberDeclarationSyntax>();
         if (category == null)
         {
-            members.AddRange(CreateCategoryProperties(context));
+            var categories = GetCategories(context).ToArray();
+            if (categories.Length != 0)
+            {
+                members.Add(CreateBaseConstructor(context, categories));
+            }
+
+            members.AddRange(CreateCategoryProperties(context, categories));
         }
-        members.AddRange(CreateRegisterProperties(context, category));
+
+        members.AddRange(CreateRegisterProperties(context, category, createOverrideProperty: false));
 
         return ClassDeclaration(GetRegistersClassName(context, category))
-            .AddModifiers(Public, Sealed)
+            .AddModifiers(Public, Abstract)
             .AddMembers(members.ToArray());
     }
 
     [Pure]
-    private static IEnumerable<PropertyDeclarationSyntax> CreateCategoryProperties(GeneratorContext context) => GetCategories(context).Select(c => CreateGetOnlyProperty(context, GetRegistersClassName(context, c), c));
-
-    [Pure]
-    private static IEnumerable<PropertyDeclarationSyntax> CreateRegisterProperties(GeneratorContext context, string? category) =>
-        context.Configuration.Registers.Values
-            .Where(r => r.HasRegisterClassProperty && r.Category == category)
-            .OrderBy(r => r.Name)
-            .Select(r => CreateRegisterProperty(context, r));
-
-    [Pure]
-    private static PropertyDeclarationSyntax CreateRegisterProperty(GeneratorContext context, Register register)
+    private static ClassDeclarationSyntax CreateConcreteClass(
+        GeneratorContext context,
+        string? category,
+        string className,
+        TypeSyntax emulatorType,
+        Func<GeneratorContext, string?, string> getConcreteClassName)
     {
-        var memberAccessExpression = MemberAccessExpression(
-            SyntaxKind.SimpleMemberAccessExpression,
-            IdentifierName(EmulatorFieldName),
-            IdentifierName(register.FieldName));
+        var members = new List<MemberDeclarationSyntax>
+        {
+            CreateEmulatorField(emulatorType),
+            CreateConcreteConstructor(context, category, className, emulatorType, getConcreteClassName)
+        };
+        members.AddRange(CreateRegisterProperties(context, category, createOverrideProperty: true));
 
-        var getExpression = memberAccessExpression;
-
-        var setExpression = AssignmentExpression(
-            SyntaxKind.SimpleAssignmentExpression,
-            memberAccessExpression,
-            IdentifierName("value"));
-
-        return CreateGetSetProperty(context, register.Type.TypeSyntax(), register.PropertyName, getExpression, setExpression);
+        return ClassDeclaration(className)
+            .AddModifiers(Internal, Sealed)
+            .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(GetRegistersClassName(context, category))))))
+            .AddMembers(members.ToArray());
     }
 
     [Pure]
-    private static ConstructorDeclarationSyntax CreateConstructor(GeneratorContext context, string? category)
+    private static ConstructorDeclarationSyntax CreateBaseConstructor(GeneratorContext context, IReadOnlyList<string> categories) =>
+        ConstructorDeclaration(GetRegistersClassName(context))
+            .WithModifiers(TokenList(Protected))
+            .WithParameterList(
+                ParameterList(
+                    SeparatedList(
+                        categories.Select(
+                            category => Parameter(Identifier(ToCamelCase(category)))
+                                .WithType(IdentifierName(GetRegistersClassName(context, category)))))))
+            .WithBody(
+                Block(
+                    categories.Select(
+                        category => ExpressionStatement(
+                            AssignmentExpression(
+                                SyntaxKind.SimpleAssignmentExpression,
+                                IdentifierName(category),
+                                IdentifierName(ToCamelCase(category)))))));
+
+    [Pure]
+    private static ConstructorDeclarationSyntax CreateConcreteConstructor(
+        GeneratorContext context,
+        string? category,
+        string className,
+        TypeSyntax emulatorType,
+        Func<GeneratorContext, string?, string> getConcreteClassName)
     {
-        var statements = new List<StatementSyntax>
-        {
-            CreateAssignEmulatorFieldExpression()
-        };
-
-        if (category == null)
-        {
-            foreach (var c in GetCategories(context))
-            {
-                // Category = new Z80CategoryRegisters(emulator);
-                statements.Add(CreateNewObjectAndAssignToProperty(c, GetRegistersClassName(context, c), IdentifierName(EmulatorFieldName)));
-            }
-        }
-
-        return ConstructorDeclaration(GetRegistersClassName(context, category))
+        var constructor = ConstructorDeclaration(className)
             .WithModifiers(TokenList(Internal))
             .WithParameterList(
                 ParameterList(
                     SingletonSeparatedList(
                         Parameter(Identifier(EmulatorFieldName))
-                            .WithType(GetEmulatorClassIdentifier(context)))))
-            .WithBody(Block(statements.ToArray()));
+                            .WithType(emulatorType))))
+            .WithBody(Block(CreateAssignEmulatorFieldExpression()));
+
+        if (category != null)
+        {
+            return constructor;
+        }
+
+        var categories = GetCategories(context).ToArray();
+        if (categories.Length == 0)
+        {
+            return constructor;
+        }
+
+        return constructor.WithInitializer(
+            ConstructorInitializer(
+                SyntaxKind.BaseConstructorInitializer,
+                ArgumentList(
+                    SeparatedList(
+                        categories.Select(
+                            categoryName => Argument(
+                                ObjectCreationExpression(IdentifierName(getConcreteClassName(context, categoryName)))
+                                    .WithArgumentList(ArgumentList(SingletonSeparatedList(CreateEmulatorArgument())))))))));
     }
 
     [Pure]
-    private static IEnumerable<string> GetCategories(GeneratorContext context) => context.Configuration.Registers.Values.Where(r => r.Category != null).Select(r => r.Category!).Distinct().OrderBy(c => c);
+    private static IEnumerable<PropertyDeclarationSyntax> CreateCategoryProperties(GeneratorContext context, IReadOnlyList<string> categories) =>
+        categories.Select(category => CreateGetOnlyProperty(context, GetRegistersClassName(context, category), category));
+
+    [Pure]
+    private static IEnumerable<PropertyDeclarationSyntax> CreateRegisterProperties(GeneratorContext context, string? category, bool createOverrideProperty) =>
+        context.Configuration.Registers.Values
+            .Where(register => register.HasRegisterClassProperty && register.Category == category)
+            .OrderBy(register => register.Name)
+            .Select(register => CreateRegisterProperty(context, register, createOverrideProperty));
+
+    [Pure]
+    private static PropertyDeclarationSyntax CreateRegisterProperty(GeneratorContext context, Register register, bool createOverrideProperty)
+    {
+        if (!createOverrideProperty)
+        {
+            return CreateAbstractGetSetProperty(register.Type.TypeSyntax(), register.PropertyName);
+        }
+
+        var memberAccessExpression = MemberAccessExpression(
+            SyntaxKind.SimpleMemberAccessExpression,
+            IdentifierName(EmulatorFieldName),
+            IdentifierName(register.FieldName));
+
+        return CreateOverrideGetSetProperty(
+            context,
+            register.Type.TypeSyntax(),
+            register.PropertyName,
+            memberAccessExpression,
+            AssignmentExpression(
+                SyntaxKind.SimpleAssignmentExpression,
+                memberAccessExpression,
+                IdentifierName("value")));
+    }
+
+    [Pure]
+    private static IEnumerable<string?> GetAllCategories(GeneratorContext context) => new string?[] { null }.Concat(GetCategories(context));
+
+    [Pure]
+    private static IEnumerable<string> GetCategories(GeneratorContext context) => context.Configuration.Registers.Values
+        .Where(register => register.Category != null)
+        .Select(register => register.Category!)
+        .Distinct()
+        .OrderBy(category => category);
+
+    [Pure]
+    private static string ToCamelCase(string value) => char.ToLowerInvariant(value[0]) + value[1..];
 }

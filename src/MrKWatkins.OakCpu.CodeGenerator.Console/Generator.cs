@@ -37,17 +37,18 @@ public static class Generator
     private static async Task GenerateAsync(DirectoryInfo projectDirectory, GeneratorContext generatorContext, TypeGenerator generator)
     {
         System.Console.WriteLine($"Running {generator.GetType().Name}...");
-        var fileName = generator.GetFileName(generatorContext);
         try
         {
-            var source = generator.Generate(generatorContext);
-            var outputPath = Path.Join(projectDirectory.FullName, fileName);
-            await using var writer = File.CreateText(outputPath);
-            await writer.WriteLineAsync(source);
+            foreach (var generatedFile in generator.GenerateFiles(generatorContext))
+            {
+                var outputPath = Path.Join(projectDirectory.FullName, generatedFile.FileName);
+                await using var writer = File.CreateText(outputPath);
+                await writer.WriteLineAsync(generatedFile.Source);
+            }
         }
         catch (Exception exception)
         {
-            throw new InvalidOperationException($"Exception generating {fileName}.", exception);
+            throw new InvalidOperationException($"Exception generating output for {generator.GetType().Name}.", exception);
         }
     }
 

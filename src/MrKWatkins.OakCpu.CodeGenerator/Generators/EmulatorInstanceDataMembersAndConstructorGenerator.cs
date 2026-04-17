@@ -74,14 +74,14 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
                     IdentifierName(PreDefinedDataMember.OpcodeStepTable.FieldName),
                     IdentifierName(context.Configuration.OpcodeStepTables.NoPrefix.FieldName))),
 
-            // Registers = new Z80Registers(this);
-            CreateNewObjectAndAssignToProperty(RegistersPropertyName, GetRegistersClassName(context), ThisExpression()),
+            // Registers = new Z80StepRegisters(this);
+            CreateNewObjectAndAssignToProperty(RegistersPropertyName, GetStepRegistersClassName(context), ThisExpression()),
 
-            // Flags = new Z80Flags(this);
-            CreateNewObjectAndAssignToProperty(FlagsPropertyName, GetFlagsClassName(context), ThisExpression()),
+            // Flags = new Z80StepFlags(this);
+            CreateNewObjectAndAssignToProperty(FlagsPropertyName, GetStepFlagsClassName(context), ThisExpression()),
 
-            // Interrupts = new Z80Interrupts(this);
-            CreateNewObjectAndAssignToProperty(InterruptsPropertyName, GetInterruptsClassName(context), ThisExpression())
+            // Interrupts = new Z80StepInterrupts(this);
+            CreateNewObjectAndAssignToProperty(InterruptsPropertyName, GetStepInterruptsClassName(context), ThisExpression())
         };
 
         return ConstructorDeclaration(GetEmulatorClassName(context))

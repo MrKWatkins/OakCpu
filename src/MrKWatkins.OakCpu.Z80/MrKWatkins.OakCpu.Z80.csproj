@@ -53,5 +53,29 @@
       <Compile Update="Z80StepEmulator.generated.cs">
         <DependentUpon>Z80StepEmulator.cs</DependentUpon>
       </Compile>
+      <Compile Update="Z80StepFlags.generated.cs">
+        <DependentUpon>Z80StepEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80StepInterrupts.generated.cs">
+        <DependentUpon>Z80StepEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80StepRegisters.generated.cs">
+        <DependentUpon>Z80StepEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80StepShadowRegisters.generated.cs">
+        <DependentUpon>Z80StepEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80InstructionFlags.generated.cs">
+        <DependentUpon>Z80InstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80InstructionInterrupts.generated.cs">
+        <DependentUpon>Z80InstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80InstructionRegisters.generated.cs">
+        <DependentUpon>Z80InstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80InstructionShadowRegisters.generated.cs">
+        <DependentUpon>Z80InstructionEmulator.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>

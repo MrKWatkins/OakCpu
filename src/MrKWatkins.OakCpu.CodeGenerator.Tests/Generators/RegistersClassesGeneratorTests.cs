@@ -10,7 +10,11 @@ public sealed class RegistersClassesGeneratorTests : TestFixture
     [Test]
     public Task GenerateOutput()
     {
-        var result = RegistersClassesGenerator.Instance.Generate(Z80GeneratorContext);
+        var result = string.Join(
+            Environment.NewLine + Environment.NewLine,
+            RegistersClassesGenerator.Instance.GenerateFiles(Z80GeneratorContext)
+                .OrderBy(file => file.FileName)
+                .Select(file => $"=== {file.FileName} ==={Environment.NewLine}{file.Source}"));
         return Verify(result);
     }
 }

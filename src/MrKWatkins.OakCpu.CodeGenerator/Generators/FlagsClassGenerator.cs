@@ -1,4 +1,3 @@
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -17,27 +16,54 @@ public sealed class FlagsClassGenerator : TypeGenerator
 
     protected override string GetBaseFileName(GeneratorContext context) => GetFlagsClassName(context);
 
-    protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
+    [Pure]
+    public override IReadOnlyList<GeneratedFile> GenerateFiles(GeneratorContext context) => GenerateOneFilePerType(context);
+
+    protected override IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(GeneratorContext context)
+    {
+        yield return CreateBaseClass(context);
+        yield return CreateConcreteClass(context, GetStepFlagsClassName(context), GetEmulatorClassIdentifier(context));
+        yield return CreateConcreteClass(context, GetInstructionFlagsClassName(context), GetInstructionEmulatorClassIdentifier(context));
+    }
+
+    [Pure]
+    private static ClassDeclarationSyntax CreateBaseClass(GeneratorContext context)
+    {
+        var members = CreateFlagProperties(context, createOverrideProperty: false).Cast<MemberDeclarationSyntax>().ToArray();
+
+        return ClassDeclaration(GetFlagsClassName(context))
+            .AddModifiers(Public, Abstract)
+            .AddMembers(members);
+    }
+
+    [Pure]
+    private static ClassDeclarationSyntax CreateConcreteClass(GeneratorContext context, string className, TypeSyntax emulatorType)
     {
         var members = new List<MemberDeclarationSyntax>
         {
-            CreateEmulatorField(context),
-            CreateConstructor(context)
+            CreateEmulatorField(emulatorType),
+            CreateConstructor(className, emulatorType)
         };
+        members.AddRange(CreateFlagProperties(context, createOverrideProperty: true));
 
-        members.AddRange(CreateFlagProperties(context));
-
-        return ClassDeclaration(GetFlagsClassName(context))
-            .AddModifiers(Public, Sealed)
+        return ClassDeclaration(className)
+            .AddModifiers(Internal, Sealed)
+            .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(GetFlagsClassName(context))))))
             .AddMembers(members.ToArray());
     }
 
     [Pure]
-    private static IEnumerable<PropertyDeclarationSyntax> CreateFlagProperties(GeneratorContext context) => context.Configuration.Flags.Values.Select(f => CreateFlagProperty(context, f));
+    private static IEnumerable<PropertyDeclarationSyntax> CreateFlagProperties(GeneratorContext context, bool createOverrideProperty) =>
+        context.Configuration.Flags.Values.Select(flag => CreateFlagProperty(context, flag, createOverrideProperty));
 
     [Pure]
-    private static PropertyDeclarationSyntax CreateFlagProperty(GeneratorContext context, Flag flag)
+    private static PropertyDeclarationSyntax CreateFlagProperty(GeneratorContext context, Flag flag, bool createOverrideProperty)
     {
+        if (!createOverrideProperty)
+        {
+            return CreateAbstractGetSetProperty(BoolType, flag.Name);
+        }
+
         var getMask = (byte)(1 << flag.Index);
         var setMask = (byte)(1 << flag.Index);
         var resetMask = (byte)~(1 << flag.Index);
@@ -73,25 +99,17 @@ public sealed class FlagsClassGenerator : TypeGenerator
                             flagsMemberAccess,
                             GenerateBinaryLiteralExpression(resetMask))))));
 
-        return CreateGetSetProperty(context, BoolType, flag.Name, getExpression, setExpression);
+        return CreateOverrideGetSetProperty(context, BoolType, flag.Name, getExpression, setExpression);
     }
 
     [Pure]
-    private static ConstructorDeclarationSyntax CreateConstructor(GeneratorContext context)
-    {
-        var statements = new StatementSyntax[]
-        {
-            CreateAssignEmulatorFieldExpression()
-        };
-
-        return ConstructorDeclaration(GetFlagsClassName(context))
-            .WithLeadingTrivia(TriviaList(CarriageReturnLineFeed, CarriageReturnLineFeed))
+    private static ConstructorDeclarationSyntax CreateConstructor(string className, TypeSyntax emulatorType) =>
+        ConstructorDeclaration(className)
             .WithModifiers(TokenList(Internal))
             .WithParameterList(
                 ParameterList(
                     SingletonSeparatedList(
                         Parameter(Identifier(EmulatorFieldName))
-                            .WithType(GetEmulatorClassIdentifier(context)))))
-            .WithBody(Block(statements));
-    }
+                            .WithType(emulatorType))))
+            .WithBody(Block(CreateAssignEmulatorFieldExpression()));
 }
