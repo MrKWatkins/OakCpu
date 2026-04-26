@@ -1,6 +1,6 @@
-# OakCpu - 8-bit CPU Emulators
+# OakCpu - CPU Emulators
 
-OakCpu is a .NET 9.0 C# emulator for 8-bit CPUs. Only the Z80 is currently emulated. The Z80 emulator is a cycle-accurate (as opposed to an instruction level accurate)
+OakCpu is a .NET 10.0 C# emulator for CPUs. Only the Z80 is currently emulated. The Z80 emulator is a cycle-accurate (as opposed to an instruction level accurate)
 emulator. The instructions for the emulator are defined in YAML files in the definitions directory. A Roslyn source generator is used to generate the emulator code from
 the YAML files.
 

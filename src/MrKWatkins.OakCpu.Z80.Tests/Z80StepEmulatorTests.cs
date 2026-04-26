@@ -1,6 +1,8 @@
 using MrKWatkins.EmulatorTestSuites.Z80;
 using MrKWatkins.OakCpu.Z80.Testing;
 
+using CycleType = MrKWatkins.EmulatorTestSuites.Z80.CycleType;
+
 namespace MrKWatkins.OakCpu.Z80.Tests;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
