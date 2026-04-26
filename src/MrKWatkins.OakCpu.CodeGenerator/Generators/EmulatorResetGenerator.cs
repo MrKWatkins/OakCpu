@@ -28,9 +28,11 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
             .Concat(GenerateResetDataMembers(context))
             .Concat(GenerateResetRegisters(context));
 
-        return MethodDeclaration(VoidType, Identifier(ResetMethodName))
-            .WithModifiers([Public])
-            .WithBody(Block(statements));
+        return WithXmlDocumentation(
+            MethodDeclaration(VoidType, Identifier(ResetMethodName))
+                .WithModifiers([Public])
+                .WithBody(Block(statements)),
+            $"Resets the {context.Cpu.Name} CPU state.");
     }
 
     [Pure]

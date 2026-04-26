@@ -26,7 +26,9 @@ public sealed class InstructionEmulatorSerializationGenerator : TypeGenerator
     protected override string GetBaseFileName(GeneratorContext context) => $"{GetInstructionEmulatorClassName(context)}.serialization";
 
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context) =>
-        PopulateClass(context, ClassDeclaration(GetInstructionEmulatorClassName(context)).AddModifiers(Public, Sealed, Unsafe, Partial));
+        PopulateClass(
+            context,
+            ClassDeclaration(GetInstructionEmulatorClassName(context)).AddModifiers(Public, Sealed, Unsafe, Partial));
 
     [Pure]
     private static ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
@@ -53,13 +55,20 @@ public sealed class InstructionEmulatorSerializationGenerator : TypeGenerator
 
         var returnEmulator = ReturnStatement(IdentifierName(deserializedVariableName));
 
-        return MethodDeclaration(IdentifierName(GetInstructionEmulatorClassName(context)), Identifier(DeserializeMethodName))
-            .WithModifiers([Public, Static])
-            .WithParameterList(ParameterList(
-            [
-                Parameter(Identifier(StreamParameterName)).WithType(IdentifierName(nameof(Stream)))
-            ]))
-            .WithBody(Block(createEmulator, restore, returnEmulator));
+        return WithXmlDocumentation(
+            MethodDeclaration(IdentifierName(GetInstructionEmulatorClassName(context)), Identifier(DeserializeMethodName))
+                .WithModifiers([Public, Static])
+                .WithParameterList(ParameterList(
+                [
+                    Parameter(Identifier(StreamParameterName)).WithType(IdentifierName(nameof(Stream)))
+                ]))
+                .WithBody(Block(createEmulator, restore, returnEmulator)),
+            $"Deserializes a {context.Cpu.Name} CPU state.",
+            parameters: new Dictionary<string, string>
+            {
+                [StreamParameterName] = "The stream to read the CPU state from."
+            },
+            returns: $"The deserialized {context.Cpu.Name} emulator.");
     }
 
     [Pure]
@@ -73,13 +82,19 @@ public sealed class InstructionEmulatorSerializationGenerator : TypeGenerator
             .Concat(GenerateRestorePendingInterruptStep())
             .Concat(GenerateRestoreRegisters(context));
 
-        return MethodDeclaration(VoidType, Identifier(RestoreMethodName))
-            .WithModifiers([Public])
-            .WithParameterList(ParameterList(
-            [
-                Parameter(Identifier(StreamParameterName)).WithType(IdentifierName(nameof(Stream)))
-            ]))
-            .WithBody(Block(statements));
+        return WithXmlDocumentation(
+            MethodDeclaration(VoidType, Identifier(RestoreMethodName))
+                .WithModifiers([Public])
+                .WithParameterList(ParameterList(
+                [
+                    Parameter(Identifier(StreamParameterName)).WithType(IdentifierName(nameof(Stream)))
+                ]))
+                .WithBody(Block(statements)),
+            $"Restores this emulator from a serialized {context.Cpu.Name} CPU state.",
+            parameters: new Dictionary<string, string>
+            {
+                [StreamParameterName] = "The stream to read the CPU state from."
+            });
     }
 
     [Pure]
@@ -132,13 +147,19 @@ public sealed class InstructionEmulatorSerializationGenerator : TypeGenerator
             .Concat(GenerateSerializePendingInterruptStep())
             .Concat(GenerateSerializeRegisters(context));
 
-        return MethodDeclaration(VoidType, Identifier(SerializeMethodName))
-            .WithModifiers([Public])
-            .WithParameterList(ParameterList(
-            [
-                Parameter(Identifier(StreamParameterName)).WithType(IdentifierName(nameof(Stream)))
-            ]))
-            .WithBody(Block(statements));
+        return WithXmlDocumentation(
+            MethodDeclaration(VoidType, Identifier(SerializeMethodName))
+                .WithModifiers([Public])
+                .WithParameterList(ParameterList(
+                [
+                    Parameter(Identifier(StreamParameterName)).WithType(IdentifierName(nameof(Stream)))
+                ]))
+                .WithBody(Block(statements)),
+            $"Serializes this emulator's {context.Cpu.Name} CPU state.",
+            parameters: new Dictionary<string, string>
+            {
+                [StreamParameterName] = "The stream to write the CPU state to."
+            });
     }
 
     [Pure]

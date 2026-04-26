@@ -13,6 +13,8 @@ public sealed partial class FieldYaml
 
     public DataType Type { get; private set; }
 
+    public string? Documentation { get; private set; }
+
     public bool Getter { get; private set; }
 
     public bool Setter { get; private set; }

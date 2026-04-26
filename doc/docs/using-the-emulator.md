@@ -41,11 +41,11 @@ while (true)
             memory[cpu.Address] = cpu.Data;
             break;
 
-        case ActionRequired.IoRead:
+        case ActionRequired.IORead:
             cpu.Data = ReadPort(cpu.Address);
             break;
 
-        case ActionRequired.IoWrite:
+        case ActionRequired.IOWrite:
             WritePort(cpu.Address, cpu.Data);
             break;
     }
@@ -75,11 +75,11 @@ var tStates = cpu.ExecuteInstruction((action, address, data) =>
             memory[address] = data;
             break;
 
-        case ActionRequired.IoRead:
+        case ActionRequired.IORead:
             cpu.Data = ReadPort(address);
             break;
 
-        case ActionRequired.IoWrite:
+        case ActionRequired.IOWrite:
             WritePort(address, data);
             break;
     }

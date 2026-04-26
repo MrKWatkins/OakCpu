@@ -10,8 +10,8 @@ OakCpu keeps memory and I/O outside the CPU core. The emulator advances the Z80 
 | `OpcodeRead` | Read the opcode byte at the supplied address and place it in `Data`. |
 | `MemoryRead` | Read the byte at the supplied address and place it in `Data`. |
 | `MemoryWrite` | Write `Data` to the supplied address. |
-| `IoRead` | Read from the supplied port address and place the result in `Data`. |
-| `IoWrite` | Write `Data` to the supplied port address. |
+| `IORead` | Read from the supplied port address and place the result in `Data`. |
+| `IOWrite` | Write `Data` to the supplied port address. |
 
 The step emulator exposes the current bus address through [`Address`](API/MrKWatkins.OakCpu.Z80/Z80StepEmulator/Address.md) and the bus data latch through [`Data`](API/MrKWatkins.OakCpu.Z80/Z80StepEmulator/Data.md). The instruction emulator passes the address and current data value to its callback and uses its [`Data`](API/MrKWatkins.OakCpu.Z80/Z80InstructionEmulator/Data.md) property for read results.
 

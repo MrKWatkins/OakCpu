@@ -115,17 +115,17 @@ public sealed class ParserTests
     private static ParserContext CreateContext()
     {
         var configuration = new Configuration(
-            new[] { Action.None, new Action("memory_read", 1) }.ToDictionary(a => a.Name),
+            new[] { Action.None, new Action("memory_read", 1, Documentation.Empty) }.ToDictionary(a => a.Name),
             new Dictionary<string, Register>
             {
-                ["R"] = new("R", DataType.U8, false, false, null, 0, true, null),
-                ["RP0"] = new("RP0", DataType.U16, false, false, null, 0, false, null),
-                ["RP1"] = new("RP1", DataType.U16, false, false, null, 0, false, null)
+                ["R"] = new("R", DataType.U8, Documentation.Empty, false, false, null, 0, true, null),
+                ["RP0"] = new("RP0", DataType.U16, Documentation.Empty, false, false, null, 0, false, null),
+                ["RP1"] = new("RP1", DataType.U16, Documentation.Empty, false, false, null, 0, false, null)
             },
             new Dictionary<string, Flag>
             {
-                ["X"] = new("X", 0, "S", "NS"),
-                ["Z"] = new("Z", 1, "NZ", "Z")
+                ["X"] = new("X", 0, Documentation.Empty, "S", "NS"),
+                ["Z"] = new("Z", 1, Documentation.Empty, "NZ", "Z")
             },
             new OpcodeStepTables([]),
             new Dictionary<string, UserDefinedDataMember>())

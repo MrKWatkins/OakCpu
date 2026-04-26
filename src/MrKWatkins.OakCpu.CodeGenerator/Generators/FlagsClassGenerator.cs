@@ -31,9 +31,11 @@ public sealed class FlagsClassGenerator : TypeGenerator
     {
         var members = CreateFlagProperties(context, createOverrideProperty: false).Cast<MemberDeclarationSyntax>().ToArray();
 
-        return ClassDeclaration(GetFlagsClassName(context))
-            .AddModifiers(Public, Abstract)
-            .AddMembers(members);
+        return WithXmlDocumentation(
+            ClassDeclaration(GetFlagsClassName(context))
+                .AddModifiers(Public, Abstract)
+                .AddMembers(members),
+            $"Provides access to the {context.Cpu.Name} flags.");
     }
 
     [Pure]
@@ -61,7 +63,7 @@ public sealed class FlagsClassGenerator : TypeGenerator
     {
         if (!createOverrideProperty)
         {
-            return CreateAbstractGetSetProperty(BoolType, flag.Name);
+            return WithXmlDocumentation(CreateAbstractGetSetProperty(BoolType, flag.Name), flag.Documentation);
         }
 
         var getMask = (byte)(1 << flag.Index);

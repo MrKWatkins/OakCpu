@@ -4,7 +4,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public abstract class DataMember
 {
-    private protected DataMember(string name, DataType type, Visibility fieldVisibility = Visibility.Private, Visibility? getterVisibility = null, Visibility? setterVisibility = null, bool isArray = false)
+    private protected DataMember(string name, DataType type, Visibility fieldVisibility = Visibility.Private, Visibility? getterVisibility = null, Visibility? setterVisibility = null, bool isArray = false, Documentation? documentation = null)
     {
         if (getterVisibility is null && setterVisibility is not null)
         {
@@ -19,6 +19,7 @@ public abstract class DataMember
         PropertyName = Name.ToUpperCamelCaseFromSnakeCase();
         GetterVisibility = getterVisibility;
         SetterVisibility = setterVisibility;
+        Documentation = documentation ?? Documentation.Empty;
     }
 
     public string Name { get; }
@@ -36,6 +37,8 @@ public abstract class DataMember
     public Visibility? GetterVisibility { get; }
 
     public Visibility? SetterVisibility { get; }
+
+    public Documentation Documentation { get; }
 
     public TypeSyntax TypeSyntax => Type.TypeSyntax(IsArray);
 

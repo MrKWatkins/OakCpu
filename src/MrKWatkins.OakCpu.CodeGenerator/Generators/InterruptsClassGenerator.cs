@@ -31,9 +31,11 @@ public sealed class InterruptsClassGenerator : TypeGenerator
     {
         var members = CreateInterruptProperties(context, createOverrideProperty: false).Cast<MemberDeclarationSyntax>().ToArray();
 
-        return ClassDeclaration(GetInterruptsClassName(context))
-            .AddModifiers(Public, Abstract)
-            .AddMembers(members);
+        return WithXmlDocumentation(
+            ClassDeclaration(GetInterruptsClassName(context))
+                .AddModifiers(Public, Abstract)
+                .AddMembers(members),
+            $"Provides access to the {context.Cpu.Name} interrupt state.");
     }
 
     [Pure]
@@ -63,7 +65,7 @@ public sealed class InterruptsClassGenerator : TypeGenerator
     {
         if (!createOverrideProperty)
         {
-            return CreateAbstractGetSetProperty(property.TypeSyntax, property.PropertyName);
+            return WithXmlDocumentation(CreateAbstractGetSetProperty(property.TypeSyntax, property.PropertyName), property.Documentation);
         }
 
         var memberAccessExpression = MemberAccessExpression(

@@ -50,26 +50,30 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
 
         members.Add(CreatePendingInterruptStepField(context, fieldOffset));
 
-        return ClassDeclaration(GetInstructionEmulatorClassName(context))
-            .AddModifiers(Public, Sealed, Unsafe, Partial)
-            .AddAttributeLists(AttributeList(SingletonSeparatedList(CreateStructLayoutAttribute(context))))
-            .AddMembers(members.ToArray());
+        return WithXmlDocumentation(
+            ClassDeclaration(GetInstructionEmulatorClassName(context))
+                .AddModifiers(Public, Sealed, Unsafe, Partial)
+                .AddAttributeLists(AttributeList(SingletonSeparatedList(CreateStructLayoutAttribute(context))))
+                .AddMembers(members.ToArray()),
+            $"Represents a {context.Cpu.Name} emulator that executes one complete instruction at a time.");
     }
 
     [Pure]
     private static ConstructorDeclarationSyntax CreateConstructor(GeneratorContext context) =>
-        ConstructorDeclaration(GetInstructionEmulatorClassName(context))
-            .WithModifiers(TokenList(Public))
-            .WithBody(
-                Block(
-                    ExpressionStatement(
-                        AssignmentExpression(
-                            SyntaxKind.SimpleAssignmentExpression,
-                            IdentifierName(PreDefinedDataMember.OpcodeStepTable.FieldName),
-                            IdentifierName(context.Configuration.OpcodeStepTables.NoPrefix.FieldName))),
-                    CreateNewObjectAndAssignToProperty(RegistersPropertyName, GetInstructionRegistersClassName(context), ThisExpression()),
-                    CreateNewObjectAndAssignToProperty(FlagsPropertyName, GetInstructionFlagsClassName(context), ThisExpression()),
-                    CreateNewObjectAndAssignToProperty(InterruptsPropertyName, GetInstructionInterruptsClassName(context), ThisExpression())));
+        WithXmlDocumentation(
+            ConstructorDeclaration(GetInstructionEmulatorClassName(context))
+                .WithModifiers(TokenList(Public))
+                .WithBody(
+                    Block(
+                        ExpressionStatement(
+                            AssignmentExpression(
+                                SyntaxKind.SimpleAssignmentExpression,
+                                IdentifierName(PreDefinedDataMember.OpcodeStepTable.FieldName),
+                                IdentifierName(context.Configuration.OpcodeStepTables.NoPrefix.FieldName))),
+                        CreateNewObjectAndAssignToProperty(RegistersPropertyName, GetInstructionRegistersClassName(context), ThisExpression()),
+                        CreateNewObjectAndAssignToProperty(FlagsPropertyName, GetInstructionFlagsClassName(context), ThisExpression()),
+                        CreateNewObjectAndAssignToProperty(InterruptsPropertyName, GetInstructionInterruptsClassName(context), ThisExpression()))),
+            $"Initializes a new {GetInstructionEmulatorClassName(context)} instance.");
 
     [Pure]
     private static IEnumerable<MemberDeclarationSyntax> CreateDataMember(GeneratorContext context, DataMember member, int fieldOffset)
@@ -111,9 +115,11 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
             accessors.Add(setter);
         }
 
-        yield return PropertyDeclaration(member.Type.TypeSyntax(), Identifier(member.PropertyName))
-            .WithModifiers(TokenList(Public))
-            .WithAccessorList(AccessorList(List(accessors)));
+        yield return WithXmlDocumentation(
+            PropertyDeclaration(member.Type.TypeSyntax(), Identifier(member.PropertyName))
+                .WithModifiers(TokenList(Public))
+                .WithAccessorList(AccessorList(List(accessors))),
+            member.Documentation);
     }
 
     [Pure]
@@ -126,7 +132,9 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         var attributeList = AttributeList(SingletonSeparatedList(CreateFieldOffsetAttribute(context, fieldOffset)))
             .WithTarget(AttributeTargetSpecifier(Field));
 
-        return TypeGenerator.CreateGetOnlyProperty(context, typeName, propertyName).AddAttributeLists(attributeList);
+        return WithXmlDocumentation(
+            TypeGenerator.CreateGetOnlyProperty(context, typeName, propertyName).AddAttributeLists(attributeList),
+            GetObjectPropertySummary(context, propertyName));
     }
 
     [Pure]
@@ -136,6 +144,15 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         var nextFieldOffset = lastRegister.FieldOffset + lastRegister.Type.Size();
         return (nextFieldOffset + 7) & ~7;
     }
+
+    [Pure]
+    private static string GetObjectPropertySummary(GeneratorContext context, string propertyName) => propertyName switch
+    {
+        RegistersPropertyName => $"Gets the {context.Cpu.Name} registers.",
+        FlagsPropertyName => $"Gets the {context.Cpu.Name} flags.",
+        InterruptsPropertyName => $"Gets the {context.Cpu.Name} interrupt state.",
+        _ => throw new ArgumentOutOfRangeException(nameof(propertyName), propertyName, null)
+    };
 
     [Pure]
     private static FieldDeclarationSyntax CreateField(GeneratorContext context, Register register) =>

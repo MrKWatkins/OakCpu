@@ -2,19 +2,24 @@ interrupts:
   properties:
     - name: IM
       type: u8
-      
+      documentation: Gets or sets the interrupt mode.
+       
     - name: IFF1
       type: bool
+      documentation: Gets or sets interrupt flip-flop 1.
 
     - name: IFF2
       type: bool
-    
+      documentation: Gets or sets interrupt flip-flop 2.
+     
     - name: halted
       type: bool
-      
+      documentation: Gets or sets whether the CPU is halted.
+       
       # Not bothering with NMI.
     - name: interrupt
       type: bool
+      documentation: Gets or sets whether the external interrupt line is asserted.
   
   handle: |
     if interrupt & IFF1;  

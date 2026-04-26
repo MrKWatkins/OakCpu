@@ -12,6 +12,9 @@ public partial class Z80StepEmulator
     private const ushort IM1Start = 17;
     private const ushort IM2Start = 30;
 
+    /// <summary>
+    /// Gets a value indicating whether the emulator is at the start of an instruction or interrupt sequence.
+    /// </summary>
     public bool IsAtInstructionBoundary => IsInstructionBoundaryStart(currentStep);
 
     /// <summary>

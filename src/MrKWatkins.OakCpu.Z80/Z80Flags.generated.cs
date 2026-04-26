@@ -10,22 +10,48 @@
 using System.Runtime.CompilerServices;
 
 namespace MrKWatkins.OakCpu.Z80;
-
+/// <summary>
+/// Provides access to the Z80 flags.
+/// </summary>
 public abstract class Z80Flags
 {
+    /// <summary>
+    /// Gets or sets the carry flag.
+    /// </summary>
     public abstract bool C { get; set; }
 
+    /// <summary>
+    /// Gets or sets the add/subtract flag.
+    /// </summary>
     public abstract bool N { get; set; }
 
+    /// <summary>
+    /// Gets or sets the parity/overflow flag.
+    /// </summary>
     public abstract bool PV { get; set; }
 
+    /// <summary>
+    /// Gets or sets the undocumented X flag.
+    /// </summary>
     public abstract bool X { get; set; }
 
+    /// <summary>
+    /// Gets or sets the half-carry flag.
+    /// </summary>
     public abstract bool H { get; set; }
 
+    /// <summary>
+    /// Gets or sets the undocumented Y flag.
+    /// </summary>
     public abstract bool Y { get; set; }
 
+    /// <summary>
+    /// Gets or sets the zero flag.
+    /// </summary>
     public abstract bool Z { get; set; }
 
+    /// <summary>
+    /// Gets or sets the sign flag.
+    /// </summary>
     public abstract bool S { get; set; }
 }

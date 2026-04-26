@@ -2,13 +2,22 @@
 # TODO: get_bit function.
 cpu:
   name: Z80
-  # TODO: Capitalise IO in the C#.
+  documentation: Provides generated Z80 CPU emulators.
   actions:
-    - opcode_read
-    - memory_read
-    - memory_write
-    - io_read
-    - io_write
+    - name: opcode_read
+      documentation: The host must read an opcode byte from memory.
+
+    - name: memory_read
+      documentation: The host must read a byte from memory.
+
+    - name: memory_write
+      documentation: The host must write a byte to memory.
+
+    - name: io_read
+      documentation: The host must read a byte from an I/O port.
+
+    - name: io_write
+      documentation: The host must write a byte to an I/O port.
 
   fields:
     - name: latch

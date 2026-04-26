@@ -201,6 +201,78 @@ public abstract partial class TypeGenerator : Generator
         CreateGetSetProperty(context, type, propertyName, getExpression, setExpression, TokenList(Public, Override));
 
     [Pure]
+    protected static T WithXmlDocumentation<T>(T node, Definitions.Documentation documentation)
+        where T : SyntaxNode =>
+        documentation.IsEmpty ? node : WithXmlDocumentation(node, documentation.Summary);
+
+    [Pure]
+    protected static T WithXmlDocumentation<T>(T node, string summary, string? remarks = null, IReadOnlyDictionary<string, string>? parameters = null, string? returns = null)
+        where T : SyntaxNode
+    {
+        var lines = new List<string>();
+        AddXmlElement(lines, "summary", summary);
+
+        if (!string.IsNullOrWhiteSpace(remarks))
+        {
+            AddXmlElement(lines, "remarks", remarks);
+        }
+
+        if (parameters != null)
+        {
+            foreach (var parameter in parameters)
+            {
+                AddXmlElement(lines, $"param name=\"{parameter.Key}\"", parameter.Value);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(returns))
+        {
+            AddXmlElement(lines, "returns", returns);
+        }
+
+        var trivia = CreateXmlDocumentationTrivia(lines)
+            .AddRange(node.GetLeadingTrivia());
+        if (node is MemberDeclarationSyntax { AttributeLists.Count: > 0 } member)
+        {
+            var firstToken = member.GetFirstToken();
+            var documentedToken = firstToken.WithLeadingTrivia(trivia.AddRange(firstToken.LeadingTrivia));
+            return (T)(SyntaxNode)member.ReplaceToken(firstToken, documentedToken);
+        }
+
+        return node.WithLeadingTrivia(trivia);
+    }
+
+    [Pure]
+    private static SyntaxTriviaList CreateXmlDocumentationTrivia(IEnumerable<string> lines)
+    {
+        var trivia = new List<SyntaxTrivia>();
+        foreach (var line in lines)
+        {
+            trivia.Add(Comment(line));
+            trivia.Add(EndOfLine(Environment.NewLine));
+        }
+
+        return TriviaList(trivia);
+    }
+
+    private static void AddXmlElement(List<string> lines, string tag, string value)
+    {
+        lines.Add($"/// <{tag}>");
+        foreach (var line in value.Split(["\r\n", "\n"], StringSplitOptions.None))
+        {
+            lines.Add($"/// {EscapeXml(line)}");
+        }
+        lines.Add($"/// </{tag.Split(' ')[0]}>");
+    }
+
+    [Pure]
+    private static string EscapeXml(string value) =>
+        value
+            .Replace("&", "&amp;", StringComparison.Ordinal)
+            .Replace("<", "&lt;", StringComparison.Ordinal)
+            .Replace(">", "&gt;", StringComparison.Ordinal);
+
+    [Pure]
     protected static FieldDeclarationSyntax CreateEmulatorField(TypeSyntax emulatorType) =>
         FieldDeclaration(
                 VariableDeclaration(emulatorType)

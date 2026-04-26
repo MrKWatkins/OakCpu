@@ -182,11 +182,11 @@ public class Z80StepEmulatorTestHarness(Z80StepEmulator emulator) : Z80Steppable
                 }
                 break;
 
-            case ActionRequired.IoRead:
+            case ActionRequired.IORead:
                 emulator.Data = IOReader.Read(emulator.Address);
                 break;
 
-            case ActionRequired.IoWrite:
+            case ActionRequired.IOWrite:
                 IOWriter.Write(emulator.Address, emulator.Data);
                 break;
         }
@@ -212,10 +212,10 @@ public class Z80StepEmulatorTestHarness(Z80StepEmulator emulator) : Z80Steppable
             case ActionRequired.MemoryWrite:
                 return new Cycle(CycleType.MemoryWrite, TStates, emulator.Address, emulator.Data);
 
-            case ActionRequired.IoRead:
+            case ActionRequired.IORead:
                 return new Cycle(CycleType.IORead, TStates, emulator.Address, emulator.Data);
 
-            case ActionRequired.IoWrite:
+            case ActionRequired.IOWrite:
                 return new Cycle(CycleType.IOWrite, TStates, emulator.Address, emulator.Data);
         }
         throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");

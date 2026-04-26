@@ -11,6 +11,9 @@ namespace MrKWatkins.OakCpu.Z80;
 
 public sealed unsafe partial class Z80InstructionEmulator
 {
+    /// <summary>
+    /// Resets the Z80 CPU state.
+    /// </summary>
     public void Reset()
     {
         opcodeStepTable = OpcodeStepTableNoPrefix;

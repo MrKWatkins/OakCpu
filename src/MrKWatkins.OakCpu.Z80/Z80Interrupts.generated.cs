@@ -10,16 +10,33 @@
 using System.Runtime.CompilerServices;
 
 namespace MrKWatkins.OakCpu.Z80;
-
+/// <summary>
+/// Provides access to the Z80 interrupt state.
+/// </summary>
 public abstract class Z80Interrupts
 {
+    /// <summary>
+    /// Gets or sets whether the CPU is halted.
+    /// </summary>
     public abstract bool Halted { get; set; }
 
+    /// <summary>
+    /// Gets or sets interrupt flip-flop 1.
+    /// </summary>
     public abstract bool IFF1 { get; set; }
 
+    /// <summary>
+    /// Gets or sets interrupt flip-flop 2.
+    /// </summary>
     public abstract bool IFF2 { get; set; }
 
+    /// <summary>
+    /// Gets or sets the interrupt mode.
+    /// </summary>
     public abstract byte IM { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the external interrupt line is asserted.
+    /// </summary>
     public abstract bool Interrupt { get; set; }
 }

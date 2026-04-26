@@ -15,6 +15,12 @@ namespace MrKWatkins.OakCpu.Z80;
 
 public sealed unsafe partial class Z80StepEmulator
 {
+    /// <summary>
+    /// Executes one Z80 T-state.
+    /// </summary>
+    /// <returns>
+    /// The external action that the host must perform for the completed T-state.
+    /// </returns>
     public ActionRequired Step()
     {
         var step = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(Steps), currentStep);

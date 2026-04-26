@@ -50,20 +50,27 @@ public sealed class SequenceSchemaTests : TestFixture
                    cpu:
                      name: TestCpu
                      actions:
-                       - opcode_read
-                       - io_read
+                       - name: opcode_read
+                         documentation: The host must read an opcode byte from memory.
+                       - name: io_read
+                         documentation: The host must read a byte from an I/O port.
                    interrupts:
                      properties:
                        - name: IM
                          type: u8
+                         documentation: Gets or sets the interrupt mode.
                        - name: IFF1
                          type: bool
+                         documentation: Gets or sets interrupt flip-flop 1.
                        - name: IFF2
                          type: bool
+                         documentation: Gets or sets interrupt flip-flop 2.
                        - name: halted
                          type: bool
+                         documentation: Gets or sets a value indicating whether the CPU is halted.
                        - name: interrupt
                          type: bool
+                         documentation: Gets or sets a value indicating whether the interrupt line is asserted.
                      handle: |
                        interrupt = false;
                    sequences:
@@ -108,7 +115,8 @@ public sealed class SequenceSchemaTests : TestFixture
                    cpu:
                      name: TestCpu
                      actions:
-                       - io_read
+                       - name: io_read
+                         documentation: The host must read a byte from an I/O port.
                    interrupts:
                      modes:
                        - number: 0

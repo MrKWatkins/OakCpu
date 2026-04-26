@@ -69,11 +69,12 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     {
         const string stepVariableName = "step";
 
-        return MethodDeclaration(
-                IdentifierName(ActionRequiredEnumName),
-                Identifier(StepMethodName))
-            .AddModifiers(Public)
-            .WithBody(Block(
+        return WithXmlDocumentation(
+            MethodDeclaration(
+                    IdentifierName(ActionRequiredEnumName),
+                    Identifier(StepMethodName))
+                .AddModifiers(Public)
+                .WithBody(Block(
                 // var node = Nodes[currentStep];
                 LocalDeclarationStatement(
                     VariableDeclaration(IdentifierName("var"))
@@ -119,8 +120,10 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
                                         Argument(RefExpression(IdentifierName(ActionRequiredParameterName)))
                                     ]))))),
 
-                // return node.ActionRequired;
-                ReturnStatement(IdentifierName(ActionRequiredParameterName))));
+                    // return node.ActionRequired;
+                    ReturnStatement(IdentifierName(ActionRequiredParameterName)))),
+            $"Executes one {context.Cpu.Name} T-state.",
+            returns: "The external action that the host must perform for the completed T-state.");
     }
 
 }

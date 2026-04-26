@@ -18,11 +18,15 @@ public sealed class ActionRequiredGenerator : TypeGenerator
     {
         var members = context.Configuration.Actions.Values
             .OrderBy(a => a.Value)
-            .Select(action => EnumMemberDeclaration([], Identifier(action.EnumName), EqualsValueClause(GenerateNumericLiteralExpression(action.Value))))
+            .Select(action => WithXmlDocumentation(
+                EnumMemberDeclaration([], Identifier(action.EnumName), EqualsValueClause(GenerateNumericLiteralExpression(action.Value))),
+                action.Documentation))
             .ToArray();
 
-        return EnumDeclaration(ActionRequiredEnumName)
-            .AddModifiers(Public)
-            .AddMembers(members);
+        return WithXmlDocumentation(
+            EnumDeclaration(ActionRequiredEnumName)
+                .AddModifiers(Public)
+                .AddMembers(members),
+            "Describes the external action that the host must perform for the current CPU cycle.");
     }
 }

@@ -184,12 +184,12 @@ public sealed class Z80InstructionEmulatorTestHarness : Z80TestHarness
                 }
                 break;
 
-            case ActionRequired.IoRead:
+            case ActionRequired.IORead:
                 emulator.Data = IOReader.Read(address);
                 data = emulator.Data;
                 break;
 
-            case ActionRequired.IoWrite:
+            case ActionRequired.IOWrite:
                 IOWriter.Write(address, data);
                 break;
         }
@@ -212,10 +212,10 @@ public sealed class Z80InstructionEmulatorTestHarness : Z80TestHarness
             case ActionRequired.MemoryWrite:
                 return new Cycle(CycleType.MemoryWrite, TStates, address, data);
 
-            case ActionRequired.IoRead:
+            case ActionRequired.IORead:
                 return new Cycle(CycleType.IORead, TStates, address, data);
 
-            case ActionRequired.IoWrite:
+            case ActionRequired.IOWrite:
                 return new Cycle(CycleType.IOWrite, TStates, address, data);
         }
 

@@ -36,8 +36,8 @@ internal sealed class Z80InstructionEmulatorRunner : Runner
                 memory[address] = data;
                 return;
 
-            case ActionRequired.IoRead:
-            case ActionRequired.IoWrite:
+            case ActionRequired.IORead:
+            case ActionRequired.IOWrite:
                 throw new InvalidOperationException($"Unexpected I/O action {actionRequired} at 0x{address:X4}.");
 
             default:

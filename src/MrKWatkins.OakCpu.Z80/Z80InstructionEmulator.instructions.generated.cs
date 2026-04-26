@@ -66,7 +66,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.iff1 = false;
         emulator.iff2 = false;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.address = emulator.IR;
         emulator.R = (byte)(emulator.R & 0b10000000 | emulator.R + 0x01 & 0b01111111);
         ushort nextInstruction16 = 65535;
@@ -84,7 +84,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.iff1 = false;
         emulator.iff2 = false;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.address = emulator.IR;
         emulator.R = (byte)(emulator.R & 0b10000000 | emulator.R + 0x01 & 0b01111111);
         emulator.SP -= 0x01;
@@ -105,7 +105,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.iff1 = false;
         emulator.iff2 = false;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.latch = emulator.data;
         emulator.address = emulator.IR;
         emulator.R = (byte)(emulator.R & 0b10000000 | emulator.R + 0x01 & 0b01111111);
@@ -2994,7 +2994,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.A;
         emulator.address = emulator.WZ;
         emulator.data = emulator.A;
-        onActionRequired(ActionRequired.IoWrite, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
         emulator.Z += 0x01;
         return emulator.CompleteInstruction(false, 7);
     }
@@ -3143,7 +3143,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.A;
         emulator.address = emulator.WZ;
         emulator.data = emulator.A;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.A = emulator.data;
         emulator.WZ += 0x01;
         return emulator.CompleteInstruction(false, 7);
@@ -10227,7 +10227,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.A;
         emulator.address = emulator.WZ;
         emulator.data = emulator.A;
-        onActionRequired(ActionRequired.IoWrite, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
         emulator.Z += 0x01;
         return emulator.CompleteInstruction(false, 7);
     }
@@ -10384,7 +10384,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.A;
         emulator.address = emulator.WZ;
         emulator.data = emulator.A;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.A = emulator.data;
         emulator.WZ += 0x01;
         return emulator.CompleteInstruction(false, 7);
@@ -11032,7 +11032,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         emulator.B = emulator.data;
 
@@ -11052,7 +11052,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
         emulator.data = emulator.B;
-        onActionRequired(ActionRequired.IoWrite, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         return emulator.CompleteInstruction(false, 4);
     }
@@ -11156,7 +11156,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         emulator.C = emulator.data;
 
@@ -11176,7 +11176,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
         emulator.data = emulator.C;
-        onActionRequired(ActionRequired.IoWrite, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         return emulator.CompleteInstruction(false, 4);
     }
@@ -11254,7 +11254,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         emulator.D = emulator.data;
 
@@ -11274,7 +11274,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
         emulator.data = emulator.D;
-        onActionRequired(ActionRequired.IoWrite, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         return emulator.CompleteInstruction(false, 4);
     }
@@ -11351,7 +11351,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         emulator.E = emulator.data;
 
@@ -11371,7 +11371,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
         emulator.data = emulator.E;
-        onActionRequired(ActionRequired.IoWrite, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         return emulator.CompleteInstruction(false, 4);
     }
@@ -11448,7 +11448,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         emulator.H = emulator.data;
 
@@ -11468,7 +11468,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
         emulator.data = emulator.H;
-        onActionRequired(ActionRequired.IoWrite, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         return emulator.CompleteInstruction(false, 4);
     }
@@ -11544,7 +11544,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         emulator.L = emulator.data;
 
@@ -11564,7 +11564,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
         emulator.data = emulator.L;
-        onActionRequired(ActionRequired.IoWrite, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         return emulator.CompleteInstruction(false, 4);
     }
@@ -11640,7 +11640,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
 
         // Update flags.
@@ -11659,7 +11659,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
         emulator.data = 0x00;
-        onActionRequired(ActionRequired.IoWrite, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         return emulator.CompleteInstruction(false, 4);
     }
@@ -11712,7 +11712,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         emulator.A = emulator.data;
 
@@ -11732,7 +11732,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
         emulator.data = emulator.A;
-        onActionRequired(ActionRequired.IoWrite, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         return emulator.CompleteInstruction(false, 4);
     }
@@ -11838,7 +11838,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         emulator.B -= 0x01;
         emulator.address = emulator.HL;
@@ -11869,7 +11869,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.B -= 0x01;
         emulator.address = emulator.BC;
-        onActionRequired(ActionRequired.IoWrite, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         var temp = emulator.data + (emulator.L & 0b11111111);
         var pv = temp & 0b00000111 ^ emulator.B;
@@ -11944,7 +11944,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC - 0x01);
         emulator.B -= 0x01;
         emulator.address = emulator.HL;
@@ -11975,7 +11975,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.B -= 0x01;
         emulator.address = emulator.BC;
-        onActionRequired(ActionRequired.IoWrite, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC - 0x01);
         var temp = emulator.data + (emulator.L & 0b11111111);
         var pv = temp & 0b00000111 ^ emulator.B;
@@ -12098,7 +12098,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         emulator.B -= 0x01;
         emulator.address = emulator.HL;
@@ -12180,7 +12180,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.B -= 0x01;
         emulator.address = emulator.BC;
-        onActionRequired(ActionRequired.IoWrite, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC + 0x01);
         {
             if (emulator.B == 0x00)
@@ -12353,7 +12353,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.BC;
-        onActionRequired(ActionRequired.IoRead, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC - 0x01);
         emulator.B -= 0x01;
         emulator.address = emulator.HL;
@@ -12435,7 +12435,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.B -= 0x01;
         emulator.address = emulator.BC;
-        onActionRequired(ActionRequired.IoWrite, emulator.address, emulator.data);
+        onActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
         emulator.WZ = (ushort)(emulator.BC - 0x01);
         {
             if (emulator.B == 0x00)

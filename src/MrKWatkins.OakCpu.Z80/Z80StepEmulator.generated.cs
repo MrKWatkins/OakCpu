@@ -11,7 +11,9 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace MrKWatkins.OakCpu.Z80;
-
+/// <summary>
+/// Represents a cycle-accurate Z80 emulator that executes one T-state at a time.
+/// </summary>
 [StructLayout(LayoutKind.Explicit)]
 public sealed unsafe partial class Z80StepEmulator
 {
@@ -144,6 +146,9 @@ public sealed unsafe partial class Z80StepEmulator
     [FieldOffset(28)]
     internal byte Q;
 
+    /// <summary>
+    /// Initializes a new Z80StepEmulator instance.
+    /// </summary>
     public Z80StepEmulator()
     {
         opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -152,6 +157,9 @@ public sealed unsafe partial class Z80StepEmulator
         Interrupts = new Z80StepInterrupts(this);
     }
 
+    /// <summary>
+    /// Gets the Z80 registers.
+    /// </summary>
     [field: FieldOffset(32)]
     public Z80Registers Registers
     {
@@ -159,6 +167,9 @@ public sealed unsafe partial class Z80StepEmulator
         get;
     }
 
+    /// <summary>
+    /// Gets the Z80 flags.
+    /// </summary>
     [field: FieldOffset(40)]
     public Z80Flags Flags
     {
@@ -166,6 +177,9 @@ public sealed unsafe partial class Z80StepEmulator
         get;
     }
 
+    /// <summary>
+    /// Gets the Z80 interrupt state.
+    /// </summary>
     [field: FieldOffset(48)]
     public Z80Interrupts Interrupts
     {
@@ -182,6 +196,9 @@ public sealed unsafe partial class Z80StepEmulator
     [FieldOffset(72)]
     private ushort address;
 
+    /// <summary>
+    /// Gets the address for the current external bus action.
+    /// </summary>
     public ushort Address
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -212,6 +229,9 @@ public sealed unsafe partial class Z80StepEmulator
     [FieldOffset(82)]
     private byte data;
 
+    /// <summary>
+    /// Gets or sets the data value for the current external bus action.
+    /// </summary>
     public byte Data
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

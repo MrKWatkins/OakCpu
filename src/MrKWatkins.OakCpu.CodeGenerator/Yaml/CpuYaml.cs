@@ -5,7 +5,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Yaml;
 [YamlObject]
 public sealed partial class CpuYaml
 {
-    private IReadOnlyList<string>? actions;
+    private IReadOnlyList<ActionYaml>? actions;
     private IReadOnlyList<FieldYaml>? fields;
     private IReadOnlyList<string?>? opcodeRead;
 
@@ -15,7 +15,9 @@ public sealed partial class CpuYaml
 
     public string Name { get; private set; } = null!;
 
-    public IReadOnlyList<string> Actions
+    public string? Documentation { get; private set; }
+
+    public IReadOnlyList<ActionYaml> Actions
     {
         get => actions ?? [];
         private set => actions = value;

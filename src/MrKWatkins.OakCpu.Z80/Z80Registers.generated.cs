@@ -10,71 +10,163 @@
 using System.Runtime.CompilerServices;
 
 namespace MrKWatkins.OakCpu.Z80;
-
+/// <summary>
+/// Provides access to the Z80 registers.
+/// </summary>
 public abstract class Z80Registers
 {
+    /// <summary>
+    /// Initializes a new Z80Registers instance.
+    /// </summary>
+    /// <param name="shadow">
+    /// The Z80 shadow registers.
+    /// </param>
     protected Z80Registers(Z80ShadowRegisters shadow)
     {
         Shadow = shadow;
     }
 
+    /// <summary>
+    /// Gets the Z80 shadow registers.
+    /// </summary>
     public Z80ShadowRegisters Shadow
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get;
     }
 
+    /// <summary>
+    /// Gets or sets the accumulator register.
+    /// </summary>
     public abstract byte A { get; set; }
 
+    /// <summary>
+    /// Gets or sets the combined accumulator and flags register.
+    /// </summary>
     public abstract ushort AF { get; set; }
 
+    /// <summary>
+    /// Gets or sets the B register.
+    /// </summary>
     public abstract byte B { get; set; }
 
+    /// <summary>
+    /// Gets or sets the combined BC register pair.
+    /// </summary>
     public abstract ushort BC { get; set; }
 
+    /// <summary>
+    /// Gets or sets the C register.
+    /// </summary>
     public abstract byte C { get; set; }
 
+    /// <summary>
+    /// Gets or sets the D register.
+    /// </summary>
     public abstract byte D { get; set; }
 
+    /// <summary>
+    /// Gets or sets the combined DE register pair.
+    /// </summary>
     public abstract ushort DE { get; set; }
 
+    /// <summary>
+    /// Gets or sets the E register.
+    /// </summary>
     public abstract byte E { get; set; }
 
+    /// <summary>
+    /// Gets or sets the flags register.
+    /// </summary>
     public abstract byte F { get; set; }
 
+    /// <summary>
+    /// Gets or sets the H register.
+    /// </summary>
     public abstract byte H { get; set; }
 
+    /// <summary>
+    /// Gets or sets the combined HL register pair.
+    /// </summary>
     public abstract ushort HL { get; set; }
 
+    /// <summary>
+    /// Gets or sets the interrupt vector register.
+    /// </summary>
     public abstract byte I { get; set; }
 
+    /// <summary>
+    /// Gets or sets the combined interrupt vector and memory refresh register.
+    /// </summary>
     public abstract ushort IR { get; set; }
 
+    /// <summary>
+    /// Gets or sets the IX index register.
+    /// </summary>
     public abstract ushort IX { get; set; }
 
+    /// <summary>
+    /// Gets or sets the high byte of the IX index register.
+    /// </summary>
     public abstract byte IXH { get; set; }
 
+    /// <summary>
+    /// Gets or sets the low byte of the IX index register.
+    /// </summary>
     public abstract byte IXL { get; set; }
 
+    /// <summary>
+    /// Gets or sets the IY index register.
+    /// </summary>
     public abstract ushort IY { get; set; }
 
+    /// <summary>
+    /// Gets or sets the high byte of the IY index register.
+    /// </summary>
     public abstract byte IYH { get; set; }
 
+    /// <summary>
+    /// Gets or sets the low byte of the IY index register.
+    /// </summary>
     public abstract byte IYL { get; set; }
 
+    /// <summary>
+    /// Gets or sets the L register.
+    /// </summary>
     public abstract byte L { get; set; }
 
+    /// <summary>
+    /// Gets or sets the program counter.
+    /// </summary>
     public abstract ushort PC { get; set; }
 
+    /// <summary>
+    /// Gets or sets the internal Q flags latch.
+    /// </summary>
     public abstract byte Q { get; set; }
 
+    /// <summary>
+    /// Gets or sets the memory refresh register.
+    /// </summary>
     public abstract byte R { get; set; }
 
+    /// <summary>
+    /// Gets or sets the stack pointer.
+    /// </summary>
     public abstract ushort SP { get; set; }
 
+    /// <summary>
+    /// Gets or sets the high byte of the internal WZ register pair.
+    /// </summary>
     public abstract byte W { get; set; }
 
+    /// <summary>
+    /// Gets or sets the internal WZ register pair.
+    /// </summary>
     public abstract ushort WZ { get; set; }
 
+    /// <summary>
+    /// Gets or sets the low byte of the internal WZ register pair.
+    /// </summary>
     public abstract byte Z { get; set; }
 }

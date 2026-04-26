@@ -1,100 +1,131 @@
 registers:
   - name: AF
     type: u16
+    documentation: Gets or sets the combined accumulator and flags register.
     high:
       name: A
       type: u8
+      documentation: Gets or sets the accumulator register.
     low:
       name: F
       type: u8
+      documentation: Gets or sets the flags register.
       flags: true
 
   - name: BC
     type: u16
+    documentation: Gets or sets the combined BC register pair.
     high:
       name: B
       type: u8
+      documentation: Gets or sets the B register.
     low:
       name: C
       type: u8
+      documentation: Gets or sets the C register.
 
   - name: DE
     type: u16
+    documentation: Gets or sets the combined DE register pair.
     high:
       name: D
       type: u8
+      documentation: Gets or sets the D register.
     low:
       name: E
       type: u8
+      documentation: Gets or sets the E register.
 
   - name: HL
     type: u16
+    documentation: Gets or sets the combined HL register pair.
     high:
       name: H
       type: u8
+      documentation: Gets or sets the H register.
     low:
       name: L
       type: u8
+      documentation: Gets or sets the L register.
 
   - name: IX
     type: u16
+    documentation: Gets or sets the IX index register.
     high:
       name: IXH
       type: u8
+      documentation: Gets or sets the high byte of the IX index register.
     low:
       name: IXL
       type: u8
+      documentation: Gets or sets the low byte of the IX index register.
 
   - name: IY
     type: u16
+    documentation: Gets or sets the IY index register.
     high:
       name: IYH
       type: u8
+      documentation: Gets or sets the high byte of the IY index register.
     low:
       name: IYL
       type: u8
+      documentation: Gets or sets the low byte of the IY index register.
 
   - name: IR
     type: u16
+    documentation: Gets or sets the combined interrupt vector and memory refresh register.
     high:
       name: I
       type: u8
+      documentation: Gets or sets the interrupt vector register.
     low:
       name: R
       type: u8
+      documentation: Gets or sets the memory refresh register.
 
   - name: PC
     type: u16
+    documentation: Gets or sets the program counter.
     program_counter: true
 
   - name: SP
     type: u16
+    documentation: Gets or sets the stack pointer.
 
   - name: WZ
     type: u16
+    documentation: Gets or sets the internal WZ register pair.
     high:
       name: W
       type: u8
+      documentation: Gets or sets the high byte of the internal WZ register pair.
     low:
       name: Z
       type: u8
+      documentation: Gets or sets the low byte of the internal WZ register pair.
 
   # Arguably this is a latch rather than a register. But the same could be said of WZ.
   - name: Q
     type: u8
+    documentation: Gets or sets the internal Q flags latch.
 
   - name: AF'
     type: u16
     category: Shadow
+    documentation: Gets or sets the shadow AF register pair.
     
   - name: BC'
     type: u16
     category: Shadow
+    documentation: Gets or sets the shadow BC register pair.
     
   - name: DE'
     type: u16
     category: Shadow
+    documentation: Gets or sets the shadow DE register pair.
     
   - name: HL'
     type: u16
     category: Shadow
+    documentation: Gets or sets the shadow HL register pair.

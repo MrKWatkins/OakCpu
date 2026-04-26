@@ -1,32 +1,40 @@
 flags:
   - name: C
     index: 0
+    documentation: Gets or sets the carry flag.
     condition: C
     not_condition: NC
     
   - name: N
     index: 1
+    documentation: Gets or sets the add/subtract flag.
     
   - name: PV
     index: 2
+    documentation: Gets or sets the parity/overflow flag.
     condition: PE
     not_condition: PO
     
   - name: X
     index: 3
+    documentation: Gets or sets the undocumented X flag.
     
   - name: H
     index: 4
+    documentation: Gets or sets the half-carry flag.
     
   - name: Y
     index: 5
+    documentation: Gets or sets the undocumented Y flag.
     
   - name: Z
     index: 6
+    documentation: Gets or sets the zero flag.
     condition: Z
     not_condition: NZ
     
   - name: S
     index: 7
+    documentation: Gets or sets the sign flag.
     condition: M
     not_condition: P

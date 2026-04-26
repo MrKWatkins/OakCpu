@@ -46,9 +46,15 @@ public sealed class RegistersClassesGenerator : TypeGenerator
 
         members.AddRange(CreateRegisterProperties(context, category, createOverrideProperty: false));
 
-        return ClassDeclaration(GetRegistersClassName(context, category))
-            .AddModifiers(Public, Abstract)
-            .AddMembers(members.ToArray());
+        var summary = category == null
+            ? $"Provides access to the {context.Cpu.Name} registers."
+            : $"Provides access to the {context.Cpu.Name} {category.ToLowerInvariant()} registers.";
+
+        return WithXmlDocumentation(
+            ClassDeclaration(GetRegistersClassName(context, category))
+                .AddModifiers(Public, Abstract)
+                .AddMembers(members.ToArray()),
+            summary);
     }
 
     [Pure]
@@ -74,22 +80,25 @@ public sealed class RegistersClassesGenerator : TypeGenerator
 
     [Pure]
     private static ConstructorDeclarationSyntax CreateBaseConstructor(GeneratorContext context, IReadOnlyList<string> categories) =>
-        ConstructorDeclaration(GetRegistersClassName(context))
-            .WithModifiers(TokenList(Protected))
-            .WithParameterList(
-                ParameterList(
-                    SeparatedList(
+        WithXmlDocumentation(
+            ConstructorDeclaration(GetRegistersClassName(context))
+                .WithModifiers(TokenList(Protected))
+                .WithParameterList(
+                    ParameterList(
+                        SeparatedList(
+                            categories.Select(
+                                category => Parameter(Identifier(ToCamelCase(category)))
+                                    .WithType(IdentifierName(GetRegistersClassName(context, category)))))))
+                .WithBody(
+                    Block(
                         categories.Select(
-                            category => Parameter(Identifier(ToCamelCase(category)))
-                                .WithType(IdentifierName(GetRegistersClassName(context, category)))))))
-            .WithBody(
-                Block(
-                    categories.Select(
-                        category => ExpressionStatement(
-                            AssignmentExpression(
-                                SyntaxKind.SimpleAssignmentExpression,
-                                IdentifierName(category),
-                                IdentifierName(ToCamelCase(category)))))));
+                            category => ExpressionStatement(
+                                AssignmentExpression(
+                                    SyntaxKind.SimpleAssignmentExpression,
+                                    IdentifierName(category),
+                                    IdentifierName(ToCamelCase(category))))))),
+            $"Initializes a new {GetRegistersClassName(context)} instance.",
+            parameters: categories.ToDictionary(ToCamelCase, category => $"The {context.Cpu.Name} {category.ToLowerInvariant()} registers."));
 
     [Pure]
     private static ConstructorDeclarationSyntax CreateConcreteConstructor(
@@ -132,7 +141,9 @@ public sealed class RegistersClassesGenerator : TypeGenerator
 
     [Pure]
     private static IEnumerable<PropertyDeclarationSyntax> CreateCategoryProperties(GeneratorContext context, IReadOnlyList<string> categories) =>
-        categories.Select(category => CreateGetOnlyProperty(context, GetRegistersClassName(context, category), category));
+        categories.Select(category => WithXmlDocumentation(
+            CreateGetOnlyProperty(context, GetRegistersClassName(context, category), category),
+            $"Gets the {context.Cpu.Name} {category.ToLowerInvariant()} registers."));
 
     [Pure]
     private static IEnumerable<PropertyDeclarationSyntax> CreateRegisterProperties(GeneratorContext context, string? category, bool createOverrideProperty) =>
@@ -146,7 +157,7 @@ public sealed class RegistersClassesGenerator : TypeGenerator
     {
         if (!createOverrideProperty)
         {
-            return CreateAbstractGetSetProperty(register.Type.TypeSyntax(), register.PropertyName);
+            return WithXmlDocumentation(CreateAbstractGetSetProperty(register.Type.TypeSyntax(), register.PropertyName), register.Documentation);
         }
 
         var memberAccessExpression = MemberAccessExpression(

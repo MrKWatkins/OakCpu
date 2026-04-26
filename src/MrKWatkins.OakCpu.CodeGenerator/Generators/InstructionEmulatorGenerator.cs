@@ -26,7 +26,9 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
     protected override string GetBaseFileName(GeneratorContext context) => $"{GetInstructionEmulatorClassName(context)}.instructions";
 
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context) =>
-        PopulateClass(context, ClassDeclaration(GetInstructionEmulatorClassName(context)).AddModifiers(Public, Sealed, Unsafe, Partial));
+        PopulateClass(
+            context,
+            ClassDeclaration(GetInstructionEmulatorClassName(context)).AddModifiers(Public, Sealed, Unsafe, Partial));
 
     [Pure]
     private static ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration)

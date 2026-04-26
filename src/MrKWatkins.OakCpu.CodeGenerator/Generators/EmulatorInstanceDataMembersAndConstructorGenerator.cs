@@ -84,9 +84,11 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
             CreateNewObjectAndAssignToProperty(InterruptsPropertyName, GetStepInterruptsClassName(context), ThisExpression())
         };
 
-        return ConstructorDeclaration(GetEmulatorClassName(context))
-            .WithModifiers(TokenList(Public))
-            .WithBody(Block(statements));
+        return WithXmlDocumentation(
+            ConstructorDeclaration(GetEmulatorClassName(context))
+                .WithModifiers(TokenList(Public))
+                .WithBody(Block(statements)),
+            $"Initializes a new {GetEmulatorClassName(context)} instance.");
     }
 
     [Pure]
@@ -95,7 +97,9 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         var attributeList = AttributeList(SingletonSeparatedList(CreateFieldOffsetAttribute(context, fieldOffset)))
             .WithTarget(AttributeTargetSpecifier(Field));
 
-        return CreateGetOnlyProperty(context, typeName, propertyName).AddAttributeLists(attributeList);
+        return WithXmlDocumentation(
+            CreateGetOnlyProperty(context, typeName, propertyName).AddAttributeLists(attributeList),
+            GetObjectPropertySummary(context, propertyName));
     }
 
     [Pure]
@@ -139,9 +143,11 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
             accessors.Add(setter);
         }
 
-        yield return PropertyDeclaration(member.Type.TypeSyntax(), Identifier(member.PropertyName))
-            .WithModifiers(TokenList(Public))
-            .WithAccessorList(AccessorList(List(accessors)));
+        yield return WithXmlDocumentation(
+            PropertyDeclaration(member.Type.TypeSyntax(), Identifier(member.PropertyName))
+                .WithModifiers(TokenList(Public))
+                .WithAccessorList(AccessorList(List(accessors))),
+            member.Documentation);
     }
 
     [Pure]
@@ -157,6 +163,15 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         // Round up to the next multiple of 64 bits, i.e. 8 bytes.
         return (nextFieldOffset + 7) & ~7;
     }
+
+    [Pure]
+    private static string GetObjectPropertySummary(GeneratorContext context, string propertyName) => propertyName switch
+    {
+        RegistersPropertyName => $"Gets the {context.Cpu.Name} registers.",
+        FlagsPropertyName => $"Gets the {context.Cpu.Name} flags.",
+        InterruptsPropertyName => $"Gets the {context.Cpu.Name} interrupt state.",
+        _ => throw new ArgumentOutOfRangeException(nameof(propertyName), propertyName, null)
+    };
 
     [MustUseReturnValue]
     private static FieldDeclarationSyntax CreateField(GeneratorContext context, Register register) =>

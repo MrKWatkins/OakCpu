@@ -8,13 +8,33 @@
 //------------------------------------------------------------------------------
 #nullable enable
 namespace MrKWatkins.OakCpu.Z80;
-
+/// <summary>
+/// Describes the external action that the host must perform for the current CPU cycle.
+/// </summary>
 public enum ActionRequired
 {
+    /// <summary>
+    /// No external action is required.
+    /// </summary>
     None = 0,
+    /// <summary>
+    /// The host must read an opcode byte from memory.
+    /// </summary>
     OpcodeRead = 1,
+    /// <summary>
+    /// The host must read a byte from memory.
+    /// </summary>
     MemoryRead = 2,
+    /// <summary>
+    /// The host must write a byte to memory.
+    /// </summary>
     MemoryWrite = 3,
-    IoRead = 4,
-    IoWrite = 5
+    /// <summary>
+    /// The host must read a byte from an I/O port.
+    /// </summary>
+    IORead = 4,
+    /// <summary>
+    /// The host must write a byte to an I/O port.
+    /// </summary>
+    IOWrite = 5
 }

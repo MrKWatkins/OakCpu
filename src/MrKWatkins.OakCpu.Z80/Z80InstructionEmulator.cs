@@ -5,6 +5,11 @@ namespace MrKWatkins.OakCpu.Z80;
 
 public sealed unsafe partial class Z80InstructionEmulator
 {
+    /// <summary>
+    /// Executes one complete instruction or pending interrupt sequence.
+    /// </summary>
+    /// <param name="onActionRequired">Called whenever the emulator requires an external bus action.</param>
+    /// <returns>The number of T-states executed.</returns>
     public int ExecuteInstruction(Action<ActionRequired, ushort, byte> onActionRequired)
     {
         ArgumentNullException.ThrowIfNull(onActionRequired);

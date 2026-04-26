@@ -14,6 +14,12 @@ namespace MrKWatkins.OakCpu.Z80;
 
 public sealed unsafe partial class Z80StepEmulator
 {
+    /// <summary>
+    /// Serializes this emulator's Z80 CPU state.
+    /// </summary>
+    /// <param name="stream">
+    /// The stream to write the CPU state to.
+    /// </param>
     public void Serialize(Stream stream)
     {
         using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
@@ -87,6 +93,15 @@ public sealed unsafe partial class Z80StepEmulator
         writer.Write(Q);
     }
 
+    /// <summary>
+    /// Deserializes a Z80 CPU state.
+    /// </summary>
+    /// <param name="stream">
+    /// The stream to read the CPU state from.
+    /// </param>
+    /// <returns>
+    /// The deserialized Z80 emulator.
+    /// </returns>
     public static Z80StepEmulator Deserialize(Stream stream)
     {
         var deserialized = new Z80StepEmulator();
@@ -94,6 +109,12 @@ public sealed unsafe partial class Z80StepEmulator
         return deserialized;
     }
 
+    /// <summary>
+    /// Restores this emulator from a serialized Z80 CPU state.
+    /// </summary>
+    /// <param name="stream">
+    /// The stream to read the CPU state from.
+    /// </param>
     public void Restore(Stream stream)
     {
         using var reader = new BinaryReader(stream, Encoding.UTF8, true);
