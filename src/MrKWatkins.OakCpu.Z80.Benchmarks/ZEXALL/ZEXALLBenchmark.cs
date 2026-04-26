@@ -33,9 +33,6 @@ public class ZEXALLBenchmark
     [Benchmark]
     public void Z80StepEmulator() => new Z80StepEmulatorRunner(initialMemory).Run();
 
-    [Benchmark]
-    public void ContendedZ80StepEmulator() => new ContendedZ80StepEmulatorRunner(initialMemory).Run();
-
     [Pure]
     private static byte[] CreateInitialMemory(string testName)
     {

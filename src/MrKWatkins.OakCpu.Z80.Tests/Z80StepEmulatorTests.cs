@@ -1,3 +1,4 @@
+using MrKWatkins.EmulatorTestSuites.Z80;
 using MrKWatkins.OakCpu.Z80.Testing;
 
 namespace MrKWatkins.OakCpu.Z80.Tests;
@@ -97,6 +98,54 @@ public sealed class Z80StepEmulatorTests
         emulator.Flags.X.Should().BeFalse();
         emulator.Flags.Y.Should().BeFalse();
         emulator.F.Should().Equal(0b00000000);
+    }
+
+    [Test]
+    public void IsAtInstructionBoundary()
+    {
+        var z80 = new Z80StepEmulatorTestHarness();
+
+        // LD B, $42
+        z80.WriteByteToMemory(0x0000, 0x06);
+        z80.WriteByteToMemory(0x0001, 0x42);
+
+        z80.Emulator.IsAtInstructionBoundary.Should().BeTrue();
+
+        z80.Step();
+        z80.Emulator.IsAtInstructionBoundary.Should().BeFalse();
+
+        z80.ExecuteInstruction();
+        z80.Emulator.IsAtInstructionBoundary.Should().BeTrue();
+        z80.RegisterB.Should().Equal(0x42);
+    }
+
+    [Test]
+    public void IsAtInstructionBoundary_InterruptAccepted()
+    {
+        var z80 = new Z80StepEmulatorTestHarness
+        {
+            RecordCycles = true,
+            IFF1 = true,
+            IFF2 = true,
+            IM = 1
+        };
+
+        z80.WriteByteToMemory(0x0000, 0x00);
+
+        z80.Step(3);
+        z80.Emulator.IsAtInstructionBoundary.Should().BeFalse();
+
+        z80.Interrupt = true;
+        z80.Step();
+        z80.Cycles[^1].Type.Should().Equal(CycleType.None);
+        z80.Emulator.IsAtInstructionBoundary.Should().BeTrue();
+        z80.IFF1.Should().BeTrue();
+        z80.IFF2.Should().BeTrue();
+
+        z80.Step();
+        z80.Emulator.IsAtInstructionBoundary.Should().BeFalse();
+        z80.IFF1.Should().BeFalse();
+        z80.IFF2.Should().BeFalse();
     }
 
     [Test]

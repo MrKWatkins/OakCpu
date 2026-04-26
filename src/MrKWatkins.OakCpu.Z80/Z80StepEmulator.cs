@@ -8,13 +8,11 @@ public partial class Z80StepEmulator
     private const ushort HaltedStep0 = 8;
     private const ushort HaltedStep1 = 9;
     private const ushort HaltedStep2 = 10;
+    private const ushort IM0Start = 12;
+    private const ushort IM1Start = 17;
+    private const ushort IM2Start = 30;
 
-    public const ushort IM0Start = 12;
-    public const ushort IM1Start = 17;
-    public const ushort IM2Start = 30;
-
-    // TODO: Remove.
-    public ushort CurrentStep => currentStep;
+    public bool IsAtInstructionBoundary => IsInstructionBoundaryStart(currentStep);
 
     /// <summary>
     /// Executes a single instruction; used for testing. Assumes the processor is at the start of an instruction.

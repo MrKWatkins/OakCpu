@@ -14,7 +14,6 @@
     <PackageVersion Include="Microsoft.Testing.Extensions.TrxReport" Version="2.0.0" />
     <PackageVersion Include="MrKWatkins.Assertions" Version="1.4.0" />
     <PackageVersion Include="MrKWatkins.EmulatorTestSuites.Z80" Version="0.8.0" />
-    <PackageVersion Include="MrKWatkins.EmulatorTestSuites.ZXSpectrum" Version="0.8.0" />
     <PackageVersion Include="MrKWatkins.OakEmu.Cpus.Z80" Version="0.2.0" />
     <PackageVersion Include="MrKWatkins.OakAsm.Disassembly.Z80" Version="0.8.2" />
     <PackageVersion Include="MrKWatkins.OakAsm.Formatting" Version="0.8.2" />

@@ -57,6 +57,7 @@ public sealed class InterruptBoundaryTests
     {
         var z80 = new Z80StepEmulatorTestHarness
         {
+            RecordCycles = true,
             IM = 1
         };
 
@@ -82,10 +83,11 @@ public sealed class InterruptBoundaryTests
 
         z80.ExecuteInstruction(); // JP 0x0005
         z80.Interrupt.Should().BeTrue();
-        z80.Emulator.CurrentStep.Should().Equal(Z80StepEmulator.IM1Start);
         z80.RegisterPC.Should().Equal(0x0005);
+        z80.IFF1.Should().BeTrue();
+        z80.IFF2.Should().BeTrue();
 
-        z80.Step();
+        StepAndAssertEvent(z80, CycleType.None);
         z80.IFF1.Should().BeFalse();
         z80.IFF2.Should().BeFalse();
     }

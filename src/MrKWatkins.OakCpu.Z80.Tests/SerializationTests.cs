@@ -147,28 +147,6 @@ public sealed class SerializationTests
         copy.Registers.SP.Should().Equal(0x8FFE);
     }
 
-    [Test]
-    public void Contended_serialize_deserialize()
-    {
-        var original = new ContendedZ80StepEmulator(new Z80StepEmulator(), tStatesInCurrentFrame: 14335)
-        {
-            Registers =
-            {
-                PC = 0x4000
-            }
-        };
-
-        using var stream = new MemoryStream();
-        original.Serialize(stream);
-        stream.Position = 0;
-
-        var copy = ContendedZ80StepEmulator.Deserialize(stream);
-        copy.TStatesInCurrentFrame.Should().Equal(original.TStatesInCurrentFrame);
-        copy.Registers.PC.Should().Equal(original.Registers.PC);
-        copy.PendingDelay.Should().Equal(original.PendingDelay);
-        copy.HasPendingAction.Should().Equal(original.HasPendingAction);
-    }
-
     private static void AssertEqual(Z80StepEmulator actual, Z80StepEmulator expected)
     {
         actual.Address.Should().Equal(expected.Address);
