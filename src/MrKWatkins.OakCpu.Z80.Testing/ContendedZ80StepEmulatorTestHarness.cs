@@ -1,8 +1,6 @@
-using MrKWatkins.EmulatorTestSuites.Z80.Program.Timing;
-
 namespace MrKWatkins.OakCpu.Z80.Testing;
 
-public sealed class ContendedZ80StepEmulatorTestHarness : Z80StepEmulatorTestHarness, IFrameAwareTestHarness
+public sealed class ContendedZ80StepEmulatorTestHarness : Z80StepEmulatorTestHarness
 {
     private const int FinalTStateInFrame = ContentionTable.TStatesPerFrame - 1;
     // The 48K Spectrum ULA holds INT active for 32 T-states at the start of each frame.

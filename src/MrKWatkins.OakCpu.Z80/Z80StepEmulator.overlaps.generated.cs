@@ -4942,7 +4942,7 @@ public sealed unsafe partial class Z80StepEmulator
     private static void Overlap371(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
-        var xy = emulator.Q ^ emulator.F | emulator.A;
+        var xy = emulator.F | emulator.A;
 
         // Update flags.
         int flags = 0b00000001; // Set C. Reset N and H.
@@ -4992,7 +4992,7 @@ public sealed unsafe partial class Z80StepEmulator
     private static void Overlap374(Z80StepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
-        var xy = emulator.Q ^ emulator.F | emulator.A;
+        var xy = emulator.F | emulator.A;
 
         // Update flags.
         // Reset N.

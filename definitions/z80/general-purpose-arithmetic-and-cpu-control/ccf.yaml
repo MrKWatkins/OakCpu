@@ -3,10 +3,26 @@ instructions:
     mnemonic: CCF
     opcodes:
       - opcode: 0x3F
+    steps:
+      - $xy = (Q ^ F) | A; flags();
+    flags:
+      C: flag.C == 0
+      N: 0
+      X: copy_from($xy)
+      H: flag.C
+      Y: copy_from($xy)
+    next_opcode: overlapped
+
+  - group: General-Purpose Arithmetic and CPU Control
+    mnemonic: CCF
+    # DD/FD act as the previous instruction for CCF's undocumented X/Y flag behaviour.
+    # They do not modify flags, so X/Y are copied from F | A rather than (Q ^ F) | A.
+    # See https://stardot.org.uk/forums/viewtopic.php?p=481595#p481595.
+    opcodes:
       - opcode: 0xDD 0x3F
       - opcode: 0xFD 0x3F
     steps:
-      - $xy = (Q ^ F) | A; flags();
+      - $xy = F | A; flags();
     flags:
       C: flag.C == 0
       N: 0

@@ -7899,7 +7899,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     private static int SCF_DD_37(Z80InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
-        var xy = emulator.Q ^ emulator.F | emulator.A;
+        var xy = emulator.F | emulator.A;
 
         // Update flags.
         int flags = 0b00000001; // Set C. Reset N and H.
@@ -8024,7 +8024,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     private static int CCF_DD_3F(Z80InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
-        var xy = emulator.Q ^ emulator.F | emulator.A;
+        var xy = emulator.F | emulator.A;
 
         // Update flags.
         // Reset N.
