@@ -1,21 +1,29 @@
+using System.Runtime.CompilerServices;
+
 namespace MrKWatkins.OakCpu.Z80;
 
 public partial class Z80StepEmulator
 {
-    private const ushort OpcodeReadStep0 = 0;
-    private const ushort OpcodeReadStep1 = 1;
-    private const ushort OpcodeReadStep2 = 2;
-    private const ushort HaltedStep0 = 8;
-    private const ushort HaltedStep1 = 9;
-    private const ushort HaltedStep2 = 10;
-    private const ushort IM0Start = 12;
-    private const ushort IM1Start = 17;
-    private const ushort IM2Start = 30;
+    private const ushort OpcodeReadStep1 = OpcodeReadStep0 + 1;
+    private const ushort OpcodeReadStep2 = OpcodeReadStep0 + 2;
+    private const ushort HaltedStep1 = HaltedStep0 + 1;
+    private const ushort HaltedStep2 = HaltedStep0 + 2;
+    private const ushort IM0Step1 = IM0Step0 + 1;
+    private const ushort IM1Step1 = IM1Step0 + 1;
+    private const ushort IM2Step1 = IM2Step0 + 1;
 
     /// <summary>
     /// Gets a value indicating whether the emulator is at the start of an instruction or interrupt sequence.
     /// </summary>
     public bool IsAtInstructionBoundary => IsInstructionBoundaryStart(currentStep);
+
+    /// <summary>
+    /// Gets a value indicating whether the last completed step was an interrupt acknowledge read.
+    /// </summary>
+    /// <remarks>
+    /// This is only meaningful for the most recent <see cref="Step" /> result, especially when that result is <see cref="ActionRequired.IORead" />.
+    /// </remarks>
+    public bool LastActionWasInterruptAcknowledgeRead => PreviousStepWasInterruptAcknowledgeRead(currentStep);
 
     /// <summary>
     /// Executes a single instruction; used for testing. Assumes the processor is at the start of an instruction.
@@ -103,5 +111,10 @@ public partial class Z80StepEmulator
     }
 
     [Pure]
-    private static bool IsInstructionBoundaryStart(ushort step) => step is OpcodeReadStep0 or HaltedStep0 or IM0Start or IM1Start or IM2Start;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsInstructionBoundaryStart(ushort step) => step is OpcodeReadStep0 or HaltedStep0 or IM0Step0 or IM1Step0 or IM2Step0;
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool PreviousStepWasInterruptAcknowledgeRead(ushort step) => step != 0 && (ushort)(step - 1) is IM0Step1 or IM1Step1 or IM2Step1;
 }

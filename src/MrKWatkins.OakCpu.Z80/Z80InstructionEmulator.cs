@@ -49,6 +49,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         return tStates;
     }
 
+    // TODO: This is referenced by the generated code, it shouldn't be.
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void QueueInterrupt(ushort interruptStep)
     {

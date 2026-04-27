@@ -149,6 +149,75 @@ public sealed class Z80StepEmulatorTests
         z80.IFF2.Should().BeFalse();
     }
 
+    [TestCase(0)]
+    [TestCase(1)]
+    [TestCase(2)]
+    public void LastActionWasInterruptAcknowledgeRead_InterruptMode(byte interruptMode)
+    {
+        var memory = new byte[65536];
+        memory[0x0000] = 0x00;
+
+        var emulator = new Z80StepEmulator
+        {
+            Interrupts =
+            {
+                IFF1 = true,
+                IFF2 = true,
+                IM = interruptMode
+            }
+        };
+
+        var actionRequired = ActionRequired.None;
+        while (!emulator.IsAtInstructionBoundary || emulator.Registers.PC != 0x0001)
+        {
+            actionRequired = Step(emulator, memory);
+            emulator.LastActionWasInterruptAcknowledgeRead.Should().BeFalse();
+        }
+
+        emulator.Interrupts.Interrupt = true;
+        while (actionRequired != ActionRequired.IORead)
+        {
+            actionRequired = Step(emulator, memory);
+        }
+
+        emulator.LastActionWasInterruptAcknowledgeRead.Should().BeTrue();
+    }
+
+    [Test]
+    public void LastActionWasInterruptAcknowledgeRead_IN_A_N()
+    {
+        var memory = new byte[65536];
+        memory[0x0000] = 0xDB;
+        memory[0x0001] = 0xFE;
+
+        var emulator = new Z80StepEmulator();
+
+        StepUntilIORead(emulator, memory);
+
+        emulator.LastActionWasInterruptAcknowledgeRead.Should().BeFalse();
+    }
+
+    [Test]
+    public void LastActionWasInterruptAcknowledgeRead_INI()
+    {
+        var memory = new byte[65536];
+        memory[0x0000] = 0xED;
+        memory[0x0001] = 0xA2;
+
+        var emulator = new Z80StepEmulator
+        {
+            Registers =
+            {
+                BC = 0x0100,
+                HL = 0x4000
+            }
+        };
+
+        StepUntilIORead(emulator, memory);
+
+        emulator.LastActionWasInterruptAcknowledgeRead.Should().BeFalse();
+    }
+
     [Test]
     public void ExecuteInstruction_NoOverlappedRead()
     {
@@ -202,5 +271,37 @@ public sealed class Z80StepEmulatorTests
         z80.TStates.Should().Equal(8);
         z80.Halted.Should().BeTrue();
         z80.RegisterPC.Should().Equal(0x0001);
+    }
+
+    private static void StepUntilIORead(Z80StepEmulator emulator, byte[] memory)
+    {
+        ActionRequired actionRequired;
+        do
+        {
+            actionRequired = Step(emulator, memory);
+        }
+        while (actionRequired != ActionRequired.IORead);
+    }
+
+    private static ActionRequired Step(Z80StepEmulator emulator, byte[] memory)
+    {
+        var actionRequired = emulator.Step();
+        switch (actionRequired)
+        {
+            case ActionRequired.OpcodeRead:
+            case ActionRequired.MemoryRead:
+                emulator.Data = memory[emulator.Address];
+                break;
+
+            case ActionRequired.MemoryWrite:
+                memory[emulator.Address] = emulator.Data;
+                break;
+
+            case ActionRequired.IORead:
+                emulator.Data = 0xA5;
+                break;
+        }
+
+        return actionRequired;
     }
 }

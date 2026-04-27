@@ -13,6 +13,16 @@ namespace MrKWatkins.OakCpu.Z80;
 
 public sealed unsafe partial class Z80StepEmulator
 {
+    private const ushort OpcodeReadStep0 = 0;
+
+    private const ushort HaltedStep0 = 8;
+
+    private const ushort IM0Step0 = 12;
+
+    private const ushort IM1Step0 = 17;
+
+    private const ushort IM2Step0 = 30;
+
     private static readonly Step[] Steps;
 
     private static readonly delegate*<Z80StepEmulator, void>[] Overlaps;

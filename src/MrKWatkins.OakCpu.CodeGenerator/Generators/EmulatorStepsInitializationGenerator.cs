@@ -22,15 +22,34 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     {
         var members = new List<MemberDeclarationSyntax>
         {
+            CreateSequenceStartConstant("OpcodeRead", context.OpcodeRead),
+            CreateSequenceStartConstant("Halted", context.Interrupts.Halted)
+        };
+        members.AddRange(context.GetSequenceGroup(InterruptMode.SequenceGroupName).Members
+            .OrderBy(mode => mode.Key)
+            .Select(mode => CreateSequenceStartConstant($"IM{mode.Key}", mode.Value)));
+
+        members.AddRange(
+        [
             CreateStepsField(),
             CreateOverlapsField(context)
-        };
+        ]);
 
         members.AddRange(TableGeneration.CreateStepTableFields(context, GetSequenceGroupStepTableFieldName));
         members.Add(CreateStaticConstructor(context));
 
         return classDeclaration.AddMembers(members.ToArray());
     }
+
+    [Pure]
+    private static MemberDeclarationSyntax CreateSequenceStartConstant(string name, StepSequence sequence) =>
+        FieldDeclaration(
+                VariableDeclaration(UShortType)
+                    .WithVariables(
+                    [
+                        VariableDeclarator($"{name}Step0").WithInitializer(EqualsValueClause(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(sequence.FirstStep.Index))))
+                    ]))
+            .WithModifiers([Private, Token(SyntaxKind.ConstKeyword)]);
 
     [Pure]
     private static MemberDeclarationSyntax CreateStepsField() =>
