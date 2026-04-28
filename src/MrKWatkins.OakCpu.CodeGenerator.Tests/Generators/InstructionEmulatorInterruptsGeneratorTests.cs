@@ -15,7 +15,7 @@ public sealed class InstructionEmulatorInterruptsGeneratorTests : TestFixture
         result.Contains("if (emulator.interrupt && emulator.iff1)", StringComparison.Ordinal).Should().BeFalse();
         result.Contains("if (emulator.interrupt & emulator.iff1)", StringComparison.Ordinal).Should().BeTrue();
         result.Contains("emulator.interrupt = false;", StringComparison.Ordinal).Should().BeFalse();
-        result.Contains("emulator.QueueInterrupt(", StringComparison.Ordinal).Should().BeTrue();
+        result.Contains("emulator.nextSequenceStep = ", StringComparison.Ordinal).Should().BeTrue();
         result.Contains("return false;", StringComparison.Ordinal).Should().BeTrue();
     }
 }

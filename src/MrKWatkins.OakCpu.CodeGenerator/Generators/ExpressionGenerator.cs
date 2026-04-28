@@ -125,6 +125,11 @@ public abstract class ExpressionGenerator : Generator
     [Pure]
     private static ExpressionSyntax GenerateInstructionUpdatesFlagsExpressionSyntax(StatementGeneratorContext context)
     {
+        if (context.InstructionUpdatesFlagsParameterName is { } parameterName)
+        {
+            return IdentifierName(parameterName);
+        }
+
         if (context.Step?.Sequence is not Instruction instruction)
         {
             throw new InvalidOperationException("Cannot use flags() outside of an instruction.");

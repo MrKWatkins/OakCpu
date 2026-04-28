@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
+using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
@@ -13,9 +14,9 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 [SuppressMessage("Maintainability", "CA1506:Avoid excessive class coupling", Justification = "Generator code necessarily composes many Roslyn syntax node types.")]
 public sealed class InstructionEmulatorGenerator : TypeGenerator
 {
-    private const string ExecuteDecodedInstructionMethodName = "ExecuteDecodedInstruction";
+    internal const string ExecuteDecodedInstructionMethodName = "ExecuteDecodedInstruction";
+    internal const string OpcodeReadStep0FieldName = "OpcodeReadStep0";
     private const string NextInstructionVariableNamePrefix = "nextInstruction";
-    private const string TrySetPrefixOpcodeStepTableMethodName = "TrySetPrefixOpcodeStepTable";
     private const ushort NoNextInstructionValue = ushort.MaxValue;
     public static readonly InstructionEmulatorGenerator Instance = new();
 
@@ -35,15 +36,9 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
     {
         var members = new List<MemberDeclarationSyntax>
         {
-            CreateOpcodeReadConstants(context)
+            CreateDispatchConstants(context),
+            CreateErrorMethod(context)
         };
-
-        members.AddRange(CreatePrefixStepConstants(context));
-        members.AddRange(
-        [
-            CreateErrorMethod(context),
-            CreateTrySetPrefixOpcodeStepTableMethod(context)
-        ]);
 
         members.AddRange(GetDispatchableSequences(context)
             .Select(sequence => (Sequence: sequence, Steps: GetRegularSteps(sequence)))
@@ -200,42 +195,18 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
     }
 
     [Pure]
-    private static MemberDeclarationSyntax CreateOpcodeReadConstants(GeneratorContext context)
+    private static MemberDeclarationSyntax CreateDispatchConstants(GeneratorContext context)
     {
-        var haltedStart = context.GetInstructionEmulatorSequenceIndex(context.Interrupts.Halted);
+        var opcodeReadStart = context.GetInstructionEmulatorSequenceIndex(context.OpcodeRead);
 
         return FieldDeclaration(
                 VariableDeclaration(UShortType)
                     .WithVariables(
-                    [
-                        VariableDeclarator("HaltedStep0").WithInitializer(EqualsValueClause(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(haltedStart))))
-                    ]))
+                        SingletonSeparatedList(
+                            VariableDeclarator(OpcodeReadStep0FieldName)
+                                .WithInitializer(EqualsValueClause(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(opcodeReadStart)))))))
             .WithModifiers([Private, Token(SyntaxKind.ConstKeyword)]);
     }
-
-    [Pure]
-    private static IEnumerable<MemberDeclarationSyntax> CreatePrefixStepConstants(GeneratorContext context)
-    {
-        if (context.PrefixJumps.Count == 0)
-        {
-            return [];
-        }
-
-        var variables = context.PrefixJumps
-            .OrderBy(prefix => prefix.Key)
-            .Select(prefix => VariableDeclarator(GetPrefixStepFieldName(prefix.Key))
-                .WithInitializer(EqualsValueClause(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(context.GetInstructionEmulatorPrefixIndex(prefix.Key))))))
-            .ToArray();
-
-        return
-        [
-            FieldDeclaration(VariableDeclaration(UShortType).WithVariables(SeparatedList(variables)))
-                .WithModifiers([Private, Token(SyntaxKind.ConstKeyword)])
-        ];
-    }
-
-    [Pure]
-    private static string GetPrefixStepFieldName(byte prefix) => $"Prefix{prefix:X2}Step";
 
     [Pure]
     private static MemberDeclarationSyntax CreateErrorMethod(GeneratorContext context)
@@ -261,65 +232,15 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
                                 ])))));
     }
 
-    [Pure]
-    private static MemberDeclarationSyntax CreateTrySetPrefixOpcodeStepTableMethod(GeneratorContext context)
-    {
-        var parameter = Parameter(Identifier("decodedStep")).WithType(UShortType);
-        if (context.PrefixJumps.Count == 0)
-        {
-            return MethodDeclaration(BoolType, Identifier(TrySetPrefixOpcodeStepTableMethodName))
-                .WithModifiers([Private])
-                .WithParameterList(ParameterList([parameter]))
-                .WithBody(Block(ReturnStatement(LiteralExpression(SyntaxKind.FalseLiteralExpression))));
-        }
-
-        var sections = context.PrefixJumps
-            .OrderBy(prefix => prefix.Key)
-            .Select(prefix =>
-                SwitchSection()
-                    .WithLabels(SingletonList<SwitchLabelSyntax>(CaseSwitchLabel(IdentifierName(GetPrefixStepFieldName(prefix.Key)))))
-                    .WithStatements(
-                        List<StatementSyntax>(
-                        [
-                            ExpressionStatement(
-                                AssignmentExpression(
-                                    SyntaxKind.SimpleAssignmentExpression,
-                                    IdentifierName(PreDefinedDataMember.OpcodeStepTable.FieldName),
-                                    IdentifierName(context.Configuration.OpcodeStepTables.GetForPrefix(prefix.Key).FieldName))),
-                            ReturnStatement(LiteralExpression(SyntaxKind.TrueLiteralExpression))
-                        ])))
-            .Append(
-                SwitchSection()
-                    .WithLabels(SingletonList<SwitchLabelSyntax>(DefaultSwitchLabel()))
-                    .WithStatements(List<StatementSyntax>([ReturnStatement(LiteralExpression(SyntaxKind.FalseLiteralExpression))])))
-            .ToArray();
-
-        return MethodDeclaration(BoolType, Identifier(TrySetPrefixOpcodeStepTableMethodName))
-            .WithModifiers([Private])
-            .WithParameterList(ParameterList([parameter]))
-            .WithBody(Block(SwitchStatement(IdentifierName("decodedStep")).WithSections(List(sections))));
-    }
-
-    [Pure]
-    private static ParameterSyntax CreateInstructionActionCallbackParameter() =>
-        Parameter(Identifier(InstructionActionCallbackParameterName))
-            .WithType(
-                GenericName(Identifier("Action"))
-                    .WithTypeArgumentList(
-                        TypeArgumentList(
-                            SeparatedList<TypeSyntax>(
-                            [
-                                IdentifierName(ActionRequiredEnumName),
-                                Token(SyntaxKind.CommaToken),
-                                UShortType,
-                                Token(SyntaxKind.CommaToken),
-                                ByteType
-                            ]))));
-
 #pragma warning disable CA1506
     [Pure]
     private static MemberDeclarationSyntax CreateInstructionMethod(GeneratorContext context, StepSequence sequence, IReadOnlyList<Step> steps)
     {
+        if (sequence is PrefixJump prefixJump)
+        {
+            return CreatePrefixJumpMethod(context, prefixJump, steps);
+        }
+
         var overlapStep = sequence.Steps.FirstOrDefault(step => step.ExecutesAsOverlapOnly);
         var overlapTrailingStatementsToSkip = overlapStep == null ? 0 : context.GetImplicitInstructionCompleteStatementCount(overlapStep);
         var overlapStatements = overlapStep == null ? [] : StatementGenerator.GenerateOverlapStatements(context, overlapStep, overlapTrailingStatementsToSkip).ToArray();
@@ -328,6 +249,7 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
         var completesInstructionImplicitly = overlapStep != null
             ? overlapTrailingStatementsToSkip != 0
             : steps.Count != 0 && context.GetImplicitInstructionCompleteStatementCount(steps[^1]) != 0;
+        var deferredNextSequence = GetDeferredNextSequence(context, sequence);
 
         var comments = new[] { Comment($"// {GetInstructionMethodComment(sequence)}") };
 
@@ -336,6 +258,10 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
             if (overlapStep != null)
             {
                 statements.AddRange(overlapStatements);
+            }
+            if (deferredNextSequence != null)
+            {
+                statements.Add(CreateSetNextSequence(context, deferredNextSequence));
             }
 
             statements.Add(completesInstructionImplicitly
@@ -401,10 +327,64 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
         if (!terminated)
         {
             statements.AddRange(overlapStatements);
+            if (deferredNextSequence != null)
+            {
+                statements.Add(CreateSetNextSequence(context, deferredNextSequence));
+            }
             statements.Add(completesInstructionImplicitly
                 ? CreateCompleteInstructionReturnStatement(sequence, steps.Count)
                 : CreateInstructionTStatesReturnStatement(steps.Count));
         }
+
+        return MethodDeclaration(IntType, Identifier(GetInstructionMethodName(context, sequence)))
+            .WithModifiers([Private, Static])
+            .WithParameterList(
+                ParameterList(
+                [
+                    CreateInstructionEmulatorParameter(context),
+                    CreateInstructionActionCallbackParameter()
+                ]))
+            .WithLeadingTrivia(comments)
+            .WithBody(Block(statements));
+    }
+
+    [Pure]
+    private static StepSequence? GetDeferredNextSequence(GeneratorContext context, StepSequence sequence) =>
+        sequence.NextOpcode switch
+        {
+            NextOpcodeMode.Loop => sequence,
+            NextOpcodeMode.Overlapped when sequence.OverlappedSequenceName is { } overlappedSequenceName => context.GetSequence(overlappedSequenceName),
+            _ => null
+        };
+
+    [Pure]
+    private static MemberDeclarationSyntax CreatePrefixJumpMethod(GeneratorContext context, PrefixJump sequence, IReadOnlyList<Step> steps)
+    {
+        var comments = new[] { Comment($"// {GetInstructionMethodComment(sequence)}") };
+        var statements = new List<StatementSyntax>();
+
+        foreach (var step in steps)
+        {
+            var stepStatements = StatementGenerator.GenerateInstructionStatements(context, step, null, null, 0, 0).ToList();
+            if (stepStatements.Count != 0)
+            {
+                statements.AddRange(stepStatements);
+            }
+        }
+
+        statements.Add(
+            ReturnStatement(
+                InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName(EmulatorParameterName),
+                            IdentifierName(ExecuteDecodedInstructionMethodName)))
+                    .WithArgumentList(
+                        ArgumentList(
+                        [
+                            Argument(IdentifierName(OpcodeReadStep0FieldName)),
+                            Argument(IdentifierName(InstructionActionCallbackParameterName))
+                        ]))));
 
         return MethodDeclaration(IntType, Identifier(GetInstructionMethodName(context, sequence)))
             .WithModifiers([Private, Static])
@@ -493,6 +473,17 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
                         Argument(EmulatorMemberIdentifier(PreDefinedDataMember.Address.FieldName)),
                         Argument(EmulatorMemberIdentifier(PreDefinedDataMember.Data.FieldName))
                     ])));
+
+    [Pure]
+    private static StatementSyntax CreateSetNextSequence(GeneratorContext context, StepSequence sequence) =>
+        ExpressionStatement(
+            AssignmentExpression(
+                SyntaxKind.SimpleAssignmentExpression,
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName(EmulatorParameterName),
+                    IdentifierName(NextSequenceStepFieldName)),
+                GenerateNumericLiteralExpression(context.GetInstructionEmulatorSequenceIndex(sequence))));
 
     [Pure]
     private static IEnumerable<StatementSyntax> CreateRollbackOpcodeReadAndReturnStatements(int tStates)

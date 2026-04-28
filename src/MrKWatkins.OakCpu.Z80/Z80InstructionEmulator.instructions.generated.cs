@@ -16,34 +16,57 @@ namespace MrKWatkins.OakCpu.Z80;
 
 public sealed unsafe partial class Z80InstructionEmulator
 {
-    private const ushort HaltedStep0 = 0;
-
-    private const ushort PrefixCBStep = 1315, PrefixDDStep = 1316, PrefixEDStep = 1317, PrefixFDStep = 1318;
+    private const ushort OpcodeReadStep0 = 0;
 
     private static int Error(Z80InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
         throw new NotSupportedException("Opcode not supported");
     }
 
-    private bool TrySetPrefixOpcodeStepTable(ushort decodedStep)
+    // Opcode read
+    private static int Opcode_read(Z80InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
-        switch (decodedStep)
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.OpcodeRead, emulator.address, emulator.data);
+        emulator.address = emulator.IR;
+        emulator.R = (byte)(emulator.R & 0b10000000 | emulator.R + 0x01 & 0b01111111);
+        ushort nextInstruction3 = 65535;
+        nextInstruction3 = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(emulator.opcodeStepTable), emulator.data);
+        if (nextInstruction3 != 65535)
         {
-            case PrefixCBStep:
-                opcodeStepTable = OpcodeStepTablePrefixCB;
-                return true;
-            case PrefixDDStep:
-                opcodeStepTable = OpcodeStepTablePrefixDD;
-                return true;
-            case PrefixEDStep:
-                opcodeStepTable = OpcodeStepTablePrefixED;
-                return true;
-            case PrefixFDStep:
-                opcodeStepTable = OpcodeStepTablePrefixFD;
-                return true;
-            default:
-                return false;
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction3, onActionRequired);
         }
+
+        return 4;
+    }
+
+    // Read opcode after prefix 0xCB
+    private static int Prefix_CB(Z80InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.opcodeStepTable = OpcodeStepTablePrefixCB;
+        return emulator.ExecuteDecodedInstruction(OpcodeReadStep0, onActionRequired);
+    }
+
+    // Read opcode after prefix 0xDD
+    private static int Prefix_DD(Z80InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.opcodeStepTable = OpcodeStepTablePrefixDD;
+        return emulator.ExecuteDecodedInstruction(OpcodeReadStep0, onActionRequired);
+    }
+
+    // Read opcode after prefix 0xED
+    private static int Prefix_ED(Z80InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.opcodeStepTable = OpcodeStepTablePrefixED;
+        return emulator.ExecuteDecodedInstruction(OpcodeReadStep0, onActionRequired);
+    }
+
+    // Read opcode after prefix 0xFD
+    private static int Prefix_FD(Z80InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.opcodeStepTable = OpcodeStepTablePrefixFD;
+        return emulator.ExecuteDecodedInstruction(OpcodeReadStep0, onActionRequired);
     }
 
     // Halt cycle
@@ -58,6 +81,7 @@ public sealed unsafe partial class Z80InstructionEmulator
             return 4;
         }
 
+        emulator.nextSequenceStep = 5;
         return 4;
     }
 
@@ -1463,6 +1487,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     private static int HALT(Z80InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
         emulator.halted = true;
+        emulator.nextSequenceStep = 5;
         return emulator.CompleteInstruction(false, 0);
     }
 
@@ -8539,6 +8564,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.halted = true;
+        emulator.nextSequenceStep = 5;
         return emulator.CompleteInstruction(false, 0);
     }
 

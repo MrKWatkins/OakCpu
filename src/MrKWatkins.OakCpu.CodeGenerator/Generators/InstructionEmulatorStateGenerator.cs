@@ -13,7 +13,6 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
     private const string RegistersPropertyName = "Registers";
     private const string FlagsPropertyName = "Flags";
     private const string InterruptsPropertyName = "Interrupts";
-    private const string PendingInterruptStepFieldName = "pendingInterruptStep";
     public static readonly InstructionEmulatorStateGenerator Instance = new();
 
     private InstructionEmulatorStateGenerator()
@@ -25,6 +24,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
     {
         var members = context.Configuration.Registers.Values.Select(r => CreateField(context, r)).ToList<MemberDeclarationSyntax>();
+        members.Add(CreateNoNextSequenceStepField());
         members.Add(CreateConstructor(context));
 
         var fieldOffset = GetObjectPropertiesFieldOffset(context);
@@ -48,7 +48,10 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
             fieldOffset += 1;
         }
 
-        members.Add(CreatePendingInterruptStepField(context, fieldOffset));
+        members.Add(CreateNextSequenceStepField(context, fieldOffset));
+        members.Add(CreateExecuteInstructionMethod(context));
+        members.Add(CreateExecuteDecodedInstructionMethod(context));
+        members.Add(CreateCompleteInstructionMethod(context));
 
         return WithXmlDocumentation(
             ClassDeclaration(GetInstructionEmulatorClassName(context))
@@ -70,6 +73,11 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
                                 SyntaxKind.SimpleAssignmentExpression,
                                 IdentifierName(PreDefinedDataMember.OpcodeStepTable.FieldName),
                                 IdentifierName(context.Configuration.OpcodeStepTables.NoPrefix.FieldName))),
+                        ExpressionStatement(
+                            AssignmentExpression(
+                                SyntaxKind.SimpleAssignmentExpression,
+                                IdentifierName(NextSequenceStepFieldName),
+                                IdentifierName(NoNextSequenceStepFieldName))),
                         CreateNewObjectAndAssignToProperty(RegistersPropertyName, GetInstructionRegistersClassName(context), ThisExpression()),
                         CreateNewObjectAndAssignToProperty(FlagsPropertyName, GetInstructionFlagsClassName(context), ThisExpression()),
                         CreateNewObjectAndAssignToProperty(InterruptsPropertyName, GetInstructionInterruptsClassName(context), ThisExpression()))),
@@ -123,8 +131,137 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
     }
 
     [Pure]
-    private static FieldDeclarationSyntax CreatePendingInterruptStepField(GeneratorContext context, int fieldOffset) =>
-        CreateField(context, UShortType, PendingInterruptStepFieldName, fieldOffset, Private);
+    private static FieldDeclarationSyntax CreateNoNextSequenceStepField() =>
+        FieldDeclaration(
+                VariableDeclaration(UShortType)
+                    .WithVariables(
+                        SingletonSeparatedList(
+                            VariableDeclarator(NoNextSequenceStepFieldName)
+                                .WithInitializer(
+                                    EqualsValueClause(
+                                        ParseExpression("ushort.MaxValue"))))))
+            .WithModifiers(TokenList(Internal, Token(SyntaxKind.ConstKeyword)));
+
+    [Pure]
+    private static FieldDeclarationSyntax CreateNextSequenceStepField(GeneratorContext context, int fieldOffset) =>
+        CreateField(context, UShortType, NextSequenceStepFieldName, fieldOffset, Internal);
+
+    [Pure]
+    private static MemberDeclarationSyntax CreateExecuteInstructionMethod(GeneratorContext context) =>
+        WithXmlDocumentation(
+            MethodDeclaration(IntType, Identifier("ExecuteInstruction"))
+                .WithModifiers(TokenList(Public))
+                .WithParameterList(ParameterList([CreateInstructionActionCallbackParameter()]))
+                .WithBody(
+                    Block(
+                        List<StatementSyntax>(
+                        [
+                            ExpressionStatement(
+                                InvocationExpression(
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            IdentifierName(nameof(ArgumentNullException)),
+                                            IdentifierName(nameof(ArgumentNullException.ThrowIfNull))))
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                        [
+                                            Argument(IdentifierName(InstructionActionCallbackParameterName))
+                                        ]))),
+
+                            InitializeVariableStatement("scheduledSequenceStep", IdentifierName(NextSequenceStepFieldName), UShortType),
+                            IfStatement(
+                                BinaryExpression(
+                                    SyntaxKind.NotEqualsExpression,
+                                    IdentifierName("scheduledSequenceStep"),
+                                    IdentifierName(NoNextSequenceStepFieldName)),
+                                Block(
+                                    List<StatementSyntax>(
+                                    [
+                                        ExpressionStatement(
+                                            AssignmentExpression(
+                                                SyntaxKind.SimpleAssignmentExpression,
+                                                IdentifierName(NextSequenceStepFieldName),
+                                                IdentifierName(NoNextSequenceStepFieldName))),
+                                        ReturnStatement(
+                                            InvocationExpression(IdentifierName(InstructionEmulatorGenerator.ExecuteDecodedInstructionMethodName))
+                                                .WithArgumentList(
+                                                    ArgumentList(
+                                                    [
+                                                        Argument(IdentifierName("scheduledSequenceStep")),
+                                                        Argument(IdentifierName(InstructionActionCallbackParameterName))
+                                                    ])))
+                                    ]))),
+
+                            ReturnStatement(
+                                InvocationExpression(IdentifierName(InstructionEmulatorGenerator.ExecuteDecodedInstructionMethodName))
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                        [
+                                            Argument(IdentifierName(InstructionEmulatorGenerator.OpcodeReadStep0FieldName)),
+                                            Argument(IdentifierName(InstructionActionCallbackParameterName))
+                                        ])))
+                        ]))),
+            "Executes one complete instruction or scheduled sequence.",
+            parameters: new Dictionary<string, string>
+            {
+                ["onActionRequired"] = "Called whenever the emulator requires an external bus action."
+            },
+            returns: "The number of T-states executed.");
+
+    [Pure]
+    private static MemberDeclarationSyntax CreateExecuteDecodedInstructionMethod(GeneratorContext context) =>
+        MethodDeclaration(IntType, Identifier(InstructionEmulatorGenerator.ExecuteDecodedInstructionMethodName))
+            .AddAttributeLists(AttributeList([CreateMethodImplAttribute(context.RequiredUsings, System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]))
+            .WithModifiers(TokenList(Private))
+            .WithParameterList(
+                ParameterList(
+                [
+                    Parameter(Identifier("decodedStep")).WithType(UShortType),
+                    CreateInstructionActionCallbackParameter()
+                ]))
+            .WithBody(
+                Block(
+                    List<StatementSyntax>(
+                    [
+                        InitializeVariableStatement(
+                            "instruction",
+                            ElementAccessExpression(IdentifierName(InstructionHandlersFieldName))
+                                .WithArgumentList(
+                                    BracketedArgumentList(
+                                    [
+                                        Argument(IdentifierName("decodedStep"))
+                                    ]))),
+                        ReturnStatement(
+                            InvocationExpression(IdentifierName("instruction"))
+                                .WithArgumentList(
+                                    ArgumentList(
+                                    [
+                                        Argument(ThisExpression()),
+                                        Argument(IdentifierName(InstructionActionCallbackParameterName))
+                                    ])))
+                    ])));
+
+    [Pure]
+    private static MemberDeclarationSyntax CreateCompleteInstructionMethod(GeneratorContext context)
+    {
+        var statements = new List<StatementSyntax>
+        {
+            InitializeVariableStatement(EmulatorParameterName, ThisExpression())
+        };
+        statements.AddRange(StatementGenerator.GenerateInstructionCompletionStatements(context, context.OnInstructionComplete, "instructionUpdatesFlags"));
+        statements.Add(ReturnStatement(IdentifierName("tStates")));
+
+        return MethodDeclaration(IntType, Identifier(CompleteInstructionMethodName))
+            .AddAttributeLists(AttributeList([CreateMethodImplAttribute(context.RequiredUsings, System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]))
+            .WithModifiers(TokenList(Private))
+            .WithParameterList(
+                ParameterList(
+                [
+                    Parameter(Identifier("instructionUpdatesFlags")).WithType(BoolType),
+                    Parameter(Identifier("tStates")).WithType(IntType)
+                ]))
+            .WithBody(Block(List(statements)));
+    }
 
     [Pure]
     private static PropertyDeclarationSyntax CreateGetOnlyProperty(GeneratorContext context, string typeName, string propertyName, int fieldOffset)

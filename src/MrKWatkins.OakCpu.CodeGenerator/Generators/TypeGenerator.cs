@@ -294,6 +294,22 @@ public abstract partial class TypeGenerator : Generator
     protected static ParameterSyntax CreateInstructionEmulatorParameter(GeneratorContext context) => Parameter(Identifier(EmulatorParameterName)).WithType(GetInstructionEmulatorClassIdentifier(context));
 
     [Pure]
+    protected static ParameterSyntax CreateInstructionActionCallbackParameter() =>
+        Parameter(Identifier(InstructionActionCallbackParameterName))
+            .WithType(
+                GenericName(Identifier("Action"))
+                    .WithTypeArgumentList(
+                        TypeArgumentList(
+                            SeparatedList<TypeSyntax>(
+                            [
+                                IdentifierName(ActionRequiredEnumName),
+                                Token(SyntaxKind.CommaToken),
+                                UShortType,
+                                Token(SyntaxKind.CommaToken),
+                                ByteType
+                            ]))));
+
+    [Pure]
     protected static FunctionPointerTypeSyntax CreateInstructionHandlerType(GeneratorContext context) =>
         FunctionPointerType(
             null,

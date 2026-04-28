@@ -23,9 +23,12 @@ internal sealed class Z80InstructionInterrupts : Z80Interrupts
     public override bool Halted
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => emulator.halted; 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        set => emulator.halted = value;
+        get => emulator.halted;
+        set
+        {
+            emulator.halted = value;
+            emulator.nextSequenceStep = value ? (ushort)5 : emulator.nextSequenceStep == (ushort)5 ? Z80InstructionEmulator.NoNextSequenceStep : emulator.nextSequenceStep;
+        }
     }
 
     public override bool IFF1

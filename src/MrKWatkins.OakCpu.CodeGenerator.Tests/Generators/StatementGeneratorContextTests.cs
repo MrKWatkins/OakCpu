@@ -19,9 +19,11 @@ public sealed class StatementGeneratorContextTests : TestFixture
         context.Parent.Should().BeNull();
         context.Mode.Should().Equal(StatementGenerationMode.Normal);
         context.SkipHandleInterrupts.Should().BeFalse();
+        context.InstructionCompletionMode.Should().BeFalse();
         context.InstructionEmulatorMode.Should().BeFalse();
         context.InstructionStepMode.Should().BeFalse();
         context.InstructionStep.Should().BeNull();
+        context.InstructionUpdatesFlagsParameterName.Should().BeNull();
     }
 
     [Test]
@@ -36,9 +38,11 @@ public sealed class StatementGeneratorContextTests : TestFixture
         context.Parent.Should().BeNull();
         context.Mode.Should().Equal(StatementGenerationMode.Normal);
         context.SkipHandleInterrupts.Should().BeFalse();
+        context.InstructionCompletionMode.Should().BeFalse();
         context.InstructionEmulatorMode.Should().BeFalse();
         context.InstructionStepMode.Should().BeFalse();
         context.InstructionStep.Should().BeNull();
+        context.InstructionUpdatesFlagsParameterName.Should().BeNull();
     }
 
     [Test]
@@ -128,9 +132,11 @@ public sealed class StatementGeneratorContextTests : TestFixture
 
         newContext.Mode.Should().Equal(StatementGenerationMode.Overlap);
         newContext.SkipHandleInterrupts.Should().BeTrue();
+        newContext.InstructionCompletionMode.Should().BeFalse();
         newContext.InstructionEmulatorMode.Should().BeFalse();
         newContext.InstructionStepMode.Should().BeFalse();
         newContext.InstructionStep.Should().BeNull();
+        newContext.InstructionUpdatesFlagsParameterName.Should().BeNull();
     }
 
     [Test]
@@ -142,9 +148,11 @@ public sealed class StatementGeneratorContextTests : TestFixture
 
         newContext.Mode.Should().Equal(StatementGenerationMode.InstructionEmulator);
         newContext.SkipHandleInterrupts.Should().BeFalse();
+        newContext.InstructionCompletionMode.Should().BeFalse();
         newContext.InstructionEmulatorMode.Should().BeTrue();
         newContext.InstructionStepMode.Should().BeFalse();
         newContext.InstructionStep.Should().BeNull();
+        newContext.InstructionUpdatesFlagsParameterName.Should().BeNull();
     }
 
     [Test]
@@ -156,13 +164,31 @@ public sealed class StatementGeneratorContextTests : TestFixture
 
         newContext.Mode.Should().Equal(StatementGenerationMode.InstructionStep);
         newContext.SkipHandleInterrupts.Should().BeFalse();
+        newContext.InstructionCompletionMode.Should().BeFalse();
         newContext.InstructionEmulatorMode.Should().BeTrue();
         newContext.InstructionStepMode.Should().BeTrue();
+        newContext.InstructionUpdatesFlagsParameterName.Should().BeNull();
 
         var instructionStep = newContext.RequiredInstructionStep;
         instructionStep.NextInstructionVariableName.Should().Equal("nextInstruction");
         instructionStep.ExitOverlapStep.Should().BeTheSameInstanceAs(Step);
         instructionStep.TStatesBeforeStep.Should().Equal(7);
+    }
+
+    [Test]
+    public void WithInstructionCompletionMode()
+    {
+        var context = new StatementGeneratorContext(Z80GeneratorContext, null);
+
+        var newContext = context.WithInstructionCompletionMode("instructionUpdatesFlags");
+
+        newContext.Mode.Should().Equal(StatementGenerationMode.InstructionCompletion);
+        newContext.SkipHandleInterrupts.Should().BeFalse();
+        newContext.InstructionCompletionMode.Should().BeTrue();
+        newContext.InstructionEmulatorMode.Should().BeFalse();
+        newContext.InstructionStepMode.Should().BeFalse();
+        newContext.InstructionStep.Should().BeNull();
+        newContext.InstructionUpdatesFlagsParameterName.Should().Equal("instructionUpdatesFlags");
     }
 
     [Test]

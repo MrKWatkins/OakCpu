@@ -60,7 +60,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         writer.Write(im);
         writer.Write(interrupt);
         writer.Write(latch);
-        writer.Write(pendingInterruptStep);
+        writer.Write(nextSequenceStep);
         writer.Write(F);
         writer.Write(A);
         writer.Write(C);
@@ -136,7 +136,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         im = reader.ReadByte();
         interrupt = reader.ReadBoolean();
         latch = reader.ReadByte();
-        pendingInterruptStep = reader.ReadUInt16();
+        nextSequenceStep = reader.ReadUInt16();
         F = reader.ReadByte();
         A = reader.ReadByte();
         C = reader.ReadByte();

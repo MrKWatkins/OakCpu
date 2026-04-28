@@ -45,6 +45,16 @@ public sealed class GeneratorContextTests : TestFixture
         Z80GeneratorContext.GetImplicitInstructionCompleteStatementCount(step).Should().Equal(0);
     }
 
+    [Test]
+    public void InstructionEmulatorSequences_IncludeOpcodeReadAndPrefixJumps()
+    {
+        Z80GeneratorContext.InstructionEmulatorSequences.Should().Contain(Z80GeneratorContext.OpcodeRead);
+        foreach (var prefixJump in Z80GeneratorContext.PrefixJumps.Values)
+        {
+            Z80GeneratorContext.InstructionEmulatorSequences.Should().Contain(prefixJump);
+        }
+    }
+
     [Pure]
     private static bool EndsWithOnInstructionComplete(Step step)
     {

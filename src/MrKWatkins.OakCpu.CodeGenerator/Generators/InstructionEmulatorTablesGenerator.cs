@@ -81,12 +81,12 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
         {
             foreach (var prefixJump in context.PrefixJumps.Values)
             {
-                stepIndices[prefixJump.Prefix] = context.GetInstructionEmulatorPrefixIndex(prefixJump.Prefix);
+                stepIndices[prefixJump.Prefix] = context.GetInstructionEmulatorSequenceIndex(prefixJump);
             }
         }
         else if (opcodeStepTable.Prefix is { } prefix && context.PrefixJumps.ContainsKey(prefix))
         {
-            stepIndices[prefix] = context.GetInstructionEmulatorPrefixIndex(prefix);
+            stepIndices[prefix] = context.GetInstructionEmulatorSequenceIndex(context.PrefixJumps[prefix]);
         }
 
         foreach (var instruction in instructions)

@@ -27,7 +27,7 @@ public sealed class InstructionEmulatorResetGenerator : TypeGenerator
     {
         var statements = GenerateResetOpcodeStepTable(context)
             .Concat(GenerateResetDataMembers(context))
-            .Append(GenerateResetPendingInterruptStep())
+            .Append(GenerateResetNextSequenceStep())
             .Concat(GenerateResetRegisters(context));
 
         return WithXmlDocumentation(
@@ -62,12 +62,12 @@ public sealed class InstructionEmulatorResetGenerator : TypeGenerator
             .Select(r => GenerateReset(r.FieldName, DataType.U8));
 
     [Pure]
-    private static StatementSyntax GenerateResetPendingInterruptStep() =>
+    private static StatementSyntax GenerateResetNextSequenceStep() =>
         ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName("pendingInterruptStep"),
-                GenerateNumericLiteralExpression(0)));
+                IdentifierName(NextSequenceStepFieldName),
+                IdentifierName(NoNextSequenceStepFieldName)));
 
     [Pure]
     private static StatementSyntax GenerateReset(string fieldName, DataType type) =>

@@ -20,6 +20,8 @@ public abstract class Generator
     protected const string CompleteInstructionMethodName = "CompleteInstruction";
     protected const string HandleInterruptsMethodName = "HandleInterrupts";
     protected const string ExecuteOverlapMethodName = "ExecuteOverlap";
+    protected const string NextSequenceStepFieldName = "nextSequenceStep";
+    protected const string NoNextSequenceStepFieldName = "NoNextSequenceStep";
     private const string OverlapMethodPrefix = "Overlap";
     private const string StepMethodPrefix = "Step";
 

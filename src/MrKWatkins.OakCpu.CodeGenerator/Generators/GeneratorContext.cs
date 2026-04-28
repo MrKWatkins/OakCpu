@@ -56,7 +56,6 @@ public sealed class GeneratorContext
     private readonly IReadOnlyDictionary<Step, ushort> overlapIndices;
     private IReadOnlyList<StepSequence>? instructionEmulatorSequences;
     private IReadOnlyDictionary<StepSequence, ushort>? instructionEmulatorSequenceIndices;
-    private IReadOnlyDictionary<byte, ushort>? instructionEmulatorPrefixIndices;
     private ushort? instructionEmulatorErrorIndex;
 
     public string RootNamespace { get; }
@@ -122,12 +121,6 @@ public sealed class GeneratorContext
         return instructionEmulatorSequenceIndices![sequence];
     }
 
-    public ushort GetInstructionEmulatorPrefixIndex(byte prefix)
-    {
-        EnsureInstructionEmulatorDispatchInfo();
-        return instructionEmulatorPrefixIndices![prefix];
-    }
-
     [Pure]
     internal int GetImplicitInstructionCompleteStatementCount(Step step)
     {
@@ -159,7 +152,9 @@ public sealed class GeneratorContext
             return;
         }
 
-        instructionEmulatorSequences = Instructions
+        instructionEmulatorSequences = new StepSequence[] { OpcodeRead }
+            .Concat(PrefixJumps.Values)
+            .Concat(Instructions)
             .Concat(SequenceGroups.Values.SelectMany(group => group.Members.Values))
             .Concat(Interrupts.AllSequences)
             .Distinct()
@@ -170,12 +165,7 @@ public sealed class GeneratorContext
             .Select((sequence, index) => (sequence, Index: (ushort)index))
             .ToDictionary(x => x.sequence, x => x.Index);
 
-        instructionEmulatorPrefixIndices = PrefixJumps.Values
-            .OrderBy(prefix => prefix.Prefix)
-            .Select((prefix, index) => (prefix.Prefix, Index: (ushort)(instructionEmulatorSequences.Count + index)))
-            .ToDictionary(x => x.Prefix, x => x.Index);
-
-        instructionEmulatorErrorIndex = (ushort)(instructionEmulatorSequences.Count + instructionEmulatorPrefixIndices.Count);
+        instructionEmulatorErrorIndex = (ushort)instructionEmulatorSequences.Count;
     }
 
     [Pure]

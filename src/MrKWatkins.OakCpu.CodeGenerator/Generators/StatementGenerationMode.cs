@@ -5,5 +5,6 @@ public enum StatementGenerationMode
     Normal,
     Overlap,
     InstructionEmulator,
-    InstructionStep
+    InstructionStep,
+    InstructionCompletion
 }

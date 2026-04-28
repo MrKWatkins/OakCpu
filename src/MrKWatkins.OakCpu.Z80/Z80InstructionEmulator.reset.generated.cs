@@ -25,7 +25,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         im = 0;
         interrupt = false;
         latch = 0;
-        pendingInterruptStep = 0;
+        nextSequenceStep = NoNextSequenceStep;
         AF = 0;
         BC = 0;
         DE = 0;

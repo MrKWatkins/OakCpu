@@ -146,12 +146,15 @@ public sealed unsafe partial class Z80InstructionEmulator
     [FieldOffset(28)]
     internal byte Q;
 
+    internal const ushort NoNextSequenceStep = ushort.MaxValue;
+
     /// <summary>
     /// Initializes a new Z80InstructionEmulator instance.
     /// </summary>
     public Z80InstructionEmulator()
     {
         opcodeStepTable = OpcodeStepTableNoPrefix;
+        nextSequenceStep = NoNextSequenceStep;
         Registers = new Z80InstructionRegisters(this);
         Flags = new Z80InstructionFlags(this);
         Interrupts = new Z80InstructionInterrupts(this);
@@ -235,5 +238,51 @@ public sealed unsafe partial class Z80InstructionEmulator
     }
 
     [FieldOffset(74)]
-    private ushort pendingInterruptStep;
+    internal ushort nextSequenceStep;
+
+    /// <summary>
+    /// Executes one complete instruction or scheduled sequence.
+    /// </summary>
+    /// <param name="onActionRequired">
+    /// Called whenever the emulator requires an external bus action.
+    /// </param>
+    /// <returns>
+    /// The number of T-states executed.
+    /// </returns>
+    public int ExecuteInstruction(Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ArgumentNullException.ThrowIfNull(onActionRequired);
+        ushort scheduledSequenceStep = nextSequenceStep;
+        if (scheduledSequenceStep != NoNextSequenceStep)
+        {
+            nextSequenceStep = NoNextSequenceStep;
+            return ExecuteDecodedInstruction(scheduledSequenceStep, onActionRequired);
+        }
+
+        return ExecuteDecodedInstruction(OpcodeReadStep0, onActionRequired);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int ExecuteDecodedInstruction(ushort decodedStep, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        var instruction = Instructions[decodedStep];
+        return instruction(this, onActionRequired);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int CompleteInstruction(bool instructionUpdatesFlags, int tStates)
+    {
+        var emulator = this;
+        if (instructionUpdatesFlags)
+        {
+            emulator.Q = emulator.F;
+        }
+        else
+        {
+            emulator.Q = 0x00;
+        }
+
+        HandleInterrupts(emulator);
+        return tStates;
+    }
 }

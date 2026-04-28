@@ -13,8 +13,6 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public abstract class StatementGenerator : Generator
 {
-    private const string QueueInterruptMethodName = "QueueInterrupt";
-
     [Pure]
     public static IEnumerable<StatementSyntax> GenerateStatements(GeneratorContext input, Step step)
     {
@@ -56,6 +54,13 @@ public abstract class StatementGenerator : Generator
             statementContext = statementContext.WithInstructionEmulatorMode();
         }
 
+        return statements.SelectMany(statement => GenerateStatements(statementContext, statement));
+    }
+
+    [Pure]
+    public static IEnumerable<StatementSyntax> GenerateInstructionCompletionStatements(GeneratorContext context, IEnumerable<Statement> statements, string instructionUpdatesFlagsParameterName)
+    {
+        var statementContext = new StatementGeneratorContext(context, null).WithInstructionCompletionMode(instructionUpdatesFlagsParameterName);
         return statements.SelectMany(statement => GenerateStatements(statementContext, statement));
     }
 
@@ -246,6 +251,14 @@ public abstract class StatementGenerator : Generator
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateHandleInterrupts(StatementGeneratorContext context)
     {
+        if (context.InstructionCompletionMode)
+        {
+            yield return ExpressionStatement(
+                InvocationExpression(IdentifierName(HandleInterruptsMethodName))
+                    .WithArgumentList(ArgumentList([CreateEmulatorArgument()])));
+            yield break;
+        }
+
         yield return GenerateHandleInterruptsAndReturnIfHandled(context);
     }
 
@@ -453,15 +466,9 @@ public abstract class StatementGenerator : Generator
             yield break;
         }
 
-        if (context.InstructionEmulatorMode)
+        if (context.InstructionEmulatorMode || context.InstructionCompletionMode)
         {
-            yield return ExpressionStatement(
-                InvocationExpression(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName(EmulatorParameterName),
-                            IdentifierName(QueueInterruptMethodName)))
-                    .WithArgumentList(ArgumentList([Argument(getSequence)])));
+            yield return CreateSetNextSequence(getSequence);
             yield break;
         }
 
@@ -526,9 +533,12 @@ public abstract class StatementGenerator : Generator
             return [CreateSetNextInstruction(context, GenerateNumericLiteralExpression(context.GeneratorContext.GetInstructionEmulatorSequenceIndex(sequence)))];
         }
 
-        return !context.InstructionEmulatorMode
-            ? GenerateMoveToSequenceStart(sequence)
-            : throw new InvalidOperationException("move_to_sequence is only supported when generating instruction-emulator steps.");
+        if (context.InstructionEmulatorMode || context.InstructionCompletionMode)
+        {
+            return [CreateSetNextSequence(GenerateNumericLiteralExpression(context.GeneratorContext.GetInstructionEmulatorSequenceIndex(sequence)))];
+        }
+
+        return GenerateMoveToSequenceStart(sequence);
     }
 
     [Pure]
@@ -669,6 +679,17 @@ public abstract class StatementGenerator : Generator
                 IdentifierName(instructionStep.NextInstructionVariableName),
                 index));
     }
+
+    [Pure]
+    private static ExpressionStatementSyntax CreateSetNextSequence(ExpressionSyntax index) =>
+        ExpressionStatement(
+            AssignmentExpression(
+                SyntaxKind.SimpleAssignmentExpression,
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName(EmulatorParameterName),
+                    IdentifierName(NextSequenceStepFieldName)),
+                index));
 
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateCompleteInstructionAndReturn(StatementGeneratorContext context)

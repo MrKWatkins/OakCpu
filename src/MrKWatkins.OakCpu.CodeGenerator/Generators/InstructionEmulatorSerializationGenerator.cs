@@ -15,7 +15,6 @@ public sealed class InstructionEmulatorSerializationGenerator : TypeGenerator
     private const string StreamParameterName = "stream";
     private const string ReaderParameterName = "reader";
     private const string WriterParameterName = "writer";
-    private const string PendingInterruptStepFieldName = "pendingInterruptStep";
 
     public static readonly InstructionEmulatorSerializationGenerator Instance = new();
 
@@ -79,7 +78,7 @@ public sealed class InstructionEmulatorSerializationGenerator : TypeGenerator
         var statements = GenerateUsingBinaryReaderOrWriter<BinaryReader>(context, ReaderParameterName)
             .Concat(GenerateRestoreOpcodeStepTable(context))
             .Concat(GenerateRestoreDataMembers(context))
-            .Concat(GenerateRestorePendingInterruptStep())
+            .Concat(GenerateRestoreNextSequenceStep())
             .Concat(GenerateRestoreRegisters(context));
 
         return WithXmlDocumentation(
@@ -124,9 +123,9 @@ public sealed class InstructionEmulatorSerializationGenerator : TypeGenerator
             .Select(member => GenerateRead(member.FieldName, member.Type));
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateRestorePendingInterruptStep()
+    private static IEnumerable<StatementSyntax> GenerateRestoreNextSequenceStep()
     {
-        yield return GenerateRead(PendingInterruptStepFieldName, DataType.U16);
+        yield return GenerateRead(NextSequenceStepFieldName, DataType.U16);
     }
 
     [Pure]
@@ -144,7 +143,7 @@ public sealed class InstructionEmulatorSerializationGenerator : TypeGenerator
         var statements = GenerateUsingBinaryReaderOrWriter<BinaryWriter>(context, WriterParameterName)
             .Concat(GenerateSerializeOpcodeStepTable(context))
             .Concat(GenerateSerializeDataMembers(context))
-            .Concat(GenerateSerializePendingInterruptStep())
+            .Concat(GenerateSerializeNextSequenceStep())
             .Concat(GenerateSerializeRegisters(context));
 
         return WithXmlDocumentation(
@@ -170,9 +169,9 @@ public sealed class InstructionEmulatorSerializationGenerator : TypeGenerator
             .Select(member => GenerateWrite(IdentifierName(member.FieldName)));
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateSerializePendingInterruptStep()
+    private static IEnumerable<StatementSyntax> GenerateSerializeNextSequenceStep()
     {
-        yield return GenerateWrite(IdentifierName(PendingInterruptStepFieldName));
+        yield return GenerateWrite(IdentifierName(NextSequenceStepFieldName));
     }
 
     [Pure]

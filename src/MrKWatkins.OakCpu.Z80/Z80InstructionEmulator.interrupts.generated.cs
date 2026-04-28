@@ -19,7 +19,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         if (emulator.interrupt & emulator.iff1)
         {
             emulator.halted = false;
-            emulator.QueueInterrupt(Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(InterruptModeStepTable), emulator.im));
+            emulator.nextSequenceStep = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(InterruptModeStepTable), emulator.im);
             return true;
         }
 
