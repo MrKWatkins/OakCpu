@@ -34,7 +34,6 @@ internal abstract class FlagAction : Generator
             var flag = context.Configuration.Flags[kvp.Key];
             var action = Constant.CreateOrNull(flag, kvp.Value) ??
                          CopyFrom.CreateOrNull(flag, kvp.Value) ??
-                         I32BoolExpression.CreateOrNull(flag, kvp.Value) ??
                          BoolExpression.CreateOrNull(flag, kvp.Value);
 
             if (action == null)

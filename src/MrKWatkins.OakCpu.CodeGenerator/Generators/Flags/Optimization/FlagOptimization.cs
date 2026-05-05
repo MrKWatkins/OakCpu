@@ -13,7 +13,7 @@ internal abstract class FlagOptimization
         new CombineConstants(),
         new CombineCopyFroms(),
         new RewriteBoolBitTestsAsBitExtracts(),
-        new CombineI32BoolShifts(),
+        new CombineBoolShifts(),
         new RemoveUnnecessaryResets()
     ];
 

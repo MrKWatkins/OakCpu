@@ -8,6 +8,11 @@ internal sealed class RewriteBoolBitTestsAsBitExtracts : FlagOptimization<BoolEx
 {
     protected override FlagAction Optimize(StatementGeneratorContext context, BoolExpression action)
     {
+        if (!action.BitCastFromBoolToByte)
+        {
+            return action;
+        }
+
         var inlined = action.Expression.InlineUserDefinedFunctions(context);
         return TryGetBitExtract(inlined, out var expression, out var extractedBitIndex)
             ? new BitExtractExpression(action.Flags[0], action.Expression, expression, extractedBitIndex)

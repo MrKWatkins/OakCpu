@@ -3,10 +3,15 @@ using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Optimization;
 
-internal sealed class CombineI32BoolShifts : FlagOptimization<I32BoolExpression>
+internal sealed class CombineBoolShifts : FlagOptimization<BoolExpression>
 {
-    protected override FlagAction Optimize(StatementGeneratorContext context, I32BoolExpression action)
+    protected override FlagAction Optimize(StatementGeneratorContext context, BoolExpression action)
     {
+        if (action.BitCastFromBoolToByte)
+        {
+            return action;
+        }
+
         var inlined = action.Expression.InlineUserDefinedFunctions(context);
 
         if (inlined is not BinaryOperation { Right: Number number } binaryOperation)
@@ -28,6 +33,6 @@ internal sealed class CombineI32BoolShifts : FlagOptimization<I32BoolExpression>
             return action;
         }
 
-        return new I32BoolExpression(action, binaryOperation.Left, action.Shift + shift);
+        return new BoolExpression(action, binaryOperation.Left, action.Shift + shift);
     }
 }
