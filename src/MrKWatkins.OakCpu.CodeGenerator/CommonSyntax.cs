@@ -76,7 +76,7 @@ internal static class CommonSyntax
                     .WithInitializer(EqualsValueClause(value)))));
 
     [Pure]
-    public static ExpressionSyntax CreateArrayGetWithoutBoundsCheck(ISet<string> requiredUsings, ExpressionSyntax array, ExpressionSyntax index)
+    public static ExpressionSyntax CreateArrayGetWithoutBoundsCheck(RequiredUsings requiredUsings, ExpressionSyntax array, ExpressionSyntax index)
     {
         requiredUsings.Add("System.Runtime.CompilerServices");
         requiredUsings.Add("System.Runtime.InteropServices");
@@ -93,10 +93,10 @@ internal static class CommonSyntax
     }
 
     [Pure]
-    public static AttributeSyntax CreateMethodImplAttribute(ISet<string> requiredUsings, MethodImplOptions options) => CreateMethodImplAttribute(requiredUsings, options.ToString());
+    public static AttributeSyntax CreateMethodImplAttribute(RequiredUsings requiredUsings, MethodImplOptions options) => CreateMethodImplAttribute(requiredUsings, options.ToString());
 
     [Pure]
-    public static AttributeSyntax CreateMethodImplAttribute(ISet<string> requiredUsings, string options)
+    public static AttributeSyntax CreateMethodImplAttribute(RequiredUsings requiredUsings, string options)
     {
         requiredUsings.Add("System.Runtime.CompilerServices");
 
@@ -148,4 +148,36 @@ internal static class CommonSyntax
                     .WithArgumentList(
                         ArgumentList(
                             SeparatedList(constructorArguments.Select(Argument).ToArray())))));
+
+    [Pure]
+    public static AttributeSyntax CreateAggressiveInliningAttribute(RequiredUsings requiredUsings) => CreateMethodImplAttribute(requiredUsings, MethodImplOptions.AggressiveInlining);
+
+    [Pure]
+    public static AccessorDeclarationSyntax CreateGetAccessor(RequiredUsings requiredUsings) =>
+        AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+            .WithAttributeLists([AttributeList([CreateAggressiveInliningAttribute(requiredUsings)])])
+            .WithSemicolonToken(Semicolon);
+
+    [Pure]
+    public static AccessorDeclarationSyntax CreateGetAccessor(RequiredUsings requiredUsings, ExpressionSyntax getExpression) =>
+        AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+            .WithExpressionBody(ArrowExpressionClause(getExpression))
+            .WithAttributeLists([AttributeList([CreateAggressiveInliningAttribute(requiredUsings)])])
+            .WithSemicolonToken(Semicolon);
+
+    [Pure]
+    public static AccessorDeclarationSyntax CreateSetAccessor(RequiredUsings requiredUsings, ExpressionSyntax setExpression, SyntaxTokenList? modifiers = null)
+    {
+        var accessor = AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+            .WithExpressionBody(ArrowExpressionClause(setExpression))
+            .WithAttributeLists([AttributeList([CreateAggressiveInliningAttribute(requiredUsings)])])
+            .WithSemicolonToken(Semicolon);
+
+        if (modifiers is { Count: > 0 })
+        {
+            accessor = accessor.WithModifiers(modifiers.Value);
+        }
+
+        return accessor;
+    }
 }

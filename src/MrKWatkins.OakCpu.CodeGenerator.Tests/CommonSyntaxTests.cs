@@ -140,7 +140,7 @@ public sealed class CommonSyntaxTests
     [Test]
     public void CreateArrayGetWithoutBoundsCheck()
     {
-        var requiredUsings = new HashSet<string>();
+        var requiredUsings = new RequiredUsings();
         var array = IdentifierName("values");
         var index = IdentifierName("i");
 
@@ -155,7 +155,7 @@ public sealed class CommonSyntaxTests
     [Test]
     public void CreateMethodImplAttribute_WithEnum()
     {
-        var requiredUsings = new HashSet<string>();
+        var requiredUsings = new RequiredUsings();
         var result = CommonSyntax.CreateMethodImplAttribute(requiredUsings, MethodImplOptions.AggressiveInlining);
 
         requiredUsings.Count.Should().Equal(1);
@@ -166,7 +166,7 @@ public sealed class CommonSyntaxTests
     [Test]
     public void CreateMethodImplAttribute_WithString()
     {
-        var requiredUsings = new HashSet<string>();
+        var requiredUsings = new RequiredUsings();
         var result = CommonSyntax.CreateMethodImplAttribute(requiredUsings, "AggressiveInlining");
 
         requiredUsings.Count.Should().Equal(1);

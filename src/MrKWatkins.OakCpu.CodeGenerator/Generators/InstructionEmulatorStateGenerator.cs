@@ -49,7 +49,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         }
 
         members.Add(CreateNextSequenceStepField(context, fieldOffset));
-        members.Add(CreateExecuteInstructionMethod(context));
+        members.Add(CreateExecuteInstructionMethod());
         members.Add(CreateExecuteDecodedInstructionMethod(context));
         members.Add(CreateCompleteInstructionMethod(context));
 
@@ -147,7 +147,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         CreateField(context, UShortType, NextSequenceStepFieldName, fieldOffset, Internal);
 
     [Pure]
-    private static MemberDeclarationSyntax CreateExecuteInstructionMethod(GeneratorContext context) =>
+    private static MethodDeclarationSyntax CreateExecuteInstructionMethod() =>
         WithXmlDocumentation(
             MethodDeclaration(IntType, Identifier("ExecuteInstruction"))
                 .WithModifiers(TokenList(Public))

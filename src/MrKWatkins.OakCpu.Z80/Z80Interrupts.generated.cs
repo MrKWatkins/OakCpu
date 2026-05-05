@@ -7,8 +7,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 #nullable enable
-using System.Runtime.CompilerServices;
-
 namespace MrKWatkins.OakCpu.Z80;
 /// <summary>
 /// Provides access to the Z80 interrupt state.

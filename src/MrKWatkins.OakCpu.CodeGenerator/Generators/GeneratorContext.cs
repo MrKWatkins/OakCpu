@@ -84,7 +84,7 @@ public sealed class GeneratorContext
 
     public IReadOnlyList<Step> OverlapSteps { get; }
 
-    public HashSet<string> RequiredUsings { get; } = new();
+    internal RequiredUsings RequiredUsings { get; } = new();
 
     public int ErrorStepIndex => AllSteps.Count;
 
@@ -152,7 +152,7 @@ public sealed class GeneratorContext
             return;
         }
 
-        instructionEmulatorSequences = new StepSequence[] { OpcodeRead }
+        instructionEmulatorSequences = new[] { OpcodeRead }
             .Concat(PrefixJumps.Values)
             .Concat(Instructions)
             .Concat(SequenceGroups.Values.SelectMany(group => group.Members.Values))

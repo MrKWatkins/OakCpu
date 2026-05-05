@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -9,7 +8,6 @@ using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-// TODO: Skip requiredUsings, just add them, we know what they are.
 public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : EmulatorClassGenerator
 {
     private const string RegistersPropertyName = "Registers";
@@ -116,10 +114,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
 
         var accessors = new List<AccessorDeclarationSyntax>
         {
-            AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                .WithExpressionBody(ArrowExpressionClause(fieldAccessExpression))
-                .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)])])
-                .WithSemicolonToken(Semicolon)
+            CreateGetAccessor(context.RequiredUsings, fieldAccessExpression)
         };
 
         if (member.SetterVisibility != null)
@@ -130,14 +125,11 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
                 IdentifierName("value"));
 
             var setter =
-                AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-                    .WithExpressionBody(ArrowExpressionClause(setExpression))
-                    .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)])])
-                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+                CreateSetAccessor(context.RequiredUsings, setExpression);
 
             if (member.SetterVisibility != member.GetterVisibility)
             {
-                setter = setter.AddModifiers(member.SetterVisibility.Value.ToSyntax());
+                setter = setter.WithModifiers(TokenList(member.SetterVisibility.Value.ToSyntax()));
             }
 
             accessors.Add(setter);
