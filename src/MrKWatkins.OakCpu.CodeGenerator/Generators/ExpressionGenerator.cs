@@ -9,7 +9,7 @@ using Boolean = MrKWatkins.OakCpu.CodeGenerator.Language.Ast.Boolean;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-public abstract class ExpressionGenerator : Generator
+public abstract class ExpressionGenerator
 {
     [Pure]
     public static ExpressionSyntax GenerateExpressionSyntax(StatementGeneratorContext context, Expression expression) => expression switch

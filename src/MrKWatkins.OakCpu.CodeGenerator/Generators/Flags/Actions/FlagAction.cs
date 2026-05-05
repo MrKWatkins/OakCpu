@@ -4,7 +4,7 @@ using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Actions;
 
-internal abstract class FlagAction : Generator
+internal abstract class FlagAction
 {
     private protected FlagAction(Flag flag)
     {

@@ -9,7 +9,7 @@ using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags;
 
-public abstract class FlagsGenerator : Generator
+public abstract class FlagsGenerator
 {
     private const string FlagsVariableName = "flags";
 

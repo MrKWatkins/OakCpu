@@ -1,4 +1,3 @@
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -319,14 +318,13 @@ public sealed class GeneratorContext
 
         var overlapBodies = overlapCandidates.ToDictionary(
             step => step,
-            step => (IReadOnlyList<string>)StatementGenerator.GenerateOverlapStatements(temporaryContext, step)
-                .Select(statement => statement.NormalizeWhitespace().ToFullString())
+            step => (IReadOnlyList<StatementSyntax>)StatementGenerator.GenerateOverlapStatements(temporaryContext, step)
                 .ToList());
 
         var groups = new List<IReadOnlyList<Step>>();
         foreach (var step in overlapCandidates)
         {
-            var existingGroup = groups.FirstOrDefault(group => overlapBodies[group[0]].SequenceEqual(overlapBodies[step], StringComparer.Ordinal));
+            var existingGroup = groups.FirstOrDefault(group => OverlapStatementsEquivalence.AreEquivalent(overlapBodies[group[0]], overlapBodies[step]));
             if (existingGroup is List<Step> mutableGroup)
             {
                 mutableGroup.Add(step);

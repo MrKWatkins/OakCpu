@@ -3,11 +3,13 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
-public abstract class TypeGenerator : Generator
+public abstract class TypeGenerator
 {
     public sealed record GeneratedFile(string FileName, string Source);
 
@@ -212,21 +214,6 @@ public abstract class TypeGenerator : Generator
                     .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(EmulatorFieldName)))))
             .WithModifiers(TokenList(Private, ReadOnly));
     [Pure]
-    protected static string GetEmulatorClassName(GeneratorContext context) => GeneratedNames.GetEmulatorClassName(context);
-
-    [Pure]
-    protected static IdentifierNameSyntax GetEmulatorClassIdentifier(GeneratorContext context) => GeneratedNames.GetEmulatorClassIdentifier(context);
-
-    [Pure]
-    protected static string GetInstructionEmulatorClassName(GeneratorContext context) => GeneratedNames.GetInstructionEmulatorClassName(context);
-
-    [Pure]
-    protected static IdentifierNameSyntax GetInstructionEmulatorClassIdentifier(GeneratorContext context) => GeneratedNames.GetInstructionEmulatorClassIdentifier(context);
-
-    [Pure]
-    protected static ParameterSyntax CreateInstructionEmulatorParameter(GeneratorContext context) => GeneratedNames.CreateInstructionEmulatorParameter(context);
-
-    [Pure]
     protected static ParameterSyntax CreateInstructionActionCallbackParameter() =>
         Parameter(Identifier(InstructionActionCallbackParameterName))
             .WithType(
@@ -263,33 +250,6 @@ public abstract class TypeGenerator : Generator
                                 ])))),
                 FunctionPointerParameter(IntType)
             ]));
-
-    [Pure]
-    protected static string GetRegistersClassName(GeneratorContext context, string? category = null) => GeneratedNames.GetRegistersClassName(context, category);
-
-    [Pure]
-    protected static string GetStepRegistersClassName(GeneratorContext context, string? category = null) => GeneratedNames.GetStepRegistersClassName(context, category);
-
-    [Pure]
-    protected static string GetInstructionRegistersClassName(GeneratorContext context, string? category = null) => GeneratedNames.GetInstructionRegistersClassName(context, category);
-
-    [Pure]
-    protected static string GetFlagsClassName(GeneratorContext context) => GeneratedNames.GetFlagsClassName(context);
-
-    [Pure]
-    protected static string GetStepFlagsClassName(GeneratorContext context) => GeneratedNames.GetStepFlagsClassName(context);
-
-    [Pure]
-    protected static string GetInstructionFlagsClassName(GeneratorContext context) => GeneratedNames.GetInstructionFlagsClassName(context);
-
-    [Pure]
-    protected static string GetInterruptsClassName(GeneratorContext context) => GeneratedNames.GetInterruptsClassName(context);
-
-    [Pure]
-    protected static string GetStepInterruptsClassName(GeneratorContext context) => GeneratedNames.GetStepInterruptsClassName(context);
-
-    [Pure]
-    protected static string GetInstructionInterruptsClassName(GeneratorContext context) => GeneratedNames.GetInstructionInterruptsClassName(context);
 
     [Pure]
     protected static FunctionPointerTypeSyntax CreateOverlapHandlerType(GeneratorContext context) =>
