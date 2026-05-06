@@ -10,13 +10,13 @@ public sealed class Configuration(
     IReadOnlyDictionary<string, Register> registers,
     IReadOnlyDictionary<string, Flag> flags,
     OpcodeStepTables opcodeStepTables,
-    IReadOnlyDictionary<string, UserDefinedDataMember> userDefinedDataMembers)
+    IReadOnlyDictionary<string, UserDefinedDataMember> userDefinedDataMembers,
+    IReadOnlyDictionary<string, UserDefinedFunction> userDefinedFunctions)
 {
     private IReadOnlyDictionary<string, DataMember>? allDataMembers;
     private IReadOnlyDictionary<string, Function>? allFunctions;
     private Register? flagsRegister;
     private Register? programCounter;
-    private IReadOnlyDictionary<string, UserDefinedFunction>? userDefinedFunctions;
 
     public IReadOnlyDictionary<string, Action> Actions => actions;
 
@@ -32,11 +32,7 @@ public sealed class Configuration(
 
     public IReadOnlyDictionary<string, DataMember> AllDataMembers => allDataMembers ??= UserDefinedDataMembers.Values.Concat<DataMember>(PreDefinedDataMember.All.Values).ToDictionary(f => f.Name, StringComparer.OrdinalIgnoreCase);
 
-    public IReadOnlyDictionary<string, UserDefinedFunction> UserDefinedFunctions
-    {
-        get => userDefinedFunctions ?? throw new InvalidOperationException($"{nameof(UserDefinedFunctions)} not yet parsed.");
-        internal set => userDefinedFunctions = value;
-    }
+    public IReadOnlyDictionary<string, UserDefinedFunction> UserDefinedFunctions { get; } = userDefinedFunctions;
 
     public IReadOnlyDictionary<string, Function> AllFunctions => allFunctions ??= UserDefinedFunctions.Values.Concat<Function>(PreDefinedFunction.All.Values).ToDictionary(f => f.Name);
 

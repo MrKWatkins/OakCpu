@@ -17,16 +17,18 @@ internal abstract class FlagOptimization
         new RemoveUnnecessaryResets()
     ];
 
+    [MustUseReturnValue]
     internal static IReadOnlyList<FlagAction> PerformAllOptimizations(StatementGeneratorContext context, IReadOnlyList<FlagAction> actions, List<string> extraComments) =>
         All.Aggregate(actions, (current, optimization) => optimization.Optimize(context, current, extraComments).ToList());
 
-    [Pure]
+    [MustUseReturnValue]
     protected abstract IEnumerable<FlagAction> Optimize(StatementGeneratorContext context, IReadOnlyList<FlagAction> actions, List<string> extraComments);
 }
 
 internal abstract class FlagOptimization<TAction> : FlagOptimization
     where TAction : FlagAction
 {
+    [MustUseReturnValue]
     protected sealed override IEnumerable<FlagAction> Optimize(StatementGeneratorContext context, IReadOnlyList<FlagAction> actions, List<string> extraComments)
     {
         foreach (var action in actions)

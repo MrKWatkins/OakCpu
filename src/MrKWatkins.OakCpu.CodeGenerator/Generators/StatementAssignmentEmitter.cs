@@ -9,7 +9,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 internal static class StatementAssignmentEmitter
 {
-    [Pure]
+    [MustUseReturnValue]
     public static IEnumerable<StatementSyntax> GenerateTemporaryVariableDeclaration(StatementGeneratorContext context, TemporaryVariable temporaryVariable)
     {
         if (!context.InitializedTemporaryVariables.Add(temporaryVariable.Name))
@@ -21,7 +21,7 @@ internal static class StatementAssignmentEmitter
             .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(temporaryVariable.Name)))));
     }
 
-    [Pure]
+    [MustUseReturnValue]
     public static IEnumerable<StatementSyntax> GenerateAssignment(StatementGeneratorContext context, Assignment assignment)
     {
         if (assignment.Target == assignment.Value)

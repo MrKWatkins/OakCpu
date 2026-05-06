@@ -25,7 +25,7 @@ public abstract class StepSequence : IEnumerable<Step>
 
         foreach (var step in steps)
         {
-            step.Sequence = this;
+            step.AttachToSequence(this);
         }
     }
 
@@ -41,6 +41,7 @@ public abstract class StepSequence : IEnumerable<Step>
 
     public string? OverlappedSequenceName { get; }
 
+    [Pure]
     public IEnumerator<Step> GetEnumerator() => Steps.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

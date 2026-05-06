@@ -128,11 +128,8 @@ public sealed class ParserTests
                 ["Z"] = new("Z", 1, Documentation.Empty, "NZ", "Z")
             },
             new OpcodeStepTables([]),
-            new Dictionary<string, UserDefinedDataMember>())
-        {
-            // Initialize empty user-defined functions - tests will focus on basic expressions
-            UserDefinedFunctions = new Dictionary<string, UserDefinedFunction>()
-        };
+            new Dictionary<string, UserDefinedDataMember>(),
+            new Dictionary<string, UserDefinedFunction>());
 
         return new ParserContext(configuration);
     }

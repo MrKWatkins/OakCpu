@@ -85,7 +85,7 @@ public abstract class ExpressionGenerator
         throw new NotSupportedException($"The function {call.Function} is not supported.");
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static ExpressionSyntax GeneratePopCountExpressionSyntax(StatementGeneratorContext context, Expression argument)
     {
         context.GeneratorContext.RequiredUsings.Add("System.Numerics");

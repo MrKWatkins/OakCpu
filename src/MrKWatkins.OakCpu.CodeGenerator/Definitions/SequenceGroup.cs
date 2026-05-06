@@ -21,15 +21,6 @@ public sealed class SequenceGroup
 
         foreach (var group in members.GroupBy(member => member.GroupName, StringComparer.Ordinal))
         {
-            var duplicate = group
-                .GroupBy(member => member.Number)
-                .FirstOrDefault(numbers => numbers.Count() > 1);
-
-            if (duplicate != null)
-            {
-                throw new InvalidOperationException($"The sequence group {group.Key} contains multiple sequences for number {duplicate.Key}.");
-            }
-
             sequenceGroups.Add(group.Key, new SequenceGroup(group.Key, group.ToDictionary(member => member.Number, member => member.Sequence)));
         }
 

@@ -15,7 +15,7 @@ internal static class TableGeneration
             .Select(CreateOpcodeStepTableField)
             .Concat(context.SequenceGroups.Values.OrderBy(group => group.Name).Select(group => CreateSequenceGroupStepTableField(getSequenceGroupStepTableFieldName(group))));
 
-    [Pure]
+    [MustUseReturnValue]
     internal static IfStatementSyntax CreateLittleEndianStatement(GeneratorContext context)
     {
         context.RequiredUsings.Add(typeof(BitConverter).Namespace!);

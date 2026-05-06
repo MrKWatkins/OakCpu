@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
@@ -8,8 +7,12 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 public sealed class Step
 {
     private readonly List<Step> duplicates = new();
+    private ushort? index;
     private readonly Action? specifiedAction;
     private Step? implementation;
+    private ushort? methodIndex;
+    private bool methodIndexAssigned;
+    private StepSequence? sequence;
 
     private Step(string name, IReadOnlyList<Statement> statements, Action? specifiedAction = null)
     {
@@ -20,14 +23,14 @@ public sealed class Step
 
     public string Name { get; }
 
-    public StepSequence Sequence { get; internal set; } = null!;
+    public StepSequence Sequence => sequence ?? throw new InvalidOperationException($"{nameof(Sequence)} not set.");
 
-    public ushort Index { get; private set; }
+    public ushort Index => index ?? throw new InvalidOperationException($"{nameof(Index)} not set.");
 
     /// <summary>
     /// The index of the method in the generated code, or <c>null</c> if this is not an implementation step or the step does nothing.
     /// </summary>
-    public ushort? MethodIndex { get; private set; }
+    public ushort? MethodIndex => methodIndexAssigned ? methodIndex : throw new InvalidOperationException($"{nameof(MethodIndex)} not set.");
 
     public IReadOnlyList<Statement> Statements { get; }
 
@@ -92,54 +95,6 @@ public sealed class Step
 
     public override string ToString() => $"{Name} => {string.Join("; ", Statements)};";
 
-    [MustUseReturnValue]
-    public static IEnumerable<Step> MapDuplicates([InstantHandle] IEnumerable<Step> steps)
-    {
-        foreach (var group in steps.GroupBy(s => s, StepDuplicateEqualityComparer.Instance))
-        {
-            var step = group.First();
-            step.implementation = step;
-            foreach (var duplicate in group.Skip(1))
-            {
-                step.duplicates.Add(duplicate);
-                duplicate.implementation = step;
-            }
-
-            yield return step;
-        }
-    }
-
-    internal static void AssignIndices([InstantHandle] IEnumerable<Step> steps)
-    {
-        var index = 0;
-        foreach (var step in steps)
-        {
-            if (index > ushort.MaxValue)
-            {
-                throw new InvalidAsynchronousStateException("Too many steps; will need to change to int.");
-            }
-            step.Index = (ushort)index++;
-        }
-    }
-
-    internal static void AssignMethodIndices([InstantHandle] IEnumerable<Step> steps)
-    {
-        var index = 0;
-        foreach (var step in steps)
-        {
-            if (step.DoesNothing)
-            {
-                continue;
-            }
-
-            step.MethodIndex = (ushort)index++;
-            foreach (var duplicate in step.Duplicates)
-            {
-                duplicate.MethodIndex = step.MethodIndex;
-            }
-        }
-    }
-
     [Pure]
     public static IReadOnlyList<Step> Parse(string baseName, ParserContext context, IReadOnlyList<string?> steps) =>
         steps.Select((s, i) => Parse($"{baseName} [{i}]", context, s, false)).ToList();
@@ -173,4 +128,18 @@ public sealed class Step
 
         return new Step(name, statements, actionAccess.Action);
     }
+
+    internal void AddDuplicate(Step duplicate) => duplicates.Add(duplicate);
+
+    internal void AssignIndex(ushort value) => index = value;
+
+    internal void AssignMethodIndex(ushort? value)
+    {
+        methodIndex = value;
+        methodIndexAssigned = true;
+    }
+
+    internal void AttachToSequence(StepSequence value) => sequence = value;
+
+    internal void SetImplementation(Step value) => implementation = value;
 }

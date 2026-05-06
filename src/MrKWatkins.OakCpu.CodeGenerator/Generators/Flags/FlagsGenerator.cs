@@ -50,6 +50,7 @@ public abstract class FlagsGenerator
                     context.Configuration.FlagsRegister.TypeSyntax, IdentifierName(FlagsVariableName))));
     }
 
+    [Pure]
     private static StatementSyntax CreateInitialize(ExpressionSyntax expression, string comment, List<string> commentsBeforeInitialize) =>
         InitializeVariableStatement(FlagsVariableName, expression, IntType).WithLeadingTrivia(commentsBeforeInitialize.Select(Comment)).WithTrailingTrivia(Comment(comment));
 

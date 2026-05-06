@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
+using MrKWatkins.OakCpu.CodeGenerator.Validation;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 using VYaml.Serialization;
 using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
@@ -215,6 +216,8 @@ public sealed class GeneratorContext
     [Pure]
     internal static GeneratorContext Create(string rootNamespace, YamlFile yaml)
     {
+        DefinitionValidation.Validate(yaml);
+
         var configuration = CreateConfiguration(yaml);
         var context = new ParserContext(configuration);
 
@@ -256,11 +259,7 @@ public sealed class GeneratorContext
             .Concat(instructions.SelectMany(i => i.Steps))
             .ToList();
 
-        Step.AssignIndices(allSteps);
-
-        var functionSteps = Step.MapDuplicates(allSteps).ToList();
-
-        Step.AssignMethodIndices(functionSteps);
+        var functionSteps = StepFinalizer.Finalize(allSteps);
 
         var overlapCandidates = allSteps
             .Where(step => step.ExecutesAsOverlapOnly)
@@ -338,23 +337,13 @@ public sealed class GeneratorContext
     }
 
     [Pure]
-    private static IReadOnlyDictionary<string, StepSequence> CreateNamedSequences(ParserContext context, IReadOnlyList<StepSequenceYaml> yamls)
-    {
-        var duplicates = yamls
-            .GroupBy(sequence => sequence.Name, StringComparer.Ordinal)
-            .FirstOrDefault(group => group.Count() > 1);
-        if (duplicates != null)
-        {
-            throw new InvalidOperationException($"The sequence {duplicates.Key} is defined multiple times.");
-        }
-
-        return yamls
+    private static IReadOnlyDictionary<string, StepSequence> CreateNamedSequences(ParserContext context, IReadOnlyList<StepSequenceYaml> yamls) =>
+        yamls
             .Select(sequence => NamedStepSequence.Create(context, sequence))
             .ToDictionary(
                 sequence => sequence.Name ?? throw new InvalidOperationException("Named sequences must have a name."),
                 sequence => (StepSequence)sequence,
                 StringComparer.Ordinal);
-    }
 
     [Pure]
     private static Configuration CreateConfiguration(YamlFile yaml)
@@ -367,10 +356,9 @@ public sealed class GeneratorContext
             .Concat(UserDefinedDataMember.Create(yaml.Interrupts.Properties, Visibility.Internal))
             .ToDictionary(u => u.Name);
 
-        var configuration = new Configuration(actions, registers, flags, opcodeStepTables, userDefinedDataMembers);
-
-        UserDefinedFunction.AddToConfiguration(configuration, yaml.Functions);
-
+        var userDefinedFunctions = UserDefinedFunction.CreateDeclarations(yaml.Functions);
+        var configuration = new Configuration(actions, registers, flags, opcodeStepTables, userDefinedDataMembers, userDefinedFunctions);
+        UserDefinedFunction.ParseExpressions(configuration, userDefinedFunctions, yaml.Functions);
         return configuration;
     }
 

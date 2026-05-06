@@ -35,12 +35,8 @@ public sealed class Instruction : StepSequence
     public bool UpdatesFlags => Flags.Any();
 
     [Pure]
-    public static IReadOnlyList<Instruction> Create(ParserContext context, IReadOnlyList<InstructionYaml> yamls)
-    {
-        VerifyNoDuplicateOpcodes(yamls);
-
-        return yamls.SelectMany(y => Create(context, y)).OrderBy(i => i.OpcodeTable).ThenBy(i => i.Prefix).ThenBy(i => i.Opcode).ToList();
-    }
+    public static IReadOnlyList<Instruction> Create(ParserContext context, IReadOnlyList<InstructionYaml> yamls) =>
+        yamls.SelectMany(y => Create(context, y)).OrderBy(i => i.OpcodeTable).ThenBy(i => i.Prefix).ThenBy(i => i.Opcode).ToList();
 
     [Pure]
     private static IEnumerable<Instruction> Create(ParserContext context, InstructionYaml yaml)
@@ -185,18 +181,5 @@ public sealed class Instruction : StepSequence
         }
 
         return value;
-    }
-
-    private static void VerifyNoDuplicateOpcodes(IReadOnlyList<InstructionYaml> yamls)
-    {
-        var firstDuplicates = yamls.SelectMany(y => y.Opcodes.Select(o => (y.OpcodeTable, o.PrefixByte, o.OpcodeByte))).GroupBy(x => x).FirstOrDefault(g => g.Count() > 1);
-        if (firstDuplicates != null)
-        {
-            var duplicates = firstDuplicates.Key;
-            var groupText = duplicates.OpcodeTable != null ? $"in opcode table {duplicates.OpcodeTable} " : "";
-
-            throw new InvalidOperationException(
-                $"The opcodes {groupText}are defined multiple times: {(duplicates.PrefixByte.HasValue ? $"0x{duplicates.PrefixByte.Value:X2} " : "")}0x{duplicates.OpcodeByte:X2}");
-        }
     }
 }

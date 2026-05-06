@@ -317,7 +317,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
             .AddModifiers(modifiers.ToArray());
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static AttributeSyntax CreateStructLayoutAttribute(GeneratorContext context)
     {
         context.RequiredUsings.Add(typeof(LayoutKind).Namespace!);
@@ -333,7 +333,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
                             IdentifierName(nameof(LayoutKind.Explicit)))))));
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static AttributeSyntax CreateFieldOffsetAttribute(GeneratorContext context, int fieldOffset)
     {
         context.RequiredUsings.Add(typeof(FieldOffsetAttribute).Namespace!);

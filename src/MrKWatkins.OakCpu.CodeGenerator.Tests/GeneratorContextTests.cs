@@ -1,5 +1,7 @@
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Generators;
+using MrKWatkins.OakCpu.CodeGenerator.Yaml;
+using VYaml.Serialization;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Tests;
 
@@ -55,6 +57,68 @@ public sealed class GeneratorContextTests : TestFixture
         }
     }
 
+    [Test]
+    public void Create_FinalizesStepState()
+    {
+        var context = GeneratorContext.Create("MrKWatkins.OakCpu.Z80", Z80Yaml);
+
+        AssertThat.Invoking(() =>
+        {
+            foreach (var step in context.AllSteps)
+            {
+                _ = step.Sequence;
+                _ = step.Index;
+                _ = step.MethodIndex;
+                _ = step.Implementation;
+            }
+        }).Should().NotThrow();
+    }
+
+    [Test]
+    public void Create_ThrowsGroupedValidationErrors()
+    {
+        var yaml = YamlSerializer.Deserialize<YamlFile>(
+            """
+                cpu:
+                  name: TestCpu
+                  actions:
+                    - name: opcode_read
+                      documentation: Reads an opcode.
+                interrupts:
+                  modes:
+                    - number: 0
+                      sequence: missing_interrupt_sequence
+                instructions:
+                  - group: test
+                    mnemonic: FIRST
+                    opcodes:
+                      - opcode: 0x00
+                      - opcode: 0x00
+                    next_opcode: custom
+                    steps:
+                      - request(action.opcode_read);
+                  - group: test
+                    mnemonic: SECOND
+                    opcodes:
+                      - opcode: 0x01
+                    next_opcode: custom
+                    overlapped_sequence: missing_overlap_sequence
+                    steps:
+                      - request(action.opcode_read);
+                """u8.ToArray(),
+            YamlOptions.Instance);
+
+        var exception = Assert.Throws<InvalidOperationException>(() => _ = GeneratorContext.Create("MrKWatkins.OakCpu.TestCpu", yaml));
+
+        Assert.That(exception!.Message, Does.Contain("Definition validation failed:"));
+        Assert.That(exception.Message, Does.Contain("No opcode_read sequence has been defined."));
+        Assert.That(exception.Message, Does.Contain("No sequence named halted exists for the halted cycle."));
+        Assert.That(exception.Message, Does.Contain("interrupts.modes[0].sequence: No sequence named missing_interrupt_sequence exists for interrupt mode 0."));
+        Assert.That(exception.Message, Does.Contain("instructions[1].next_opcode: Instruction SECOND specifies an overlapped sequence but does not use next_opcode: overlapped."));
+        Assert.That(exception.Message, Does.Contain("instructions[1].overlapped_sequence: Instruction SECOND references unknown overlapped sequence missing_overlap_sequence."));
+        Assert.That(exception.Message, Does.Contain("instructions[0].opcodes[0].opcode, instructions[0].opcodes[1].opcode: The opcodes are defined multiple times by instruction FIRST: 0x00"));
+    }
+
     [Pure]
     private static bool EndsWithOnInstructionComplete(Step step)
     {
@@ -63,7 +127,7 @@ public sealed class GeneratorContextTests : TestFixture
                step.Statements.Count >= suffix.Count &&
                step.Statements
                    .Skip(step.Statements.Count - suffix.Count)
-                   .Zip(suffix, (statement, suffixStatement) => ReferenceEquals(statement, suffixStatement))
+                   .Zip(suffix, ReferenceEquals)
                    .All(match => match);
     }
 }

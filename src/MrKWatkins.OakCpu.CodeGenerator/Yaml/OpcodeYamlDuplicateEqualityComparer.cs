@@ -42,5 +42,6 @@ public sealed class OpcodeYamlDuplicateEqualityComparer : IEqualityComparer<Opco
                x.N0 == y.N0;
     }
 
+    [Pure]
     public int GetHashCode(OpcodeYaml obj) => HashCode.Combine(obj.PrefixByte != null, obj.R0, obj.R1, obj.RP0, obj.RP1, obj.C0, obj.N0);
 }

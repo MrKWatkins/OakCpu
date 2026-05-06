@@ -86,7 +86,7 @@ public abstract class SerializationGenerator : TypeGenerator
             returns: $"The deserialized {context.Cpu.Name} emulator.");
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private MemberDeclarationSyntax GenerateRestore(GeneratorContext context)
     {
         context.RequiredUsings.Add("System.IO");
@@ -142,7 +142,7 @@ public abstract class SerializationGenerator : TypeGenerator
             .OrderBy(register => register.FieldOffset)
             .Select(register => GenerateRead(register.FieldName, DataType.U8));
 
-    [Pure]
+    [MustUseReturnValue]
     private MemberDeclarationSyntax GenerateSerialize(GeneratorContext context)
     {
         context.RequiredUsings.Add("System.IO");
@@ -228,7 +228,7 @@ public abstract class SerializationGenerator : TypeGenerator
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
     };
 
-    [Pure]
+    [MustUseReturnValue]
     private static IEnumerable<StatementSyntax> GenerateUsingBinaryReaderOrWriter<T>(GeneratorContext context, string parameterName)
     {
         context.RequiredUsings.Add(typeof(T));

@@ -33,5 +33,6 @@ internal sealed class StatementDuplicateEqualityComparer : IEqualityComparer<Sta
         return x.ToString().Equals(y.ToString(), StringComparison.Ordinal);
     }
 
+    [Pure]
     public int GetHashCode(Statement obj) => obj.ToString().GetHashCode(StringComparison.Ordinal);
 }

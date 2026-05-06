@@ -191,7 +191,7 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
             .WithModifiers([Private, Token(SyntaxKind.ConstKeyword)]);
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static MethodDeclarationSyntax CreateErrorMethod(GeneratorContext context)
     {
         context.RequiredUsings.Add(typeof(NotSupportedException).Namespace!);
