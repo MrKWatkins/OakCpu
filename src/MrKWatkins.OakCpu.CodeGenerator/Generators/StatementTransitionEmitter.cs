@@ -11,6 +11,8 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 internal static class StatementTransitionEmitter
 {
+    private const string SelectedStepVariableName = "selectedStep";
+
     [Pure]
     public static IEnumerable<StatementSyntax> GenerateMoveToSequence(StatementGeneratorContext context, Call call)
     {
@@ -24,13 +26,13 @@ internal static class StatementTransitionEmitter
             : throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToSequence.Name} must use a sequence.<name> argument.");
     }
 
-    [Pure]
+    [MustUseReturnValue]
     public static IEnumerable<StatementSyntax> GenerateMoveToInterruptMode(StatementGeneratorContext context, Call call) =>
         call.Arguments.Count == 1
             ? GenerateMoveToSequenceGroup(context, context.GeneratorContext.GetSequenceGroup(InterruptMode.SequenceGroupName), call.Arguments[0])
             : throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToInterruptMode} must have exactly one argument.");
 
-    [Pure]
+    [MustUseReturnValue]
     public static IEnumerable<StatementSyntax> GenerateMoveToSequenceGroup(StatementGeneratorContext context, Call call)
     {
         if (call.Arguments.Count != 2)
@@ -43,54 +45,24 @@ internal static class StatementTransitionEmitter
             : throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToSequenceGroup.Name} must use a sequence_group.<name> argument.");
     }
 
-    [Pure]
+    [MustUseReturnValue]
     public static IEnumerable<StatementSyntax> GenerateMoveToOpcode(StatementGeneratorContext context)
     {
-        var getOpcode = CreateArrayGetWithoutBoundsCheck(
+        var opcodeStep = CreateArrayGetWithoutBoundsCheck(
             context.GeneratorContext.RequiredUsings,
             EmulatorMemberIdentifier(PreDefinedDataMember.OpcodeStepTable.FieldName),
             EmulatorMemberIdentifier(PreDefinedDataMember.Data.FieldName));
 
         if (context.InstructionStepMode)
         {
-            yield return CreateSetNextInstruction(context, getOpcode);
+            yield return CreateSetNextInstruction(context, opcodeStep);
             yield break;
         }
 
-        const string selectedStepVariableName = "selectedStep";
-
-        yield return CreateSetStep(getOpcode);
-
-        yield return LocalDeclarationStatement(
-            VariableDeclaration(IdentifierName("var"))
-                .WithVariables([
-                    VariableDeclarator(selectedStepVariableName)
-                        .WithInitializer(
-                            EqualsValueClause(
-                                CreateArrayGetWithoutBoundsCheck(
-                                    context.GeneratorContext.RequiredUsings,
-                                    IdentifierName("Steps"),
-                                    EmulatorMemberIdentifier(PreDefinedDataMember.CurrentStep.FieldName))))
-                ]));
-
-        var overlapStatements = new List<StatementSyntax>
+        foreach (var statement in GenerateMoveToOpcodeTransition(context, opcodeStep))
         {
-            GenerateQueueOverlap(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(selectedStepVariableName), IdentifierName(StepOverlapFieldName)))
-                .WithLeadingTrivia(Comment("// Queue overlap step.")),
-            ExpressionStatement(
-                AssignmentExpression(
-                    SyntaxKind.SimpleAssignmentExpression,
-                    EmulatorMemberIdentifier(PreDefinedDataMember.CurrentStep.FieldName),
-                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(selectedStepVariableName), IdentifierName(StepNextStepFieldName)))),
-            StatementBoundaryEmitter.GenerateHandleInterruptsAndReturnIfHandled(context).WithLeadingTrivia(Comment("// Check interrupts at the instruction boundary."))
-        };
-
-        yield return IfStatement(
-            BinaryExpression(
-                SyntaxKind.NotEqualsExpression,
-                MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(selectedStepVariableName), IdentifierName(StepOverlapFieldName)),
-                LiteralExpression(SyntaxKind.DefaultLiteralExpression)),
-            Block(overlapStatements));
+            yield return statement;
+        }
     }
 
     [Pure]
@@ -149,7 +121,7 @@ internal static class StatementTransitionEmitter
         };
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static IEnumerable<StatementSyntax> GenerateMoveToSequenceGroup(StatementGeneratorContext context, SequenceGroup sequenceGroup, Expression selector)
     {
         var getSequence = CreateArrayGetWithoutBoundsCheck(
@@ -157,35 +129,94 @@ internal static class StatementTransitionEmitter
             IdentifierName(GetSequenceGroupStepTableFieldName(sequenceGroup)),
             ExpressionGenerator.GenerateExpressionSyntax(context, selector));
 
-        if (context.InstructionStepMode)
+        foreach (var statement in GenerateSequenceTransition(context, getSequence, $"Move to {sequenceGroup.Name.Replace('_', ' ')}."))
         {
-            yield return CreateSetNextInstruction(context, getSequence);
-            yield break;
+            yield return statement;
         }
-
-        if (context.InstructionEmulatorMode || context.InstructionCompletionMode)
-        {
-            yield return CreateSetNextSequence(getSequence);
-            yield break;
-        }
-
-        yield return CreateSetStep(getSequence).WithLeadingTrivia(Comment($"// Move to {sequenceGroup.Name.Replace('_', ' ')}."));
     }
 
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateMoveToSequence(StatementGeneratorContext context, StepSequence sequence)
     {
-        if (context.InstructionStepMode)
-        {
-            return [CreateSetNextInstruction(context, GenerateNumericLiteralExpression(context.GeneratorContext.GetInstructionEmulatorSequenceIndex(sequence)))];
-        }
+        var index = GenerateNumericLiteralExpression(context.GeneratorContext.GetInstructionEmulatorSequenceIndex(sequence));
 
-        if (context.InstructionEmulatorMode || context.InstructionCompletionMode)
+        return GetSequenceTransitionTarget(context) switch
         {
-            return [CreateSetNextSequence(GenerateNumericLiteralExpression(context.GeneratorContext.GetInstructionEmulatorSequenceIndex(sequence)))];
-        }
+            SequenceTransitionTarget.NextInstruction => [CreateSetNextInstruction(context, index)],
+            SequenceTransitionTarget.NextSequence => [CreateSetNextSequence(index)],
+            _ => GenerateMoveToSequenceStart(sequence)
+        };
+    }
 
-        return GenerateMoveToSequenceStart(sequence);
+    [MustUseReturnValue]
+    private static IEnumerable<StatementSyntax> GenerateMoveToOpcodeTransition(StatementGeneratorContext context, ExpressionSyntax opcodeStep)
+    {
+        yield return CreateSetStep(opcodeStep);
+        yield return CreateSelectedStepDeclaration(context);
+        yield return CreateQueuedOverlapTransition(context);
+    }
+
+    [MustUseReturnValue]
+    private static IEnumerable<StatementSyntax> GenerateSequenceTransition(StatementGeneratorContext context, ExpressionSyntax index, string? comment = null)
+    {
+        switch (GetSequenceTransitionTarget(context))
+        {
+            case SequenceTransitionTarget.NextInstruction:
+                yield return CreateSetNextInstruction(context, index);
+                yield break;
+
+            case SequenceTransitionTarget.NextSequence:
+                yield return CreateSetNextSequence(index);
+                yield break;
+
+            default:
+                var setStep = CreateSetStep(index);
+                yield return comment == null ? setStep : setStep.WithLeadingTrivia(Comment($"// {comment}"));
+                yield break;
+        }
+    }
+
+    [Pure]
+    private static SequenceTransitionTarget GetSequenceTransitionTarget(StatementGeneratorContext context) =>
+        context.InstructionStepMode
+            ? SequenceTransitionTarget.NextInstruction
+            : context.InstructionEmulatorMode || context.InstructionCompletionMode
+                ? SequenceTransitionTarget.NextSequence
+                : SequenceTransitionTarget.CurrentStep;
+
+    [MustUseReturnValue]
+    private static LocalDeclarationStatementSyntax CreateSelectedStepDeclaration(StatementGeneratorContext context) =>
+        LocalDeclarationStatement(
+            VariableDeclaration(IdentifierName("var"))
+                .WithVariables([
+                    VariableDeclarator(SelectedStepVariableName)
+                        .WithInitializer(
+                            EqualsValueClause(
+                                CreateArrayGetWithoutBoundsCheck(
+                                    context.GeneratorContext.RequiredUsings,
+                                    IdentifierName("Steps"),
+                                    EmulatorMemberIdentifier(PreDefinedDataMember.CurrentStep.FieldName))))
+                ]));
+
+    [Pure]
+    private static IfStatementSyntax CreateQueuedOverlapTransition(StatementGeneratorContext context)
+    {
+        var condition = BinaryExpression(
+            SyntaxKind.NotEqualsExpression,
+            MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(SelectedStepVariableName), IdentifierName(StepOverlapFieldName)),
+            LiteralExpression(SyntaxKind.DefaultLiteralExpression));
+
+        var queueOverlap = GenerateQueueOverlap(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(SelectedStepVariableName), IdentifierName(StepOverlapFieldName)))
+            .WithLeadingTrivia(Comment("// Queue overlap step."));
+        var setNextStep = ExpressionStatement(
+            AssignmentExpression(
+                SyntaxKind.SimpleAssignmentExpression,
+                EmulatorMemberIdentifier(PreDefinedDataMember.CurrentStep.FieldName),
+                MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(SelectedStepVariableName), IdentifierName(StepNextStepFieldName))));
+        var handleInterrupts = StatementBoundaryEmitter.GenerateHandleInterruptsAndReturnIfHandled(context)
+            .WithLeadingTrivia(Comment("// Check interrupts at the instruction boundary."));
+
+        return IfStatement(condition, Block(queueOverlap, setNextStep, handleInterrupts));
     }
 
     [Pure]
@@ -241,4 +272,11 @@ internal static class StatementTransitionEmitter
                 SyntaxKind.SimpleAssignmentExpression,
                 EmulatorMemberIdentifier(PreDefinedDataMember.CurrentStep.FieldName),
                 value));
+
+    private enum SequenceTransitionTarget
+    {
+        CurrentStep,
+        NextInstruction,
+        NextSequence
+    }
 }

@@ -75,6 +75,20 @@ public sealed class GeneratorContextTests : TestFixture
     }
 
     [Test]
+    public void WithRequiredUsings()
+    {
+        Z80GeneratorContext.RequiredUsings.Add("Test.Namespace");
+
+        var newContext = Z80GeneratorContext.WithRequiredUsings();
+
+        newContext.RequiredUsings.Should().NotBeTheSameInstanceAs(Z80GeneratorContext.RequiredUsings);
+        newContext.RequiredUsings.Count.Should().Equal(0);
+        newContext.Configuration.Should().BeTheSameInstanceAs(Z80GeneratorContext.Configuration);
+        newContext.Sequences.Should().BeTheSameInstanceAs(Z80GeneratorContext.Sequences);
+        newContext.OverlapSteps.Should().BeTheSameInstanceAs(Z80GeneratorContext.OverlapSteps);
+    }
+
+    [Test]
     public void Create_ThrowsGroupedValidationErrors()
     {
         var yaml = YamlSerializer.Deserialize<YamlFile>(

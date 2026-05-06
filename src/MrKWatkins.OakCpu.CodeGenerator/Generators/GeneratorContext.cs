@@ -12,114 +12,54 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public sealed class GeneratorContext
 {
-    private GeneratorContext(
-        string rootNamespace,
-        Configuration configuration,
-        Cpu cpu,
-        Interrupts interrupts,
-        IReadOnlyDictionary<string, StepSequence> sequences,
-        IReadOnlyDictionary<string, SequenceGroup> sequenceGroups,
-        StepSequence opcodeRead,
-        IReadOnlyList<Statement> onInstructionComplete,
-        IReadOnlyList<Instruction> instructions,
-        IReadOnlyDictionary<byte, PrefixJump> prefixJumps,
-        IReadOnlyList<Step> allSteps,
-        IReadOnlyList<Step> functionSteps,
-        IReadOnlyList<Step> overlapSteps,
-        IReadOnlyDictionary<Step, Step> overlapImplementations,
-        IReadOnlyDictionary<Step, IReadOnlyList<Step>> overlapImplementationAndDuplicates,
-        IReadOnlyDictionary<Step, int> overlapMethodIndices,
-        IReadOnlyDictionary<Step, ushort> overlapIndices)
+    private readonly ModelState model;
+    private readonly OverlapState overlap;
+    private InstructionEmulatorDispatchInfo? instructionEmulatorDispatchInfo;
+
+    private GeneratorContext(string rootNamespace, ModelState model, OverlapState overlap)
     {
         RootNamespace = rootNamespace;
-        Configuration = configuration;
-        Cpu = cpu;
-        Interrupts = interrupts;
-        Sequences = sequences;
-        SequenceGroups = sequenceGroups;
-        OpcodeRead = opcodeRead;
-        OnInstructionComplete = onInstructionComplete;
-        Instructions = instructions;
-        PrefixJumps = prefixJumps;
-        AllSteps = allSteps;
-        FunctionSteps = functionSteps;
-        OverlapSteps = overlapSteps;
-        this.overlapImplementations = overlapImplementations;
-        this.overlapImplementationAndDuplicates = overlapImplementationAndDuplicates;
-        this.overlapMethodIndices = overlapMethodIndices;
-        this.overlapIndices = overlapIndices;
+        this.model = model;
+        this.overlap = overlap;
     }
-
-    private readonly IReadOnlyDictionary<Step, Step> overlapImplementations;
-    private readonly IReadOnlyDictionary<Step, IReadOnlyList<Step>> overlapImplementationAndDuplicates;
-    private readonly IReadOnlyDictionary<Step, int> overlapMethodIndices;
-    private readonly IReadOnlyDictionary<Step, ushort> overlapIndices;
-    private IReadOnlyList<StepSequence>? instructionEmulatorSequences;
-    private IReadOnlyDictionary<StepSequence, ushort>? instructionEmulatorSequenceIndices;
-    private ushort? instructionEmulatorErrorIndex;
 
     public string RootNamespace { get; }
 
-    public Configuration Configuration { get; }
+    public Configuration Configuration => model.Configuration;
 
-    public Cpu Cpu { get; }
+    public Cpu Cpu => model.Cpu;
 
-    public Interrupts Interrupts { get; }
+    public Interrupts Interrupts => model.Interrupts;
 
-    public IReadOnlyDictionary<string, StepSequence> Sequences { get; }
+    public IReadOnlyDictionary<string, StepSequence> Sequences => model.Sequences;
 
-    public IReadOnlyDictionary<string, SequenceGroup> SequenceGroups { get; }
+    public IReadOnlyDictionary<string, SequenceGroup> SequenceGroups => model.SequenceGroups;
 
-    public StepSequence OpcodeRead { get; }
+    public StepSequence OpcodeRead => model.OpcodeRead;
 
-    public IReadOnlyList<Statement> OnInstructionComplete { get; }
+    public IReadOnlyList<Statement> OnInstructionComplete => model.OnInstructionComplete;
 
-    public IReadOnlyList<Instruction> Instructions { get; }
+    public IReadOnlyList<Instruction> Instructions => model.Instructions;
 
-    public IReadOnlyDictionary<byte, PrefixJump> PrefixJumps { get; }
+    public IReadOnlyDictionary<byte, PrefixJump> PrefixJumps => model.PrefixJumps;
 
-    public IReadOnlyList<Step> FunctionSteps { get; }
+    public IReadOnlyList<Step> FunctionSteps => model.FunctionSteps;
 
-    public IReadOnlyList<Step> AllSteps { get; }
+    public IReadOnlyList<Step> AllSteps => model.AllSteps;
 
-    public IReadOnlyList<Step> OverlapSteps { get; }
+    public IReadOnlyList<Step> OverlapSteps => overlap.OverlapSteps;
 
     internal RequiredUsings RequiredUsings { get; } = new();
 
     public int ErrorStepIndex => AllSteps.Count;
 
-    public IReadOnlyList<StepSequence> InstructionEmulatorSequences
-    {
-        get
-        {
-            EnsureInstructionEmulatorDispatchInfo();
-            return instructionEmulatorSequences!;
-        }
-    }
+    public IReadOnlyList<StepSequence> InstructionEmulatorSequences => GetInstructionEmulatorDispatchInfo().Sequences;
 
-    public int InstructionEmulatorDispatchCount
-    {
-        get
-        {
-            EnsureInstructionEmulatorDispatchInfo();
-            return instructionEmulatorErrorIndex!.Value + 1;
-        }
-    }
+    public int InstructionEmulatorDispatchCount => GetInstructionEmulatorDispatchInfo().ErrorIndex + 1;
 
-    public ushort InstructionEmulatorErrorIndex
-    {
-        get
-        {
-            EnsureInstructionEmulatorDispatchInfo();
-            return instructionEmulatorErrorIndex!.Value;
-        }
-    }
+    public ushort InstructionEmulatorErrorIndex => GetInstructionEmulatorDispatchInfo().ErrorIndex;
 
-    public ushort GetInstructionEmulatorSequenceIndex(StepSequence sequence)
-    {
-        EnsureInstructionEmulatorDispatchInfo();
-        return instructionEmulatorSequenceIndices![sequence];
-    }
+    public ushort GetInstructionEmulatorSequenceIndex(StepSequence sequence) => GetInstructionEmulatorDispatchInfo().SequenceIndices[sequence];
 
     [Pure]
     internal int GetImplicitInstructionCompleteStatementCount(Step step)
@@ -145,40 +85,17 @@ public sealed class GeneratorContext
     public SequenceGroup GetSequenceGroup(string name) =>
         SequenceGroups.TryGetValue(name, out var sequenceGroup) ? sequenceGroup : throw new InvalidOperationException($"No sequence group named {name} exists.");
 
-    private void EnsureInstructionEmulatorDispatchInfo()
-    {
-        if (instructionEmulatorSequences != null)
-        {
-            return;
-        }
-
-        instructionEmulatorSequences = new[] { OpcodeRead }
-            .Concat(PrefixJumps.Values)
-            .Concat(Instructions)
-            .Concat(SequenceGroups.Values.SelectMany(group => group.Members.Values))
-            .Concat(Interrupts.AllSequences)
-            .Distinct()
-            .OrderBy(sequence => sequence.FirstStep.Index)
-            .ToList();
-
-        instructionEmulatorSequenceIndices = instructionEmulatorSequences
-            .Select((sequence, index) => (sequence, Index: (ushort)index))
-            .ToDictionary(x => x.sequence, x => x.Index);
-
-        instructionEmulatorErrorIndex = (ushort)instructionEmulatorSequences.Count;
-    }
-
     [Pure]
     public int GetOverlapMethodIndex(Step step) =>
-        overlapMethodIndices.TryGetValue(GetOverlapImplementation(step), out var index) ? index : throw new InvalidOperationException($"No overlap has been defined for step {step.Name}.");
+        overlap.MethodIndices.TryGetValue(GetOverlapImplementation(step), out var index) ? index : throw new InvalidOperationException($"No overlap has been defined for step {step.Name}.");
 
     [Pure]
     public ushort GetOverlapIndex(Step step) =>
-        overlapIndices.TryGetValue(GetOverlapImplementation(step), out var index) ? index : throw new InvalidOperationException($"No overlap has been defined for step {step.Name}.");
+        overlap.Indices.TryGetValue(GetOverlapImplementation(step), out var index) ? index : throw new InvalidOperationException($"No overlap has been defined for step {step.Name}.");
 
     [Pure]
     public IReadOnlyList<Step> GetOverlapImplementationAndDuplicates(Step step) =>
-        overlapImplementationAndDuplicates.TryGetValue(GetOverlapImplementation(step), out var steps)
+        overlap.ImplementationAndDuplicates.TryGetValue(GetOverlapImplementation(step), out var steps)
             ? steps
             : throw new InvalidOperationException($"No overlap has been defined for step {step.Name}.");
 
@@ -218,54 +135,102 @@ public sealed class GeneratorContext
     {
         DefinitionValidation.Validate(yaml);
 
+        var model = CreateModelState(yaml);
+        var overlap = CreateOverlapState(rootNamespace, model);
+        return new GeneratorContext(rootNamespace, model, overlap);
+    }
+
+    [Pure]
+    internal GeneratorContext WithRequiredUsings() => new(RootNamespace, model, overlap);
+
+    [Pure]
+    private Step GetOverlapImplementation(Step step) =>
+        overlap.Implementations.TryGetValue(step, out var implementation) ? implementation : throw new InvalidOperationException($"No overlap implementation has been defined for step {step.Name}.");
+
+    [Pure]
+    private InstructionEmulatorDispatchInfo GetInstructionEmulatorDispatchInfo() => instructionEmulatorDispatchInfo ??= CreateInstructionEmulatorDispatchInfo();
+
+    [Pure]
+    private InstructionEmulatorDispatchInfo CreateInstructionEmulatorDispatchInfo()
+    {
+        var sequences = new[] { OpcodeRead }
+            .Concat(PrefixJumps.Values)
+            .Concat(Instructions)
+            .Concat(SequenceGroups.Values.SelectMany(group => group.Members.Values))
+            .Concat(Interrupts.AllSequences)
+            .Distinct()
+            .OrderBy(sequence => sequence.FirstStep.Index)
+            .ToList();
+
+        var sequenceIndices = sequences
+            .Select((sequence, index) => (sequence, Index: (ushort)index))
+            .ToDictionary(x => x.sequence, x => x.Index);
+
+        return new InstructionEmulatorDispatchInfo(sequences, sequenceIndices, (ushort)sequences.Count);
+    }
+
+    [Pure]
+    private static ModelState CreateModelState(YamlFile yaml)
+    {
         var configuration = CreateConfiguration(yaml);
+        var parserContext = CreateParserContext(configuration, yaml.OnInstructionComplete);
+        var namedSequences = CreateNamedSequences(parserContext, yaml.Sequences);
+        var opcodeRead = CreateOpcodeReadSequence(parserContext, namedSequences, yaml);
+        var instructions = Instruction.Create(parserContext, yaml.Instructions);
+        var prefixJumps = PrefixJump.Create(parserContext, instructions);
+        var interrupts = Interrupts.Create(parserContext, yaml.Interrupts, namedSequences);
+        var sequences = CreateSequences(namedSequences, opcodeRead, interrupts);
+        var sequenceGroups = CreateSequenceGroups(yaml, interrupts, sequences);
+        var allSteps = CreateAllSteps(opcodeRead, prefixJumps, sequences, instructions);
+        var functionSteps = StepFinalizer.Finalize(allSteps);
+
+        return new ModelState(configuration, Cpu.Create(yaml.Cpu), interrupts, sequences, sequenceGroups, opcodeRead, parserContext.OnInstructionComplete, instructions, prefixJumps, allSteps, functionSteps);
+    }
+
+    [Pure]
+    private static ParserContext CreateParserContext(Configuration configuration, string? onInstructionComplete)
+    {
         var context = new ParserContext(configuration);
+        return context.WithOnInstructionComplete(Parser.ParseStatements(context, onInstructionComplete));
+    }
 
-        context = context.WithOnInstructionComplete(Parser.ParseStatements(context, yaml.OnInstructionComplete));
-
-        var namedSequences = CreateNamedSequences(context, yaml.Sequences);
-        var opcodeRead = namedSequences.TryGetValue("opcode_read", out var opcodeReadSequence)
+    [Pure]
+    private static StepSequence CreateOpcodeReadSequence(ParserContext context, IReadOnlyDictionary<string, StepSequence> namedSequences, YamlFile yaml) =>
+        namedSequences.TryGetValue("opcode_read", out var opcodeReadSequence)
             ? opcodeReadSequence
             : yaml.OpcodeRead.Any()
                 ? NamedStepSequence.Create(context, "opcode_read", yaml.OpcodeRead, NextOpcodeMode.Custom, true)
                 : throw new InvalidOperationException("No opcode_read sequence has been defined.");
 
-        var instructions = Instruction.Create(context, yaml.Instructions);
-
-        var prefixJumps = PrefixJump.Create(context, instructions);
-
-        var interrupts = Interrupts.Create(context, yaml.Interrupts, namedSequences);
-        var cpu = Cpu.Create(yaml.Cpu);
-
-        var sequences = namedSequences.Values
+    [Pure]
+    private static IReadOnlyDictionary<string, StepSequence> CreateSequences(IReadOnlyDictionary<string, StepSequence> namedSequences, StepSequence opcodeRead, Interrupts interrupts) =>
+        namedSequences.Values
             .Append(opcodeRead)
             .Concat(interrupts.AllSequences)
             .Distinct()
             .Where(sequence => sequence.Name != null)
             .ToDictionary(sequence => sequence.Name!, StringComparer.Ordinal);
 
-        var sequenceGroups = CreateSequenceGroups(yaml, interrupts, sequences);
-
-        var auxiliarySequences = namedSequences.Values
-            .Where(sequence => !ReferenceEquals(sequence, opcodeRead))
-            .Concat(interrupts.AllSequences)
-            .Distinct()
-            .ToList();
-
+    [Pure]
+    private static IReadOnlyList<Step> CreateAllSteps(
+        StepSequence opcodeRead,
+        IReadOnlyDictionary<byte, PrefixJump> prefixJumps,
+        IReadOnlyDictionary<string, StepSequence> sequences,
+        IReadOnlyList<Instruction> instructions) =>
         // Steps need to keep their order within an instruction or all hell breaks loose.
-        var allSteps = opcodeRead
-            .Concat(prefixJumps.Values.SelectMany(p => p.Steps))
-            .Concat(auxiliarySequences.SelectMany(sequence => sequence.Steps))
-            .Concat(instructions.SelectMany(i => i.Steps))
+        opcodeRead
+            .Concat(prefixJumps.Values.SelectMany(prefixJump => prefixJump.Steps))
+            .Concat(sequences.Values.Where(sequence => !ReferenceEquals(sequence, opcodeRead)).SelectMany(sequence => sequence.Steps))
+            .Concat(instructions.SelectMany(instruction => instruction.Steps))
             .ToList();
 
-        var functionSteps = StepFinalizer.Finalize(allSteps);
-
-        var overlapCandidates = allSteps
+    [Pure]
+    private static OverlapState CreateOverlapState(string rootNamespace, ModelState model)
+    {
+        var overlapCandidates = model.AllSteps
             .Where(step => step.ExecutesAsOverlapOnly)
             .ToList();
-
-        var overlapGroups = CreateOverlapGroups(rootNamespace, configuration, cpu, interrupts, sequences, sequenceGroups, opcodeRead, context.OnInstructionComplete, instructions, prefixJumps, allSteps, functionSteps, overlapCandidates);
+        var overlapGroups = CreateOverlapGroups(rootNamespace, model, overlapCandidates);
 
         var overlapSteps = overlapGroups
             .Select(group => group.First())
@@ -287,33 +252,13 @@ public sealed class GeneratorContext
             .Select((step, index) => (Step: step, Index: (ushort)(index + 1)))
             .ToDictionary(x => x.Step, x => x.Index);
 
-        return new GeneratorContext(rootNamespace, configuration, cpu, interrupts, sequences, sequenceGroups, opcodeRead, context.OnInstructionComplete, instructions, prefixJumps, allSteps, functionSteps, overlapSteps, overlapImplementations, overlapImplementationAndDuplicates, overlapMethodIndices, overlapIndices);
+        return new OverlapState(overlapSteps, overlapImplementations, overlapImplementationAndDuplicates, overlapMethodIndices, overlapIndices);
     }
 
     [Pure]
-    internal GeneratorContext WithRequiredUsings() => new(RootNamespace, Configuration, Cpu, Interrupts, Sequences, SequenceGroups, OpcodeRead, OnInstructionComplete, Instructions, PrefixJumps, AllSteps, FunctionSteps, OverlapSteps, overlapImplementations, overlapImplementationAndDuplicates, overlapMethodIndices, overlapIndices);
-
-    [Pure]
-    private Step GetOverlapImplementation(Step step) =>
-        overlapImplementations.TryGetValue(step, out var implementation) ? implementation : throw new InvalidOperationException($"No overlap implementation has been defined for step {step.Name}.");
-
-    [Pure]
-    private static IReadOnlyList<IReadOnlyList<Step>> CreateOverlapGroups(
-        string rootNamespace,
-        Configuration configuration,
-        Cpu cpu,
-        Interrupts interrupts,
-        IReadOnlyDictionary<string, StepSequence> sequences,
-        IReadOnlyDictionary<string, SequenceGroup> sequenceGroups,
-        StepSequence opcodeRead,
-        IReadOnlyList<Statement> onInstructionComplete,
-        IReadOnlyList<Instruction> instructions,
-        IReadOnlyDictionary<byte, PrefixJump> prefixJumps,
-        IReadOnlyList<Step> allSteps,
-        IReadOnlyList<Step> functionSteps,
-        IReadOnlyList<Step> overlapCandidates)
+    private static IReadOnlyList<IReadOnlyList<Step>> CreateOverlapGroups(string rootNamespace, ModelState model, IReadOnlyList<Step> overlapCandidates)
     {
-        var temporaryContext = new GeneratorContext(rootNamespace, configuration, cpu, interrupts, sequences, sequenceGroups, opcodeRead, onInstructionComplete, instructions, prefixJumps, allSteps, functionSteps, [], new Dictionary<Step, Step>(), new Dictionary<Step, IReadOnlyList<Step>>(), new Dictionary<Step, int>(), new Dictionary<Step, ushort>());
+        var temporaryContext = new GeneratorContext(rootNamespace, model, OverlapState.Empty);
 
         var overlapBodies = overlapCandidates.ToDictionary(
             step => step,
@@ -387,4 +332,37 @@ public sealed class GeneratorContext
 
         return SequenceGroup.Create(groupedSequences.Concat(legacyInterruptModes));
     }
+
+    private sealed record ModelState(
+        Configuration Configuration,
+        Cpu Cpu,
+        Interrupts Interrupts,
+        IReadOnlyDictionary<string, StepSequence> Sequences,
+        IReadOnlyDictionary<string, SequenceGroup> SequenceGroups,
+        StepSequence OpcodeRead,
+        IReadOnlyList<Statement> OnInstructionComplete,
+        IReadOnlyList<Instruction> Instructions,
+        IReadOnlyDictionary<byte, PrefixJump> PrefixJumps,
+        IReadOnlyList<Step> AllSteps,
+        IReadOnlyList<Step> FunctionSteps);
+
+    private sealed record OverlapState(
+        IReadOnlyList<Step> OverlapSteps,
+        IReadOnlyDictionary<Step, Step> Implementations,
+        IReadOnlyDictionary<Step, IReadOnlyList<Step>> ImplementationAndDuplicates,
+        IReadOnlyDictionary<Step, int> MethodIndices,
+        IReadOnlyDictionary<Step, ushort> Indices)
+    {
+        public static OverlapState Empty { get; } = new(
+            [],
+            new Dictionary<Step, Step>(),
+            new Dictionary<Step, IReadOnlyList<Step>>(),
+            new Dictionary<Step, int>(),
+            new Dictionary<Step, ushort>());
+    }
+
+    private sealed record InstructionEmulatorDispatchInfo(
+        IReadOnlyList<StepSequence> Sequences,
+        IReadOnlyDictionary<StepSequence, ushort> SequenceIndices,
+        ushort ErrorIndex);
 }

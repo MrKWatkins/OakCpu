@@ -11,8 +11,6 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public abstract class TypeGenerator
 {
-    public sealed record GeneratedFile(string FileName, string Source);
-
     protected const string EmulatorFieldName = "emulator";
 
     private protected TypeGenerator()
@@ -288,4 +286,6 @@ public abstract class TypeGenerator
             .AddMembers(members.ToArray())
             .NormalizeWhitespace();
     }
+
+    public sealed record GeneratedFile(string FileName, string Source);
 }

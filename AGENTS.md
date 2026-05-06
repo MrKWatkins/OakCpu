@@ -57,6 +57,7 @@ Only manually change `.generated.cs` files when experimenting with the desired g
 - Prefer `readonly` fields and immutable return types, e.g. `IReadOnlyList<T>` instead of `List<T>` or arrays.
 - Use collection expressions, e.g. `[]` instead of `Array.Empty<T>()`.
 - Prefer lambdas over explicit method blocks where possible.
+- Put nested types at the end of their parent type rather than the start.
 - Mark side-effect-free methods with `[Pure]`. If a method mutates passed-in state but the caller should still use the returned value, use `[MustUseReturnValue]` instead of `[Pure]`.
 - End comments with a period.
 - Never leave unnecessary `using` statements.
