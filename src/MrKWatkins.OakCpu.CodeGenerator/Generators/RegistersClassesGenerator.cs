@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -15,7 +15,7 @@ public sealed class RegistersClassesGenerator : TypeGenerator
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => GetRegistersClassName(context);
+    protected override string GetBaseFileName(GeneratorContext context) => Class.Name.Registers(context);
 
     [Pure]
     public override IReadOnlyList<GeneratedFile> GenerateFiles(GeneratorContext context) => GenerateOneFilePerType(context);
@@ -25,8 +25,8 @@ public sealed class RegistersClassesGenerator : TypeGenerator
         foreach (var category in GetAllCategories(context))
         {
             yield return CreateBaseClass(context, category);
-            yield return CreateConcreteClass(context, category, GetStepRegistersClassName(context, category), GetEmulatorClassIdentifier(context), GetStepRegistersClassName);
-            yield return CreateConcreteClass(context, category, GetInstructionRegistersClassName(context, category), GetInstructionEmulatorClassIdentifier(context), GetInstructionRegistersClassName);
+            yield return CreateConcreteClass(context, category, Class.Name.StepRegisters(context, category), Class.Identifier.Emulator(context), Class.Name.StepRegisters);
+            yield return CreateConcreteClass(context, category, Class.Name.InstructionRegisters(context, category), Class.Identifier.InstructionEmulator(context), Class.Name.InstructionRegisters);
         }
     }
 
@@ -52,7 +52,7 @@ public sealed class RegistersClassesGenerator : TypeGenerator
             : $"Provides access to the {context.Cpu.Name} {category.ToLowerInvariant()} registers.";
 
         return WithXmlDocumentation(
-            ClassDeclaration(GetRegistersClassName(context, category))
+            ClassDeclaration(Class.Name.Registers(context, category))
                 .AddModifiers(Public, Abstract)
                 .AddMembers(members.ToArray()),
             summary);
@@ -75,21 +75,21 @@ public sealed class RegistersClassesGenerator : TypeGenerator
 
         return ClassDeclaration(className)
             .AddModifiers(Internal, Sealed)
-            .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(GetRegistersClassName(context, category))))))
+            .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(Class.Name.Registers(context, category))))))
             .AddMembers(members.ToArray());
     }
 
     [Pure]
     private static ConstructorDeclarationSyntax CreateBaseConstructor(GeneratorContext context, IReadOnlyList<string> categories) =>
         WithXmlDocumentation(
-            ConstructorDeclaration(GetRegistersClassName(context))
+            ConstructorDeclaration(Class.Name.Registers(context))
                 .WithModifiers(TokenList(Protected))
                 .WithParameterList(
                     ParameterList(
                         SeparatedList(
                             categories.Select(
                                 category => Parameter(Identifier(ToCamelCase(category)))
-                                    .WithType(IdentifierName(GetRegistersClassName(context, category)))))))
+                                    .WithType(IdentifierName(Class.Name.Registers(context, category)))))))
                 .WithBody(
                     Block(
                         categories.Select(
@@ -98,7 +98,7 @@ public sealed class RegistersClassesGenerator : TypeGenerator
                                     SyntaxKind.SimpleAssignmentExpression,
                                     IdentifierName(category),
                                     IdentifierName(ToCamelCase(category))))))),
-            $"Initializes a new {GetRegistersClassName(context)} instance.",
+            $"Initializes a new {Class.Name.Registers(context)} instance.",
             parameters: categories.ToDictionary(ToCamelCase, category => $"The {context.Cpu.Name} {category.ToLowerInvariant()} registers."));
 
     [Pure]
@@ -143,7 +143,7 @@ public sealed class RegistersClassesGenerator : TypeGenerator
     [Pure]
     private static IEnumerable<PropertyDeclarationSyntax> CreateCategoryProperties(GeneratorContext context, IReadOnlyList<string> categories) =>
         categories.Select(category => WithXmlDocumentation(
-            CreateGetOnlyProperty(context, GetRegistersClassName(context, category), category),
+            CreateGetOnlyProperty(context, Class.Name.Registers(context, category), category),
             $"Gets the {context.Cpu.Name} {category.ToLowerInvariant()} registers."));
 
     [Pure]

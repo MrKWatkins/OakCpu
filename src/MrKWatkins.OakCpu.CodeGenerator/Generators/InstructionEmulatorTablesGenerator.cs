@@ -3,8 +3,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
+using Field = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Field;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -16,16 +16,16 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => $"{GetInstructionEmulatorClassName(context)}.tables";
+    protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.InstructionEmulator(context)}.tables";
 
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
     {
-        var members = TableGeneration.CreateStepTableFields(context, GetSequenceGroupStepTableFieldName)
+        var members = TableGeneration.CreateStepTableFields(context, Field.Name.SequenceGroupStepTable)
             .Prepend(CreateInstructionsField(context))
             .Append(CreateStaticConstructor(context))
             .ToArray();
 
-        return ClassDeclaration(GetInstructionEmulatorClassName(context))
+        return ClassDeclaration(Class.Name.InstructionEmulator(context))
             .AddModifiers(Public, Sealed, Unsafe, Partial)
             .AddMembers(members);
     }
@@ -36,7 +36,7 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
                 VariableDeclaration(
                         ArrayType(CreateInstructionHandlerType(context))
                             .WithRankSpecifiers([ArrayRankSpecifier([OmittedArraySizeExpression()])]))
-                    .WithVariables([VariableDeclarator(Identifier(InstructionHandlersFieldName))]))
+                    .WithVariables([VariableDeclarator(Identifier(Field.Name.Instructions))]))
             .AddModifiers(Private, Static, ReadOnly);
 
     [Pure]
@@ -50,7 +50,7 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
 
         statements.AddRange(TableGeneration.CreateTableInitializationStatements(context, CreateOpcodeStepTableInitializationStatement, CreateSequenceGroupStepTableInitializationStatement));
 
-        return ConstructorDeclaration(GetInstructionEmulatorClassName(context))
+        return ConstructorDeclaration(Class.Name.InstructionEmulator(context))
             .WithModifiers(TokenList(Static))
             .WithBody(Block(statements));
     }
@@ -59,7 +59,7 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
     private static StatementSyntax CreateInstructionsInitializationStatement(GeneratorContext context)
     {
         var dispatchableSequences = InstructionEmulatorGenerator.GetDispatchableSequences(context).ToList();
-        var handlers = Enumerable.Repeat<ExpressionSyntax>(PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(ErrorMethodName)), context.InstructionEmulatorDispatchCount).ToArray();
+        var handlers = Enumerable.Repeat<ExpressionSyntax>(PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(Method.Name.Error)), context.InstructionEmulatorDispatchCount).ToArray();
 
         foreach (var sequence in dispatchableSequences)
         {
@@ -70,7 +70,7 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
         return ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName(InstructionHandlersFieldName),
+                IdentifierName(Field.Name.Instructions),
                 CollectionExpression(SeparatedList<CollectionElementSyntax>(handlers.Select(ExpressionElement)))));
     }
 
@@ -120,7 +120,7 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
         return ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName(GetSequenceGroupStepTableFieldName(sequenceGroup)),
+                IdentifierName(Field.Name.SequenceGroupStepTable(sequenceGroup)),
                 CollectionExpression(SeparatedList<CollectionElementSyntax>(stepIndices.Select(index => ExpressionElement(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(index))))))));
     }
 }

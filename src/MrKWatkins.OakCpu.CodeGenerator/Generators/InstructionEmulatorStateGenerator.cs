@@ -3,13 +3,14 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
+using Parameter = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Parameter;
+using Field = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Field;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 /// <summary>
-/// Generates the explicitly laid out instruction-emulator state fields, facade properties, and execution helpers.
+/// Generates the explicitly laid-out instruction emulator state fields, facade properties, and execution helpers.
 /// </summary>
 public sealed class InstructionEmulatorStateGenerator : TypeGenerator
 {
@@ -22,7 +23,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => GetInstructionEmulatorClassName(context);
+    protected override string GetBaseFileName(GeneratorContext context) => Class.Name.InstructionEmulator(context);
 
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
     {
@@ -31,13 +32,13 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         members.Add(CreateConstructor(context));
 
         var fieldOffset = ExplicitLayoutBuilder.GetObjectPropertiesFieldOffset(context);
-        members.Add(CreateObjectProperty(context, GetRegistersClassName(context), RegistersPropertyName, fieldOffset));
+        members.Add(CreateObjectProperty(context, Class.Name.Registers(context), Property.Name.Registers, fieldOffset));
         fieldOffset += 8;
 
-        members.Add(CreateObjectProperty(context, GetFlagsClassName(context), FlagsPropertyName, fieldOffset));
+        members.Add(CreateObjectProperty(context, Class.Name.Flags(context), Property.Name.Flags, fieldOffset));
         fieldOffset += 8;
 
-        members.Add(CreateObjectProperty(context, GetInterruptsClassName(context), InterruptsPropertyName, fieldOffset));
+        members.Add(CreateObjectProperty(context, Class.Name.Interrupts(context), Property.Name.Interrupts, fieldOffset));
         fieldOffset += 8;
 
         foreach (var dataMember in context.Configuration.AllDataMembers.Values.Where(m => m != PreDefinedDataMember.CurrentStep).OrderByDescending(m => m.Size))
@@ -57,7 +58,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         members.Add(CreateCompleteInstructionMethod(context));
 
         return WithXmlDocumentation(
-            ClassDeclaration(GetInstructionEmulatorClassName(context))
+            ClassDeclaration(Class.Name.InstructionEmulator(context))
                 .AddModifiers(Public, Sealed, Unsafe, Partial)
                 .AddAttributeLists(AttributeList(SingletonSeparatedList(ExplicitLayoutBuilder.CreateStructLayoutAttribute(context))))
                 .AddMembers(members.ToArray()),
@@ -73,18 +74,18 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
                 ExpressionStatement(
                     AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
-                        IdentifierName(NextSequenceStepFieldName),
-                        IdentifierName(NoNextSequenceStepFieldName)))
+                        IdentifierName(Field.Name.NextSequenceStep),
+                        IdentifierName(Field.Name.NoNextSequenceStep)))
             ],
-            (RegistersPropertyName, GetInstructionRegistersClassName(context)),
-            (FlagsPropertyName, GetInstructionFlagsClassName(context)),
-            (InterruptsPropertyName, GetInstructionInterruptsClassName(context)));
+            (Property.Name.Registers, Class.Name.InstructionRegisters(context)),
+            (Property.Name.Flags, Class.Name.InstructionFlags(context)),
+            (Property.Name.Interrupts, Class.Name.InstructionInterrupts(context)));
 
         return WithXmlDocumentation(
-            ConstructorDeclaration(GetInstructionEmulatorClassName(context))
+            ConstructorDeclaration(Class.Name.InstructionEmulator(context))
                 .WithModifiers(TokenList(Public))
                 .WithBody(Block(statements)),
-            $"Initializes a new {GetInstructionEmulatorClassName(context)} instance.");
+            $"Initializes a new {Class.Name.InstructionEmulator(context)} instance.");
     }
 
     [Pure]
@@ -108,7 +109,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
                 VariableDeclaration(UShortType)
                     .WithVariables(
                         SingletonSeparatedList(
-                            VariableDeclarator(NoNextSequenceStepFieldName)
+                            VariableDeclarator(Field.Name.NoNextSequenceStep)
                                 .WithInitializer(
                                     EqualsValueClause(
                                         ParseExpression("ushort.MaxValue"))))))
@@ -116,14 +117,17 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
 
     [Pure]
     private static FieldDeclarationSyntax CreateNextSequenceStepField(GeneratorContext context, int fieldOffset) =>
-        ExplicitLayoutBuilder.CreateOffsetField(context, UShortType, NextSequenceStepFieldName, fieldOffset, Internal);
+        ExplicitLayoutBuilder.CreateOffsetField(context, UShortType, Field.Name.NextSequenceStep, fieldOffset, Internal);
 
     [Pure]
-    private static MethodDeclarationSyntax CreateExecuteInstructionMethod() =>
-        WithXmlDocumentation(
+    private static MethodDeclarationSyntax CreateExecuteInstructionMethod()
+    {
+        const string scheduledSequenceStepVariableName = "scheduledSequenceStep";
+
+        return WithXmlDocumentation(
             MethodDeclaration(IntType, Identifier("ExecuteInstruction"))
                 .WithModifiers(TokenList(Public))
-                .WithParameterList(ParameterList([CreateInstructionActionCallbackParameter()]))
+                .WithParameterList(ParameterList([Parameter.Syntax.InstructionActionCallback()]))
                 .WithBody(
                     Block(
                         List<StatementSyntax>(
@@ -137,30 +141,30 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
                                     .WithArgumentList(
                                         ArgumentList(
                                         [
-                                            Argument(IdentifierName(InstructionActionCallbackParameterName))
+                                            Argument(IdentifierName(Parameter.Name.InstructionActionCallback))
                                         ]))),
 
-                            InitializeVariableStatement("scheduledSequenceStep", IdentifierName(NextSequenceStepFieldName), UShortType),
+                            InitializeVariableStatement(scheduledSequenceStepVariableName, IdentifierName(Field.Name.NextSequenceStep), UShortType),
                             IfStatement(
                                 BinaryExpression(
                                     SyntaxKind.NotEqualsExpression,
-                                    IdentifierName("scheduledSequenceStep"),
-                                    IdentifierName(NoNextSequenceStepFieldName)),
+                                    IdentifierName(scheduledSequenceStepVariableName),
+                                    IdentifierName(Field.Name.NoNextSequenceStep)),
                                 Block(
                                     List<StatementSyntax>(
                                     [
                                         ExpressionStatement(
                                             AssignmentExpression(
                                                 SyntaxKind.SimpleAssignmentExpression,
-                                                IdentifierName(NextSequenceStepFieldName),
-                                                IdentifierName(NoNextSequenceStepFieldName))),
+                                                IdentifierName(Field.Name.NextSequenceStep),
+                                                IdentifierName(Field.Name.NoNextSequenceStep))),
                                         ReturnStatement(
                                             InvocationExpression(IdentifierName(InstructionEmulatorGenerator.ExecuteDecodedInstructionMethodName))
                                                 .WithArgumentList(
                                                     ArgumentList(
                                                     [
-                                                        Argument(IdentifierName("scheduledSequenceStep")),
-                                                        Argument(IdentifierName(InstructionActionCallbackParameterName))
+                                                        Argument(IdentifierName(scheduledSequenceStepVariableName)),
+                                                        Argument(IdentifierName(Parameter.Name.InstructionActionCallback))
                                                     ])))
                                     ]))),
 
@@ -170,66 +174,74 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
                                         ArgumentList(
                                         [
                                             Argument(IdentifierName(InstructionEmulatorGenerator.OpcodeReadStep0FieldName)),
-                                            Argument(IdentifierName(InstructionActionCallbackParameterName))
+                                            Argument(IdentifierName(Parameter.Name.InstructionActionCallback))
                                         ])))
                         ]))),
             "Executes one complete instruction or scheduled sequence.",
             parameters: new Dictionary<string, string>
             {
-                ["onActionRequired"] = "Called whenever the emulator requires an external bus action."
+                [Parameter.Name.InstructionActionCallback] = "Called whenever the emulator requires an external bus action."
             },
             returns: "The number of T-states executed.");
+    }
 
     [Pure]
-    private static MemberDeclarationSyntax CreateExecuteDecodedInstructionMethod(GeneratorContext context) =>
-        MethodDeclaration(IntType, Identifier(InstructionEmulatorGenerator.ExecuteDecodedInstructionMethodName))
+    private static MemberDeclarationSyntax CreateExecuteDecodedInstructionMethod(GeneratorContext context)
+    {
+        const string decodedStepParameterName = "decodedStep";
+        const string instructionVariableName = "instruction";
+
+        return MethodDeclaration(IntType, Identifier(InstructionEmulatorGenerator.ExecuteDecodedInstructionMethodName))
             .AddAttributeLists(AttributeList([CreateMethodImplAttribute(context.RequiredUsings, System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]))
             .WithModifiers(TokenList(Private))
             .WithParameterList(
                 ParameterList(
                 [
-                    Parameter(Identifier("decodedStep")).WithType(UShortType),
-                    CreateInstructionActionCallbackParameter()
+                    Parameter(Identifier(decodedStepParameterName)).WithType(UShortType),
+                    Parameter.Syntax.InstructionActionCallback()
                 ]))
             .WithBody(
                 Block(
                     List<StatementSyntax>(
                     [
                         InitializeVariableStatement(
-                            "instruction",
-                            ElementAccessExpression(IdentifierName(InstructionHandlersFieldName))
+                            instructionVariableName,
+                            ElementAccessExpression(IdentifierName(Field.Name.Instructions))
                                 .WithArgumentList(
                                     BracketedArgumentList(
                                     [
-                                        Argument(IdentifierName("decodedStep"))
+                                        Argument(IdentifierName(decodedStepParameterName))
                                     ]))),
                         ReturnStatement(
-                            InvocationExpression(IdentifierName("instruction"))
+                            InvocationExpression(IdentifierName(instructionVariableName))
                                 .WithArgumentList(
                                     ArgumentList(
                                     [
                                         Argument(ThisExpression()),
-                                        Argument(IdentifierName(InstructionActionCallbackParameterName))
+                                        Argument(IdentifierName(Parameter.Name.InstructionActionCallback))
                                     ])))
                     ])));
+    }
 
     [Pure]
     private static MemberDeclarationSyntax CreateCompleteInstructionMethod(GeneratorContext context)
     {
+        const string instructionUpdatesFlagsParameterName = "instructionUpdatesFlags";
+
         var statements = new List<StatementSyntax>
         {
-            InitializeVariableStatement(EmulatorParameterName, ThisExpression())
+            InitializeVariableStatement(Parameter.Name.Emulator, ThisExpression())
         };
-        statements.AddRange(StatementGenerator.GenerateInstructionCompletionStatements(context, context.OnInstructionComplete, "instructionUpdatesFlags"));
+        statements.AddRange(StatementGenerator.GenerateInstructionCompletionStatements(context, context.OnInstructionComplete, instructionUpdatesFlagsParameterName));
         statements.Add(ReturnStatement(IdentifierName("tStates")));
 
-        return MethodDeclaration(IntType, Identifier(CompleteInstructionMethodName))
+        return MethodDeclaration(IntType, Identifier(Method.Name.CompleteInstruction))
             .AddAttributeLists(AttributeList([CreateMethodImplAttribute(context.RequiredUsings, System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]))
             .WithModifiers(TokenList(Private))
             .WithParameterList(
                 ParameterList(
                 [
-                    Parameter(Identifier("instructionUpdatesFlags")).WithType(BoolType),
+                    Parameter(Identifier(instructionUpdatesFlagsParameterName)).WithType(BoolType),
                     Parameter(Identifier("tStates")).WithType(IntType)
                 ]))
             .WithBody(Block(List(statements)));

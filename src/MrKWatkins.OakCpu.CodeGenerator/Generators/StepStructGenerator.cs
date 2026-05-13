@@ -1,8 +1,8 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
+using Field = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Field;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -19,7 +19,7 @@ public sealed class StepStructGenerator : TypeGenerator
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => StepStructName;
+    protected override string GetBaseFileName(GeneratorContext context) => TypeName.StepStruct;
 
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
     {
@@ -27,15 +27,15 @@ public sealed class StepStructGenerator : TypeGenerator
             null,
             FunctionPointerParameterList(
                 [
-                    FunctionPointerParameter(IdentifierName(GetEmulatorClassName(context))),
-                    FunctionPointerParameter(IdentifierName(ActionRequiredEnumName)).WithModifiers([Ref]),
+                    FunctionPointerParameter(IdentifierName(Class.Name.Emulator(context))),
+                    FunctionPointerParameter(IdentifierName(TypeName.ActionRequiredEnum)).WithModifiers([Ref]),
                     FunctionPointerParameter(VoidType)
                  ]));
 
-        var actionRequiredType = IdentifierName(ActionRequiredEnumName);
+        var actionRequiredType = IdentifierName(TypeName.ActionRequiredEnum);
         var overlapType = CreateOverlapHandlerType(context);
 
-        return StructDeclaration(StepStructName)
+        return StructDeclaration(TypeName.StepStruct)
             .WithModifiers(TokenList(Internal, Unsafe, ReadOnly))
             .WithParameterList(
                 ParameterList(
@@ -47,10 +47,10 @@ public sealed class StepStructGenerator : TypeGenerator
                 ]))
             .WithMembers(
             [
-                CreateField(actionType, StepHandlerFieldName, StepHandlerParameterName),
-                CreateField(UShortType, StepNextStepFieldName, StepNextStepParameterName),
-                CreateField(actionRequiredType, StepActionRequiredFieldName, StepActionRequiredParameterName),
-                CreateField(overlapType, StepOverlapFieldName, StepOverlapParameterName)
+                CreateField(actionType, Field.Name.Handler, StepHandlerParameterName),
+                CreateField(UShortType, Field.Name.NextStep, StepNextStepParameterName),
+                CreateField(actionRequiredType, Field.Name.ActionRequired, StepActionRequiredParameterName),
+                CreateField(overlapType, Field.Name.Overlap, StepOverlapParameterName)
             ]);
     }
 

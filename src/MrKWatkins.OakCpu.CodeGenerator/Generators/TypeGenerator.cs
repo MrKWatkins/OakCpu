@@ -3,8 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -212,39 +211,20 @@ public abstract class TypeGenerator
                     .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(EmulatorFieldName)))))
             .WithModifiers(TokenList(Private, ReadOnly));
 
-    /// <summary>
-    /// Creates the callback parameter used by generated instruction handlers to request external bus actions.
-    /// </summary>
-    [Pure]
-    protected internal static ParameterSyntax CreateInstructionActionCallbackParameter() =>
-        Parameter(Identifier(InstructionActionCallbackParameterName))
-            .WithType(
-                GenericName(Identifier("Action"))
-                    .WithTypeArgumentList(
-                        TypeArgumentList(
-                            SeparatedList<TypeSyntax>(
-                            [
-                                IdentifierName(ActionRequiredEnumName),
-                                Token(SyntaxKind.CommaToken),
-                                UShortType,
-                                Token(SyntaxKind.CommaToken),
-                                ByteType
-                            ]))));
-
     [Pure]
     protected static FunctionPointerTypeSyntax CreateInstructionHandlerType(GeneratorContext context) =>
         FunctionPointerType(
             null,
             FunctionPointerParameterList(
             [
-                FunctionPointerParameter(IdentifierName(GetInstructionEmulatorClassName(context))),
+                FunctionPointerParameter(IdentifierName(Class.Name.InstructionEmulator(context))),
                 FunctionPointerParameter(
                     GenericName(Identifier("Action"))
                         .WithTypeArgumentList(
                             TypeArgumentList(
                                 SeparatedList<TypeSyntax>(
                                 [
-                                    IdentifierName(ActionRequiredEnumName),
+                                    IdentifierName(TypeName.ActionRequiredEnum),
                                     Token(SyntaxKind.CommaToken),
                                     UShortType,
                                     Token(SyntaxKind.CommaToken),
@@ -259,7 +239,7 @@ public abstract class TypeGenerator
             null,
             FunctionPointerParameterList(
             [
-                FunctionPointerParameter(IdentifierName(GetEmulatorClassName(context))),
+                FunctionPointerParameter(IdentifierName(Class.Name.Emulator(context))),
                 FunctionPointerParameter(VoidType)
             ]));
 

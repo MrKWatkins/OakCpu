@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -13,7 +13,7 @@ public sealed class ActionRequiredGenerator : TypeGenerator
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => ActionRequiredEnumName;
+    protected override string GetBaseFileName(GeneratorContext context) => TypeName.ActionRequiredEnum;
 
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
     {
@@ -25,7 +25,7 @@ public sealed class ActionRequiredGenerator : TypeGenerator
             .ToArray();
 
         return WithXmlDocumentation(
-            EnumDeclaration(ActionRequiredEnumName)
+            EnumDeclaration(TypeName.ActionRequiredEnum)
                 .AddModifiers(Public)
                 .AddMembers(members),
             "Describes the external action that the host must perform for the current CPU cycle.");

@@ -2,8 +2,8 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
+using Parameter = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Parameter;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -15,7 +15,7 @@ public sealed class InstructionEmulatorInterruptsGenerator : TypeGenerator
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => $"{GetInstructionEmulatorClassName(context)}.interrupts";
+    protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.InstructionEmulator(context)}.interrupts";
 
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
     {
@@ -25,14 +25,14 @@ public sealed class InstructionEmulatorInterruptsGenerator : TypeGenerator
             ReturnStatement(LiteralExpression(SyntaxKind.FalseLiteralExpression))
         ];
 
-        return ClassDeclaration(GetInstructionEmulatorClassName(context))
+        return ClassDeclaration(Class.Name.InstructionEmulator(context))
             .AddModifiers(Public, Sealed, Unsafe, Partial)
             .AddMembers(
-                MethodDeclaration(BoolType, Identifier(HandleInterruptsMethodName))
+                MethodDeclaration(BoolType, Identifier(Method.Name.HandleInterrupts))
                     .WithModifiers([Private, Static])
                     .WithParameterList(
                         ParameterList(
-                        [CreateInstructionEmulatorParameter(context)]))
+                        [Parameter.Syntax.InstructionEmulator(context)]))
                     .WithBody(Block(statements)));
     }
 }

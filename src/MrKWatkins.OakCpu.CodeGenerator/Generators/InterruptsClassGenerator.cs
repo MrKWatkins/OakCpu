@@ -3,8 +3,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
+using Field = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Field;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -16,7 +16,7 @@ public sealed class InterruptsClassGenerator : TypeGenerator
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => GetInterruptsClassName(context);
+    protected override string GetBaseFileName(GeneratorContext context) => Class.Name.Interrupts(context);
 
     [Pure]
     public override IReadOnlyList<GeneratedFile> GenerateFiles(GeneratorContext context) => GenerateOneFilePerType(context);
@@ -24,8 +24,8 @@ public sealed class InterruptsClassGenerator : TypeGenerator
     protected override IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(GeneratorContext context)
     {
         yield return CreateBaseClass(context);
-        yield return CreateConcreteClass(context, GetStepInterruptsClassName(context), GetEmulatorClassIdentifier(context), instructionEmulator: false);
-        yield return CreateConcreteClass(context, GetInstructionInterruptsClassName(context), GetInstructionEmulatorClassIdentifier(context), instructionEmulator: true);
+        yield return CreateConcreteClass(context, Class.Name.StepInterrupts(context), Class.Identifier.Emulator(context), instructionEmulator: false);
+        yield return CreateConcreteClass(context, Class.Name.InstructionInterrupts(context), Class.Identifier.InstructionEmulator(context), instructionEmulator: true);
     }
 
     [Pure]
@@ -34,7 +34,7 @@ public sealed class InterruptsClassGenerator : TypeGenerator
         var members = CreateInterruptProperties(context, createOverrideProperty: false).Cast<MemberDeclarationSyntax>().ToArray();
 
         return WithXmlDocumentation(
-            ClassDeclaration(GetInterruptsClassName(context))
+            ClassDeclaration(Class.Name.Interrupts(context))
                 .AddModifiers(Public, Abstract)
                 .AddMembers(members),
             $"Provides access to the {context.Cpu.Name} interrupt state.");
@@ -52,7 +52,7 @@ public sealed class InterruptsClassGenerator : TypeGenerator
 
         return ClassDeclaration(className)
             .AddModifiers(Internal, Sealed)
-            .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(GetInterruptsClassName(context))))))
+            .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(Class.Name.Interrupts(context))))))
             .AddMembers(members.ToArray());
     }
 
@@ -97,7 +97,7 @@ public sealed class InterruptsClassGenerator : TypeGenerator
         var nextSequenceStepExpression = MemberAccessExpression(
             SyntaxKind.SimpleMemberAccessExpression,
             IdentifierName(EmulatorFieldName),
-            IdentifierName(NextSequenceStepFieldName));
+            IdentifierName(Field.Name.NextSequenceStep));
         var haltedStep = CastExpression(
             UShortType,
             LiteralExpression(
@@ -105,8 +105,8 @@ public sealed class InterruptsClassGenerator : TypeGenerator
                 Literal(context.GetInstructionEmulatorSequenceIndex(context.Interrupts.Halted))));
         var noNextSequenceStep = MemberAccessExpression(
             SyntaxKind.SimpleMemberAccessExpression,
-            IdentifierName(GetInstructionEmulatorClassName(context)),
-            IdentifierName(NoNextSequenceStepFieldName));
+            IdentifierName(Class.Name.InstructionEmulator(context)),
+            IdentifierName(Field.Name.NoNextSequenceStep));
 
         return PropertyDeclaration(property.TypeSyntax, Identifier(property.PropertyName))
             .WithModifiers(TokenList(Public, Override))

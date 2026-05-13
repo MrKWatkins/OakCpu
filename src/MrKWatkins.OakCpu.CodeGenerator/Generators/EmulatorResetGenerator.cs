@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -23,7 +23,7 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => $"{GetEmulatorClassName(context)}.reset";
+    protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.Emulator(context)}.reset";
 
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration.AddMembers(GenerateReset(context));

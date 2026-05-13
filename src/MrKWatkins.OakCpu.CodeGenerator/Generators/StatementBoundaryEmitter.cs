@@ -4,7 +4,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
+using Parameter = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Parameter;
 using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -24,8 +25,8 @@ internal static class StatementBoundaryEmitter
             yield return ExpressionStatement(
                 AssignmentExpression(
                     SyntaxKind.SimpleAssignmentExpression,
-                    IdentifierName(ActionRequiredParameterName),
-                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(ActionRequiredEnumName), IdentifierName(Action.None.EnumName))));
+                    IdentifierName(Parameter.Name.ActionRequired),
+                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(TypeName.ActionRequiredEnum), IdentifierName(Action.None.EnumName))));
         }
 
         yield return ReturnStatement(LiteralExpression(SyntaxKind.TrueLiteralExpression));
@@ -37,7 +38,7 @@ internal static class StatementBoundaryEmitter
         if (context.InstructionCompletionMode)
         {
             yield return ExpressionStatement(
-                InvocationExpression(IdentifierName(HandleInterruptsMethodName))
+                InvocationExpression(IdentifierName(Method.Name.HandleInterrupts))
                     .WithArgumentList(ArgumentList([CreateEmulatorArgument()])));
             yield break;
         }
@@ -102,14 +103,14 @@ internal static class StatementBoundaryEmitter
             if (context.Step?.Sequence is not Instruction)
             {
                 return IfStatement(
-                    InvocationExpression(IdentifierName(HandleInterruptsMethodName))
+                    InvocationExpression(IdentifierName(Method.Name.HandleInterrupts))
                         .WithArgumentList(ArgumentList([CreateEmulatorArgument()])),
                     Block(SingletonList<StatementSyntax>(
                         ReturnStatement(GenerateNumericLiteralExpression(instructionStep.TStatesBeforeStep + 1)))));
             }
 
             return IfStatement(
-                InvocationExpression(IdentifierName(HandleInterruptsMethodName))
+                InvocationExpression(IdentifierName(Method.Name.HandleInterrupts))
                     .WithArgumentList(ArgumentList([CreateEmulatorArgument()])),
                 Block(GenerateCompleteInstructionAndReturn(context)));
         }
@@ -120,11 +121,11 @@ internal static class StatementBoundaryEmitter
         }
 
         return IfStatement(
-            InvocationExpression(IdentifierName(HandleInterruptsMethodName))
+            InvocationExpression(IdentifierName(Method.Name.HandleInterrupts))
                 .WithArgumentList(ArgumentList(
                 [
                     CreateEmulatorArgument(),
-                    Argument(RefExpression(IdentifierName(ActionRequiredParameterName)))
+                    Argument(RefExpression(IdentifierName(Parameter.Name.ActionRequired)))
                 ])),
             Block(ReturnStatement()));
     }
@@ -151,8 +152,8 @@ internal static class StatementBoundaryEmitter
             InvocationExpression(
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName(EmulatorParameterName),
-                        IdentifierName(CompleteInstructionMethodName)))
+                        IdentifierName(Parameter.Name.Emulator),
+                        IdentifierName(Method.Name.CompleteInstruction)))
                 .WithArgumentList(
                     ArgumentList(
                     [

@@ -1,8 +1,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -18,9 +17,9 @@ public abstract class EmulatorClassGenerator : TypeGenerator
     {
         var classDeclaration = PopulateClass(
             context,
-            ClassDeclaration(GetEmulatorClassName(context)).AddModifiers(Public, Sealed, Unsafe, Partial));
+            ClassDeclaration(Class.Name.Emulator(context)).AddModifiers(Public, Sealed, Unsafe, Partial));
 
-        return GetBaseFileName(context) == GetEmulatorClassName(context)
+        return GetBaseFileName(context) == Class.Name.Emulator(context)
             ? WithXmlDocumentation(classDeclaration, $"Represents a cycle-accurate {context.Cpu.Name} emulator that executes one T-state at a time.")
             : classDeclaration;
     }
@@ -28,6 +27,4 @@ public abstract class EmulatorClassGenerator : TypeGenerator
     [Pure]
     protected abstract ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration);
 
-    [Pure]
-    protected static ParameterSyntax CreateEmulatorParameter(GeneratorContext context) => Parameter(Identifier(EmulatorParameterName)).WithType(IdentifierName(GetEmulatorClassName(context)));
 }

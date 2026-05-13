@@ -1,8 +1,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -14,10 +13,10 @@ public sealed class InstructionEmulatorSerializationGenerator : SerializationGen
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => $"{GetInstructionEmulatorClassName(context)}.serialization";
+    protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.InstructionEmulator(context)}.serialization";
 
     [Pure]
-    protected override string GetSerializedTypeName(GeneratorContext context) => GetInstructionEmulatorClassName(context);
+    protected override string GetSerializedTypeName(GeneratorContext context) => Class.Name.InstructionEmulator(context);
 
     [Pure]
     protected override IEnumerable<DataMember> GetSerializedDataMembers(GeneratorContext context) =>
@@ -28,12 +27,12 @@ public sealed class InstructionEmulatorSerializationGenerator : SerializationGen
     [Pure]
     protected override IEnumerable<StatementSyntax> GenerateAdditionalSerializeStatements(GeneratorContext context)
     {
-        yield return GenerateWrite(IdentifierName(NextSequenceStepFieldName));
+        yield return GenerateWrite(IdentifierName(Field.Name.NextSequenceStep));
     }
 
     [Pure]
     protected override IEnumerable<StatementSyntax> GenerateAdditionalRestoreStatements(GeneratorContext context)
     {
-        yield return GenerateRead(NextSequenceStepFieldName, DataType.U16);
+        yield return GenerateRead(Field.Name.NextSequenceStep, DataType.U16);
     }
 }

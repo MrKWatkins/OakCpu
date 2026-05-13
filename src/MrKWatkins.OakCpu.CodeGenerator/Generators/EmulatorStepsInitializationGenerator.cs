@@ -4,8 +4,8 @@ using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
+using Field = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Field;
 using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -18,7 +18,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => $"{GetEmulatorClassName(context)}.initialization";
+    protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.Emulator(context)}.initialization";
 
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration)
     {
@@ -37,7 +37,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
             CreateOverlapsField(context)
         ]);
 
-        members.AddRange(TableGeneration.CreateStepTableFields(context, GetSequenceGroupStepTableFieldName));
+        members.AddRange(TableGeneration.CreateStepTableFields(context, Field.Name.SequenceGroupStepTable));
         members.Add(CreateStaticConstructor(context));
 
         return classDeclaration.AddMembers(members.ToArray());
@@ -57,7 +57,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     private static MemberDeclarationSyntax CreateStepsField() =>
         FieldDeclaration(
                 VariableDeclaration(
-                        ArrayType(IdentifierName(StepStructName))
+                        ArrayType(IdentifierName(TypeName.StepStruct))
                             .WithRankSpecifiers([ArrayRankSpecifier([OmittedArraySizeExpression()])]))
                     .WithVariables([VariableDeclarator(Identifier(StepsFieldName))]))
             .WithModifiers([Private, Static, ReadOnly])
@@ -69,7 +69,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
                 VariableDeclaration(
                         ArrayType(CreateOverlapHandlerType(context))
                             .WithRankSpecifiers([ArrayRankSpecifier([OmittedArraySizeExpression()])]))
-                    .WithVariables([VariableDeclarator(Identifier(OverlapsFieldName))]))
+                    .WithVariables([VariableDeclarator(Identifier(Field.Name.Overlaps))]))
             .WithModifiers([Private, Static, ReadOnly])
             .WithSemicolonToken(Semicolon);
 
@@ -96,7 +96,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
 
         var value = CollectionExpression(SeparatedList(overlaps));
 
-        var assignment = AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(OverlapsFieldName), value);
+        var assignment = AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(Field.Name.Overlaps), value);
 
         return ExpressionStatement(assignment);
     }
@@ -104,7 +104,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     [Pure]
     private static ImplicitObjectCreationExpressionSyntax CreateErrorStep()
     {
-        var handler = PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(ErrorMethodName));
+        var handler = PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(Method.Name.Error));
 
         return CreateStepCreation(handler, 0, Action.None, LiteralExpression(SyntaxKind.DefaultLiteralExpression));
     }
@@ -114,7 +114,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     {
         ExpressionSyntax handler = step.DoesNothing || step.ExecutesAsOverlapOnly
             ? LiteralExpression(SyntaxKind.DefaultLiteralExpression)
-            : PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetStepMethodName(step)));
+            : PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(Method.Name.Step(step)));
 
         var nextStep = step.NextOpcode switch
         {
@@ -129,7 +129,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
         };
 
         ExpressionSyntax overlap = step.ExecutesAsOverlapOnly
-            ? PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetOverlapMethodName(context, step)))
+            ? PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(Method.Name.Overlap(context, step)))
             : LiteralExpression(SyntaxKind.DefaultLiteralExpression);
 
         var action = step is { NextOpcode: NextOpcodeMode.Overlapped, Sequence: PrefixJump }
@@ -156,7 +156,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
                             // TODO: static using for ActionRequired.
-                            IdentifierName(ActionRequiredEnumName),
+                            IdentifierName(TypeName.ActionRequiredEnum),
                             IdentifierName(action.EnumName))),
                     Argument(overlap)
                 ]));
@@ -165,7 +165,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     private static ExpressionSyntax CreateOverlap(GeneratorContext context, Step step) =>
         step.DoesNothing
             ? LiteralExpression(SyntaxKind.DefaultLiteralExpression)
-            : PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetOverlapMethodName(context, step)));
+            : PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(Method.Name.Overlap(context, step)));
 
     [MustUseReturnValue]
     private static ConstructorDeclarationSyntax CreateStaticConstructor(GeneratorContext context)
@@ -180,7 +180,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
         statements.AddRange(TableGeneration.CreateTableInitializationStatements(context, CreateOpcodeStepTableInitializationStatement, CreateSequenceGroupStepTableInitializationStatement));
 
         // Static constructor
-        return ConstructorDeclaration(GetEmulatorClassName(context))
+        return ConstructorDeclaration(Class.Name.Emulator(context))
             .WithModifiers(TokenList(Static))
             .WithBody(Block(statements));
     }
@@ -236,7 +236,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
 
         var assignment = AssignmentExpression(
             SyntaxKind.SimpleAssignmentExpression,
-            IdentifierName(GetSequenceGroupStepTableFieldName(sequenceGroup)),
+            IdentifierName(Field.Name.SequenceGroupStepTable(sequenceGroup)),
             value);
 
         return ExpressionStatement(assignment);

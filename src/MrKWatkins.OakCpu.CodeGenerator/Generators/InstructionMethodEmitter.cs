@@ -4,7 +4,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
+using Parameter = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Parameter;
+using Field = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Field;
 using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -25,8 +27,8 @@ internal static class InstructionMethodEmitter
             .WithParameterList(
                 ParameterList(
                 [
-                    GeneratedNames.CreateInstructionEmulatorParameter(context),
-                    TypeGenerator.CreateInstructionActionCallbackParameter()
+                    Parameter.Syntax.InstructionEmulator(context),
+                    Parameter.Syntax.InstructionActionCallback()
                 ]))
             .WithLeadingTrivia(Comment($"// {plan.Comment}"))
             .WithBody(Block(statements));
@@ -116,14 +118,14 @@ internal static class InstructionMethodEmitter
     [Pure]
     private static StatementSyntax CreateActionCallbackStatement(Action action) =>
         ExpressionStatement(
-            InvocationExpression(IdentifierName(InstructionActionCallbackParameterName))
+            InvocationExpression(IdentifierName(Parameter.Name.InstructionActionCallback))
                 .WithArgumentList(
                     ArgumentList(
                     [
                         Argument(
                             MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
-                                IdentifierName(ActionRequiredEnumName),
+                                IdentifierName(TypeName.ActionRequiredEnum),
                                 IdentifierName(action.EnumName))),
                         Argument(EmulatorMemberIdentifier(PreDefinedDataMember.Address.FieldName)),
                         Argument(EmulatorMemberIdentifier(PreDefinedDataMember.Data.FieldName))
@@ -136,8 +138,8 @@ internal static class InstructionMethodEmitter
                 SyntaxKind.SimpleAssignmentExpression,
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName(EmulatorParameterName),
-                    IdentifierName(NextSequenceStepFieldName)),
+                    IdentifierName(Parameter.Name.Emulator),
+                    IdentifierName(Field.Name.NextSequenceStep)),
                 GenerateNumericLiteralExpression(context.GetInstructionEmulatorSequenceIndex(sequence))));
 
     [Pure]
@@ -148,7 +150,7 @@ internal static class InstructionMethodEmitter
                 SyntaxKind.SubtractAssignmentExpression,
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName(EmulatorParameterName),
+                    IdentifierName(Parameter.Name.Emulator),
                     IdentifierName("PC")),
                 GenerateNumericLiteralExpression(0x01)));
         yield return ReturnStatement(
@@ -170,13 +172,13 @@ internal static class InstructionMethodEmitter
                         InvocationExpression(
                                 MemberAccessExpression(
                                     SyntaxKind.SimpleMemberAccessExpression,
-                                    IdentifierName(EmulatorParameterName),
+                                    IdentifierName(Parameter.Name.Emulator),
                                     IdentifierName(InstructionEmulatorGenerator.ExecuteDecodedInstructionMethodName)))
                             .WithArgumentList(
                                 ArgumentList(
                                 [
                                     Argument(IdentifierName(nextInstructionVariableName)),
-                                    Argument(IdentifierName(InstructionActionCallbackParameterName))
+                                    Argument(IdentifierName(Parameter.Name.InstructionActionCallback))
                                 ]))))));
 
     [Pure]
@@ -195,8 +197,8 @@ internal static class InstructionMethodEmitter
             InvocationExpression(
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName(EmulatorParameterName),
-                        IdentifierName(CompleteInstructionMethodName)))
+                        IdentifierName(Parameter.Name.Emulator),
+                        IdentifierName(Method.Name.CompleteInstruction)))
                 .WithArgumentList(
                     ArgumentList(
                     [

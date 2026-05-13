@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -16,10 +16,10 @@ public sealed class EmulatorSerializationGenerator : SerializationGenerator
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => $"{GetEmulatorClassName(context)}.serialization";
+    protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.Emulator(context)}.serialization";
 
     [Pure]
-    protected override string GetSerializedTypeName(GeneratorContext context) => GetEmulatorClassName(context);
+    protected override string GetSerializedTypeName(GeneratorContext context) => Class.Name.Emulator(context);
 
     [Pure]
     protected override IEnumerable<DataMember> GetSerializedDataMembers(GeneratorContext context) =>

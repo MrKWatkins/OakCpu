@@ -3,8 +3,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
+using Field = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Field;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -24,10 +24,10 @@ public sealed class InstructionEmulatorResetGenerator : TypeGenerator
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => $"{GetInstructionEmulatorClassName(context)}.reset";
+    protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.InstructionEmulator(context)}.reset";
 
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context) =>
-        ClassDeclaration(GetInstructionEmulatorClassName(context))
+        ClassDeclaration(Class.Name.InstructionEmulator(context))
             .AddModifiers(Public, Sealed, Unsafe, Partial)
             .AddMembers(GenerateReset(context));
 
@@ -58,7 +58,7 @@ public sealed class InstructionEmulatorResetGenerator : TypeGenerator
         ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName(NextSequenceStepFieldName),
-                IdentifierName(NoNextSequenceStepFieldName)));
+                IdentifierName(Field.Name.NextSequenceStep),
+                IdentifierName(Field.Name.NoNextSequenceStep)));
 
 }

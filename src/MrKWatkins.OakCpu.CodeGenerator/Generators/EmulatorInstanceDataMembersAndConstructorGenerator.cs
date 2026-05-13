@@ -2,7 +2,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -20,7 +20,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => GetEmulatorClassName(context);
+    protected override string GetBaseFileName(GeneratorContext context) => Class.Name.Emulator(context);
 
     // TODO: An automatic layout algorithm taking into account padding would be nice.
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration)
@@ -30,13 +30,13 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         members.Add(CreateConstructor(context));
 
         var fieldOffset = ExplicitLayoutBuilder.GetObjectPropertiesFieldOffset(context);
-        members.Add(CreateObjectProperty(context, GetRegistersClassName(context), RegistersPropertyName, fieldOffset));
+        members.Add(CreateObjectProperty(context, Class.Name.Registers(context), Property.Name.Registers, fieldOffset));
         fieldOffset += 8;
 
-        members.Add(CreateObjectProperty(context, GetFlagsClassName(context), FlagsPropertyName, fieldOffset));
+        members.Add(CreateObjectProperty(context, Class.Name.Flags(context), Property.Name.Flags, fieldOffset));
         fieldOffset += 8;
 
-        members.Add(CreateObjectProperty(context, GetInterruptsClassName(context), InterruptsPropertyName, fieldOffset));
+        members.Add(CreateObjectProperty(context, Class.Name.Interrupts(context), Property.Name.Interrupts, fieldOffset));
         fieldOffset += 8;
 
         // Order by size descending so each field ends up aligned to its own width.
@@ -65,15 +65,15 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         var statements = ExplicitLayoutBuilder.CreateConstructorStatements(
             context,
             [],
-            (RegistersPropertyName, GetStepRegistersClassName(context)),
-            (FlagsPropertyName, GetStepFlagsClassName(context)),
-            (InterruptsPropertyName, GetStepInterruptsClassName(context)));
+            (Property.Name.Registers, Class.Name.StepRegisters(context)),
+            (Property.Name.Flags, Class.Name.StepFlags(context)),
+            (Property.Name.Interrupts, Class.Name.StepInterrupts(context)));
 
         return WithXmlDocumentation(
-            ConstructorDeclaration(GetEmulatorClassName(context))
+            ConstructorDeclaration(Class.Name.Emulator(context))
                 .WithModifiers(TokenList(Public))
                 .WithBody(Block(statements)),
-            $"Initializes a new {GetEmulatorClassName(context)} instance.");
+            $"Initializes a new {Class.Name.Emulator(context)} instance.");
     }
 
     [Pure]

@@ -3,7 +3,7 @@ using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Generators.Flags;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -69,7 +69,7 @@ internal static class StatementCallEmitter
             ReturnStatement(
                 MemberAccessExpression(
                     Microsoft.CodeAnalysis.CSharp.SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName(ActionRequiredEnumName),
+                    IdentifierName(TypeName.ActionRequiredEnum),
                     IdentifierName(action.EnumName)));
     }
 }

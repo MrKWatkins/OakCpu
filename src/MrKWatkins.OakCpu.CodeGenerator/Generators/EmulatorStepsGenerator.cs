@@ -5,8 +5,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
+using Parameter = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Parameter;
+using Field = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Field;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -20,7 +21,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => $"{GetEmulatorClassName(context)}.steps";
+    protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.Emulator(context)}.steps";
 
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration
@@ -35,7 +36,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
                 .WithArgumentList(
                     ArgumentList([Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Opcode not supported")))])));
 
-        return CreateFunction(context, ErrorMethodName, [throwStatement]);
+        return CreateFunction(context, Method.Name.Error, [throwStatement]);
     }
 
     [Pure]
@@ -45,7 +46,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
 
         var comments = step.ImplementationAndDuplicates.Select(s => Comment($"// {s.Name}"));
 
-        var function = CreateFunction(context, GetStepMethodName(step), statements);
+        var function = CreateFunction(context, Method.Name.Step(step), statements);
 
         // Aggressively inline step 0 as it is called for overlapped reads.
         function = step == context.OpcodeRead.FirstStep
@@ -61,8 +62,8 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
             .WithModifiers([Private, Static])
             .WithParameterList(ParameterList(
             [
-                CreateEmulatorParameter(context),
-                Parameter(Identifier(ActionRequiredParameterName)).WithType(IdentifierName(ActionRequiredEnumName)).WithModifiers([Ref])
+                Parameter.Syntax.Emulator(context),
+                Parameter(Identifier(Parameter.Name.ActionRequired)).WithType(IdentifierName(TypeName.ActionRequiredEnum)).WithModifiers([Ref])
             ]))
             .WithBody(Block(statements));
 
@@ -73,7 +74,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
 
         return WithXmlDocumentation(
             MethodDeclaration(
-                    IdentifierName(ActionRequiredEnumName),
+                    IdentifierName(TypeName.ActionRequiredEnum),
                     Identifier(StepMethodName))
                 .AddModifiers(Public)
                 .WithBody(Block(
@@ -91,15 +92,15 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
                     AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
                         IdentifierName(PreDefinedDataMember.CurrentStep.FieldName),
-                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(StepNextStepFieldName)))),
+                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(Field.Name.NextStep)))),
 
                 // var actionRequired = node.ActionRequired;
                 LocalDeclarationStatement(
                     VariableDeclaration(IdentifierName("var"))
                         .WithVariables([
-                            VariableDeclarator(ActionRequiredParameterName)
+                            VariableDeclarator(Parameter.Name.ActionRequired)
                                 .WithInitializer(
-                                    EqualsValueClause(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(ActionRequiredEnumName))))
+                                    EqualsValueClause(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(TypeName.ActionRequiredEnum))))
                         ])),
 
                 // if (step.Handler != default)
@@ -109,21 +110,21 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
                 IfStatement(
                     BinaryExpression(
                         SyntaxKind.NotEqualsExpression,
-                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(StepHandlerFieldName)),
+                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(Field.Name.Handler)),
                         LiteralExpression(SyntaxKind.DefaultLiteralExpression)
                     ),
                     Block(
                         ExpressionStatement(
                             InvocationExpression(
-                                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(StepHandlerFieldName)))
+                                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(Field.Name.Handler)))
                                 .WithArgumentList(ArgumentList(
                                     [
                                         Argument(ThisExpression()),
-                                        Argument(RefExpression(IdentifierName(ActionRequiredParameterName)))
+                                        Argument(RefExpression(IdentifierName(Parameter.Name.ActionRequired)))
                                     ]))))),
 
                     // return node.ActionRequired;
-                    ReturnStatement(IdentifierName(ActionRequiredParameterName)))),
+                    ReturnStatement(IdentifierName(Parameter.Name.ActionRequired)))),
             $"Executes one {context.Cpu.Name} T-state.",
             returns: "The external action that the host must perform for the completed T-state.");
     }

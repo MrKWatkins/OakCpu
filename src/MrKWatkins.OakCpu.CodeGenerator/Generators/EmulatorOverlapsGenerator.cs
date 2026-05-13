@@ -5,8 +5,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
+using Parameter = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Parameter;
+using Field = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Field;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -21,7 +22,7 @@ public sealed class EmulatorOverlapsGenerator : EmulatorClassGenerator
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => $"{GetEmulatorClassName(context)}.overlaps";
+    protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.Emulator(context)}.overlaps";
 
     protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration
@@ -35,11 +36,11 @@ public sealed class EmulatorOverlapsGenerator : EmulatorClassGenerator
 
         var comments = context.GetOverlapImplementationAndDuplicates(step).Select(s => Comment($"// Overlap {s.Name}"));
 
-        var function = MethodDeclaration(VoidType, Identifier(GetOverlapMethodName(context, step)))
+        var function = MethodDeclaration(VoidType, Identifier(Method.Name.Overlap(context, step)))
             .WithModifiers([Private, Static])
             .WithParameterList(ParameterList(
             [
-                CreateEmulatorParameter(context)
+                Parameter.Syntax.Emulator(context)
             ]))
             .WithBody(Block(statements));
 
@@ -53,7 +54,7 @@ public sealed class EmulatorOverlapsGenerator : EmulatorClassGenerator
     {
         const string overlapVariableName = "overlap";
 
-        return MethodDeclaration(VoidType, Identifier(ExecuteOverlapMethodName))
+        return MethodDeclaration(VoidType, Identifier(Method.Name.ExecuteOverlap))
             .WithModifiers([Private])
             .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)])])
             .WithBody(Block(
@@ -105,7 +106,7 @@ public sealed class EmulatorOverlapsGenerator : EmulatorClassGenerator
                                     SyntaxKind.EqualsExpression,
                                     CastExpression(
                                         IdentifierName("nuint"),
-                                        ElementAccessExpression(IdentifierName(OverlapsFieldName))
+                                        ElementAccessExpression(IdentifierName(Field.Name.Overlaps))
                                             .WithArgumentList(BracketedArgumentList([Argument(IdentifierName(indexVariableName))]))),
                                     CastExpression(
                                         IdentifierName("nuint"),
@@ -118,7 +119,7 @@ public sealed class EmulatorOverlapsGenerator : EmulatorClassGenerator
                         BinaryExpression(
                             SyntaxKind.LessThanExpression,
                             IdentifierName(indexVariableName),
-                            MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(OverlapsFieldName), IdentifierName(nameof(Array.Length)))))
+                            MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(Field.Name.Overlaps), IdentifierName(nameof(Array.Length)))))
                     .WithIncrementors([
                         PostfixUnaryExpression(SyntaxKind.PostIncrementExpression, IdentifierName(indexVariableName))
                     ]),
@@ -140,7 +141,7 @@ public sealed class EmulatorOverlapsGenerator : EmulatorClassGenerator
                     BinaryExpression(
                         SyntaxKind.GreaterThanOrEqualExpression,
                         IdentifierName("overlapIndex"),
-                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(OverlapsFieldName), IdentifierName(nameof(Array.Length)))),
+                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(Field.Name.Overlaps), IdentifierName(nameof(Array.Length)))),
                     Block(
                         ThrowStatement(
                             ObjectCreationExpression(IdentifierName(nameof(InvalidOperationException)))
@@ -149,6 +150,6 @@ public sealed class EmulatorOverlapsGenerator : EmulatorClassGenerator
                     AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
                         IdentifierName(PreDefinedDataMember.OverlapPipeline.FieldName),
-                        ElementAccessExpression(IdentifierName(OverlapsFieldName))
+                        ElementAccessExpression(IdentifierName(Field.Name.Overlaps))
                             .WithArgumentList(BracketedArgumentList([Argument(IdentifierName("overlapIndex"))]))))));
 }

@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -121,7 +121,7 @@ internal static class ExplicitLayoutBuilder
     public static PropertyDeclarationSyntax CreateGetOnlyPropertyWithFieldOffset(GeneratorContext context, string typeName, string propertyName, int fieldOffset)
     {
         var attributeList = AttributeList(SingletonSeparatedList(CreateFieldOffsetAttribute(context, fieldOffset)))
-            .WithTarget(AttributeTargetSpecifier(Field));
+            .WithTarget(AttributeTargetSpecifier(Token(SyntaxKind.FieldKeyword)));
 
         return PropertyDeclaration(IdentifierName(typeName), Identifier(propertyName))
             .WithModifiers(TokenList(Public))
@@ -181,9 +181,9 @@ internal static class ExplicitLayoutBuilder
     [Pure]
     public static string GetObjectPropertySummary(GeneratorContext context, string propertyName) => propertyName switch
     {
-        RegistersPropertyName => $"Gets the {context.Cpu.Name} registers.",
-        FlagsPropertyName => $"Gets the {context.Cpu.Name} flags.",
-        InterruptsPropertyName => $"Gets the {context.Cpu.Name} interrupt state.",
+        Property.Name.Registers => $"Gets the {context.Cpu.Name} registers.",
+        Property.Name.Flags => $"Gets the {context.Cpu.Name} flags.",
+        Property.Name.Interrupts => $"Gets the {context.Cpu.Name} interrupt state.",
         _ => throw new ArgumentOutOfRangeException(nameof(propertyName), propertyName, null)
     };
 }

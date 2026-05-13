@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -15,7 +15,7 @@ public sealed class FlagsClassGenerator : TypeGenerator
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => GetFlagsClassName(context);
+    protected override string GetBaseFileName(GeneratorContext context) => Class.Name.Flags(context);
 
     [Pure]
     public override IReadOnlyList<GeneratedFile> GenerateFiles(GeneratorContext context) => GenerateOneFilePerType(context);
@@ -23,8 +23,8 @@ public sealed class FlagsClassGenerator : TypeGenerator
     protected override IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(GeneratorContext context)
     {
         yield return CreateBaseClass(context);
-        yield return CreateConcreteClass(context, GetStepFlagsClassName(context), GetEmulatorClassIdentifier(context));
-        yield return CreateConcreteClass(context, GetInstructionFlagsClassName(context), GetInstructionEmulatorClassIdentifier(context));
+        yield return CreateConcreteClass(context, Class.Name.StepFlags(context), Class.Identifier.Emulator(context));
+        yield return CreateConcreteClass(context, Class.Name.InstructionFlags(context), Class.Identifier.InstructionEmulator(context));
     }
 
     [Pure]
@@ -33,7 +33,7 @@ public sealed class FlagsClassGenerator : TypeGenerator
         var members = CreateFlagProperties(context, createOverrideProperty: false).Cast<MemberDeclarationSyntax>().ToArray();
 
         return WithXmlDocumentation(
-            ClassDeclaration(GetFlagsClassName(context))
+            ClassDeclaration(Class.Name.Flags(context))
                 .AddModifiers(Public, Abstract)
                 .AddMembers(members),
             $"Provides access to the {context.Cpu.Name} flags.");
@@ -51,7 +51,7 @@ public sealed class FlagsClassGenerator : TypeGenerator
 
         return ClassDeclaration(className)
             .AddModifiers(Internal, Sealed)
-            .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(GetFlagsClassName(context))))))
+            .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(Class.Name.Flags(context))))))
             .AddMembers(members.ToArray());
     }
 

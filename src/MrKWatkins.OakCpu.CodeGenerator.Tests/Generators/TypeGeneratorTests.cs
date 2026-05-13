@@ -1,4 +1,5 @@
 using MrKWatkins.OakCpu.CodeGenerator.Generators;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Tests.Generators;
 
@@ -18,9 +19,9 @@ public sealed class TypeGeneratorTests : TestFixture
     }
 
     [Test]
-    public void CreateInstructionActionCallbackParameter()
+    public void InstructionActionCallback()
     {
-        var result = TypeGenerator.CreateInstructionActionCallbackParameter();
+        var result = Parameter.Syntax.InstructionActionCallback();
 
         result.ToNormalizedString().Should().Equal("Action<ActionRequired, ushort, byte> onActionRequired");
     }

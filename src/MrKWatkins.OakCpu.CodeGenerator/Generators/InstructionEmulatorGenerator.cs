@@ -5,8 +5,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
+using Parameter = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Parameter;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -21,12 +21,12 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
     {
     }
 
-    protected override string GetBaseFileName(GeneratorContext context) => $"{GetInstructionEmulatorClassName(context)}.instructions";
+    protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.InstructionEmulator(context)}.instructions";
 
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context) =>
         PopulateClass(
             context,
-            ClassDeclaration(GetInstructionEmulatorClassName(context)).AddModifiers(Public, Sealed, Unsafe, Partial));
+            ClassDeclaration(Class.Name.InstructionEmulator(context)).AddModifiers(Public, Sealed, Unsafe, Partial));
 
     [Pure]
     private static ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration)
@@ -196,13 +196,13 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
     {
         context.RequiredUsings.Add(typeof(NotSupportedException).Namespace!);
 
-        return MethodDeclaration(IntType, Identifier(ErrorMethodName))
+        return MethodDeclaration(IntType, Identifier(Method.Name.Error))
             .WithModifiers([Private, Static])
             .WithParameterList(
                 ParameterList(
                 [
-                    CreateInstructionEmulatorParameter(context),
-                    CreateInstructionActionCallbackParameter()
+                    Parameter.Syntax.InstructionEmulator(context),
+                    Parameter.Syntax.InstructionActionCallback()
                 ]))
             .WithBody(
                 Block(
@@ -253,13 +253,13 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
                 InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName(EmulatorParameterName),
+                            IdentifierName(Parameter.Name.Emulator),
                             IdentifierName(ExecuteDecodedInstructionMethodName)))
                     .WithArgumentList(
                         ArgumentList(
                         [
                             Argument(IdentifierName(OpcodeReadStep0FieldName)),
-                            Argument(IdentifierName(InstructionActionCallbackParameterName))
+                            Argument(IdentifierName(Parameter.Name.InstructionActionCallback))
                         ]))));
 
         return MethodDeclaration(IntType, Identifier(GetInstructionMethodName(context, sequence)))
@@ -267,8 +267,8 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
             .WithParameterList(
                 ParameterList(
                 [
-                    CreateInstructionEmulatorParameter(context),
-                    CreateInstructionActionCallbackParameter()
+                    Parameter.Syntax.InstructionEmulator(context),
+                    Parameter.Syntax.InstructionActionCallback()
                 ]))
             .WithLeadingTrivia(comments)
             .WithBody(Block(statements));

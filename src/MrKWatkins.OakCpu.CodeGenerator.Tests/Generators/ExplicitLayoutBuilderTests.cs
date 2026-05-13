@@ -32,7 +32,7 @@ public sealed class ExplicitLayoutBuilderTests : TestFixture
     {
         var context = Z80GeneratorContext.WithRequiredUsings();
 
-        var result = ExplicitLayoutBuilder.CreateGetOnlyPropertyWithFieldOffset(context, "Z80Registers", GeneratedNames.RegistersPropertyName, 24);
+        var result = ExplicitLayoutBuilder.CreateGetOnlyPropertyWithFieldOffset(context, "Z80Registers", Identifiers.Property.Name.Registers, 24);
 
         context.RequiredUsings.Contains("System.Runtime.InteropServices").Should().BeTrue();
         context.RequiredUsings.Contains("System.Runtime.CompilerServices").Should().BeTrue();
@@ -55,5 +55,5 @@ public sealed class ExplicitLayoutBuilderTests : TestFixture
     }
 
     [Test]
-    public void GetObjectPropertySummary() => ExplicitLayoutBuilder.GetObjectPropertySummary(Z80GeneratorContext, GeneratedNames.InterruptsPropertyName).Should().Equal("Gets the Z80 interrupt state.");
+    public void GetObjectPropertySummary() => ExplicitLayoutBuilder.GetObjectPropertySummary(Z80GeneratorContext, Identifiers.Property.Name.Interrupts).Should().Equal("Gets the Z80 interrupt state.");
 }

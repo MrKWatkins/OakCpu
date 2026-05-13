@@ -5,7 +5,9 @@ using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
-using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
+using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
+using Parameter = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Parameter;
+using Field = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Field;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -80,7 +82,7 @@ internal static class StatementTransitionEmitter
 
     [Pure]
     public static ExpressionStatementSyntax GenerateQueueOverlap(GeneratorContext context, Step step) =>
-        GenerateQueueOverlap(PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(GetOverlapMethodName(context, step))));
+        GenerateQueueOverlap(PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(Method.Name.Overlap(context, step))));
 
     [Pure]
     public static ExpressionStatementSyntax GenerateQueueOverlap(ExpressionSyntax overlap) =>
@@ -93,7 +95,7 @@ internal static class StatementTransitionEmitter
     [Pure]
     public static ExpressionStatementSyntax GenerateExecuteOverlap() =>
         ExpressionStatement(
-            InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(EmulatorParameterName), IdentifierName(ExecuteOverlapMethodName)))
+            InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(Parameter.Name.Emulator), IdentifierName(Method.Name.ExecuteOverlap)))
                 .WithArgumentList(ArgumentList()));
 
     [Pure]
@@ -126,7 +128,7 @@ internal static class StatementTransitionEmitter
     {
         var getSequence = CreateArrayGetWithoutBoundsCheck(
             context.GeneratorContext.RequiredUsings,
-            IdentifierName(GetSequenceGroupStepTableFieldName(sequenceGroup)),
+            IdentifierName(Field.Name.SequenceGroupStepTable(sequenceGroup)),
             ExpressionGenerator.GenerateExpressionSyntax(context, selector));
 
         foreach (var statement in GenerateSequenceTransition(context, getSequence, $"Move to {sequenceGroup.Name.Replace('_', ' ')}."))
@@ -203,16 +205,16 @@ internal static class StatementTransitionEmitter
     {
         var condition = BinaryExpression(
             SyntaxKind.NotEqualsExpression,
-            MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(SelectedStepVariableName), IdentifierName(StepOverlapFieldName)),
+            MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(SelectedStepVariableName), IdentifierName(Field.Name.Overlap)),
             LiteralExpression(SyntaxKind.DefaultLiteralExpression));
 
-        var queueOverlap = GenerateQueueOverlap(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(SelectedStepVariableName), IdentifierName(StepOverlapFieldName)))
+        var queueOverlap = GenerateQueueOverlap(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(SelectedStepVariableName), IdentifierName(Field.Name.Overlap)))
             .WithLeadingTrivia(Comment("// Queue overlap step."));
         var setNextStep = ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
                 EmulatorMemberIdentifier(PreDefinedDataMember.CurrentStep.FieldName),
-                MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(SelectedStepVariableName), IdentifierName(StepNextStepFieldName))));
+                MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(SelectedStepVariableName), IdentifierName(Field.Name.NextStep))));
         var handleInterrupts = StatementBoundaryEmitter.GenerateHandleInterruptsAndReturnIfHandled(context)
             .WithLeadingTrivia(Comment("// Check interrupts at the instruction boundary."));
 
@@ -222,12 +224,12 @@ internal static class StatementTransitionEmitter
     [Pure]
     private static ExpressionStatementSyntax GenerateCallStep(Step step) =>
         ExpressionStatement(
-            InvocationExpression(IdentifierName(GetStepMethodName(step)))
+            InvocationExpression(IdentifierName(Method.Name.Step(step)))
                 .WithArgumentList(
                     ArgumentList(
                     [
                         CreateEmulatorArgument(),
-                        Argument(RefExpression(IdentifierName(ActionRequiredParameterName)))
+                        Argument(RefExpression(IdentifierName(Parameter.Name.ActionRequired)))
                     ])));
 
     [Pure]
@@ -258,8 +260,8 @@ internal static class StatementTransitionEmitter
                 SyntaxKind.SimpleAssignmentExpression,
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName(EmulatorParameterName),
-                    IdentifierName(NextSequenceStepFieldName)),
+                    IdentifierName(Parameter.Name.Emulator),
+                    IdentifierName(Field.Name.NextSequenceStep)),
                 index));
 
     [Pure]
