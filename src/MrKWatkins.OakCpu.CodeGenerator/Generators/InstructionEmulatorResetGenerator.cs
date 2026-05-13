@@ -8,9 +8,16 @@ using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
+/// <summary>
+/// Generates the reset method for the instruction emulator.
+/// </summary>
 public sealed class InstructionEmulatorResetGenerator : TypeGenerator
 {
     private const string ResetMethodName = "Reset";
+
+    /// <summary>
+    /// The singleton instance of the generator.
+    /// </summary>
     public static readonly InstructionEmulatorResetGenerator Instance = new();
 
     private InstructionEmulatorResetGenerator()
@@ -27,10 +34,10 @@ public sealed class InstructionEmulatorResetGenerator : TypeGenerator
     [Pure]
     private static MemberDeclarationSyntax GenerateReset(GeneratorContext context)
     {
-        var statements = GenerateResetOpcodeStepTable(context)
+        var statements = ResetSyntax.GenerateResetOpcodeStepTable(context)
             .Concat(GenerateResetDataMembers(context))
             .Append(GenerateResetNextSequenceStep())
-            .Concat(GenerateResetRegisters(context));
+            .Concat(ResetSyntax.GenerateResetRegisters(context));
 
         return WithXmlDocumentation(
             MethodDeclaration(VoidType, Identifier(ResetMethodName))
@@ -40,28 +47,11 @@ public sealed class InstructionEmulatorResetGenerator : TypeGenerator
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateResetOpcodeStepTable(GeneratorContext context)
-    {
-        yield return ExpressionStatement(
-            AssignmentExpression(
-                SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName(PreDefinedDataMember.OpcodeStepTable.FieldName),
-                IdentifierName(context.Configuration.OpcodeStepTables.NoPrefix.FieldName)));
-    }
-
-    [Pure]
     private static IEnumerable<StatementSyntax> GenerateResetDataMembers(GeneratorContext context) =>
         context.Configuration.AllDataMembers.Values
             .Where(m => m != PreDefinedDataMember.OpcodeStepTable && m != PreDefinedDataMember.CurrentStep)
             .OrderBy(m => m.Name)
-            .Select(m => GenerateReset(m.FieldName, m.Type));
-
-    [Pure]
-    private static IEnumerable<StatementSyntax> GenerateResetRegisters(GeneratorContext context) =>
-        context.Configuration.Registers.Values
-            .Where(r => r.Parent == null)
-            .OrderBy(r => r.FieldOffset)
-            .Select(r => GenerateReset(r.FieldName, DataType.U8));
+            .Select(m => ResetSyntax.GenerateReset(m.FieldName, m.Type));
 
     [Pure]
     private static StatementSyntax GenerateResetNextSequenceStep() =>
@@ -70,19 +60,5 @@ public sealed class InstructionEmulatorResetGenerator : TypeGenerator
                 SyntaxKind.SimpleAssignmentExpression,
                 IdentifierName(NextSequenceStepFieldName),
                 IdentifierName(NoNextSequenceStepFieldName)));
-
-    [Pure]
-    private static StatementSyntax GenerateReset(string fieldName, DataType type) =>
-        ExpressionStatement(
-            AssignmentExpression(
-                SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName(fieldName),
-                type switch
-                {
-                    DataType.U8 => GenerateNumericLiteralExpression(0),
-                    DataType.U16 => GenerateNumericLiteralExpression(0),
-                    DataType.Bool => LiteralExpression(SyntaxKind.FalseLiteralExpression),
-                    _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-                }));
 
 }

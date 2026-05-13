@@ -6,4 +6,7 @@ public sealed class EmulatorResetGeneratorTests : TestFixture
 {
     [Test]
     public void Generate() => EmulatorResetGenerator.Instance.Invoking(g => g.GenerateCompilationUnit(Z80GeneratorContext)).Should().NotThrow();
+
+    [Test]
+    public Task GenerateOutput() => Verify(EmulatorResetGenerator.Instance.Generate(Z80GeneratorContext));
 }

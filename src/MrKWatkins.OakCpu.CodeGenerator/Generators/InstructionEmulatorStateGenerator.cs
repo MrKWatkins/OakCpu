@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -10,11 +8,14 @@ using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratorSymbols;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
+/// <summary>
+/// Generates the explicitly laid out instruction-emulator state fields, facade properties, and execution helpers.
+/// </summary>
 public sealed class InstructionEmulatorStateGenerator : TypeGenerator
 {
-    private const string RegistersPropertyName = "Registers";
-    private const string FlagsPropertyName = "Flags";
-    private const string InterruptsPropertyName = "Interrupts";
+    /// <summary>
+    /// The singleton instance of the generator.
+    /// </summary>
     public static readonly InstructionEmulatorStateGenerator Instance = new();
 
     private InstructionEmulatorStateGenerator()
@@ -25,18 +26,18 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
 
     protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
     {
-        var members = context.Configuration.Registers.Values.Select(r => CreateField(context, r)).ToList<MemberDeclarationSyntax>();
+        var members = context.Configuration.Registers.Values.Select(r => ExplicitLayoutBuilder.CreateRegisterField(context, r)).ToList<MemberDeclarationSyntax>();
         members.Add(CreateNoNextSequenceStepField());
         members.Add(CreateConstructor(context));
 
-        var fieldOffset = GetObjectPropertiesFieldOffset(context);
-        members.Add(CreateGetOnlyProperty(context, GetRegistersClassName(context), RegistersPropertyName, fieldOffset));
+        var fieldOffset = ExplicitLayoutBuilder.GetObjectPropertiesFieldOffset(context);
+        members.Add(CreateObjectProperty(context, GetRegistersClassName(context), RegistersPropertyName, fieldOffset));
         fieldOffset += 8;
 
-        members.Add(CreateGetOnlyProperty(context, GetFlagsClassName(context), FlagsPropertyName, fieldOffset));
+        members.Add(CreateObjectProperty(context, GetFlagsClassName(context), FlagsPropertyName, fieldOffset));
         fieldOffset += 8;
 
-        members.Add(CreateGetOnlyProperty(context, GetInterruptsClassName(context), InterruptsPropertyName, fieldOffset));
+        members.Add(CreateObjectProperty(context, GetInterruptsClassName(context), InterruptsPropertyName, fieldOffset));
         fieldOffset += 8;
 
         foreach (var dataMember in context.Configuration.AllDataMembers.Values.Where(m => m != PreDefinedDataMember.CurrentStep).OrderByDescending(m => m.Size))
@@ -58,77 +59,46 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         return WithXmlDocumentation(
             ClassDeclaration(GetInstructionEmulatorClassName(context))
                 .AddModifiers(Public, Sealed, Unsafe, Partial)
-                .AddAttributeLists(AttributeList(SingletonSeparatedList(CreateStructLayoutAttribute(context))))
+                .AddAttributeLists(AttributeList(SingletonSeparatedList(ExplicitLayoutBuilder.CreateStructLayoutAttribute(context))))
                 .AddMembers(members.ToArray()),
             $"Represents a {context.Cpu.Name} emulator that executes one complete instruction at a time.");
     }
 
     [Pure]
-    private static ConstructorDeclarationSyntax CreateConstructor(GeneratorContext context) =>
-        WithXmlDocumentation(
+    private static ConstructorDeclarationSyntax CreateConstructor(GeneratorContext context)
+    {
+        var statements = ExplicitLayoutBuilder.CreateConstructorStatements(
+            context,
+            [
+                ExpressionStatement(
+                    AssignmentExpression(
+                        SyntaxKind.SimpleAssignmentExpression,
+                        IdentifierName(NextSequenceStepFieldName),
+                        IdentifierName(NoNextSequenceStepFieldName)))
+            ],
+            (RegistersPropertyName, GetInstructionRegistersClassName(context)),
+            (FlagsPropertyName, GetInstructionFlagsClassName(context)),
+            (InterruptsPropertyName, GetInstructionInterruptsClassName(context)));
+
+        return WithXmlDocumentation(
             ConstructorDeclaration(GetInstructionEmulatorClassName(context))
                 .WithModifiers(TokenList(Public))
-                .WithBody(
-                    Block(
-                        ExpressionStatement(
-                            AssignmentExpression(
-                                SyntaxKind.SimpleAssignmentExpression,
-                                IdentifierName(PreDefinedDataMember.OpcodeStepTable.FieldName),
-                                IdentifierName(context.Configuration.OpcodeStepTables.NoPrefix.FieldName))),
-                        ExpressionStatement(
-                            AssignmentExpression(
-                                SyntaxKind.SimpleAssignmentExpression,
-                                IdentifierName(NextSequenceStepFieldName),
-                                IdentifierName(NoNextSequenceStepFieldName))),
-                        CreateNewObjectAndAssignToProperty(RegistersPropertyName, GetInstructionRegistersClassName(context), ThisExpression()),
-                        CreateNewObjectAndAssignToProperty(FlagsPropertyName, GetInstructionFlagsClassName(context), ThisExpression()),
-                        CreateNewObjectAndAssignToProperty(InterruptsPropertyName, GetInstructionInterruptsClassName(context), ThisExpression()))),
+                .WithBody(Block(statements)),
             $"Initializes a new {GetInstructionEmulatorClassName(context)} instance.");
+    }
 
     [Pure]
     private static IEnumerable<MemberDeclarationSyntax> CreateDataMember(GeneratorContext context, DataMember member, int fieldOffset)
     {
-        yield return CreateField(context, member.TypeSyntax, member.FieldName, fieldOffset, member.FieldVisibility.ToSyntax());
+        yield return ExplicitLayoutBuilder.CreateOffsetField(context, member.TypeSyntax, member.FieldName, fieldOffset, member.FieldVisibility.ToSyntax());
 
         if (member.GetterVisibility == null)
         {
             yield break;
         }
 
-        var fieldAccessExpression = IdentifierName(member.FieldName);
-
-        var accessors = new List<AccessorDeclarationSyntax>
-        {
-            AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                .WithExpressionBody(ArrowExpressionClause(fieldAccessExpression))
-                .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)])])
-                .WithSemicolonToken(Semicolon)
-        };
-
-        if (member.SetterVisibility != null)
-        {
-            var setter = AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-                .WithExpressionBody(
-                    ArrowExpressionClause(
-                        AssignmentExpression(
-                            SyntaxKind.SimpleAssignmentExpression,
-                            fieldAccessExpression,
-                            IdentifierName("value"))))
-                .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)])])
-                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
-
-            if (member.SetterVisibility != member.GetterVisibility)
-            {
-                setter = setter.AddModifiers(member.SetterVisibility.Value.ToSyntax());
-            }
-
-            accessors.Add(setter);
-        }
-
         yield return WithXmlDocumentation(
-            PropertyDeclaration(member.Type.TypeSyntax(), Identifier(member.PropertyName))
-                .WithModifiers(TokenList(Public))
-                .WithAccessorList(AccessorList(List(accessors))),
+            ExplicitLayoutBuilder.CreateDataMemberProperty(context, member),
             member.Documentation);
     }
 
@@ -146,7 +116,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
 
     [Pure]
     private static FieldDeclarationSyntax CreateNextSequenceStepField(GeneratorContext context, int fieldOffset) =>
-        CreateField(context, UShortType, NextSequenceStepFieldName, fieldOffset, Internal);
+        ExplicitLayoutBuilder.CreateOffsetField(context, UShortType, NextSequenceStepFieldName, fieldOffset, Internal);
 
     [Pure]
     private static MethodDeclarationSyntax CreateExecuteInstructionMethod() =>
@@ -266,85 +236,8 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
     }
 
     [Pure]
-    private static PropertyDeclarationSyntax CreateGetOnlyProperty(GeneratorContext context, string typeName, string propertyName, int fieldOffset)
-    {
-        var attributeList = AttributeList(SingletonSeparatedList(CreateFieldOffsetAttribute(context, fieldOffset)))
-            .WithTarget(AttributeTargetSpecifier(Field));
-
-        return WithXmlDocumentation(
-            TypeGenerator.CreateGetOnlyProperty(context, typeName, propertyName).AddAttributeLists(attributeList),
-            GetObjectPropertySummary(context, propertyName));
-    }
-
-    [Pure]
-    private static int GetObjectPropertiesFieldOffset(GeneratorContext context)
-    {
-        var lastRegister = context.Configuration.Registers.Values.OrderByDescending(r => r.FieldOffset).First();
-        var nextFieldOffset = lastRegister.FieldOffset + lastRegister.Type.Size();
-        return (nextFieldOffset + 7) & ~7;
-    }
-
-    [Pure]
-    private static string GetObjectPropertySummary(GeneratorContext context, string propertyName) => propertyName switch
-    {
-        RegistersPropertyName => $"Gets the {context.Cpu.Name} registers.",
-        FlagsPropertyName => $"Gets the {context.Cpu.Name} flags.",
-        InterruptsPropertyName => $"Gets the {context.Cpu.Name} interrupt state.",
-        _ => throw new ArgumentOutOfRangeException(nameof(propertyName), propertyName, null)
-    };
-
-    [Pure]
-    private static FieldDeclarationSyntax CreateField(GeneratorContext context, Register register) =>
-        CreateField(context, register.Type.TypeSyntax(), register.FieldName, register.FieldOffset, Internal);
-
-    [Pure]
-    private static FieldDeclarationSyntax CreateField(GeneratorContext context, TypeSyntax type, string name, int fieldOffset, SyntaxToken visibility, bool readOnly = false, ExpressionSyntax? initializer = null)
-    {
-        var modifiers = new List<SyntaxToken> { visibility };
-        if (readOnly)
-        {
-            modifiers.Add(ReadOnly);
-        }
-
-        var variableDeclarator = VariableDeclarator(Identifier(name));
-        if (initializer != null)
-        {
-            variableDeclarator = variableDeclarator.WithInitializer(EqualsValueClause(initializer));
-        }
-
-        return FieldDeclaration(VariableDeclaration(type).WithVariables(SingletonSeparatedList(variableDeclarator)))
-            .AddAttributeLists(AttributeList(SingletonSeparatedList(CreateFieldOffsetAttribute(context, fieldOffset))))
-            .AddModifiers(modifiers.ToArray());
-    }
-
-    [MustUseReturnValue]
-    private static AttributeSyntax CreateStructLayoutAttribute(GeneratorContext context)
-    {
-        context.RequiredUsings.Add(typeof(LayoutKind).Namespace!);
-
-        return Attribute(
-            IdentifierName("StructLayout"),
-            AttributeArgumentList(
-                SingletonSeparatedList(
-                    AttributeArgument(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName(nameof(LayoutKind)),
-                            IdentifierName(nameof(LayoutKind.Explicit)))))));
-    }
-
-    [MustUseReturnValue]
-    private static AttributeSyntax CreateFieldOffsetAttribute(GeneratorContext context, int fieldOffset)
-    {
-        context.RequiredUsings.Add(typeof(FieldOffsetAttribute).Namespace!);
-
-        return Attribute(
-            IdentifierName("FieldOffset"),
-            AttributeArgumentList(
-                SingletonSeparatedList(
-                    AttributeArgument(
-                        LiteralExpression(
-                            SyntaxKind.NumericLiteralExpression,
-                            Literal(fieldOffset))))));
-    }
+    private static PropertyDeclarationSyntax CreateObjectProperty(GeneratorContext context, string typeName, string propertyName, int fieldOffset) =>
+        WithXmlDocumentation(
+            ExplicitLayoutBuilder.CreateGetOnlyPropertyWithFieldOffset(context, typeName, propertyName, fieldOffset),
+            ExplicitLayoutBuilder.GetObjectPropertySummary(context, propertyName));
 }

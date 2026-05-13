@@ -16,4 +16,12 @@ public sealed class TypeGeneratorTests : TestFixture
         allGenerators.Contains(StepStructGenerator.Instance).Should().BeTrue();
         allGenerators.Contains(RegistersClassesGenerator.Instance).Should().BeTrue();
     }
+
+    [Test]
+    public void CreateInstructionActionCallbackParameter()
+    {
+        var result = TypeGenerator.CreateInstructionActionCallbackParameter();
+
+        result.ToNormalizedString().Should().Equal("Action<ActionRequired, ushort, byte> onActionRequired");
+    }
 }

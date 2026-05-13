@@ -26,7 +26,7 @@ internal static class InstructionMethodEmitter
                 ParameterList(
                 [
                     GeneratedNames.CreateInstructionEmulatorParameter(context),
-                    CreateInstructionActionCallbackParameter()
+                    TypeGenerator.CreateInstructionActionCallbackParameter()
                 ]))
             .WithLeadingTrivia(Comment($"// {plan.Comment}"))
             .WithBody(Block(statements));
@@ -205,19 +205,4 @@ internal static class InstructionMethodEmitter
                     ])));
     }
 
-    [Pure]
-    private static ParameterSyntax CreateInstructionActionCallbackParameter() =>
-        Parameter(Identifier(InstructionActionCallbackParameterName))
-            .WithType(
-                GenericName(Identifier("Action"))
-                    .WithTypeArgumentList(
-                        TypeArgumentList(
-                            SeparatedList<TypeSyntax>(
-                            [
-                                IdentifierName(ActionRequiredEnumName),
-                                Token(SyntaxKind.CommaToken),
-                                UShortType,
-                                Token(SyntaxKind.CommaToken),
-                                ByteType
-                            ]))));
 }

@@ -1,13 +1,20 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator;
 
+/// <summary>
+/// Provides Roslyn and serialization helpers for generator data types.
+/// </summary>
 public static class DataTypeExtensions
 {
     extension(DataType type)
     {
+        /// <summary>
+        /// Gets the size in bytes for the data type.
+        /// </summary>
         [Pure]
         public int Size(bool isArray = false)
         {
@@ -30,6 +37,9 @@ public static class DataTypeExtensions
             };
         }
 
+        /// <summary>
+        /// Creates the C# type syntax for the data type.
+        /// </summary>
         [Pure]
         public TypeSyntax TypeSyntax(bool isArray = false)
         {
@@ -50,6 +60,9 @@ public static class DataTypeExtensions
                 : typeSyntax;
         }
 
+        /// <summary>
+        /// Gets whether the data type is signed.
+        /// </summary>
         [Pure]
         public bool IsSigned => type switch
         {
@@ -59,6 +72,36 @@ public static class DataTypeExtensions
             DataType.I32 => true,
             DataType.I32Bool => true,
             _ => throw new NotSupportedException($"The {nameof(DataType)} {type} is not numeric.")
+        };
+
+        /// <summary>
+        /// Creates the default C# literal expression for the data type.
+        /// </summary>
+        [Pure]
+        public ExpressionSyntax DefaultLiteral() => type switch
+        {
+            DataType.U8 => GenerateNumericLiteralExpression(0),
+            DataType.I8 => GenerateNumericLiteralExpression(0),
+            DataType.U16 => GenerateNumericLiteralExpression(0),
+            DataType.I32 => GenerateNumericLiteralExpression(0),
+            DataType.I32Bool => GenerateNumericLiteralExpression(0),
+            DataType.Bool => LiteralExpression(SyntaxKind.FalseLiteralExpression),
+            _ => throw new NotSupportedException($"The {nameof(DataType)} {type} is not supported.")
+        };
+
+        /// <summary>
+        /// Gets the <see cref="BinaryReader"/> method name used to deserialize the data type.
+        /// </summary>
+        [Pure]
+        public string BinaryReaderMethodName() => type switch
+        {
+            DataType.U8 => nameof(BinaryReader.ReadByte),
+            DataType.I8 => nameof(BinaryReader.ReadSByte),
+            DataType.U16 => nameof(BinaryReader.ReadUInt16),
+            DataType.I32 => nameof(BinaryReader.ReadInt32),
+            DataType.I32Bool => nameof(BinaryReader.ReadInt32),
+            DataType.Bool => nameof(BinaryReader.ReadBoolean),
+            _ => throw new NotSupportedException($"The {nameof(DataType)} {type} is not supported.")
         };
     }
 }

@@ -53,4 +53,36 @@ public sealed class DataTypeExtensionsTests
         invalidType.Invoking(t => t.TypeSyntax()).Should().Throw<NotSupportedException>()
             .That.Should().HaveMessage("The DataType 99 is not supported.");
     }
+
+    [TestCase(DataType.U8, "0")]
+    [TestCase(DataType.I8, "0")]
+    [TestCase(DataType.U16, "0")]
+    [TestCase(DataType.I32, "0")]
+    [TestCase(DataType.I32Bool, "0")]
+    [TestCase(DataType.Bool, "false")]
+    public void DefaultLiteral(DataType type, string expected) => type.DefaultLiteral().ToNormalizedString().Should().Equal(expected);
+
+    [Test]
+    public void DefaultLiteral_ThrowsForUnsupportedType()
+    {
+        var invalidType = DataType.Void;
+        invalidType.Invoking(t => t.DefaultLiteral()).Should().Throw<NotSupportedException>()
+            .That.Should().HaveMessage("The DataType Void is not supported.");
+    }
+
+    [TestCase(DataType.U8, "ReadByte")]
+    [TestCase(DataType.I8, "ReadSByte")]
+    [TestCase(DataType.U16, "ReadUInt16")]
+    [TestCase(DataType.I32, "ReadInt32")]
+    [TestCase(DataType.I32Bool, "ReadInt32")]
+    [TestCase(DataType.Bool, "ReadBoolean")]
+    public void BinaryReaderMethodName(DataType type, string expected) => type.BinaryReaderMethodName().Should().Equal(expected);
+
+    [Test]
+    public void BinaryReaderMethodName_ThrowsForUnsupportedType()
+    {
+        var invalidType = DataType.Void;
+        invalidType.Invoking(t => t.BinaryReaderMethodName()).Should().Throw<NotSupportedException>()
+            .That.Should().HaveMessage("The DataType Void is not supported.");
+    }
 }

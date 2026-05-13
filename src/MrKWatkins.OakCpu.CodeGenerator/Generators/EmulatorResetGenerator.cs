@@ -7,10 +7,16 @@ using static MrKWatkins.OakCpu.CodeGenerator.Generators.GeneratedNames;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
+/// <summary>
+/// Generates the reset method for the step emulator.
+/// </summary>
 public sealed class EmulatorResetGenerator : EmulatorClassGenerator
 {
     private const string ResetMethodName = "Reset";
 
+    /// <summary>
+    /// The singleton instance of the generator.
+    /// </summary>
     public static readonly EmulatorResetGenerator Instance = new();
 
     private EmulatorResetGenerator()
@@ -25,23 +31,15 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
     [Pure]
     private static MemberDeclarationSyntax GenerateReset(GeneratorContext context)
     {
-        var statements = GenerateResetOpcodeStepTable(context)
+        var statements = ResetSyntax.GenerateResetOpcodeStepTable(context)
             .Concat(GenerateResetDataMembers(context))
-            .Concat(GenerateResetRegisters(context));
+            .Concat(ResetSyntax.GenerateResetRegisters(context));
 
         return WithXmlDocumentation(
             MethodDeclaration(VoidType, Identifier(ResetMethodName))
                 .WithModifiers([Public])
                 .WithBody(Block(statements)),
             $"Resets the {context.Cpu.Name} CPU state.");
-    }
-
-    [Pure]
-    private static IEnumerable<StatementSyntax> GenerateResetOpcodeStepTable(GeneratorContext context)
-    {
-        yield return ExpressionStatement(
-            AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(PreDefinedDataMember.OpcodeStepTable.FieldName),
-                IdentifierName(context.Configuration.OpcodeStepTables.NoPrefix.FieldName)));
     }
 
     [Pure]
@@ -52,18 +50,7 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
             .OrderBy(m => m.Name)
             .Select(m => m == PreDefinedDataMember.OverlapPipeline
                 ? GenerateResetOverlapPipeline(context)
-                : GenerateReset(m.FieldName, m.Type));
-
-    [Pure]
-    private static IEnumerable<StatementSyntax> GenerateResetRegisters(GeneratorContext context) =>
-        context.Configuration.Registers.Values
-            .Where(r => r.Parent == null)
-            .OrderBy(r => r.FieldOffset)
-            .Select(r => GenerateReset(r.FieldName, DataType.U8));
-
-    [Pure]
-    private static StatementSyntax GenerateReset(string fieldName, DataType type) =>
-        ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(fieldName), ResetValue(type)));
+                : ResetSyntax.GenerateReset(m.FieldName, m.Type));
 
     [Pure]
     private static StatementSyntax GenerateResetOverlapPipeline(GeneratorContext context) =>
@@ -73,12 +60,4 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
                 IdentifierName(PreDefinedDataMember.OverlapPipeline.FieldName),
                 DefaultExpression(CreateOverlapHandlerType(context))));
 
-    [Pure]
-    private static LiteralExpressionSyntax ResetValue(DataType type) => type switch
-    {
-        DataType.U8 => GenerateNumericLiteralExpression(0),
-        DataType.U16 => GenerateNumericLiteralExpression(0),
-        DataType.Bool => LiteralExpression(SyntaxKind.FalseLiteralExpression, Token(SyntaxKind.FalseKeyword)),
-        _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-    };
 }

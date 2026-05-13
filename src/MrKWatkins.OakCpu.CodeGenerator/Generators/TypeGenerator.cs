@@ -211,8 +211,12 @@ public abstract class TypeGenerator
                 VariableDeclaration(emulatorType)
                     .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(EmulatorFieldName)))))
             .WithModifiers(TokenList(Private, ReadOnly));
+
+    /// <summary>
+    /// Creates the callback parameter used by generated instruction handlers to request external bus actions.
+    /// </summary>
     [Pure]
-    protected static ParameterSyntax CreateInstructionActionCallbackParameter() =>
+    protected internal static ParameterSyntax CreateInstructionActionCallbackParameter() =>
         Parameter(Identifier(InstructionActionCallbackParameterName))
             .WithType(
                 GenericName(Identifier("Action"))

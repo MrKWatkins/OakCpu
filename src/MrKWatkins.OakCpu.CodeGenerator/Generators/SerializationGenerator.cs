@@ -213,20 +213,11 @@ public abstract class SerializationGenerator : TypeGenerator
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
                 IdentifierName(fieldName),
-                InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(ReaderParameterName), IdentifierName(ReadMethodName(type))))));
+                InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(ReaderParameterName), IdentifierName(type.BinaryReaderMethodName())))));
 
     [Pure]
     protected static ExpressionSyntax GenerateReadExpression(DataType type) =>
-        InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(ReaderParameterName), IdentifierName(ReadMethodName(type))));
-
-    [Pure]
-    private static string ReadMethodName(DataType type) => type switch
-    {
-        DataType.U8 => nameof(BinaryReader.ReadByte),
-        DataType.U16 => nameof(BinaryReader.ReadUInt16),
-        DataType.Bool => nameof(BinaryReader.ReadBoolean),
-        _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-    };
+        InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(ReaderParameterName), IdentifierName(type.BinaryReaderMethodName())));
 
     [MustUseReturnValue]
     private static IEnumerable<StatementSyntax> GenerateUsingBinaryReaderOrWriter<T>(GeneratorContext context, string parameterName)
