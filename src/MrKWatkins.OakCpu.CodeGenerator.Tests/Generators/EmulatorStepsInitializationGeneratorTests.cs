@@ -23,11 +23,12 @@ public sealed class EmulatorStepsInitializationGeneratorTests : TestFixture
     public void Generate_UsesDefaultHandlerForOverlapOnlyPrefixedNop()
     {
         var prefixedNop = Z80GeneratorContext.Instructions.Single(i => i is { Prefix: 0xDD, Opcode: 0x00 }).Steps.Single();
+        var prefixedNopLayout = Z80GeneratorContext.GetStepLayout(prefixedNop);
         var overlapMethodIndex = Z80GeneratorContext.GetOverlapMethodIndex(prefixedNop);
 
         var result = EmulatorStepsInitializationGenerator.Instance.Generate(Z80GeneratorContext);
 
         result.Contains($"new(default, 0, ActionRequired.None, &Overlap{overlapMethodIndex})", StringComparison.Ordinal).Should().BeTrue();
-        result.Contains($"new(&Step{prefixedNop.MethodIndex}, 0, ActionRequired.None, &Overlap{overlapMethodIndex})", StringComparison.Ordinal).Should().BeFalse();
+        result.Contains($"new(&Step{prefixedNopLayout.MethodIndex}, 0, ActionRequired.None, &Overlap{overlapMethodIndex})", StringComparison.Ordinal).Should().BeFalse();
     }
 }

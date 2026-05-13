@@ -31,7 +31,7 @@ internal static partial class GeneratedCodeFormatter
     private static partial Regex NewlineRegex();
 
     [Pure]
-    public static string Format(CompilationUnitSyntax compilationUnit)
+    internal static string Format(CompilationUnitSyntax compilationUnit)
     {
         using var workspace = new AdhocWorkspace();
 

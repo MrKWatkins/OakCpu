@@ -16,7 +16,7 @@ public abstract class FlagsGenerator
     [Pure]
     public static IEnumerable<StatementSyntax> GenerateFlagsStatements(StatementGeneratorContext context)
     {
-        if (context.Step?.Sequence is not Instruction instruction)
+        if (context.Step is not { } step || context.GeneratorContext.GetStepLayout(step).Sequence is not Instruction instruction)
         {
             throw new InvalidOperationException("Cannot use flags() outside of an instruction.");
         }

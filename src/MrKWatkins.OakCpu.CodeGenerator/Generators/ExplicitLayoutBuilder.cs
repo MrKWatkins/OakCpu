@@ -18,7 +18,7 @@ internal static class ExplicitLayoutBuilder
     /// Creates the common constructor statements that initialize the opcode table and object-backed facade properties.
     /// </summary>
     [Pure]
-    public static IEnumerable<StatementSyntax> CreateConstructorStatements(
+    internal static IEnumerable<StatementSyntax> CreateConstructorStatements(
         GeneratorContext context,
         IEnumerable<StatementSyntax> additionalStatements,
         params (string PropertyName, string TypeName)[] objectProperties)
@@ -44,7 +44,7 @@ internal static class ExplicitLayoutBuilder
     /// Creates a <c>StructLayout(LayoutKind.Explicit)</c> attribute and records the required using directive.
     /// </summary>
     [MustUseReturnValue]
-    public static AttributeSyntax CreateStructLayoutAttribute(FileGeneratorContext context)
+    internal static AttributeSyntax CreateStructLayoutAttribute(FileGeneratorContext context)
     {
         context.RequiredUsings.Add(typeof(LayoutKind));
 
@@ -63,7 +63,7 @@ internal static class ExplicitLayoutBuilder
     /// Creates a <c>FieldOffset</c> attribute for an explicitly laid out field and records the required using directive.
     /// </summary>
     [MustUseReturnValue]
-    public static AttributeSyntax CreateFieldOffsetAttribute(FileGeneratorContext context, int fieldOffset)
+    private static AttributeSyntax CreateFieldOffsetAttribute(FileGeneratorContext context, int fieldOffset)
     {
         context.RequiredUsings.Add(typeof(FieldOffsetAttribute));
 
@@ -81,14 +81,14 @@ internal static class ExplicitLayoutBuilder
     /// Creates an explicitly laid out field for a register.
     /// </summary>
     [MustUseReturnValue]
-    public static FieldDeclarationSyntax CreateRegisterField(FileGeneratorContext context, Register register) =>
+    internal static FieldDeclarationSyntax CreateRegisterField(FileGeneratorContext context, Register register) =>
         CreateOffsetField(context, register.Type.TypeSyntax(), register.FieldName, register.FieldOffset, Internal);
 
     /// <summary>
     /// Creates an explicitly laid out field declaration.
     /// </summary>
     [MustUseReturnValue]
-    public static FieldDeclarationSyntax CreateOffsetField(
+    internal static FieldDeclarationSyntax CreateOffsetField(
         FileGeneratorContext context,
         TypeSyntax type,
         string name,
@@ -118,7 +118,7 @@ internal static class ExplicitLayoutBuilder
     /// Creates a get-only property backed by a field-targeted <c>FieldOffset</c> attribute.
     /// </summary>
     [MustUseReturnValue]
-    public static PropertyDeclarationSyntax CreateGetOnlyPropertyWithFieldOffset(FileGeneratorContext context, string typeName, string propertyName, int fieldOffset)
+    internal static PropertyDeclarationSyntax CreateGetOnlyPropertyWithFieldOffset(FileGeneratorContext context, string typeName, string propertyName, int fieldOffset)
     {
         var attributeList = AttributeList(SingletonSeparatedList(CreateFieldOffsetAttribute(context, fieldOffset)))
             .WithTarget(AttributeTargetSpecifier(Token(SyntaxKind.FieldKeyword)));
@@ -133,7 +133,7 @@ internal static class ExplicitLayoutBuilder
     /// Creates a property that exposes a data member field through aggressive-inlined accessors.
     /// </summary>
     [MustUseReturnValue]
-    public static PropertyDeclarationSyntax CreateDataMemberProperty(FileGeneratorContext context, DataMember member)
+    internal static PropertyDeclarationSyntax CreateDataMemberProperty(FileGeneratorContext context, DataMember member)
     {
         var fieldAccessExpression = IdentifierName(member.FieldName);
 
@@ -167,7 +167,7 @@ internal static class ExplicitLayoutBuilder
     /// Calculates the first aligned offset after the register block where object-backed properties can be placed.
     /// </summary>
     [Pure]
-    public static int GetObjectPropertiesFieldOffset(GeneratorContext context)
+    internal static int GetObjectPropertiesFieldOffset(GeneratorContext context)
     {
         var lastRegister = context.Configuration.Registers.Values.OrderByDescending(r => r.FieldOffset).First();
         var nextFieldOffset = lastRegister.FieldOffset + lastRegister.Type.Size();
@@ -179,7 +179,7 @@ internal static class ExplicitLayoutBuilder
     /// Gets the XML documentation summary for one of the generated object-backed facade properties.
     /// </summary>
     [Pure]
-    public static string GetObjectPropertySummary(GeneratorContext context, string propertyName) => propertyName switch
+    internal static string GetObjectPropertySummary(GeneratorContext context, string propertyName) => propertyName switch
     {
         Property.Name.Registers => $"Gets the {context.Cpu.Name} registers.",
         Property.Name.Flags => $"Gets the {context.Cpu.Name} flags.",

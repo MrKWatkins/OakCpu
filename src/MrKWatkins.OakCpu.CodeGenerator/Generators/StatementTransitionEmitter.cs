@@ -16,7 +16,7 @@ internal static class StatementTransitionEmitter
     private const string SelectedStepVariableName = "selectedStep";
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateMoveToSequence(StatementGeneratorContext context, Call call)
+    internal static IEnumerable<StatementSyntax> GenerateMoveToSequence(StatementGeneratorContext context, Call call)
     {
         if (call.Arguments.Count != 1)
         {
@@ -29,13 +29,13 @@ internal static class StatementTransitionEmitter
     }
 
     [MustUseReturnValue]
-    public static IEnumerable<StatementSyntax> GenerateMoveToInterruptMode(StatementGeneratorContext context, Call call) =>
+    internal static IEnumerable<StatementSyntax> GenerateMoveToInterruptMode(StatementGeneratorContext context, Call call) =>
         call.Arguments.Count == 1
             ? GenerateMoveToSequenceGroup(context, context.GeneratorContext.GetSequenceGroup(InterruptMode.SequenceGroupName), call.Arguments[0])
             : throw new InvalidOperationException($"Calls to {PreDefinedFunction.MoveToInterruptMode} must have exactly one argument.");
 
     [MustUseReturnValue]
-    public static IEnumerable<StatementSyntax> GenerateMoveToSequenceGroup(StatementGeneratorContext context, Call call)
+    internal static IEnumerable<StatementSyntax> GenerateMoveToSequenceGroup(StatementGeneratorContext context, Call call)
     {
         if (call.Arguments.Count != 2)
         {
@@ -48,7 +48,7 @@ internal static class StatementTransitionEmitter
     }
 
     [MustUseReturnValue]
-    public static IEnumerable<StatementSyntax> GenerateMoveToOpcode(StatementGeneratorContext context)
+    internal static IEnumerable<StatementSyntax> GenerateMoveToOpcode(StatementGeneratorContext context)
     {
         var opcodeStep = CreateArrayGetWithoutBoundsCheck(
             context.RequiredUsings,
@@ -68,24 +68,24 @@ internal static class StatementTransitionEmitter
     }
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateMoveToSequenceStart(StepSequence sequence)
+    internal static IEnumerable<StatementSyntax> GenerateMoveToSequenceStart(GeneratorContext context, StepSequence sequence)
     {
-        yield return CreateSetStep(sequence.FirstStep);
+        yield return CreateSetStep(context, sequence.FirstStep);
     }
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateExecuteSequenceOnStart(StepSequence sequence, string comment)
+    internal static IEnumerable<StatementSyntax> GenerateExecuteSequenceOnStart(GeneratorContext context, StepSequence sequence, string comment)
     {
-        yield return GenerateCallStep(sequence.FirstStep)
+        yield return GenerateCallStep(context, sequence.FirstStep)
             .WithLeadingTrivia(Comment($"// {comment}"));
     }
 
     [Pure]
-    public static ExpressionStatementSyntax GenerateQueueOverlap(GeneratorContext context, Step step) =>
+    internal static ExpressionStatementSyntax GenerateQueueOverlap(GeneratorContext context, Step step) =>
         GenerateQueueOverlap(PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(Method.Name.Overlap(context, step))));
 
     [Pure]
-    public static ExpressionStatementSyntax GenerateQueueOverlap(ExpressionSyntax overlap) =>
+    private static ExpressionStatementSyntax GenerateQueueOverlap(ExpressionSyntax overlap) =>
         ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
@@ -93,13 +93,13 @@ internal static class StatementTransitionEmitter
                 overlap));
 
     [Pure]
-    public static ExpressionStatementSyntax GenerateExecuteOverlap() =>
+    internal static ExpressionStatementSyntax GenerateExecuteOverlap() =>
         ExpressionStatement(
             InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(Parameter.Name.Emulator), IdentifierName(Method.Name.ExecuteOverlap)))
                 .WithArgumentList(ArgumentList()));
 
     [Pure]
-    public static ExpressionStatementSyntax GenerateSetOpcodeStepTable(OpcodeStepTable opcodeStepTable) =>
+    internal static ExpressionStatementSyntax GenerateSetOpcodeStepTable(OpcodeStepTable opcodeStepTable) =>
         ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
@@ -107,7 +107,7 @@ internal static class StatementTransitionEmitter
                 IdentifierName(opcodeStepTable.FieldName)));
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateSetOpcodeStepTable(StatementGeneratorContext context, Call callStatementCall)
+    internal static IEnumerable<StatementSyntax> GenerateSetOpcodeStepTable(StatementGeneratorContext context, Call callStatementCall)
     {
         if (callStatementCall.Arguments.Count == 0)
         {
@@ -146,7 +146,7 @@ internal static class StatementTransitionEmitter
         {
             SequenceTransitionTarget.NextInstruction => [CreateSetNextInstruction(context, index)],
             SequenceTransitionTarget.NextSequence => [CreateSetNextSequence(index)],
-            _ => GenerateMoveToSequenceStart(sequence)
+            _ => GenerateMoveToSequenceStart(context.GeneratorContext, sequence)
         };
     }
 
@@ -214,9 +214,9 @@ internal static class StatementTransitionEmitter
     }
 
     [Pure]
-    private static ExpressionStatementSyntax GenerateCallStep(Step step) =>
+    private static ExpressionStatementSyntax GenerateCallStep(GeneratorContext context, Step step) =>
         ExpressionStatement(
-            InvocationExpression(IdentifierName(Method.Name.Step(step)))
+            InvocationExpression(IdentifierName(Method.Name.Step(context, step)))
                 .WithArgumentList(
                     ArgumentList(
                     [
@@ -257,7 +257,7 @@ internal static class StatementTransitionEmitter
                 index));
 
     [Pure]
-    internal static ExpressionStatementSyntax CreateSetStep(Step step) => CreateSetStep(GenerateNumericLiteralExpression(step.Index));
+    internal static ExpressionStatementSyntax CreateSetStep(GeneratorContext context, Step step) => CreateSetStep(GenerateNumericLiteralExpression(context.GetStepLayout(step).Index));
 
     [Pure]
     internal static ExpressionStatementSyntax CreateSetStep(ExpressionSyntax value) =>

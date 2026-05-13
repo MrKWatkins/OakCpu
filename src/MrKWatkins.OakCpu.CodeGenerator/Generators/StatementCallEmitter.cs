@@ -26,7 +26,7 @@ internal static class StatementCallEmitter
         };
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateCall(StatementGeneratorContext context, CallStatement callStatement)
+    internal static IEnumerable<StatementSyntax> GenerateCall(StatementGeneratorContext context, CallStatement callStatement)
     {
         if (context.Mode.SkipHandleInterruptsCall && callStatement.Call.Function == PreDefinedFunction.HandleInterrupts)
         {

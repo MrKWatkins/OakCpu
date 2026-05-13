@@ -189,18 +189,13 @@ public sealed class CommonSyntaxTests
     }
 
     [Test]
-    public void GenerateBinaryLiteral()
-    {
-        var result = CommonSyntax.GenerateBinaryLiteral(42);
-        result.Text.Should().Equal("0b00101010");
-        result.Value.Should().Equal(42);
-    }
-
-    [Test]
-    public void GenerateBinaryLiteralExpression()
+    public void GenerateBinaryLiteralExpression_UsesBinaryTokenText()
     {
         var result = CommonSyntax.GenerateBinaryLiteralExpression(42);
+
         result.ToNormalizedString().Should().Equal("0b00101010");
+        result.Token.Text.Should().Equal("0b00101010");
+        result.Token.Value.Should().Equal(42);
     }
 
     [Test]

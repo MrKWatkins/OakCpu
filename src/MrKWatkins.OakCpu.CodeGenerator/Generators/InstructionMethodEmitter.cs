@@ -16,7 +16,7 @@ internal static class InstructionMethodEmitter
     private const ushort NoNextInstructionValue = ushort.MaxValue;
 
     [Pure]
-    public static MemberDeclarationSyntax CreateMethod(GeneratorContext context, InstructionMethodPlan plan)
+    internal static MemberDeclarationSyntax CreateMethod(GeneratorContext context, InstructionMethodPlan plan)
     {
         var statements = plan.Steps.Count == 0
             ? CreateEmptyBodyStatements(context, plan)

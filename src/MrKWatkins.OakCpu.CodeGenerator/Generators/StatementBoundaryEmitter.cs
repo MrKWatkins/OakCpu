@@ -13,7 +13,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 internal static class StatementBoundaryEmitter
 {
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateHandled(StatementGeneratorContext context)
+    internal static IEnumerable<StatementSyntax> GenerateHandled(StatementGeneratorContext context)
     {
         if (context.Step != null)
         {
@@ -33,13 +33,13 @@ internal static class StatementBoundaryEmitter
     }
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateHandleInterrupts(StatementGeneratorContext context) =>
+    internal static IEnumerable<StatementSyntax> GenerateHandleInterrupts(StatementGeneratorContext context) =>
         context.Mode is StatementGenerationMode.InstructionCompletionMode
             ? [CreateHandleInterruptsStatement()]
             : [GenerateHandleInterruptsAndReturnIfHandled(context)];
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateInstructionComplete(StatementGeneratorContext context) =>
+    internal static IEnumerable<StatementSyntax> GenerateInstructionComplete(StatementGeneratorContext context) =>
         context.Mode switch
         {
             StatementGenerationMode.InstructionStepMode => GenerateCompleteInstructionAndReturn(context),
@@ -48,9 +48,9 @@ internal static class StatementBoundaryEmitter
         };
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateBoundaryStatements(StatementGeneratorContext context)
+    internal static IEnumerable<StatementSyntax> GenerateBoundaryStatements(StatementGeneratorContext context)
     {
-        if (context.Step is not { QueuesOverlapStep: true } step)
+        if (context.Step is not { } step || !context.GeneratorContext.GetStepLayout(step).QueuesOverlapStep)
         {
             return [];
         }
@@ -63,14 +63,14 @@ internal static class StatementBoundaryEmitter
             ],
             _ =>
             [
-                StatementTransitionEmitter.GenerateQueueOverlap(context.GeneratorContext, step.QueuedOverlapStep).WithLeadingTrivia(Comment("// Queue overlap step.")),
+                StatementTransitionEmitter.GenerateQueueOverlap(context.GeneratorContext, context.GeneratorContext.GetStepLayout(step).QueuedOverlapStep).WithLeadingTrivia(Comment("// Queue overlap step.")),
                 GenerateHandleInterruptsAndReturnIfHandled(context).WithLeadingTrivia(Comment("// Check interrupts at the instruction boundary."))
             ]
         };
     }
 
     [Pure]
-    public static IfStatementSyntax GenerateHandleInterruptsAndReturnIfHandled(StatementGeneratorContext context) =>
+    internal static IfStatementSyntax GenerateHandleInterruptsAndReturnIfHandled(StatementGeneratorContext context) =>
         context.Mode switch
         {
             StatementGenerationMode.InstructionStepMode => GenerateInstructionStepHandleInterruptsAndReturnIfHandled(context),
@@ -107,7 +107,7 @@ internal static class StatementBoundaryEmitter
 
     [Pure]
     private static LiteralExpressionSyntax GenerateInstructionUpdatesFlagsLiteralExpression(StatementGeneratorContext context) =>
-        context.Step?.Sequence is Instruction instruction
+        context.Step is { } step && context.GeneratorContext.GetStepLayout(step).Sequence is Instruction instruction
             ? LiteralExpression(instruction.UpdatesFlags ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression)
             : throw new InvalidOperationException("Instruction completion can only be generated inside an instruction.");
 
@@ -125,14 +125,14 @@ internal static class StatementBoundaryEmitter
             yield return statement;
         }
 
-        yield return StatementTransitionEmitter.CreateSetStep(context.GeneratorContext.OpcodeRead.FirstStep).WithLeadingTrivia(Comment("// Finish instruction."));
+        yield return StatementTransitionEmitter.CreateSetStep(context.GeneratorContext, context.GeneratorContext.OpcodeRead.FirstStep).WithLeadingTrivia(Comment("// Finish instruction."));
     }
 
     [Pure]
     private static IfStatementSyntax GenerateInstructionStepHandleInterruptsAndReturnIfHandled(StatementGeneratorContext context)
     {
         var instructionStep = context.RequiredInstructionStep;
-        if (context.Step?.Sequence is not Instruction)
+        if (context.Step is not { } step || context.GeneratorContext.GetStepLayout(step).Sequence is not Instruction)
         {
             return IfStatement(
                 InvocationExpression(IdentifierName(Method.Name.HandleInterrupts))

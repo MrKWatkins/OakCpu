@@ -130,7 +130,7 @@ public abstract class ExpressionGenerator
             return IdentifierName(parameterName);
         }
 
-        if (context.Step?.Sequence is not Instruction instruction)
+        if (context.Step is not { } step || context.GeneratorContext.GetStepLayout(step).Sequence is not Instruction instruction)
         {
             throw new InvalidOperationException("Cannot use flags() outside of an instruction.");
         }

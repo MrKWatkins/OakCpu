@@ -26,7 +26,11 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     protected override ClassDeclarationSyntax PopulateClass(FileGeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration
             .AddMembers(CreateStepMethod(context), CreateErrorFunction(context))
-            .AddMembers(context.GeneratorContext.FunctionSteps.Where(s => s is { DoesNothing: false, ExecutesAsOverlapOnly: false }).Select(step => CreateStepMethod(context, step)).ToArray());
+            .AddMembers(context.GeneratorContext.FunctionSteps.Where(step =>
+            {
+                var stepLayout = context.GeneratorContext.GetStepLayout(step);
+                return stepLayout is { DoesNothing: false, ExecutesAsOverlapOnly: false };
+            }).Select(step => CreateStepMethod(context, step)).ToArray());
 
     [Pure]
     private static MemberDeclarationSyntax CreateErrorFunction(FileGeneratorContext context)
@@ -44,9 +48,9 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     {
         var statements = StatementGenerator.GenerateStatements(context, step);
 
-        var comments = step.ImplementationAndDuplicates.Select(s => Comment($"// {s.Name}"));
+        var comments = context.GeneratorContext.GetStepLayout(step).ImplementationAndDuplicates.Select(s => Comment($"// {s.Name}"));
 
-        var function = CreateFunction(context, Method.Name.Step(step), statements);
+        var function = CreateFunction(context, Method.Name.Step(context.GeneratorContext, step), statements);
 
         // Aggressively inline step 0 as it is called for overlapped reads.
         function = step == context.GeneratorContext.OpcodeRead.FirstStep

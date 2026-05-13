@@ -9,37 +9,35 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Actions;
 
 internal sealed class BitExtractExpression : FlagAction
 {
+    private readonly Expression expression;
+    private readonly int extractedBitIndex;
+    private readonly Expression originalExpression;
+
     internal BitExtractExpression(Flag flag, Expression originalExpression, Expression expression, int extractedBitIndex)
         : base(flag)
     {
-        OriginalExpression = originalExpression;
-        Expression = expression;
-        ExtractedBitIndex = extractedBitIndex;
+        this.originalExpression = originalExpression;
+        this.expression = expression;
+        this.extractedBitIndex = extractedBitIndex;
     }
-
-    public Expression OriginalExpression { get; }
-
-    public Expression Expression { get; }
-
-    public int ExtractedBitIndex { get; }
 
     internal override int Order => 2;
 
     internal override ExpressionSyntax GenerateExpression(StatementGeneratorContext context)
     {
-        var expression = ExpressionGenerator.GenerateExpressionSyntax(context, Expression);
-        if (ExtractedBitIndex != 0)
+        var generatedExpression = ExpressionGenerator.GenerateExpressionSyntax(context, expression);
+        if (extractedBitIndex != 0)
         {
-            expression = BinaryExpression(SyntaxKind.RightShiftExpression, ParenthesizedExpression(expression), GenerateNumericLiteralExpression(ExtractedBitIndex));
+            generatedExpression = BinaryExpression(SyntaxKind.RightShiftExpression, ParenthesizedExpression(generatedExpression), GenerateNumericLiteralExpression(extractedBitIndex));
         }
 
-        expression = BinaryExpression(SyntaxKind.BitwiseAndExpression, ParenthesizedExpression(expression), GenerateNumericLiteralExpression(0x01));
+        generatedExpression = BinaryExpression(SyntaxKind.BitwiseAndExpression, ParenthesizedExpression(generatedExpression), GenerateNumericLiteralExpression(0x01));
 
         var shift = Flags[0].Index;
         return shift != 0
-            ? BinaryExpression(SyntaxKind.LeftShiftExpression, ParenthesizedExpression(expression), GenerateNumericLiteralExpression(shift))
-            : expression;
+            ? BinaryExpression(SyntaxKind.LeftShiftExpression, ParenthesizedExpression(generatedExpression), GenerateNumericLiteralExpression(shift))
+            : generatedExpression;
     }
 
-    internal override string GenerateComment() => $"// Set {FlagsNames(Flags)} if {OriginalExpression} is true.";
+    internal override string GenerateComment() => $"// Set {FlagsNames(Flags)} if {originalExpression} is true.";
 }

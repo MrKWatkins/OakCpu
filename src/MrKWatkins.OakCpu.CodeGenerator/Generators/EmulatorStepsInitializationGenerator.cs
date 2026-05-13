@@ -1,7 +1,6 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
-using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
@@ -25,12 +24,12 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
         var generatorContext = context.GeneratorContext;
         var members = new List<MemberDeclarationSyntax>
         {
-            CreateSequenceStartConstant("OpcodeRead", generatorContext.OpcodeRead),
-            CreateSequenceStartConstant("Halted", generatorContext.Interrupts.Halted)
+            CreateSequenceStartConstant(generatorContext, "OpcodeRead", generatorContext.OpcodeRead),
+            CreateSequenceStartConstant(generatorContext, "Halted", generatorContext.Interrupts.Halted)
         };
         members.AddRange(generatorContext.GetSequenceGroup(InterruptMode.SequenceGroupName).Members
             .OrderBy(mode => mode.Key)
-            .Select(mode => CreateSequenceStartConstant($"IM{mode.Key}", mode.Value)));
+            .Select(mode => CreateSequenceStartConstant(generatorContext, $"IM{mode.Key}", mode.Value)));
 
         members.AddRange(
         [
@@ -45,12 +44,12 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     }
 
     [Pure]
-    private static MemberDeclarationSyntax CreateSequenceStartConstant(string name, StepSequence sequence) =>
+    private static MemberDeclarationSyntax CreateSequenceStartConstant(GeneratorContext context, string name, StepSequence sequence) =>
         FieldDeclaration(
                 VariableDeclaration(UShortType)
                     .WithVariables(
                     [
-                        VariableDeclarator($"{name}Step0").WithInitializer(EqualsValueClause(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(sequence.FirstStep.Index))))
+                        VariableDeclarator($"{name}Step0").WithInitializer(EqualsValueClause(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(context.GetStepLayout(sequence.FirstStep).Index))))
                     ]))
             .WithModifiers([Private, Token(SyntaxKind.ConstKeyword)]);
 
@@ -113,38 +112,23 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     [Pure]
     private static ImplicitObjectCreationExpressionSyntax CreateStep(FileGeneratorContext context, Step step)
     {
-        ExpressionSyntax handler = step.DoesNothing || step.ExecutesAsOverlapOnly
+        var generatorContext = context.GeneratorContext;
+        var stepLayout = generatorContext.GetStepLayout(step);
+
+        ExpressionSyntax handler = stepLayout.DoesNothing || stepLayout.ExecutesAsOverlapOnly
             ? LiteralExpression(SyntaxKind.DefaultLiteralExpression)
-            : PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(Method.Name.Step(step)));
+            : PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(Method.Name.Step(generatorContext, step)));
 
-        var nextStep = step.NextOpcode switch
-        {
-            NextOpcodeMode.Read => 0,
-            NextOpcodeMode.Overlapped when step.Sequence is PrefixJump => context.GeneratorContext.OpcodeRead.Steps[1].Index,
-            NextOpcodeMode.Overlapped => GetOverlappedNextStep(context, step.Sequence),
-            NextOpcodeMode.Custom => context.GeneratorContext.ErrorStepIndex,
-            NextOpcodeMode.Loop => step.Sequence.FirstStep.Index,
-            null when step.QueuesOverlapStep => context.GeneratorContext.OpcodeRead.FirstStep.Index,
-            null => step.Index + 1,
-            _ => throw new NotSupportedException($"The {nameof(NextOpcodeMode)} {step.NextOpcode} is not supported.")
-        };
+        var nextStep = StepMetadata.GetNextStep(generatorContext, step);
 
-        ExpressionSyntax overlap = step.ExecutesAsOverlapOnly
+        ExpressionSyntax overlap = stepLayout.ExecutesAsOverlapOnly
             ? PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(Method.Name.Overlap(context, step)))
             : LiteralExpression(SyntaxKind.DefaultLiteralExpression);
 
-        var action = step is { NextOpcode: NextOpcodeMode.Overlapped, Sequence: PrefixJump }
-            ? context.GeneratorContext.OpcodeRead.FirstStep.RequiredAction
-            : step.RequiredAction;
+        var action = StepMetadata.GetAction(generatorContext, step);
 
         return CreateStepCreation(handler, nextStep, action, overlap);
     }
-
-    [Pure]
-    private static int GetOverlappedNextStep(GeneratorContext context, StepSequence sequence) =>
-        sequence.OverlappedSequenceName == null
-            ? context.OpcodeRead.FirstStep.Index
-            : context.GetSequence(sequence.OverlappedSequenceName).FirstStep.Index;
 
     [Pure]
     private static ImplicitObjectCreationExpressionSyntax CreateStepCreation(ExpressionSyntax handler, int nextStep, Action action, ExpressionSyntax overlap) =>
@@ -164,7 +148,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
 
     [Pure]
     private static ExpressionSyntax CreateOverlap(FileGeneratorContext context, Step step) =>
-        step.DoesNothing
+        context.GeneratorContext.GetStepLayout(step).DoesNothing
             ? LiteralExpression(SyntaxKind.DefaultLiteralExpression)
             : PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(Method.Name.Overlap(context, step)));
 
@@ -195,18 +179,18 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
         {
             foreach (var prefixJump in context.GeneratorContext.PrefixJumps.Values)
             {
-                stepIndices[prefixJump.Prefix] = prefixJump.FirstStep.Index;
+                stepIndices[prefixJump.Prefix] = context.GeneratorContext.GetStepLayout(prefixJump.FirstStep).Index;
             }
         }
 
         foreach (var instruction in instructions)
         {
-            stepIndices[instruction.Opcode] = instruction.FirstStep.Index;
+            stepIndices[instruction.Opcode] = context.GeneratorContext.GetStepLayout(instruction.FirstStep).Index;
         }
 
         foreach (var duplicate in duplicates)
         {
-            stepIndices[duplicate.Opcode] = duplicate.Step.Index;
+            stepIndices[duplicate.Opcode] = context.GeneratorContext.GetStepLayout(duplicate.Step).Index;
         }
 
         var literals = stepIndices.Select(index => ExpressionElement(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(index))));
@@ -228,7 +212,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
 
         foreach (var member in sequenceGroup.Members)
         {
-            stepIndices[member.Key] = member.Value.FirstStep.Index;
+            stepIndices[member.Key] = context.GeneratorContext.GetStepLayout(member.Value.FirstStep).Index;
         }
 
         var literals = stepIndices.Select(index => ExpressionElement(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(index))));

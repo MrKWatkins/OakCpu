@@ -2,20 +2,33 @@ using System.ComponentModel;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
+/// <summary>
+/// Finalizes parsed <see cref="Step" /> instances into immutable layout data used by code generation.
+/// </summary>
 internal static class StepFinalizer
 {
-    public static IReadOnlyList<Step> Finalize(IReadOnlyList<Step> steps)
+    /// <summary>
+    /// Builds the finalized layout data for the supplied steps.
+    /// </summary>
+    /// <param name="steps">The parsed steps in their final execution order.</param>
+    /// <param name="stepSequences">The owning sequence for each parsed step.</param>
+    /// <returns>The finalized step layouts and the subset of steps that need generated handler methods.</returns>
+    [Pure]
+    internal static StepLayoutState Finalize(IReadOnlyList<Step> steps, IReadOnlyDictionary<Step, StepSequence> stepSequences)
     {
-        AssignIndices(steps);
-
-        var functionSteps = MapDuplicates(steps).ToList();
-        AssignMethodIndices(functionSteps);
-        return functionSteps;
+        var indices = AssignIndices(steps);
+        var duplicateGroups = MapDuplicates(steps, stepSequences).ToList();
+        var methodIndices = AssignMethodIndices(duplicateGroups, stepSequences);
+        var layouts = CreateLayouts(stepSequences, indices, methodIndices, duplicateGroups);
+        var functionSteps = duplicateGroups.Select(group => group.Implementation).ToList();
+        return new StepLayoutState(layouts, functionSteps);
     }
 
-    private static void AssignIndices(IEnumerable<Step> steps)
+    [Pure]
+    private static IReadOnlyDictionary<Step, ushort> AssignIndices(IEnumerable<Step> steps)
     {
         var index = 0;
+        var indices = new Dictionary<Step, ushort>();
         foreach (var step in steps)
         {
             if (index > ushort.MaxValue)
@@ -23,47 +36,67 @@ internal static class StepFinalizer
                 throw new InvalidAsynchronousStateException("Too many steps; will need to change to int.");
             }
 
-            step.AssignIndex((ushort)index++);
+            indices.Add(step, (ushort)index++);
         }
+
+        return indices;
     }
 
-    private static void AssignMethodIndices(IEnumerable<Step> steps)
+    [Pure]
+    private static IReadOnlyDictionary<Step, ushort?> AssignMethodIndices(IEnumerable<DuplicateGroup> groups, IReadOnlyDictionary<Step, StepSequence> stepSequences)
     {
         var index = 0;
-        foreach (var step in steps)
+        var methodIndices = new Dictionary<Step, ushort?>();
+        foreach (var group in groups)
         {
-            if (step.DoesNothing)
+            if (StepLayout.GetDoesNothing(group.Implementation, stepSequences[group.Implementation]))
             {
-                step.AssignMethodIndex(null);
-                foreach (var duplicate in step.Duplicates)
+                foreach (var step in group.ImplementationAndDuplicates)
                 {
-                    duplicate.AssignMethodIndex(null);
+                    methodIndices.Add(step, null);
                 }
                 continue;
             }
 
             var methodIndex = (ushort)index++;
-            step.AssignMethodIndex(methodIndex);
-            foreach (var duplicate in step.Duplicates)
+            foreach (var step in group.ImplementationAndDuplicates)
             {
-                duplicate.AssignMethodIndex(methodIndex);
+                methodIndices.Add(step, methodIndex);
             }
         }
+
+        return methodIndices;
     }
 
-    private static IEnumerable<Step> MapDuplicates(IEnumerable<Step> steps)
-    {
-        foreach (var group in steps.GroupBy(step => step, StepDuplicateEqualityComparer.Instance))
-        {
-            var step = group.First();
-            step.SetImplementation(step);
-            foreach (var duplicate in group.Skip(1))
+    [Pure]
+    private static IReadOnlyDictionary<Step, StepLayout> CreateLayouts(
+        IReadOnlyDictionary<Step, StepSequence> stepSequences,
+        IReadOnlyDictionary<Step, ushort> indices,
+        IReadOnlyDictionary<Step, ushort?> methodIndices,
+        IReadOnlyList<DuplicateGroup> duplicateGroups) =>
+        duplicateGroups
+            .SelectMany(group =>
             {
-                step.AddDuplicate(duplicate);
-                duplicate.SetImplementation(step);
-            }
+                var duplicates = group.ImplementationAndDuplicates.Skip(1).ToList();
 
-            yield return step;
-        }
-    }
+                return group.ImplementationAndDuplicates.Select(step => new KeyValuePair<Step, StepLayout>(
+                    step,
+                    new StepLayout(
+                        step,
+                        stepSequences[step],
+                        indices[step],
+                        methodIndices[step],
+                        group.Implementation,
+                        step == group.Implementation ? duplicates : [],
+                        group.ImplementationAndDuplicates)));
+            })
+            .ToDictionary();
+
+    [Pure]
+    private static IEnumerable<DuplicateGroup> MapDuplicates(IEnumerable<Step> steps, IReadOnlyDictionary<Step, StepSequence> stepSequences) =>
+        steps.GroupBy(step => step, new StepDuplicateEqualityComparer(stepSequences))
+            .Select(group => group.ToList())
+            .Select(implementationAndDuplicates => new DuplicateGroup(implementationAndDuplicates[0], implementationAndDuplicates));
+
+    private sealed record DuplicateGroup(Step Implementation, IReadOnlyList<Step> ImplementationAndDuplicates);
 }

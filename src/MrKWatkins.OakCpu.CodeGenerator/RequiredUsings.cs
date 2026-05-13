@@ -7,17 +7,17 @@ internal sealed class RequiredUsings
 {
     private readonly HashSet<string> namespaces = new(StringComparer.Ordinal);
 
-    public int Count => namespaces.Count;
+    internal int Count => namespaces.Count;
 
-    public void Add(string @namespace) => namespaces.Add(@namespace);
+    internal void Add(string @namespace) => namespaces.Add(@namespace);
 
-    public void Add(Type type) => Add(type.Namespace!);
-
-    [Pure]
-    public bool Contains(string @namespace) => namespaces.Contains(@namespace);
+    internal void Add(Type type) => Add(type.Namespace!);
 
     [Pure]
-    public IReadOnlyList<UsingDirectiveSyntax> CreateUsingDirectives() => namespaces
+    internal bool Contains(string @namespace) => namespaces.Contains(@namespace);
+
+    [Pure]
+    internal IReadOnlyList<UsingDirectiveSyntax> CreateUsingDirectives() => namespaces
         .OrderBy(@namespace => @namespace, StringComparer.Ordinal)
         .Select(@namespace => UsingDirective(ParseName(@namespace)))
         .ToList();

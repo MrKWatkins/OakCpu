@@ -98,7 +98,7 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
 
         foreach (var duplicate in duplicates)
         {
-            stepIndices[duplicate.Opcode] = context.GeneratorContext.GetInstructionEmulatorSequenceIndex(duplicate.Step.Sequence);
+            stepIndices[duplicate.Opcode] = context.GeneratorContext.GetInstructionEmulatorSequenceIndex(context.GeneratorContext.GetStepLayout(duplicate.Step).Sequence);
         }
 
         return ExpressionStatement(

@@ -10,7 +10,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 internal static class StatementAssignmentEmitter
 {
     [MustUseReturnValue]
-    public static IEnumerable<StatementSyntax> GenerateTemporaryVariableDeclaration(StatementGeneratorContext context, TemporaryVariable temporaryVariable)
+    internal static IEnumerable<StatementSyntax> GenerateTemporaryVariableDeclaration(StatementGeneratorContext context, TemporaryVariable temporaryVariable)
     {
         if (!context.InitializedTemporaryVariables.Add(temporaryVariable.Name))
         {
@@ -22,7 +22,7 @@ internal static class StatementAssignmentEmitter
     }
 
     [MustUseReturnValue]
-    public static IEnumerable<StatementSyntax> GenerateAssignment(StatementGeneratorContext context, Assignment assignment)
+    internal static IEnumerable<StatementSyntax> GenerateAssignment(StatementGeneratorContext context, Assignment assignment)
     {
         if (assignment.Target == assignment.Value)
         {
@@ -71,7 +71,7 @@ internal static class StatementAssignmentEmitter
     }
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateIf(StatementGeneratorContext context, IfStatement ifStatement)
+    internal static IEnumerable<StatementSyntax> GenerateIf(StatementGeneratorContext context, IfStatement ifStatement)
     {
         var condition = ExpressionGenerator.GenerateExpressionSyntax(context.WithBooleanContext(), ifStatement.Condition);
 

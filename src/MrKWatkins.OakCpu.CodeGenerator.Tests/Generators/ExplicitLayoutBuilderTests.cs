@@ -17,14 +17,14 @@ public sealed class ExplicitLayoutBuilderTests : TestFixture
     }
 
     [Test]
-    public void CreateFieldOffsetAttribute()
+    public void CreateOffsetField_AddsFieldOffsetAttribute()
     {
         var context = CreateZ80FileGeneratorContext();
 
-        var result = ExplicitLayoutBuilder.CreateFieldOffsetAttribute(context, 42);
+        var result = ExplicitLayoutBuilder.CreateOffsetField(context, CommonSyntax.ByteType, "value", 42, CommonSyntax.Private);
 
         context.RequiredUsings.Contains("System.Runtime.InteropServices").Should().BeTrue();
-        result.ToNormalizedString().Should().Equal("FieldOffset(42)");
+        result.ToNormalizedString().Should().Contain("[FieldOffset(42)]");
     }
 
     [Test]

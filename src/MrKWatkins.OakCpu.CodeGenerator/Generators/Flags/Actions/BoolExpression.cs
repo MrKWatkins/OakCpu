@@ -9,6 +9,8 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Actions;
 
 internal sealed class BoolExpression : FlagAction
 {
+    private readonly Expression originalExpression;
+
     private BoolExpression(Flag flag, Expression expression, bool bitCastFromBoolToByte)
         : this([flag], expression, expression, flag.Index, bitCastFromBoolToByte)
     {
@@ -17,24 +19,22 @@ internal sealed class BoolExpression : FlagAction
     private BoolExpression(IReadOnlyList<Flag> flags, Expression originalExpression, Expression expression, int shift, bool bitCastFromBoolToByte)
         : base(flags)
     {
-        OriginalExpression = originalExpression;
+        this.originalExpression = originalExpression;
         Expression = expression;
         Shift = shift;
         BitCastFromBoolToByte = bitCastFromBoolToByte;
     }
 
     internal BoolExpression(BoolExpression original, Expression expression, int shift)
-        : this(original.Flags, original.OriginalExpression, expression, shift, false)
+        : this(original.Flags, original.originalExpression, expression, shift, false)
     {
     }
 
-    public Expression OriginalExpression { get; }
+    internal Expression Expression { get; }
 
-    public Expression Expression { get; }
+    internal int Shift { get; }
 
-    public int Shift { get; }
-
-    public bool BitCastFromBoolToByte { get; }
+    internal bool BitCastFromBoolToByte { get; }
 
     internal override int Order => 2;
 
@@ -68,7 +68,7 @@ internal sealed class BoolExpression : FlagAction
             .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(value))));
     }
 
-    internal override string GenerateComment() => $"// Set {FlagsNames(Flags)} if {OriginalExpression} is true.";
+    internal override string GenerateComment() => $"// Set {FlagsNames(Flags)} if {originalExpression} is true.";
 
     [Pure]
     internal static FlagAction? CreateOrNull(Flag flag, Expression expression) => expression.Type switch

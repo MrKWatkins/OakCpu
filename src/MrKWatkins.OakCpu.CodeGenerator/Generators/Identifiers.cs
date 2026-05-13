@@ -203,10 +203,13 @@ internal static class Identifiers
             /// Gets the generated step handler method name.
             /// </summary>
             [Pure]
-            public static string Step(Step step) =>
-                step.MethodIndex != null
-                    ? $"{StepPrefix}{step.MethodIndex}"
-                    : throw new InvalidOperationException($"Step {step.Name} does not have a {nameof(step.MethodIndex)}.");
+            public static string Step(GeneratorContext context, Step step)
+            {
+                var methodIndex = context.GetStepLayout(step).MethodIndex;
+                return methodIndex != null
+                    ? $"{StepPrefix}{methodIndex}"
+                    : throw new InvalidOperationException($"Step {step.Name} does not have a method index.");
+            }
 
             /// <summary>
             /// Gets the generated overlap handler method name.

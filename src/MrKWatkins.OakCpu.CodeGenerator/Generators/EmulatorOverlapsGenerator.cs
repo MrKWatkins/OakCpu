@@ -44,7 +44,7 @@ public sealed class EmulatorOverlapsGenerator : EmulatorClassGenerator
             ]))
             .WithBody(Block(statements));
 
-        return step == context.GeneratorContext.OpcodeRead.FirstStep.Implementation
+        return step == context.GeneratorContext.GetStepLayout(context.GeneratorContext.OpcodeRead.FirstStep).Implementation
             ? function.WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(comments)])
             : function.WithLeadingTrivia(comments);
     }

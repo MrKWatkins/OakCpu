@@ -105,7 +105,7 @@ public sealed class SequenceSchemaTests : TestFixture
         context.Interrupts.Halted.Name.Should().Equal("halted");
         context.SequenceGroups.Should().ContainKey("interrupt_mode");
         context.SequenceGroups["interrupt_mode"].Members[0].Name.Should().Equal("interrupt_mode_0");
-        Assert.That(context.SequenceGroups["interrupt_mode"].Members[0].FirstStep.Index, Is.GreaterThan(context.OpcodeRead.FirstStep.Index));
+        Assert.That(context.GetStepLayout(context.SequenceGroups["interrupt_mode"].Members[0].FirstStep).Index, Is.GreaterThan(context.GetStepLayout(context.OpcodeRead.FirstStep).Index));
     }
 
     [Test]

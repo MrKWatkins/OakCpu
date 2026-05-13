@@ -58,7 +58,7 @@ public sealed class GeneratorContextTests : TestFixture
     }
 
     [Test]
-    public void Create_FinalizesStepState()
+    public void Create_FinalizesStepLayouts()
     {
         var context = GeneratorContext.Create("MrKWatkins.OakCpu.Z80", Z80Yaml);
 
@@ -66,10 +66,10 @@ public sealed class GeneratorContextTests : TestFixture
         {
             foreach (var step in context.AllSteps)
             {
-                _ = step.Sequence;
-                _ = step.Index;
-                _ = step.MethodIndex;
-                _ = step.Implementation;
+                _ = context.GetStepLayout(step).Sequence;
+                _ = context.GetStepLayout(step).Index;
+                _ = context.GetStepLayout(step).MethodIndex;
+                _ = context.GetStepLayout(step).Implementation;
             }
         }).Should().NotThrow();
     }

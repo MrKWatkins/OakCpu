@@ -11,11 +11,12 @@ public sealed class EmulatorStepsGeneratorTests : TestFixture
     public void Generate_DoesNotCreateNormalHandlerForOverlapOnlyPrefixedNop()
     {
         var prefixedNop = Z80GeneratorContext.Instructions.Single(i => i is { Prefix: 0xDD, Opcode: 0x00 }).Steps.Single();
+        var prefixedNopLayout = Z80GeneratorContext.GetStepLayout(prefixedNop);
 
         var result = EmulatorStepsGenerator.Instance.Generate(Z80GeneratorContext);
 
-        prefixedNop.ExecutesAsOverlapOnly.Should().BeTrue();
-        result.Contains($"private static void Step{prefixedNop.MethodIndex}", StringComparison.Ordinal).Should().BeFalse();
+        prefixedNopLayout.ExecutesAsOverlapOnly.Should().BeTrue();
+        result.Contains($"private static void Step{prefixedNopLayout.MethodIndex}", StringComparison.Ordinal).Should().BeFalse();
     }
 
     [Test]

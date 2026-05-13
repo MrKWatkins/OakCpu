@@ -10,14 +10,8 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 /// * If they are instructions, then whether they update flags or not must be equal.
 /// * If they are instructions, and if they update flags, then the flags implementations must also be equal.
 /// </summary>
-public sealed class StepDuplicateEqualityComparer : IEqualityComparer<Step>
+internal sealed class StepDuplicateEqualityComparer(IReadOnlyDictionary<Step, StepSequence> stepSequences) : IEqualityComparer<Step>
 {
-    public static readonly StepDuplicateEqualityComparer Instance = new();
-
-    private StepDuplicateEqualityComparer()
-    {
-    }
-
     public bool Equals(Step? x, Step? y)
     {
         if (ReferenceEquals(x, y))
@@ -40,33 +34,36 @@ public sealed class StepDuplicateEqualityComparer : IEqualityComparer<Step>
             return false;
         }
 
-        if (x.NextOpcode != y.NextOpcode)
+        var xSequence = GetSequence(x);
+        var ySequence = GetSequence(y);
+
+        if (StepLayout.GetNextOpcode(x, xSequence) != StepLayout.GetNextOpcode(y, ySequence))
         {
             return false;
         }
 
-        if (x.RequiresPrefixReset != y.RequiresPrefixReset)
+        if (StepLayout.GetRequiresPrefixReset(x, xSequence) != StepLayout.GetRequiresPrefixReset(y, ySequence))
         {
             return false;
         }
 
-        if (x.ExecutesStoredOverlapOnStart != y.ExecutesStoredOverlapOnStart)
+        if (StepLayout.GetExecutesStoredOverlapOnStart(x, xSequence) != StepLayout.GetExecutesStoredOverlapOnStart(y, ySequence))
         {
             return false;
         }
 
-        if (x.QueuesOverlapStep != y.QueuesOverlapStep)
+        if (StepLayout.GetQueuesOverlapStep(x, xSequence) != StepLayout.GetQueuesOverlapStep(y, ySequence))
         {
             return false;
         }
 
-        if (x.Sequence.OverlappedSequenceName != y.Sequence.OverlappedSequenceName)
+        if (xSequence.OverlappedSequenceName != ySequence.OverlappedSequenceName)
         {
             return false;
         }
 
-        var xIsInstruction = x.Sequence is Instruction;
-        var yIsInstruction = y.Sequence is Instruction;
+        var xIsInstruction = xSequence is Instruction;
+        var yIsInstruction = ySequence is Instruction;
         if (xIsInstruction != yIsInstruction)
         {
             return false;
@@ -78,8 +75,8 @@ public sealed class StepDuplicateEqualityComparer : IEqualityComparer<Step>
             return true;
         }
 
-        var instructionX = (Instruction)x.Sequence;
-        var instructionY = (Instruction)y.Sequence;
+        var instructionX = (Instruction)xSequence;
+        var instructionY = (Instruction)ySequence;
 
         if (instructionX.UpdatesFlags != instructionY.UpdatesFlags)
         {
@@ -104,13 +101,18 @@ public sealed class StepDuplicateEqualityComparer : IEqualityComparer<Step>
             hashCode.Add(StatementDuplicateEqualityComparer.Instance.GetHashCode(statement));
         }
 
-        hashCode.Add(obj.NextOpcode);
-        hashCode.Add(obj.RequiresPrefixReset);
-        hashCode.Add(obj.ExecutesStoredOverlapOnStart);
-        hashCode.Add(obj.QueuesOverlapStep);
-        hashCode.Add(obj.Sequence.OverlappedSequenceName);
-        hashCode.Add(obj.Sequence is Instruction);
+        var sequence = GetSequence(obj);
+
+        hashCode.Add(StepLayout.GetNextOpcode(obj, sequence));
+        hashCode.Add(StepLayout.GetRequiresPrefixReset(obj, sequence));
+        hashCode.Add(StepLayout.GetExecutesStoredOverlapOnStart(obj, sequence));
+        hashCode.Add(StepLayout.GetQueuesOverlapStep(obj, sequence));
+        hashCode.Add(sequence.OverlappedSequenceName);
+        hashCode.Add(sequence is Instruction);
 
         return hashCode.ToHashCode();
     }
+
+    [Pure]
+    private StepSequence GetSequence(Step step) => stepSequences.TryGetValue(step, out var sequence) ? sequence : throw new InvalidOperationException($"No sequence has been defined for step {step.Name}.");
 }

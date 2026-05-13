@@ -22,11 +22,6 @@ public abstract class StepSequence : IEnumerable<Step>
         NextOpcode = nextOpcode;
         ExecuteOverlapOnStart = executeOverlapOnStart;
         OverlappedSequenceName = overlappedSequenceName;
-
-        foreach (var step in steps)
-        {
-            step.AttachToSequence(this);
-        }
     }
 
     public string? Name { get; }

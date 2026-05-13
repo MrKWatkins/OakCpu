@@ -37,7 +37,7 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
         };
 
         members.AddRange(GetDispatchableSequences(context)
-            .Select(sequence => (Sequence: sequence, Steps: GetRegularSteps(sequence)))
+            .Select(sequence => (Sequence: sequence, Steps: GetRegularSteps(context.GeneratorContext, sequence)))
             .Select(x => CreateInstructionMethod(context, x.Sequence, x.Steps)));
 
         return classDeclaration.AddMembers(members.ToArray());
@@ -174,7 +174,7 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
     }
 
     [Pure]
-    private static IReadOnlyList<Step> GetRegularSteps(StepSequence sequence) => sequence.Steps.Where(step => !step.ExecutesAsOverlapOnly).ToList();
+    private static IReadOnlyList<Step> GetRegularSteps(GeneratorContext context, StepSequence sequence) => sequence.Steps.Where(step => !context.GetStepLayout(step).ExecutesAsOverlapOnly).ToList();
 
     [Pure]
     private static FieldDeclarationSyntax CreateDispatchConstants(GeneratorContext context)

@@ -9,74 +9,74 @@ namespace MrKWatkins.OakCpu.CodeGenerator;
 internal static class CommonSyntax
 {
     [Pure]
-    public static SyntaxToken Abstract => Token(SyntaxKind.AbstractKeyword);
+    internal static SyntaxToken Abstract => Token(SyntaxKind.AbstractKeyword);
 
     [Pure]
-    public static PredefinedTypeSyntax BoolType => PredefinedType(Token(SyntaxKind.BoolKeyword));
+    internal static PredefinedTypeSyntax BoolType => PredefinedType(Token(SyntaxKind.BoolKeyword));
 
     [Pure]
-    public static PredefinedTypeSyntax ByteType => PredefinedType(Token(SyntaxKind.ByteKeyword));
+    internal static PredefinedTypeSyntax ByteType => PredefinedType(Token(SyntaxKind.ByteKeyword));
 
     [Pure]
-    public static PredefinedTypeSyntax IntType => PredefinedType(Token(SyntaxKind.IntKeyword));
+    internal static PredefinedTypeSyntax IntType => PredefinedType(Token(SyntaxKind.IntKeyword));
 
     [Pure]
-    public static PredefinedTypeSyntax UShortType => PredefinedType(Token(SyntaxKind.UShortKeyword));
+    internal static PredefinedTypeSyntax UShortType => PredefinedType(Token(SyntaxKind.UShortKeyword));
 
     [Pure]
-    public static TypeSyntax VoidType => PredefinedType(Token(SyntaxKind.VoidKeyword));
+    internal static TypeSyntax VoidType => PredefinedType(Token(SyntaxKind.VoidKeyword));
 
     [Pure]
-    public static SyntaxToken Field => Token(SyntaxKind.FieldKeyword);
+    internal static SyntaxToken Field => Token(SyntaxKind.FieldKeyword);
 
     [Pure]
-    public static SyntaxToken Internal => Token(SyntaxKind.InternalKeyword);
+    internal static SyntaxToken Internal => Token(SyntaxKind.InternalKeyword);
 
     [Pure]
-    public static SyntaxToken Override => Token(SyntaxKind.OverrideKeyword);
+    internal static SyntaxToken Override => Token(SyntaxKind.OverrideKeyword);
 
     [Pure]
-    public static SyntaxToken Partial => Token(SyntaxKind.PartialKeyword);
+    internal static SyntaxToken Partial => Token(SyntaxKind.PartialKeyword);
 
     [Pure]
-    public static SyntaxToken Private => Token(SyntaxKind.PrivateKeyword);
+    internal static SyntaxToken Private => Token(SyntaxKind.PrivateKeyword);
 
     [Pure]
-    public static SyntaxToken Protected => Token(SyntaxKind.ProtectedKeyword);
+    internal static SyntaxToken Protected => Token(SyntaxKind.ProtectedKeyword);
 
     [Pure]
-    public static SyntaxToken Public => Token(SyntaxKind.PublicKeyword);
+    internal static SyntaxToken Public => Token(SyntaxKind.PublicKeyword);
 
     [Pure]
-    public static SyntaxToken ReadOnly => Token(SyntaxKind.ReadOnlyKeyword);
+    internal static SyntaxToken ReadOnly => Token(SyntaxKind.ReadOnlyKeyword);
 
     [Pure]
-    public static SyntaxToken Ref => Token(SyntaxKind.RefKeyword);
+    internal static SyntaxToken Ref => Token(SyntaxKind.RefKeyword);
 
     [Pure]
-    public static SyntaxToken Sealed => Token(SyntaxKind.SealedKeyword);
+    internal static SyntaxToken Sealed => Token(SyntaxKind.SealedKeyword);
 
     [Pure]
-    public static SyntaxToken Semicolon => Token(SyntaxKind.SemicolonToken);
+    internal static SyntaxToken Semicolon => Token(SyntaxKind.SemicolonToken);
 
     [Pure]
-    public static SyntaxToken Static => Token(SyntaxKind.StaticKeyword);
+    internal static SyntaxToken Static => Token(SyntaxKind.StaticKeyword);
 
     [Pure]
-    public static SyntaxToken Unsafe => Token(SyntaxKind.UnsafeKeyword);
+    internal static SyntaxToken Unsafe => Token(SyntaxKind.UnsafeKeyword);
 
     [Pure]
-    public static StatementSyntax InitializeVariableStatement(string variable, ExpressionSyntax value) => InitializeVariableStatement(variable, value, IdentifierName("var"));
+    internal static StatementSyntax InitializeVariableStatement(string variable, ExpressionSyntax value) => InitializeVariableStatement(variable, value, IdentifierName("var"));
 
     [Pure]
-    public static StatementSyntax InitializeVariableStatement(string variable, ExpressionSyntax value, TypeSyntax type) =>
+    internal static StatementSyntax InitializeVariableStatement(string variable, ExpressionSyntax value, TypeSyntax type) =>
         LocalDeclarationStatement(VariableDeclaration(type)
             .WithVariables(SingletonSeparatedList(
                 VariableDeclarator(Identifier(variable))
                     .WithInitializer(EqualsValueClause(value)))));
 
     [MustUseReturnValue]
-    public static ExpressionSyntax CreateArrayGetWithoutBoundsCheck(RequiredUsings requiredUsings, ExpressionSyntax array, ExpressionSyntax index)
+    internal static ExpressionSyntax CreateArrayGetWithoutBoundsCheck(RequiredUsings requiredUsings, ExpressionSyntax array, ExpressionSyntax index)
     {
         requiredUsings.Add("System.Runtime.CompilerServices");
         requiredUsings.Add("System.Runtime.InteropServices");
@@ -93,10 +93,10 @@ internal static class CommonSyntax
     }
 
     [MustUseReturnValue]
-    public static AttributeSyntax CreateMethodImplAttribute(RequiredUsings requiredUsings, MethodImplOptions options) => CreateMethodImplAttribute(requiredUsings, options.ToString());
+    internal static AttributeSyntax CreateMethodImplAttribute(RequiredUsings requiredUsings, MethodImplOptions options) => CreateMethodImplAttribute(requiredUsings, options.ToString());
 
     [MustUseReturnValue]
-    public static AttributeSyntax CreateMethodImplAttribute(RequiredUsings requiredUsings, string options)
+    internal static AttributeSyntax CreateMethodImplAttribute(RequiredUsings requiredUsings, string options)
     {
         requiredUsings.Add("System.Runtime.CompilerServices");
 
@@ -112,22 +112,22 @@ internal static class CommonSyntax
     }
 
     [Pure]
-    public static IdentifierNameSyntax EmulatorMemberIdentifier(string name) => IdentifierName($"emulator.{name}");
+    internal static IdentifierNameSyntax EmulatorMemberIdentifier(string name) => IdentifierName($"emulator.{name}");
 
     [Pure]
-    public static ArgumentSyntax CreateEmulatorArgument() => Argument(IdentifierName("emulator"));
+    internal static ArgumentSyntax CreateEmulatorArgument() => Argument(IdentifierName("emulator"));
 
     [Pure]
-    public static SyntaxToken GenerateBinaryLiteral(byte value) => Literal($"0b{Convert.ToString(value, 2).PadLeft(8, '0')}", value);
+    private static SyntaxToken GenerateBinaryLiteral(byte value) => Literal($"0b{Convert.ToString(value, 2).PadLeft(8, '0')}", value);
 
     [Pure]
-    public static LiteralExpressionSyntax GenerateBinaryLiteralExpression(byte value) => LiteralExpression(SyntaxKind.NumericLiteralExpression, GenerateBinaryLiteral(value));
+    internal static LiteralExpressionSyntax GenerateBinaryLiteralExpression(byte value) => LiteralExpression(SyntaxKind.NumericLiteralExpression, GenerateBinaryLiteral(value));
 
     [Pure]
-    public static LiteralExpressionSyntax GenerateNumericLiteralExpression(int value) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(value));
+    internal static LiteralExpressionSyntax GenerateNumericLiteralExpression(int value) => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(value));
 
     [Pure]
-    public static ExpressionStatementSyntax CreateAssignEmulatorFieldExpression() =>
+    internal static ExpressionStatementSyntax CreateAssignEmulatorFieldExpression() =>
         // this.emulator = emulator;
         ExpressionStatement(
             AssignmentExpression(
@@ -139,7 +139,7 @@ internal static class CommonSyntax
                 IdentifierName("emulator")));
 
     [Pure]
-    public static ExpressionStatementSyntax CreateNewObjectAndAssignToProperty(string propertyName, string classToCreateName, params ExpressionSyntax[] constructorArguments) =>
+    internal static ExpressionStatementSyntax CreateNewObjectAndAssignToProperty(string propertyName, string classToCreateName, params ExpressionSyntax[] constructorArguments) =>
         ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,
@@ -150,23 +150,23 @@ internal static class CommonSyntax
                             SeparatedList(constructorArguments.Select(Argument).ToArray())))));
 
     [MustUseReturnValue]
-    public static AttributeSyntax CreateAggressiveInliningAttribute(RequiredUsings requiredUsings) => CreateMethodImplAttribute(requiredUsings, MethodImplOptions.AggressiveInlining);
+    private static AttributeSyntax CreateAggressiveInliningAttribute(RequiredUsings requiredUsings) => CreateMethodImplAttribute(requiredUsings, MethodImplOptions.AggressiveInlining);
 
     [MustUseReturnValue]
-    public static AccessorDeclarationSyntax CreateGetAccessor(RequiredUsings requiredUsings) =>
+    internal static AccessorDeclarationSyntax CreateGetAccessor(RequiredUsings requiredUsings) =>
         AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
             .WithAttributeLists([AttributeList([CreateAggressiveInliningAttribute(requiredUsings)])])
             .WithSemicolonToken(Semicolon);
 
     [MustUseReturnValue]
-    public static AccessorDeclarationSyntax CreateGetAccessor(RequiredUsings requiredUsings, ExpressionSyntax getExpression) =>
+    internal static AccessorDeclarationSyntax CreateGetAccessor(RequiredUsings requiredUsings, ExpressionSyntax getExpression) =>
         AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
             .WithExpressionBody(ArrowExpressionClause(getExpression))
             .WithAttributeLists([AttributeList([CreateAggressiveInliningAttribute(requiredUsings)])])
             .WithSemicolonToken(Semicolon);
 
     [MustUseReturnValue]
-    public static AccessorDeclarationSyntax CreateSetAccessor(RequiredUsings requiredUsings, ExpressionSyntax setExpression, SyntaxTokenList? modifiers = null)
+    internal static AccessorDeclarationSyntax CreateSetAccessor(RequiredUsings requiredUsings, ExpressionSyntax setExpression, SyntaxTokenList? modifiers = null)
     {
         var accessor = AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
             .WithExpressionBody(ArrowExpressionClause(setExpression))
