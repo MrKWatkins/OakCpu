@@ -25,9 +25,10 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
 
     protected override string GetBaseFileName(GeneratorContext context) => Class.Name.InstructionEmulator(context);
 
-    protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
+    protected override BaseTypeDeclarationSyntax CreateType(FileGeneratorContext context)
     {
-        var members = context.Configuration.Registers.Values.Select(r => ExplicitLayoutBuilder.CreateRegisterField(context, r)).ToList<MemberDeclarationSyntax>();
+        var generatorContext = context.GeneratorContext;
+        var members = generatorContext.Configuration.Registers.Values.Select(r => ExplicitLayoutBuilder.CreateRegisterField(context, r)).ToList<MemberDeclarationSyntax>();
         members.Add(CreateNoNextSequenceStepField());
         members.Add(CreateConstructor(context));
 
@@ -41,7 +42,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         members.Add(CreateObjectProperty(context, Class.Name.Interrupts(context), Property.Name.Interrupts, fieldOffset));
         fieldOffset += 8;
 
-        foreach (var dataMember in context.Configuration.AllDataMembers.Values.Where(m => m != PreDefinedDataMember.CurrentStep).OrderByDescending(m => m.Size))
+        foreach (var dataMember in generatorContext.Configuration.AllDataMembers.Values.Where(m => m != PreDefinedDataMember.CurrentStep).OrderByDescending(m => m.Size))
         {
             members.AddRange(CreateDataMember(context, dataMember, fieldOffset));
             fieldOffset += dataMember.Size;
@@ -62,7 +63,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
                 .AddModifiers(Public, Sealed, Unsafe, Partial)
                 .AddAttributeLists(AttributeList(SingletonSeparatedList(ExplicitLayoutBuilder.CreateStructLayoutAttribute(context))))
                 .AddMembers(members.ToArray()),
-            $"Represents a {context.Cpu.Name} emulator that executes one complete instruction at a time.");
+            $"Represents a {generatorContext.Cpu.Name} emulator that executes one complete instruction at a time.");
     }
 
     [Pure]
@@ -89,7 +90,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
     }
 
     [Pure]
-    private static IEnumerable<MemberDeclarationSyntax> CreateDataMember(GeneratorContext context, DataMember member, int fieldOffset)
+    private static IEnumerable<MemberDeclarationSyntax> CreateDataMember(FileGeneratorContext context, DataMember member, int fieldOffset)
     {
         yield return ExplicitLayoutBuilder.CreateOffsetField(context, member.TypeSyntax, member.FieldName, fieldOffset, member.FieldVisibility.ToSyntax());
 
@@ -116,7 +117,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
             .WithModifiers(TokenList(Internal, Token(SyntaxKind.ConstKeyword)));
 
     [Pure]
-    private static FieldDeclarationSyntax CreateNextSequenceStepField(GeneratorContext context, int fieldOffset) =>
+    private static FieldDeclarationSyntax CreateNextSequenceStepField(FileGeneratorContext context, int fieldOffset) =>
         ExplicitLayoutBuilder.CreateOffsetField(context, UShortType, Field.Name.NextSequenceStep, fieldOffset, Internal);
 
     [Pure]
@@ -186,7 +187,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
     }
 
     [Pure]
-    private static MemberDeclarationSyntax CreateExecuteDecodedInstructionMethod(GeneratorContext context)
+    private static MemberDeclarationSyntax CreateExecuteDecodedInstructionMethod(FileGeneratorContext context)
     {
         const string decodedStepParameterName = "decodedStep";
         const string instructionVariableName = "instruction";
@@ -224,7 +225,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
     }
 
     [Pure]
-    private static MemberDeclarationSyntax CreateCompleteInstructionMethod(GeneratorContext context)
+    private static MemberDeclarationSyntax CreateCompleteInstructionMethod(FileGeneratorContext context)
     {
         const string instructionUpdatesFlagsParameterName = "instructionUpdatesFlags";
 
@@ -232,7 +233,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         {
             InitializeVariableStatement(Parameter.Name.Emulator, ThisExpression())
         };
-        statements.AddRange(StatementGenerator.GenerateInstructionCompletionStatements(context, context.OnInstructionComplete, instructionUpdatesFlagsParameterName));
+        statements.AddRange(StatementGenerator.GenerateInstructionCompletionStatements(context, context.GeneratorContext.OnInstructionComplete, instructionUpdatesFlagsParameterName));
         statements.Add(ReturnStatement(IdentifierName("tStates")));
 
         return MethodDeclaration(IntType, Identifier(Method.Name.CompleteInstruction))
@@ -248,7 +249,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
     }
 
     [Pure]
-    private static PropertyDeclarationSyntax CreateObjectProperty(GeneratorContext context, string typeName, string propertyName, int fieldOffset) =>
+    private static PropertyDeclarationSyntax CreateObjectProperty(FileGeneratorContext context, string typeName, string propertyName, int fieldOffset) =>
         WithXmlDocumentation(
             ExplicitLayoutBuilder.CreateGetOnlyPropertyWithFieldOffset(context, typeName, propertyName, fieldOffset),
             ExplicitLayoutBuilder.GetObjectPropertySummary(context, propertyName));

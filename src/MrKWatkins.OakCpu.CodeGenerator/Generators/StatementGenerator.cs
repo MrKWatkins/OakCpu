@@ -9,7 +9,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public abstract class StatementGenerator
 {
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateStatements(GeneratorContext input, Step step)
+    public static IEnumerable<StatementSyntax> GenerateStatements(FileGeneratorContext input, Step step)
     {
         var context = new StatementGeneratorContext(input, step);
 
@@ -41,7 +41,7 @@ public abstract class StatementGenerator
     }
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateStatements(GeneratorContext context, IEnumerable<Statement> statements, bool instructionEmulatorMode = false)
+    public static IEnumerable<StatementSyntax> GenerateStatements(FileGeneratorContext context, IEnumerable<Statement> statements, bool instructionEmulatorMode = false)
     {
         var statementContext = new StatementGeneratorContext(context, null);
         if (instructionEmulatorMode)
@@ -53,18 +53,18 @@ public abstract class StatementGenerator
     }
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateInstructionCompletionStatements(GeneratorContext context, IEnumerable<Statement> statements, string instructionUpdatesFlagsParameterName)
+    public static IEnumerable<StatementSyntax> GenerateInstructionCompletionStatements(FileGeneratorContext context, IEnumerable<Statement> statements, string instructionUpdatesFlagsParameterName)
     {
         var statementContext = new StatementGeneratorContext(context, null).WithInstructionCompletionMode(instructionUpdatesFlagsParameterName);
         return statements.SelectMany(statement => GenerateStatement(statementContext, statement));
     }
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateOverlapStatements(GeneratorContext input, Step step)
+    public static IEnumerable<StatementSyntax> GenerateOverlapStatements(FileGeneratorContext input, Step step)
         => GenerateOverlapStatements(input, step, 0);
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateOverlapStatements(GeneratorContext input, Step step, int trailingStatementsToSkip)
+    public static IEnumerable<StatementSyntax> GenerateOverlapStatements(FileGeneratorContext input, Step step, int trailingStatementsToSkip)
     {
         var context = new StatementGeneratorContext(input, step).WithoutHandleInterrupts();
 
@@ -81,7 +81,7 @@ public abstract class StatementGenerator
 
     [Pure]
     public static IEnumerable<StatementSyntax> GenerateInstructionStatements(
-        GeneratorContext input,
+        FileGeneratorContext input,
         Step step,
         string? nextInstructionVariableName,
         Step? instructionExitOverlapStep,

@@ -23,13 +23,13 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
 
     protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.Emulator(context)}.steps";
 
-    protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
+    protected override ClassDeclarationSyntax PopulateClass(FileGeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration
             .AddMembers(CreateStepMethod(context), CreateErrorFunction(context))
-            .AddMembers(context.FunctionSteps.Where(s => s is { DoesNothing: false, ExecutesAsOverlapOnly: false }).Select(step => CreateStepMethod(context, step)).ToArray());
+            .AddMembers(context.GeneratorContext.FunctionSteps.Where(s => s is { DoesNothing: false, ExecutesAsOverlapOnly: false }).Select(step => CreateStepMethod(context, step)).ToArray());
 
     [Pure]
-    private static MemberDeclarationSyntax CreateErrorFunction(GeneratorContext context)
+    private static MemberDeclarationSyntax CreateErrorFunction(FileGeneratorContext context)
     {
         var throwStatement = ThrowStatement(
             ObjectCreationExpression(IdentifierName(nameof(NotSupportedException)))
@@ -40,7 +40,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     }
 
     [Pure]
-    private static MemberDeclarationSyntax CreateStepMethod(GeneratorContext context, Step step)
+    private static MemberDeclarationSyntax CreateStepMethod(FileGeneratorContext context, Step step)
     {
         var statements = StatementGenerator.GenerateStatements(context, step);
 
@@ -49,7 +49,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
         var function = CreateFunction(context, Method.Name.Step(step), statements);
 
         // Aggressively inline step 0 as it is called for overlapped reads.
-        function = step == context.OpcodeRead.FirstStep
+        function = step == context.GeneratorContext.OpcodeRead.FirstStep
             ? function.WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(comments)])
             : function.WithLeadingTrivia(comments);
 
@@ -57,7 +57,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     }
 
     [Pure]
-    private static MemberDeclarationSyntax CreateFunction(GeneratorContext context, string name, IEnumerable<StatementSyntax> statements) =>
+    private static MemberDeclarationSyntax CreateFunction(FileGeneratorContext context, string name, IEnumerable<StatementSyntax> statements) =>
         MethodDeclaration(VoidType, Identifier(name))
             .WithModifiers([Private, Static])
             .WithParameterList(ParameterList(
@@ -68,7 +68,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
             .WithBody(Block(statements));
 
     [Pure]
-    private static MethodDeclarationSyntax CreateStepMethod(GeneratorContext context)
+    private static MethodDeclarationSyntax CreateStepMethod(FileGeneratorContext context)
     {
         const string stepVariableName = "step";
 
@@ -125,7 +125,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
 
                     // return node.ActionRequired;
                     ReturnStatement(IdentifierName(Parameter.Name.ActionRequired)))),
-            $"Executes one {context.Cpu.Name} T-state.",
+            $"Executes one {context.GeneratorContext.Cpu.Name} T-state.",
             returns: "The external action that the host must perform for the completed T-state.");
     }
 

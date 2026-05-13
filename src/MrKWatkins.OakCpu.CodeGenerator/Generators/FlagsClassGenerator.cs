@@ -23,7 +23,7 @@ public sealed class FlagsClassGenerator : TypeGenerator
     [Pure]
     public override IReadOnlyList<GeneratedFile> GenerateFiles(GeneratorContext context) => GenerateOneFilePerType(context);
 
-    protected override IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(GeneratorContext context)
+    protected override IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(FileGeneratorContext context)
     {
         yield return CreateBaseClass(context);
         yield return CreateConcreteClass(context, Class.Name.StepFlags(context), Class.Identifier.Emulator(context));
@@ -31,15 +31,15 @@ public sealed class FlagsClassGenerator : TypeGenerator
     }
 
     [Pure]
-    private static ClassDeclarationSyntax CreateBaseClass(GeneratorContext context)
+    private static ClassDeclarationSyntax CreateBaseClass(FileGeneratorContext context)
     {
         var members = CreateFlagProperties(context, createOverrideProperty: false).Cast<MemberDeclarationSyntax>().ToArray();
 
-        return CreateFacadeBaseClass(Class.Name.Flags(context), $"Provides access to the {context.Cpu.Name} flags.", members);
+        return CreateFacadeBaseClass(Class.Name.Flags(context), $"Provides access to the {context.GeneratorContext.Cpu.Name} flags.", members);
     }
 
     [Pure]
-    private static ClassDeclarationSyntax CreateConcreteClass(GeneratorContext context, string className, TypeSyntax emulatorType)
+    private static ClassDeclarationSyntax CreateConcreteClass(FileGeneratorContext context, string className, TypeSyntax emulatorType)
     {
         var members = CreateFlagProperties(context, createOverrideProperty: true).Cast<MemberDeclarationSyntax>().ToArray();
         return CreateFacadeConcreteClass(
@@ -51,11 +51,11 @@ public sealed class FlagsClassGenerator : TypeGenerator
     }
 
     [Pure]
-    private static IEnumerable<PropertyDeclarationSyntax> CreateFlagProperties(GeneratorContext context, bool createOverrideProperty) =>
-        context.Configuration.Flags.Values.Select(flag => CreateFlagProperty(context, flag, createOverrideProperty));
+    private static IEnumerable<PropertyDeclarationSyntax> CreateFlagProperties(FileGeneratorContext context, bool createOverrideProperty) =>
+        context.GeneratorContext.Configuration.Flags.Values.Select(flag => CreateFlagProperty(context, flag, createOverrideProperty));
 
     [Pure]
-    private static PropertyDeclarationSyntax CreateFlagProperty(GeneratorContext context, Flag flag, bool createOverrideProperty)
+    private static PropertyDeclarationSyntax CreateFlagProperty(FileGeneratorContext context, Flag flag, bool createOverrideProperty)
     {
         if (!createOverrideProperty)
         {
@@ -69,7 +69,7 @@ public sealed class FlagsClassGenerator : TypeGenerator
         var flagsMemberAccess = MemberAccessExpression(
             SyntaxKind.SimpleMemberAccessExpression,
             IdentifierName(EmulatorFieldName),
-            IdentifierName(context.Configuration.FlagsRegister.FieldName));
+            IdentifierName(context.GeneratorContext.Configuration.FlagsRegister.FieldName));
 
         var getExpression = BinaryExpression(
             SyntaxKind.NotEqualsExpression,
@@ -84,7 +84,7 @@ public sealed class FlagsClassGenerator : TypeGenerator
             SyntaxKind.SimpleAssignmentExpression,
             flagsMemberAccess,
             CastExpression(
-                context.Configuration.FlagsRegister.Type.TypeSyntax(),
+                context.GeneratorContext.Configuration.FlagsRegister.Type.TypeSyntax(),
                 ParenthesizedExpression(
                     ConditionalExpression(
                         IdentifierName("value"),

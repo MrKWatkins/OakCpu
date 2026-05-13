@@ -18,7 +18,7 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
 
     protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.InstructionEmulator(context)}.tables";
 
-    protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
+    protected override BaseTypeDeclarationSyntax CreateType(FileGeneratorContext context)
     {
         var members = TableGeneration.CreateStepTableFields(context, Field.Name.SequenceGroupStepTable)
             .Prepend(CreateInstructionsField(context))
@@ -31,7 +31,7 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
     }
 
     [Pure]
-    private static MemberDeclarationSyntax CreateInstructionsField(GeneratorContext context) =>
+    private static MemberDeclarationSyntax CreateInstructionsField(FileGeneratorContext context) =>
         FieldDeclaration(
                 VariableDeclaration(
                         ArrayType(CreateInstructionHandlerType(context))
@@ -40,7 +40,7 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
             .AddModifiers(Private, Static, ReadOnly);
 
     [Pure]
-    private static ConstructorDeclarationSyntax CreateStaticConstructor(GeneratorContext context)
+    private static ConstructorDeclarationSyntax CreateStaticConstructor(FileGeneratorContext context)
     {
         var statements = new List<StatementSyntax>
         {
@@ -56,14 +56,14 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
     }
 
     [Pure]
-    private static StatementSyntax CreateInstructionsInitializationStatement(GeneratorContext context)
+    private static StatementSyntax CreateInstructionsInitializationStatement(FileGeneratorContext context)
     {
         var dispatchableSequences = InstructionEmulatorGenerator.GetDispatchableSequences(context).ToList();
-        var handlers = Enumerable.Repeat<ExpressionSyntax>(PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(Method.Name.Error)), context.InstructionEmulatorDispatchCount).ToArray();
+        var handlers = Enumerable.Repeat<ExpressionSyntax>(PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(Method.Name.Error)), context.GeneratorContext.InstructionEmulatorDispatchCount).ToArray();
 
         foreach (var sequence in dispatchableSequences)
         {
-            handlers[context.GetInstructionEmulatorSequenceIndex(sequence)] =
+            handlers[context.GeneratorContext.GetInstructionEmulatorSequenceIndex(sequence)] =
                 PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(InstructionEmulatorGenerator.GetInstructionMethodName(context, sequence)));
         }
 
@@ -75,30 +75,30 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
     }
 
     [Pure]
-    private static StatementSyntax CreateOpcodeStepTableInitializationStatement(GeneratorContext context, OpcodeStepTable opcodeStepTable, IEnumerable<Instruction> instructions, IReadOnlyList<(byte Opcode, Step Step)> duplicates)
+    private static StatementSyntax CreateOpcodeStepTableInitializationStatement(FileGeneratorContext context, OpcodeStepTable opcodeStepTable, IEnumerable<Instruction> instructions, IReadOnlyList<(byte Opcode, Step Step)> duplicates)
     {
-        var stepIndices = Enumerable.Repeat(context.InstructionEmulatorErrorIndex, 256).ToArray();
+        var stepIndices = Enumerable.Repeat(context.GeneratorContext.InstructionEmulatorErrorIndex, 256).ToArray();
 
         if (opcodeStepTable == OpcodeStepTable.NoPrefix)
         {
-            foreach (var prefixJump in context.PrefixJumps.Values)
+            foreach (var prefixJump in context.GeneratorContext.PrefixJumps.Values)
             {
-                stepIndices[prefixJump.Prefix] = context.GetInstructionEmulatorSequenceIndex(prefixJump);
+                stepIndices[prefixJump.Prefix] = context.GeneratorContext.GetInstructionEmulatorSequenceIndex(prefixJump);
             }
         }
-        else if (opcodeStepTable.Prefix is { } prefix && context.PrefixJumps.ContainsKey(prefix))
+        else if (opcodeStepTable.Prefix is { } prefix && context.GeneratorContext.PrefixJumps.ContainsKey(prefix))
         {
-            stepIndices[prefix] = context.GetInstructionEmulatorSequenceIndex(context.PrefixJumps[prefix]);
+            stepIndices[prefix] = context.GeneratorContext.GetInstructionEmulatorSequenceIndex(context.GeneratorContext.PrefixJumps[prefix]);
         }
 
         foreach (var instruction in instructions)
         {
-            stepIndices[instruction.Opcode] = context.GetInstructionEmulatorSequenceIndex(instruction);
+            stepIndices[instruction.Opcode] = context.GeneratorContext.GetInstructionEmulatorSequenceIndex(instruction);
         }
 
         foreach (var duplicate in duplicates)
         {
-            stepIndices[duplicate.Opcode] = context.GetInstructionEmulatorSequenceIndex(duplicate.Step.Sequence);
+            stepIndices[duplicate.Opcode] = context.GeneratorContext.GetInstructionEmulatorSequenceIndex(duplicate.Step.Sequence);
         }
 
         return ExpressionStatement(
@@ -109,12 +109,12 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
     }
 
     [Pure]
-    private static StatementSyntax CreateSequenceGroupStepTableInitializationStatement(GeneratorContext context, SequenceGroup sequenceGroup)
+    private static StatementSyntax CreateSequenceGroupStepTableInitializationStatement(FileGeneratorContext context, SequenceGroup sequenceGroup)
     {
-        var stepIndices = Enumerable.Repeat(context.InstructionEmulatorErrorIndex, sequenceGroup.MaximumNumber + 1).ToArray();
+        var stepIndices = Enumerable.Repeat(context.GeneratorContext.InstructionEmulatorErrorIndex, sequenceGroup.MaximumNumber + 1).ToArray();
         foreach (var member in sequenceGroup.Members)
         {
-            stepIndices[member.Key] = context.GetInstructionEmulatorSequenceIndex(member.Value);
+            stepIndices[member.Key] = context.GeneratorContext.GetInstructionEmulatorSequenceIndex(member.Value);
         }
 
         return ExpressionStatement(

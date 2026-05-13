@@ -25,11 +25,11 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
 
     protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.Emulator(context)}.reset";
 
-    protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
+    protected override ClassDeclarationSyntax PopulateClass(FileGeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration.AddMembers(GenerateReset(context));
 
     [Pure]
-    private static MemberDeclarationSyntax GenerateReset(GeneratorContext context)
+    private static MemberDeclarationSyntax GenerateReset(FileGeneratorContext context)
     {
         var statements = ResetSyntax.GenerateResetOpcodeStepTable(context)
             .Concat(GenerateResetDataMembers(context))
@@ -39,12 +39,12 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
             MethodDeclaration(VoidType, Identifier(ResetMethodName))
                 .WithModifiers([Public])
                 .WithBody(Block(statements)),
-            $"Resets the {context.Cpu.Name} CPU state.");
+            $"Resets the {context.GeneratorContext.Cpu.Name} CPU state.");
     }
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateResetDataMembers(GeneratorContext context) =>
-        context.Configuration.AllDataMembers.Values
+    private static IEnumerable<StatementSyntax> GenerateResetDataMembers(FileGeneratorContext context) =>
+        context.GeneratorContext.Configuration.AllDataMembers.Values
             .Concat<DataMember>([PreDefinedDataMember.OverlapPipeline])
             .Where(m => m != PreDefinedDataMember.OpcodeStepTable)
             .OrderBy(m => m.Name)
@@ -53,7 +53,7 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
                 : ResetSyntax.GenerateReset(m.FieldName, m.Type));
 
     [Pure]
-    private static StatementSyntax GenerateResetOverlapPipeline(GeneratorContext context) =>
+    private static StatementSyntax GenerateResetOverlapPipeline(FileGeneratorContext context) =>
         ExpressionStatement(
             AssignmentExpression(
                 SyntaxKind.SimpleAssignmentExpression,

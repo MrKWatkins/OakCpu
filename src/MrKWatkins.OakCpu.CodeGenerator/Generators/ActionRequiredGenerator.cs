@@ -15,9 +15,9 @@ public sealed class ActionRequiredGenerator : TypeGenerator
 
     protected override string GetBaseFileName(GeneratorContext context) => TypeName.ActionRequiredEnum;
 
-    protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
+    protected override BaseTypeDeclarationSyntax CreateType(FileGeneratorContext context)
     {
-        var members = context.Configuration.Actions.Values
+        var members = context.GeneratorContext.Configuration.Actions.Values
             .OrderBy(a => a.Value)
             .Select(action => WithXmlDocumentation(
                 EnumMemberDeclaration([], Identifier(action.EnumName), EqualsValueClause(GenerateNumericLiteralExpression(action.Value))),

@@ -11,14 +11,14 @@ internal static class InstructionMethodPlanner
     private const string NextInstructionVariableNamePrefix = "nextInstruction";
 
     [Pure]
-    public static InstructionMethodPlan CreatePlan(GeneratorContext context, StepSequence sequence, IReadOnlyList<Step> steps, string methodName, string comment)
+    public static InstructionMethodPlan CreatePlan(FileGeneratorContext context, StepSequence sequence, IReadOnlyList<Step> steps, string methodName, string comment)
     {
         var overlapStep = sequence.Steps.FirstOrDefault(step => step.ExecutesAsOverlapOnly);
-        var overlapTrailingStatementsToSkip = overlapStep == null ? 0 : context.GetImplicitInstructionCompleteStatementCount(overlapStep);
+        var overlapTrailingStatementsToSkip = overlapStep == null ? 0 : context.GeneratorContext.GetImplicitInstructionCompleteStatementCount(overlapStep);
         var overlapStatements = overlapStep == null ? [] : StatementGenerator.GenerateOverlapStatements(context, overlapStep, overlapTrailingStatementsToSkip).ToArray();
         var completesInstructionImplicitly = overlapStep != null
             ? overlapTrailingStatementsToSkip != 0
-            : steps.Count != 0 && context.GetImplicitInstructionCompleteStatementCount(steps[^1]) != 0;
+            : steps.Count != 0 && context.GeneratorContext.GetImplicitInstructionCompleteStatementCount(steps[^1]) != 0;
         var deferredNextSequence = GetDeferredNextSequence(context, sequence);
 
         var stepPlans = steps
@@ -80,13 +80,13 @@ internal static class InstructionMethodPlanner
         node.Children.Any(child => ContainsCurrentStepAssignment(child, value));
 
     [Pure]
-    private static InstructionStepPlan CreateStepPlan(GeneratorContext context, Step step, Step? instructionExitOverlapStep, int instructionTStatesBeforeStep)
+    private static InstructionStepPlan CreateStepPlan(FileGeneratorContext context, Step step, Step? instructionExitOverlapStep, int instructionTStatesBeforeStep)
     {
         var action = StepMetadata.GetAction(context, step);
         var containsRedirect = ContainsRedirectCall(step);
         var rollsBackOpcodeRead = ShouldRollbackOpcodeRead(step, action);
         var nextInstructionVariableName = containsRedirect ? $"{NextInstructionVariableNamePrefix}{step.Index}" : null;
-        var trailingStatementsToSkip = context.GetImplicitInstructionCompleteStatementCount(step);
+        var trailingStatementsToSkip = context.GeneratorContext.GetImplicitInstructionCompleteStatementCount(step);
         var requiresBody = !step.DoesNothing || step.QueuesOverlapStep || containsRedirect || ContainsCall(step.Statements, PreDefinedFunction.HandleInterrupts) || ContainsCall(step.Statements, PreDefinedFunction.InstructionComplete);
         var stepStatements = requiresBody
             ? StatementGenerator.GenerateInstructionStatements(context, step, nextInstructionVariableName, instructionExitOverlapStep, instructionTStatesBeforeStep, trailingStatementsToSkip).ToList()

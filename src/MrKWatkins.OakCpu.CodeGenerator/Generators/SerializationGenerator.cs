@@ -21,7 +21,7 @@ public abstract class SerializationGenerator : TypeGenerator
     }
 
     [Pure]
-    protected sealed override BaseTypeDeclarationSyntax CreateType(GeneratorContext context) =>
+    protected sealed override BaseTypeDeclarationSyntax CreateType(FileGeneratorContext context) =>
         CreateClassDeclaration(context).AddMembers(GenerateSerialize(context), GenerateDeserialize(context), GenerateRestore(context));
 
     [Pure]
@@ -87,7 +87,7 @@ public abstract class SerializationGenerator : TypeGenerator
     }
 
     [MustUseReturnValue]
-    private MemberDeclarationSyntax GenerateRestore(GeneratorContext context)
+    private MemberDeclarationSyntax GenerateRestore(FileGeneratorContext context)
     {
         context.RequiredUsings.Add("System.IO");
 
@@ -105,7 +105,7 @@ public abstract class SerializationGenerator : TypeGenerator
                     Parameter(Identifier(StreamParameterName)).WithType(IdentifierName(nameof(Stream)))
                 ]))
                 .WithBody(Block(statements)),
-            $"Restores this emulator from a serialized {context.Cpu.Name} CPU state.",
+            $"Restores this emulator from a serialized {context.GeneratorContext.Cpu.Name} CPU state.",
             parameters: new Dictionary<string, string>
             {
                 [StreamParameterName] = "The stream to read the CPU state from."
@@ -143,7 +143,7 @@ public abstract class SerializationGenerator : TypeGenerator
             .Select(register => GenerateRead(register.FieldName, DataType.U8));
 
     [MustUseReturnValue]
-    private MemberDeclarationSyntax GenerateSerialize(GeneratorContext context)
+    private MemberDeclarationSyntax GenerateSerialize(FileGeneratorContext context)
     {
         context.RequiredUsings.Add("System.IO");
 
@@ -161,7 +161,7 @@ public abstract class SerializationGenerator : TypeGenerator
                     Parameter(Identifier(StreamParameterName)).WithType(IdentifierName(nameof(Stream)))
                 ]))
                 .WithBody(Block(statements)),
-            $"Serializes this emulator's {context.Cpu.Name} CPU state.",
+            $"Serializes this emulator's {context.GeneratorContext.Cpu.Name} CPU state.",
             parameters: new Dictionary<string, string>
             {
                 [StreamParameterName] = "The stream to write the CPU state to."
@@ -220,7 +220,7 @@ public abstract class SerializationGenerator : TypeGenerator
         InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(ReaderParameterName), IdentifierName(type.BinaryReaderMethodName())));
 
     [MustUseReturnValue]
-    private static IEnumerable<StatementSyntax> GenerateUsingBinaryReaderOrWriter<T>(GeneratorContext context, string parameterName)
+    private static IEnumerable<StatementSyntax> GenerateUsingBinaryReaderOrWriter<T>(FileGeneratorContext context, string parameterName)
     {
         context.RequiredUsings.Add(typeof(T));
         context.RequiredUsings.Add(typeof(Encoding));

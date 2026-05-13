@@ -23,13 +23,13 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
 
     protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.InstructionEmulator(context)}.instructions";
 
-    protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context) =>
+    protected override BaseTypeDeclarationSyntax CreateType(FileGeneratorContext context) =>
         PopulateClass(
             context,
             ClassDeclaration(Class.Name.InstructionEmulator(context)).AddModifiers(Public, Sealed, Unsafe, Partial));
 
     [Pure]
-    private static ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration)
+    private static ClassDeclarationSyntax PopulateClass(FileGeneratorContext context, ClassDeclarationSyntax classDeclaration)
     {
         var members = new List<MemberDeclarationSyntax>
         {
@@ -192,7 +192,7 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
     }
 
     [MustUseReturnValue]
-    private static MethodDeclarationSyntax CreateErrorMethod(GeneratorContext context)
+    private static MethodDeclarationSyntax CreateErrorMethod(FileGeneratorContext context)
     {
         context.RequiredUsings.Add(typeof(NotSupportedException).Namespace!);
 
@@ -216,7 +216,7 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
     }
 
     [Pure]
-    private static MemberDeclarationSyntax CreateInstructionMethod(GeneratorContext context, StepSequence sequence, IReadOnlyList<Step> steps)
+    private static MemberDeclarationSyntax CreateInstructionMethod(FileGeneratorContext context, StepSequence sequence, IReadOnlyList<Step> steps)
     {
         if (sequence is PrefixJump prefixJump)
         {
@@ -234,7 +234,7 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
     }
 
     [Pure]
-    private static MemberDeclarationSyntax CreatePrefixJumpMethod(GeneratorContext context, PrefixJump sequence, IReadOnlyList<Step> steps)
+    private static MemberDeclarationSyntax CreatePrefixJumpMethod(FileGeneratorContext context, PrefixJump sequence, IReadOnlyList<Step> steps)
     {
         var comments = new[] { Comment($"// {GetInstructionMethodComment(sequence)}") };
         var statements = new List<StatementSyntax>();

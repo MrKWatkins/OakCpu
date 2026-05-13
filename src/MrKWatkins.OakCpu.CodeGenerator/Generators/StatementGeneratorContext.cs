@@ -6,13 +6,13 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public sealed class StatementGeneratorContext
 {
-    public StatementGeneratorContext(GeneratorContext generatorContext, Step? step)
-        : this(generatorContext, step, new HashSet<string>(), ImmutableDictionary<string, Expression>.Empty, false, null, StatementGenerationMode.Normal, null, null)
+    public StatementGeneratorContext(FileGeneratorContext fileContext, Step? step)
+        : this(fileContext, step, new HashSet<string>(), ImmutableDictionary<string, Expression>.Empty, false, null, StatementGenerationMode.Normal, null, null)
     {
     }
 
     private StatementGeneratorContext(
-        GeneratorContext generatorContext,
+        FileGeneratorContext fileContext,
         Step? step,
         HashSet<string> initializedTemporaryVariables,
         ImmutableDictionary<string, Expression> argumentScope,
@@ -37,7 +37,8 @@ public sealed class StatementGeneratorContext
             throw new InvalidOperationException("An instruction-updates-flags parameter is only valid in instruction-completion mode.");
         }
 
-        GeneratorContext = generatorContext;
+        FileContext = fileContext;
+        GeneratorContext = fileContext.GeneratorContext;
         Step = step;
         InitializedTemporaryVariables = initializedTemporaryVariables;
         ArgumentScope = argumentScope;
@@ -48,7 +49,11 @@ public sealed class StatementGeneratorContext
         InstructionUpdatesFlagsParameterName = instructionUpdatesFlagsParameterName;
     }
 
+    internal FileGeneratorContext FileContext { get; }
+
     public GeneratorContext GeneratorContext { get; }
+
+    internal RequiredUsings RequiredUsings => FileContext.RequiredUsings;
 
     public Configuration Configuration => GeneratorContext.Configuration;
 
@@ -139,7 +144,7 @@ public sealed class StatementGeneratorContext
                 : null;
 
         return new StatementGeneratorContext(
-            GeneratorContext,
+            FileContext,
             Step,
             initializedTemporaryVariables ?? InitializedTemporaryVariables,
             argumentScope ?? ArgumentScope,

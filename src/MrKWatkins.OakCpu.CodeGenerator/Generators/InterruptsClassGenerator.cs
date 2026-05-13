@@ -24,7 +24,7 @@ public sealed class InterruptsClassGenerator : TypeGenerator
     [Pure]
     public override IReadOnlyList<GeneratedFile> GenerateFiles(GeneratorContext context) => GenerateOneFilePerType(context);
 
-    protected override IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(GeneratorContext context)
+    protected override IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(FileGeneratorContext context)
     {
         yield return CreateBaseClass(context);
         yield return CreateConcreteClass(context, Class.Name.StepInterrupts(context), Class.Identifier.Emulator(context), instructionEmulator: false);
@@ -32,15 +32,15 @@ public sealed class InterruptsClassGenerator : TypeGenerator
     }
 
     [Pure]
-    private static ClassDeclarationSyntax CreateBaseClass(GeneratorContext context)
+    private static ClassDeclarationSyntax CreateBaseClass(FileGeneratorContext context)
     {
         var members = CreateInterruptProperties(context, createOverrideProperty: false).Cast<MemberDeclarationSyntax>().ToArray();
 
-        return CreateFacadeBaseClass(Class.Name.Interrupts(context), $"Provides access to the {context.Cpu.Name} interrupt state.", members);
+        return CreateFacadeBaseClass(Class.Name.Interrupts(context), $"Provides access to the {context.GeneratorContext.Cpu.Name} interrupt state.", members);
     }
 
     [Pure]
-    private static ClassDeclarationSyntax CreateConcreteClass(GeneratorContext context, string className, TypeSyntax emulatorType, bool instructionEmulator)
+    private static ClassDeclarationSyntax CreateConcreteClass(FileGeneratorContext context, string className, TypeSyntax emulatorType, bool instructionEmulator)
     {
         var members = CreateInterruptProperties(context, createOverrideProperty: true, instructionEmulator).Cast<MemberDeclarationSyntax>().ToArray();
         return CreateFacadeConcreteClass(
@@ -52,13 +52,13 @@ public sealed class InterruptsClassGenerator : TypeGenerator
     }
 
     [Pure]
-    private static IEnumerable<PropertyDeclarationSyntax> CreateInterruptProperties(GeneratorContext context, bool createOverrideProperty, bool instructionEmulator = false) =>
-        context.Interrupts.Properties.Values
+    private static IEnumerable<PropertyDeclarationSyntax> CreateInterruptProperties(FileGeneratorContext context, bool createOverrideProperty, bool instructionEmulator = false) =>
+        context.GeneratorContext.Interrupts.Properties.Values
             .OrderBy(property => property.PropertyName)
             .Select(property => CreateInterruptProperty(context, property, createOverrideProperty, instructionEmulator));
 
     [Pure]
-    private static PropertyDeclarationSyntax CreateInterruptProperty(GeneratorContext context, UserDefinedDataMember property, bool createOverrideProperty, bool instructionEmulator)
+    private static PropertyDeclarationSyntax CreateInterruptProperty(FileGeneratorContext context, UserDefinedDataMember property, bool createOverrideProperty, bool instructionEmulator)
     {
         if (!createOverrideProperty)
         {
@@ -87,7 +87,7 @@ public sealed class InterruptsClassGenerator : TypeGenerator
     }
 
     [Pure]
-    private static PropertyDeclarationSyntax CreateInstructionEmulatorHaltedProperty(GeneratorContext context, UserDefinedDataMember property, ExpressionSyntax memberAccessExpression)
+    private static PropertyDeclarationSyntax CreateInstructionEmulatorHaltedProperty(FileGeneratorContext context, UserDefinedDataMember property, ExpressionSyntax memberAccessExpression)
     {
         var nextSequenceStepExpression = MemberAccessExpression(
             SyntaxKind.SimpleMemberAccessExpression,
@@ -97,7 +97,7 @@ public sealed class InterruptsClassGenerator : TypeGenerator
             UShortType,
             LiteralExpression(
                 SyntaxKind.NumericLiteralExpression,
-                Literal(context.GetInstructionEmulatorSequenceIndex(context.Interrupts.Halted))));
+                Literal(context.GeneratorContext.GetInstructionEmulatorSequenceIndex(context.GeneratorContext.Interrupts.Halted))));
         var noNextSequenceStep = MemberAccessExpression(
             SyntaxKind.SimpleMemberAccessExpression,
             IdentifierName(Class.Name.InstructionEmulator(context)),

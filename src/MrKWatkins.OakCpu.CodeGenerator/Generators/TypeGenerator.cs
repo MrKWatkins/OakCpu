@@ -58,28 +58,28 @@ public abstract class TypeGenerator
     [Pure]
     public CompilationUnitSyntax GenerateCompilationUnit(GeneratorContext context)
     {
-        var fileContext = context.WithRequiredUsings();
+        var fileContext = context.CreateFileContext();
         return GenerateCompilationUnit(fileContext, CreateTypes(fileContext));
     }
 
     [MustUseReturnValue]
-    protected virtual IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(GeneratorContext context)
+    protected virtual IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(FileGeneratorContext context)
     {
         yield return CreateType(context);
     }
 
     [MustUseReturnValue]
-    protected virtual BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
+    protected virtual BaseTypeDeclarationSyntax CreateType(FileGeneratorContext context)
     {
         throw new NotImplementedException($"{nameof(CreateType)} is not implemented and {nameof(CreateTypes)} has not been overridden.");
     }
 
     [Pure]
-    protected static PropertyDeclarationSyntax CreateGetOnlyProperty(GeneratorContext context, string typeName, string propertyName) =>
+    protected static PropertyDeclarationSyntax CreateGetOnlyProperty(FileGeneratorContext context, string typeName, string propertyName) =>
         CreateGetOnlyProperty(context, IdentifierName(typeName), propertyName, TokenList(Public));
 
     [Pure]
-    protected static PropertyDeclarationSyntax CreateGetOnlyProperty(GeneratorContext context, TypeSyntax type, string propertyName, SyntaxTokenList modifiers) =>
+    protected static PropertyDeclarationSyntax CreateGetOnlyProperty(FileGeneratorContext context, TypeSyntax type, string propertyName, SyntaxTokenList modifiers) =>
         PropertyDeclaration(type, Identifier(propertyName))
             .WithModifiers(modifiers)
             .WithAccessorList(
@@ -100,11 +100,11 @@ public abstract class TypeGenerator
                 ]));
 
     [Pure]
-    protected static PropertyDeclarationSyntax CreateGetSetProperty(GeneratorContext context, TypeSyntax type, string propertyName, ExpressionSyntax getExpression, ExpressionSyntax setExpression) =>
+    protected static PropertyDeclarationSyntax CreateGetSetProperty(FileGeneratorContext context, TypeSyntax type, string propertyName, ExpressionSyntax getExpression, ExpressionSyntax setExpression) =>
         CreateGetSetProperty(context, type, propertyName, getExpression, setExpression, TokenList(Public));
 
     [Pure]
-    protected static PropertyDeclarationSyntax CreateGetSetProperty(GeneratorContext context, TypeSyntax type, string propertyName, ExpressionSyntax getExpression, ExpressionSyntax setExpression, SyntaxTokenList modifiers) =>
+    protected static PropertyDeclarationSyntax CreateGetSetProperty(FileGeneratorContext context, TypeSyntax type, string propertyName, ExpressionSyntax getExpression, ExpressionSyntax setExpression, SyntaxTokenList modifiers) =>
         PropertyDeclaration(type, Identifier(propertyName))
             .WithModifiers(modifiers)
             .WithAccessorList(
@@ -129,7 +129,7 @@ public abstract class TypeGenerator
                 ]));
 
     [Pure]
-    protected static PropertyDeclarationSyntax CreateOverrideGetSetProperty(GeneratorContext context, TypeSyntax type, string propertyName, ExpressionSyntax getExpression, ExpressionSyntax setExpression) =>
+    protected static PropertyDeclarationSyntax CreateOverrideGetSetProperty(FileGeneratorContext context, TypeSyntax type, string propertyName, ExpressionSyntax getExpression, ExpressionSyntax setExpression) =>
         CreateGetSetProperty(context, type, propertyName, getExpression, setExpression, TokenList(Public, Override));
 
     [Pure]
@@ -262,7 +262,7 @@ public abstract class TypeGenerator
     }
 
     [Pure]
-    protected static FunctionPointerTypeSyntax CreateInstructionHandlerType(GeneratorContext context) =>
+    protected static FunctionPointerTypeSyntax CreateInstructionHandlerType(FileGeneratorContext context) =>
         FunctionPointerType(
             null,
             FunctionPointerParameterList(
@@ -284,7 +284,7 @@ public abstract class TypeGenerator
             ]));
 
     [Pure]
-    protected static FunctionPointerTypeSyntax CreateOverlapHandlerType(GeneratorContext context) =>
+    protected static FunctionPointerTypeSyntax CreateOverlapHandlerType(FileGeneratorContext context) =>
         FunctionPointerType(
             null,
             FunctionPointerParameterList(
@@ -296,13 +296,13 @@ public abstract class TypeGenerator
     [Pure]
     protected IReadOnlyList<GeneratedFile> GenerateOneFilePerType(GeneratorContext context)
     {
-        var typeCount = CreateTypes(context.WithRequiredUsings()).Count();
+        var typeCount = CreateTypes(context.CreateFileContext()).Count();
 
         return Enumerable
             .Range(0, typeCount)
             .Select(index =>
             {
-                var fileContext = context.WithRequiredUsings();
+                var fileContext = context.CreateFileContext();
                 var type = CreateTypes(fileContext).ElementAt(index);
                 return new GeneratedFile($"{type.Identifier.ValueText}.generated.cs", Generate(GenerateCompilationUnit(fileContext, [type])));
             })
@@ -310,9 +310,9 @@ public abstract class TypeGenerator
     }
 
     [Pure]
-    private static CompilationUnitSyntax GenerateCompilationUnit(GeneratorContext context, IEnumerable<BaseTypeDeclarationSyntax> types)
+    private static CompilationUnitSyntax GenerateCompilationUnit(FileGeneratorContext context, IEnumerable<BaseTypeDeclarationSyntax> types)
     {
-        var members = new List<MemberDeclarationSyntax> { context.CreateRootNamespaceDeclaration() };
+        var members = new List<MemberDeclarationSyntax> { context.GeneratorContext.CreateRootNamespaceDeclaration() };
         members.AddRange(types);
 
         return CompilationUnit()

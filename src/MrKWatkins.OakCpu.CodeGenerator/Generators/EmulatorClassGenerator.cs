@@ -13,18 +13,18 @@ public abstract class EmulatorClassGenerator : TypeGenerator
     {
     }
 
-    protected sealed override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
+    protected sealed override BaseTypeDeclarationSyntax CreateType(FileGeneratorContext context)
     {
         var classDeclaration = PopulateClass(
             context,
             ClassDeclaration(Class.Name.Emulator(context)).AddModifiers(Public, Sealed, Unsafe, Partial));
 
         return GetBaseFileName(context) == Class.Name.Emulator(context)
-            ? WithXmlDocumentation(classDeclaration, $"Represents a cycle-accurate {context.Cpu.Name} emulator that executes one T-state at a time.")
+            ? WithXmlDocumentation(classDeclaration, $"Represents a cycle-accurate {context.GeneratorContext.Cpu.Name} emulator that executes one T-state at a time.")
             : classDeclaration;
     }
 
     [Pure]
-    protected abstract ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration);
+    protected abstract ClassDeclarationSyntax PopulateClass(FileGeneratorContext context, ClassDeclarationSyntax classDeclaration);
 
 }

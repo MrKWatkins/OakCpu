@@ -142,7 +142,7 @@ internal static class StatementBoundaryEmitter
 
         if (instructionStep.ExitOverlapStep != null)
         {
-            foreach (var statement in StatementGenerator.GenerateOverlapStatements(context.GeneratorContext, instructionStep.ExitOverlapStep, context.GeneratorContext.GetImplicitInstructionCompleteStatementCount(instructionStep.ExitOverlapStep)))
+            foreach (var statement in StatementGenerator.GenerateOverlapStatements(context.FileContext, instructionStep.ExitOverlapStep, context.GeneratorContext.GetImplicitInstructionCompleteStatementCount(instructionStep.ExitOverlapStep)))
             {
                 yield return statement;
             }

@@ -14,13 +14,14 @@ public sealed class GeneratorContext
 {
     private readonly ModelState model;
     private readonly OverlapState overlap;
-    private InstructionEmulatorDispatchInfo? instructionEmulatorDispatchInfo;
+    private readonly InstructionEmulatorDispatchInfo instructionEmulatorDispatchInfo;
 
     private GeneratorContext(string rootNamespace, ModelState model, OverlapState overlap)
     {
         RootNamespace = rootNamespace;
         this.model = model;
         this.overlap = overlap;
+        instructionEmulatorDispatchInfo = CreateInstructionEmulatorDispatchInfo();
     }
 
     public string RootNamespace { get; }
@@ -49,17 +50,15 @@ public sealed class GeneratorContext
 
     public IReadOnlyList<Step> OverlapSteps => overlap.OverlapSteps;
 
-    internal RequiredUsings RequiredUsings { get; } = new();
-
     public int ErrorStepIndex => AllSteps.Count;
 
-    public IReadOnlyList<StepSequence> InstructionEmulatorSequences => GetInstructionEmulatorDispatchInfo().Sequences;
+    public IReadOnlyList<StepSequence> InstructionEmulatorSequences => instructionEmulatorDispatchInfo.Sequences;
 
-    public int InstructionEmulatorDispatchCount => GetInstructionEmulatorDispatchInfo().ErrorIndex + 1;
+    public int InstructionEmulatorDispatchCount => instructionEmulatorDispatchInfo.ErrorIndex + 1;
 
-    public ushort InstructionEmulatorErrorIndex => GetInstructionEmulatorDispatchInfo().ErrorIndex;
+    public ushort InstructionEmulatorErrorIndex => instructionEmulatorDispatchInfo.ErrorIndex;
 
-    public ushort GetInstructionEmulatorSequenceIndex(StepSequence sequence) => GetInstructionEmulatorDispatchInfo().SequenceIndices[sequence];
+    public ushort GetInstructionEmulatorSequenceIndex(StepSequence sequence) => instructionEmulatorDispatchInfo.SequenceIndices[sequence];
 
     [Pure]
     internal int GetImplicitInstructionCompleteStatementCount(Step step)
@@ -141,14 +140,11 @@ public sealed class GeneratorContext
     }
 
     [Pure]
-    internal GeneratorContext WithRequiredUsings() => new(RootNamespace, model, overlap);
+    internal FileGeneratorContext CreateFileContext() => new(this);
 
     [Pure]
     private Step GetOverlapImplementation(Step step) =>
         overlap.Implementations.TryGetValue(step, out var implementation) ? implementation : throw new InvalidOperationException($"No overlap implementation has been defined for step {step.Name}.");
-
-    [Pure]
-    private InstructionEmulatorDispatchInfo GetInstructionEmulatorDispatchInfo() => instructionEmulatorDispatchInfo ??= CreateInstructionEmulatorDispatchInfo();
 
     [Pure]
     private InstructionEmulatorDispatchInfo CreateInstructionEmulatorDispatchInfo()
@@ -262,7 +258,7 @@ public sealed class GeneratorContext
 
         var overlapBodies = overlapCandidates.ToDictionary(
             step => step,
-            step => (IReadOnlyList<StatementSyntax>)StatementGenerator.GenerateOverlapStatements(temporaryContext, step)
+            step => (IReadOnlyList<StatementSyntax>)StatementGenerator.GenerateOverlapStatements(temporaryContext.CreateFileContext(), step)
                 .ToList());
 
         var groups = new List<IReadOnlyList<Step>>();

@@ -17,7 +17,7 @@ public sealed class EmulatorInterruptsGenerator : EmulatorClassGenerator
 
     protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.Emulator(context)}.interrupts";
 
-    protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
+    protected override ClassDeclarationSyntax PopulateClass(FileGeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration
             .WithMembers(
             [
@@ -25,11 +25,11 @@ public sealed class EmulatorInterruptsGenerator : EmulatorClassGenerator
             ]);
 
     [Pure]
-    private static MethodDeclarationSyntax CreateHandleInterruptsMethod(GeneratorContext context)
+    private static MethodDeclarationSyntax CreateHandleInterruptsMethod(FileGeneratorContext context)
     {
         StatementSyntax[] statements =
         [
-            .. StatementGenerator.GenerateStatements(context, context.Interrupts.Handle),
+            .. StatementGenerator.GenerateStatements(context, context.GeneratorContext.Interrupts.Handle),
             ReturnStatement(LiteralExpression(SyntaxKind.FalseLiteralExpression))
         ];
 

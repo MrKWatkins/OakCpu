@@ -51,7 +51,7 @@ internal static class StatementTransitionEmitter
     public static IEnumerable<StatementSyntax> GenerateMoveToOpcode(StatementGeneratorContext context)
     {
         var opcodeStep = CreateArrayGetWithoutBoundsCheck(
-            context.GeneratorContext.RequiredUsings,
+            context.RequiredUsings,
             EmulatorMemberIdentifier(PreDefinedDataMember.OpcodeStepTable.FieldName),
             EmulatorMemberIdentifier(PreDefinedDataMember.Data.FieldName));
 
@@ -127,7 +127,7 @@ internal static class StatementTransitionEmitter
     private static IEnumerable<StatementSyntax> GenerateMoveToSequenceGroup(StatementGeneratorContext context, SequenceGroup sequenceGroup, Expression selector)
     {
         var getSequence = CreateArrayGetWithoutBoundsCheck(
-            context.GeneratorContext.RequiredUsings,
+            context.RequiredUsings,
             IdentifierName(Field.Name.SequenceGroupStepTable(sequenceGroup)),
             ExpressionGenerator.GenerateExpressionSyntax(context, selector));
 
@@ -195,7 +195,7 @@ internal static class StatementTransitionEmitter
                         .WithInitializer(
                             EqualsValueClause(
                                 CreateArrayGetWithoutBoundsCheck(
-                                    context.GeneratorContext.RequiredUsings,
+                                    context.RequiredUsings,
                                     IdentifierName("Steps"),
                                     EmulatorMemberIdentifier(PreDefinedDataMember.CurrentStep.FieldName))))
                 ]));

@@ -26,7 +26,7 @@ public sealed class InstructionEmulatorResetGenerator : TypeGenerator
 
     protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.InstructionEmulator(context)}.reset";
 
-    protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context) =>
+    protected override BaseTypeDeclarationSyntax CreateType(FileGeneratorContext context) =>
         ClassDeclaration(Class.Name.InstructionEmulator(context))
             .AddModifiers(Public, Sealed, Unsafe, Partial)
             .AddMembers(GenerateReset(context));

@@ -24,17 +24,17 @@ public sealed class EmulatorOverlapsGenerator : EmulatorClassGenerator
 
     protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.Emulator(context)}.overlaps";
 
-    protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
+    protected override ClassDeclarationSyntax PopulateClass(FileGeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration
             .AddMembers(CreateExecuteOverlapMethod(context), CreateSerializeOverlapPipelineMethod(), CreateRestoreOverlapPipelineMethod())
-            .AddMembers(context.OverlapSteps.Select(step => CreateOverlapMethod(context, step)).ToArray());
+            .AddMembers(context.GeneratorContext.OverlapSteps.Select(step => CreateOverlapMethod(context, step)).ToArray());
 
     [Pure]
-    private static MemberDeclarationSyntax CreateOverlapMethod(GeneratorContext context, Step step)
+    private static MemberDeclarationSyntax CreateOverlapMethod(FileGeneratorContext context, Step step)
     {
         var statements = StatementGenerator.GenerateOverlapStatements(context, step);
 
-        var comments = context.GetOverlapImplementationAndDuplicates(step).Select(s => Comment($"// Overlap {s.Name}"));
+        var comments = context.GeneratorContext.GetOverlapImplementationAndDuplicates(step).Select(s => Comment($"// Overlap {s.Name}"));
 
         var function = MethodDeclaration(VoidType, Identifier(Method.Name.Overlap(context, step)))
             .WithModifiers([Private, Static])
@@ -44,13 +44,13 @@ public sealed class EmulatorOverlapsGenerator : EmulatorClassGenerator
             ]))
             .WithBody(Block(statements));
 
-        return step == context.OpcodeRead.FirstStep.Implementation
+        return step == context.GeneratorContext.OpcodeRead.FirstStep.Implementation
             ? function.WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(comments)])
             : function.WithLeadingTrivia(comments);
     }
 
     [Pure]
-    private static MemberDeclarationSyntax CreateExecuteOverlapMethod(GeneratorContext context)
+    private static MemberDeclarationSyntax CreateExecuteOverlapMethod(FileGeneratorContext context)
     {
         const string overlapVariableName = "overlap";
 

@@ -21,7 +21,7 @@ public sealed class StepStructGenerator : TypeGenerator
 
     protected override string GetBaseFileName(GeneratorContext context) => TypeName.StepStruct;
 
-    protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
+    protected override BaseTypeDeclarationSyntax CreateType(FileGeneratorContext context)
     {
         var actionType = FunctionPointerType(
             null,

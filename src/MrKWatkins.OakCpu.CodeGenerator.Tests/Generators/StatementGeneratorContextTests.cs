@@ -10,7 +10,7 @@ public sealed class StatementGeneratorContextTests : TestFixture
     [Test]
     public void Constructor_WithoutStep()
     {
-        var context = new StatementGeneratorContext(Z80GeneratorContext, null);
+        var context = new StatementGeneratorContext(CreateZ80FileGeneratorContext(), null);
         context.GeneratorContext.Should().BeTheSameInstanceAs(Z80GeneratorContext);
         context.Step.Should().BeNull();
         context.ArgumentScope.Should().BeEmpty();
@@ -29,7 +29,7 @@ public sealed class StatementGeneratorContextTests : TestFixture
     [Test]
     public void Constructor_WithStep()
     {
-        var context = new StatementGeneratorContext(Z80GeneratorContext, Step);
+        var context = new StatementGeneratorContext(CreateZ80FileGeneratorContext(), Step);
         context.GeneratorContext.Should().BeTheSameInstanceAs(Z80GeneratorContext);
         context.Step.Should().BeTheSameInstanceAs(Step);
         context.ArgumentScope.Should().BeEmpty();
@@ -126,7 +126,7 @@ public sealed class StatementGeneratorContextTests : TestFixture
     [Test]
     public void WithoutHandleInterrupts()
     {
-        var context = new StatementGeneratorContext(Z80GeneratorContext, Step);
+        var context = new StatementGeneratorContext(CreateZ80FileGeneratorContext(), Step);
 
         var newContext = context.WithoutHandleInterrupts();
 
@@ -158,7 +158,7 @@ public sealed class StatementGeneratorContextTests : TestFixture
     [Test]
     public void WithInstructionStepMode()
     {
-        var context = new StatementGeneratorContext(Z80GeneratorContext, Step);
+        var context = new StatementGeneratorContext(CreateZ80FileGeneratorContext(), Step);
 
         var newContext = context.WithInstructionStepMode("nextInstruction", Step, 7);
 
@@ -178,7 +178,7 @@ public sealed class StatementGeneratorContextTests : TestFixture
     [Test]
     public void WithInstructionCompletionMode()
     {
-        var context = new StatementGeneratorContext(Z80GeneratorContext, null);
+        var context = new StatementGeneratorContext(CreateZ80FileGeneratorContext(), null);
 
         var newContext = context.WithInstructionCompletionMode("instructionUpdatesFlags");
 
@@ -194,7 +194,7 @@ public sealed class StatementGeneratorContextTests : TestFixture
     [Test]
     public void RequiredInstructionStep_ThrowsOutsideInstructionStepMode()
     {
-        var context = new StatementGeneratorContext(Z80GeneratorContext, Step);
+        var context = new StatementGeneratorContext(CreateZ80FileGeneratorContext(), Step);
 
         Assert.Throws<InvalidOperationException>(() => _ = context.RequiredInstructionStep);
     }
@@ -206,7 +206,7 @@ public sealed class StatementGeneratorContextTests : TestFixture
         return Parser.ParseExpression(context, text);
     }
 
-    private static StatementGeneratorContext CreateInstructionStepContext() => new StatementGeneratorContext(Z80GeneratorContext, Step).WithInstructionStepMode("nextInstruction", Step, 7);
+    private static StatementGeneratorContext CreateInstructionStepContext() => new StatementGeneratorContext(CreateZ80FileGeneratorContext(), Step).WithInstructionStepMode("nextInstruction", Step, 7);
 
     private static Step Step => Z80GeneratorContext.Instructions[0].FirstStep;
 }

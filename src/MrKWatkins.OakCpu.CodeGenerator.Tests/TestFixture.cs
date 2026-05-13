@@ -14,6 +14,9 @@ public abstract class TestFixture
     protected static GeneratorContext Z80GeneratorContext => LazyZ80GeneratorInput.Value;
 
     [Pure]
+    protected static FileGeneratorContext CreateZ80FileGeneratorContext() => Z80GeneratorContext.CreateFileContext();
+
+    [Pure]
     protected static Task<YamlFile> LoadZ80DefinitionFileAsync(string name)
     {
         var file = Path.Combine(Z80DefinitionsDirectory, name);

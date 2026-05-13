@@ -44,7 +44,7 @@ internal static class ExplicitLayoutBuilder
     /// Creates a <c>StructLayout(LayoutKind.Explicit)</c> attribute and records the required using directive.
     /// </summary>
     [MustUseReturnValue]
-    public static AttributeSyntax CreateStructLayoutAttribute(GeneratorContext context)
+    public static AttributeSyntax CreateStructLayoutAttribute(FileGeneratorContext context)
     {
         context.RequiredUsings.Add(typeof(LayoutKind));
 
@@ -63,7 +63,7 @@ internal static class ExplicitLayoutBuilder
     /// Creates a <c>FieldOffset</c> attribute for an explicitly laid out field and records the required using directive.
     /// </summary>
     [MustUseReturnValue]
-    public static AttributeSyntax CreateFieldOffsetAttribute(GeneratorContext context, int fieldOffset)
+    public static AttributeSyntax CreateFieldOffsetAttribute(FileGeneratorContext context, int fieldOffset)
     {
         context.RequiredUsings.Add(typeof(FieldOffsetAttribute));
 
@@ -81,7 +81,7 @@ internal static class ExplicitLayoutBuilder
     /// Creates an explicitly laid out field for a register.
     /// </summary>
     [MustUseReturnValue]
-    public static FieldDeclarationSyntax CreateRegisterField(GeneratorContext context, Register register) =>
+    public static FieldDeclarationSyntax CreateRegisterField(FileGeneratorContext context, Register register) =>
         CreateOffsetField(context, register.Type.TypeSyntax(), register.FieldName, register.FieldOffset, Internal);
 
     /// <summary>
@@ -89,7 +89,7 @@ internal static class ExplicitLayoutBuilder
     /// </summary>
     [MustUseReturnValue]
     public static FieldDeclarationSyntax CreateOffsetField(
-        GeneratorContext context,
+        FileGeneratorContext context,
         TypeSyntax type,
         string name,
         int fieldOffset,
@@ -118,7 +118,7 @@ internal static class ExplicitLayoutBuilder
     /// Creates a get-only property backed by a field-targeted <c>FieldOffset</c> attribute.
     /// </summary>
     [MustUseReturnValue]
-    public static PropertyDeclarationSyntax CreateGetOnlyPropertyWithFieldOffset(GeneratorContext context, string typeName, string propertyName, int fieldOffset)
+    public static PropertyDeclarationSyntax CreateGetOnlyPropertyWithFieldOffset(FileGeneratorContext context, string typeName, string propertyName, int fieldOffset)
     {
         var attributeList = AttributeList(SingletonSeparatedList(CreateFieldOffsetAttribute(context, fieldOffset)))
             .WithTarget(AttributeTargetSpecifier(Token(SyntaxKind.FieldKeyword)));
@@ -133,7 +133,7 @@ internal static class ExplicitLayoutBuilder
     /// Creates a property that exposes a data member field through aggressive-inlined accessors.
     /// </summary>
     [MustUseReturnValue]
-    public static PropertyDeclarationSyntax CreateDataMemberProperty(GeneratorContext context, DataMember member)
+    public static PropertyDeclarationSyntax CreateDataMemberProperty(FileGeneratorContext context, DataMember member)
     {
         var fieldAccessExpression = IdentifierName(member.FieldName);
 

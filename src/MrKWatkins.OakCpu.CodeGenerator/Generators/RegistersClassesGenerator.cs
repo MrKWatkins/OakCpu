@@ -23,7 +23,7 @@ public sealed class RegistersClassesGenerator : TypeGenerator
     [Pure]
     public override IReadOnlyList<GeneratedFile> GenerateFiles(GeneratorContext context) => GenerateOneFilePerType(context);
 
-    protected override IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(GeneratorContext context)
+    protected override IEnumerable<BaseTypeDeclarationSyntax> CreateTypes(FileGeneratorContext context)
     {
         foreach (var category in GetAllCategories(context))
         {
@@ -34,7 +34,7 @@ public sealed class RegistersClassesGenerator : TypeGenerator
     }
 
     [Pure]
-    private static ClassDeclarationSyntax CreateBaseClass(GeneratorContext context, string? category)
+    private static ClassDeclarationSyntax CreateBaseClass(FileGeneratorContext context, string? category)
     {
         var members = new List<MemberDeclarationSyntax>();
         if (category == null)
@@ -51,15 +51,15 @@ public sealed class RegistersClassesGenerator : TypeGenerator
         members.AddRange(CreateRegisterProperties(context, category, createOverrideProperty: false));
 
         var summary = category == null
-            ? $"Provides access to the {context.Cpu.Name} registers."
-            : $"Provides access to the {context.Cpu.Name} {category.ToLowerInvariant()} registers.";
+            ? $"Provides access to the {context.GeneratorContext.Cpu.Name} registers."
+            : $"Provides access to the {context.GeneratorContext.Cpu.Name} {category.ToLowerInvariant()} registers.";
 
         return CreateFacadeBaseClass(Class.Name.Registers(context, category), summary, members);
     }
 
     [Pure]
     private static ClassDeclarationSyntax CreateConcreteClass(
-        GeneratorContext context,
+        FileGeneratorContext context,
         string? category,
         string className,
         TypeSyntax emulatorType,
@@ -130,20 +130,20 @@ public sealed class RegistersClassesGenerator : TypeGenerator
     }
 
     [Pure]
-    private static IEnumerable<PropertyDeclarationSyntax> CreateCategoryProperties(GeneratorContext context, IReadOnlyList<string> categories) =>
+    private static IEnumerable<PropertyDeclarationSyntax> CreateCategoryProperties(FileGeneratorContext context, IReadOnlyList<string> categories) =>
         categories.Select(category => WithXmlDocumentation(
             CreateGetOnlyProperty(context, Class.Name.Registers(context, category), category),
-            $"Gets the {context.Cpu.Name} {category.ToLowerInvariant()} registers."));
+            $"Gets the {context.GeneratorContext.Cpu.Name} {category.ToLowerInvariant()} registers."));
 
     [Pure]
-    private static IEnumerable<PropertyDeclarationSyntax> CreateRegisterProperties(GeneratorContext context, string? category, bool createOverrideProperty) =>
-        context.Configuration.Registers.Values
+    private static IEnumerable<PropertyDeclarationSyntax> CreateRegisterProperties(FileGeneratorContext context, string? category, bool createOverrideProperty) =>
+        context.GeneratorContext.Configuration.Registers.Values
             .Where(register => register.HasRegisterClassProperty && register.Category == category)
             .OrderBy(register => register.Name)
             .Select(register => CreateRegisterProperty(context, register, createOverrideProperty));
 
     [Pure]
-    private static PropertyDeclarationSyntax CreateRegisterProperty(GeneratorContext context, Register register, bool createOverrideProperty)
+    private static PropertyDeclarationSyntax CreateRegisterProperty(FileGeneratorContext context, Register register, bool createOverrideProperty)
     {
         if (!createOverrideProperty)
         {

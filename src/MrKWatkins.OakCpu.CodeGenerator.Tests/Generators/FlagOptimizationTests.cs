@@ -9,7 +9,7 @@ public sealed class FlagOptimizationTests : TestFixture
     [Test]
     public void PerformAllOptimizations_WithSingleConstant_ReturnsTheOriginalConstant()
     {
-        var context = new StatementGeneratorContext(Z80GeneratorContext, null);
+        var context = new StatementGeneratorContext(CreateZ80FileGeneratorContext(), null);
         var flag = context.Configuration.Flags.Values.OrderBy(f => f.Index).First();
         var constant = new Constant([flag], flag.BitMask);
 
@@ -22,7 +22,7 @@ public sealed class FlagOptimizationTests : TestFixture
     [Test]
     public void PerformAllOptimizations_WithMultipleConstants_CombinesThem()
     {
-        var context = new StatementGeneratorContext(Z80GeneratorContext, null);
+        var context = new StatementGeneratorContext(CreateZ80FileGeneratorContext(), null);
         var flags = context.Configuration.Flags.Values.OrderBy(f => f.Index).Take(2).ToArray();
         var firstFlag = flags[0];
         var secondFlag = flags[1];

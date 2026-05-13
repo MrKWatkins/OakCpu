@@ -20,14 +20,15 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
 
     protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.Emulator(context)}.initialization";
 
-    protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration)
+    protected override ClassDeclarationSyntax PopulateClass(FileGeneratorContext context, ClassDeclarationSyntax classDeclaration)
     {
+        var generatorContext = context.GeneratorContext;
         var members = new List<MemberDeclarationSyntax>
         {
-            CreateSequenceStartConstant("OpcodeRead", context.OpcodeRead),
-            CreateSequenceStartConstant("Halted", context.Interrupts.Halted)
+            CreateSequenceStartConstant("OpcodeRead", generatorContext.OpcodeRead),
+            CreateSequenceStartConstant("Halted", generatorContext.Interrupts.Halted)
         };
-        members.AddRange(context.GetSequenceGroup(InterruptMode.SequenceGroupName).Members
+        members.AddRange(generatorContext.GetSequenceGroup(InterruptMode.SequenceGroupName).Members
             .OrderBy(mode => mode.Key)
             .Select(mode => CreateSequenceStartConstant($"IM{mode.Key}", mode.Value)));
 
@@ -64,7 +65,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
             .WithSemicolonToken(Semicolon);
 
     [Pure]
-    private static MemberDeclarationSyntax CreateOverlapsField(GeneratorContext context) =>
+    private static MemberDeclarationSyntax CreateOverlapsField(FileGeneratorContext context) =>
         FieldDeclaration(
                 VariableDeclaration(
                         ArrayType(CreateOverlapHandlerType(context))
@@ -74,9 +75,9 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
             .WithSemicolonToken(Semicolon);
 
     [Pure]
-    private static StatementSyntax CreateInitializeStepsField(GeneratorContext context)
+    private static StatementSyntax CreateInitializeStepsField(FileGeneratorContext context)
     {
-        var stepCreations = context.AllSteps.Select(step => CreateStep(context, step)).Append(CreateErrorStep());
+        var stepCreations = context.GeneratorContext.AllSteps.Select(step => CreateStep(context, step)).Append(CreateErrorStep());
 
         var elements = stepCreations.Select(ExpressionElement).ToArray();
 
@@ -88,9 +89,9 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     }
 
     [Pure]
-    private static StatementSyntax CreateInitializeOverlapsField(GeneratorContext context)
+    private static StatementSyntax CreateInitializeOverlapsField(FileGeneratorContext context)
     {
-        var overlaps = context.OverlapSteps
+        var overlaps = context.GeneratorContext.OverlapSteps
             .Select(step => (CollectionElementSyntax)ExpressionElement(CreateOverlap(context, step)))
             .Prepend(ExpressionElement(DefaultExpression(CreateOverlapHandlerType(context))));
 
@@ -110,7 +111,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     }
 
     [Pure]
-    private static ImplicitObjectCreationExpressionSyntax CreateStep(GeneratorContext context, Step step)
+    private static ImplicitObjectCreationExpressionSyntax CreateStep(FileGeneratorContext context, Step step)
     {
         ExpressionSyntax handler = step.DoesNothing || step.ExecutesAsOverlapOnly
             ? LiteralExpression(SyntaxKind.DefaultLiteralExpression)
@@ -119,11 +120,11 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
         var nextStep = step.NextOpcode switch
         {
             NextOpcodeMode.Read => 0,
-            NextOpcodeMode.Overlapped when step.Sequence is PrefixJump => context.OpcodeRead.Steps[1].Index,
+            NextOpcodeMode.Overlapped when step.Sequence is PrefixJump => context.GeneratorContext.OpcodeRead.Steps[1].Index,
             NextOpcodeMode.Overlapped => GetOverlappedNextStep(context, step.Sequence),
-            NextOpcodeMode.Custom => context.ErrorStepIndex,
+            NextOpcodeMode.Custom => context.GeneratorContext.ErrorStepIndex,
             NextOpcodeMode.Loop => step.Sequence.FirstStep.Index,
-            null when step.QueuesOverlapStep => context.OpcodeRead.FirstStep.Index,
+            null when step.QueuesOverlapStep => context.GeneratorContext.OpcodeRead.FirstStep.Index,
             null => step.Index + 1,
             _ => throw new NotSupportedException($"The {nameof(NextOpcodeMode)} {step.NextOpcode} is not supported.")
         };
@@ -133,7 +134,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
             : LiteralExpression(SyntaxKind.DefaultLiteralExpression);
 
         var action = step is { NextOpcode: NextOpcodeMode.Overlapped, Sequence: PrefixJump }
-            ? context.OpcodeRead.FirstStep.RequiredAction
+            ? context.GeneratorContext.OpcodeRead.FirstStep.RequiredAction
             : step.RequiredAction;
 
         return CreateStepCreation(handler, nextStep, action, overlap);
@@ -162,13 +163,13 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
                 ]));
 
     [Pure]
-    private static ExpressionSyntax CreateOverlap(GeneratorContext context, Step step) =>
+    private static ExpressionSyntax CreateOverlap(FileGeneratorContext context, Step step) =>
         step.DoesNothing
             ? LiteralExpression(SyntaxKind.DefaultLiteralExpression)
             : PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(Method.Name.Overlap(context, step)));
 
     [MustUseReturnValue]
-    private static ConstructorDeclarationSyntax CreateStaticConstructor(GeneratorContext context)
+    private static ConstructorDeclarationSyntax CreateStaticConstructor(FileGeneratorContext context)
     {
         var statements = new List<StatementSyntax>
         {
@@ -186,13 +187,13 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     }
 
     [Pure]
-    private static StatementSyntax CreateOpcodeStepTableInitializationStatement(GeneratorContext context, OpcodeStepTable opcodeStepTable, [InstantHandle] IEnumerable<Instruction> instructions, IReadOnlyList<(byte Opcode, Step Step)> duplicates)
+    private static StatementSyntax CreateOpcodeStepTableInitializationStatement(FileGeneratorContext context, OpcodeStepTable opcodeStepTable, [InstantHandle] IEnumerable<Instruction> instructions, IReadOnlyList<(byte Opcode, Step Step)> duplicates)
     {
-        var stepIndices = Enumerable.Repeat(context.ErrorStepIndex, 256).ToArray();
+        var stepIndices = Enumerable.Repeat(context.GeneratorContext.ErrorStepIndex, 256).ToArray();
 
         if (opcodeStepTable == OpcodeStepTable.NoPrefix)
         {
-            foreach (var prefixJump in context.PrefixJumps.Values)
+            foreach (var prefixJump in context.GeneratorContext.PrefixJumps.Values)
             {
                 stepIndices[prefixJump.Prefix] = prefixJump.FirstStep.Index;
             }
@@ -221,9 +222,9 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     }
 
     [Pure]
-    private static StatementSyntax CreateSequenceGroupStepTableInitializationStatement(GeneratorContext context, SequenceGroup sequenceGroup)
+    private static StatementSyntax CreateSequenceGroupStepTableInitializationStatement(FileGeneratorContext context, SequenceGroup sequenceGroup)
     {
-        var stepIndices = Enumerable.Repeat(context.ErrorStepIndex, sequenceGroup.MaximumNumber + 1).ToArray();
+        var stepIndices = Enumerable.Repeat(context.GeneratorContext.ErrorStepIndex, sequenceGroup.MaximumNumber + 1).ToArray();
 
         foreach (var member in sequenceGroup.Members)
         {

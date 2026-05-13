@@ -23,9 +23,10 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
     protected override string GetBaseFileName(GeneratorContext context) => Class.Name.Emulator(context);
 
     // TODO: An automatic layout algorithm taking into account padding would be nice.
-    protected override ClassDeclarationSyntax PopulateClass(GeneratorContext context, ClassDeclarationSyntax classDeclaration)
+    protected override ClassDeclarationSyntax PopulateClass(FileGeneratorContext context, ClassDeclarationSyntax classDeclaration)
     {
-        var members = context.Configuration.Registers.Values.Select(r => ExplicitLayoutBuilder.CreateRegisterField(context, r)).ToList<MemberDeclarationSyntax>();
+        var generatorContext = context.GeneratorContext;
+        var members = generatorContext.Configuration.Registers.Values.Select(r => ExplicitLayoutBuilder.CreateRegisterField(context, r)).ToList<MemberDeclarationSyntax>();
 
         members.Add(CreateConstructor(context));
 
@@ -40,7 +41,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         fieldOffset += 8;
 
         // Order by size descending so each field ends up aligned to its own width.
-        foreach (var dataMember in context.Configuration.AllDataMembers.Values.Concat<DataMember>([PreDefinedDataMember.OverlapPipeline]).OrderByDescending(m => m == PreDefinedDataMember.OverlapPipeline ? 8 : m.Size))
+        foreach (var dataMember in generatorContext.Configuration.AllDataMembers.Values.Concat<DataMember>([PreDefinedDataMember.OverlapPipeline]).OrderByDescending(m => m == PreDefinedDataMember.OverlapPipeline ? 8 : m.Size))
         {
             if (dataMember == PreDefinedDataMember.OverlapPipeline)
             {
@@ -77,7 +78,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
     }
 
     [Pure]
-    private static IEnumerable<MemberDeclarationSyntax> CreateDataMember(GeneratorContext context, DataMember member, int fieldOffset)
+    private static IEnumerable<MemberDeclarationSyntax> CreateDataMember(FileGeneratorContext context, DataMember member, int fieldOffset)
     {
         yield return ExplicitLayoutBuilder.CreateOffsetField(context, member.TypeSyntax, member.FieldName, fieldOffset, member.FieldVisibility.ToSyntax());
 
@@ -92,11 +93,11 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
     }
 
     [Pure]
-    private static FieldDeclarationSyntax CreateOverlapPipelineField(GeneratorContext context, int fieldOffset) =>
+    private static FieldDeclarationSyntax CreateOverlapPipelineField(FileGeneratorContext context, int fieldOffset) =>
         ExplicitLayoutBuilder.CreateOffsetField(context, CreateOverlapHandlerType(context), PreDefinedDataMember.OverlapPipeline.FieldName, fieldOffset, PreDefinedDataMember.OverlapPipeline.FieldVisibility.ToSyntax());
 
     [Pure]
-    private static PropertyDeclarationSyntax CreateObjectProperty(GeneratorContext context, string typeName, string propertyName, int fieldOffset) =>
+    private static PropertyDeclarationSyntax CreateObjectProperty(FileGeneratorContext context, string typeName, string propertyName, int fieldOffset) =>
         WithXmlDocumentation(
             ExplicitLayoutBuilder.CreateGetOnlyPropertyWithFieldOffset(context, typeName, propertyName, fieldOffset),
             ExplicitLayoutBuilder.GetObjectPropertySummary(context, propertyName));

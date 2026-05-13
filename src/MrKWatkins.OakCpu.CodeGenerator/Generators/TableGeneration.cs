@@ -16,7 +16,7 @@ internal static class TableGeneration
             .Concat(context.SequenceGroups.Values.OrderBy(group => group.Name).Select(group => CreateSequenceGroupStepTableField(getSequenceGroupStepTableFieldName(group))));
 
     [MustUseReturnValue]
-    internal static IfStatementSyntax CreateLittleEndianStatement(GeneratorContext context)
+    internal static IfStatementSyntax CreateLittleEndianStatement(FileGeneratorContext context)
     {
         context.RequiredUsings.Add(typeof(BitConverter).Namespace!);
         context.RequiredUsings.Add(typeof(NotSupportedException).Namespace!);
@@ -48,18 +48,18 @@ internal static class TableGeneration
 
     [MustUseReturnValue]
     internal static IEnumerable<StatementSyntax> CreateTableInitializationStatements(
-        GeneratorContext context,
-        Func<GeneratorContext, OpcodeStepTable, IEnumerable<Instruction>, IReadOnlyList<(byte Opcode, Step Step)>, StatementSyntax> createOpcodeStepTableInitializationStatement,
-        Func<GeneratorContext, SequenceGroup, StatementSyntax> createSequenceGroupStepTableInitializationStatement)
+        FileGeneratorContext context,
+        Func<FileGeneratorContext, OpcodeStepTable, IEnumerable<Instruction>, IReadOnlyList<(byte Opcode, Step Step)>, StatementSyntax> createOpcodeStepTableInitializationStatement,
+        Func<FileGeneratorContext, SequenceGroup, StatementSyntax> createSequenceGroupStepTableInitializationStatement)
     {
         var duplicatesByOpcodeTable = CreateDuplicatesByOpcodeTable(context);
 
-        foreach (var group in context.Instructions.GroupBy(context.Configuration.OpcodeStepTables.GetForInstruction))
+        foreach (var group in context.GeneratorContext.Instructions.GroupBy(context.GeneratorContext.Configuration.OpcodeStepTables.GetForInstruction))
         {
             yield return createOpcodeStepTableInitializationStatement(context, group.Key, group, duplicatesByOpcodeTable.TryGetValue(group.Key, out var duplicates) ? duplicates : []);
         }
 
-        foreach (var sequenceGroup in context.SequenceGroups.Values.OrderBy(group => group.Name))
+        foreach (var sequenceGroup in context.GeneratorContext.SequenceGroups.Values.OrderBy(group => group.Name))
         {
             yield return createSequenceGroupStepTableInitializationStatement(context, sequenceGroup);
         }

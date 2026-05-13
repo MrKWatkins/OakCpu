@@ -8,7 +8,7 @@ public sealed class ExplicitLayoutBuilderTests : TestFixture
     [Test]
     public void CreateStructLayoutAttribute()
     {
-        var context = Z80GeneratorContext.WithRequiredUsings();
+        var context = CreateZ80FileGeneratorContext();
 
         var result = ExplicitLayoutBuilder.CreateStructLayoutAttribute(context);
 
@@ -19,7 +19,7 @@ public sealed class ExplicitLayoutBuilderTests : TestFixture
     [Test]
     public void CreateFieldOffsetAttribute()
     {
-        var context = Z80GeneratorContext.WithRequiredUsings();
+        var context = CreateZ80FileGeneratorContext();
 
         var result = ExplicitLayoutBuilder.CreateFieldOffsetAttribute(context, 42);
 
@@ -30,7 +30,7 @@ public sealed class ExplicitLayoutBuilderTests : TestFixture
     [Test]
     public void CreateGetOnlyPropertyWithFieldOffset()
     {
-        var context = Z80GeneratorContext.WithRequiredUsings();
+        var context = CreateZ80FileGeneratorContext();
 
         var result = ExplicitLayoutBuilder.CreateGetOnlyPropertyWithFieldOffset(context, "Z80Registers", Identifiers.Property.Name.Registers, 24);
 
@@ -44,7 +44,7 @@ public sealed class ExplicitLayoutBuilderTests : TestFixture
     [Test]
     public void CreateDataMemberProperty()
     {
-        var context = Z80GeneratorContext.WithRequiredUsings();
+        var context = CreateZ80FileGeneratorContext();
 
         var result = ExplicitLayoutBuilder.CreateDataMemberProperty(context, PreDefinedDataMember.Data);
 

@@ -17,11 +17,11 @@ public sealed class InstructionEmulatorInterruptsGenerator : TypeGenerator
 
     protected override string GetBaseFileName(GeneratorContext context) => $"{Class.Name.InstructionEmulator(context)}.interrupts";
 
-    protected override BaseTypeDeclarationSyntax CreateType(GeneratorContext context)
+    protected override BaseTypeDeclarationSyntax CreateType(FileGeneratorContext context)
     {
         StatementSyntax[] statements =
         [
-            .. StatementGenerator.GenerateStatements(context, context.Interrupts.Handle, instructionEmulatorMode: true),
+            .. StatementGenerator.GenerateStatements(context, context.GeneratorContext.Interrupts.Handle, instructionEmulatorMode: true),
             ReturnStatement(LiteralExpression(SyntaxKind.FalseLiteralExpression))
         ];
 
