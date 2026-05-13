@@ -7,6 +7,9 @@ using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
+/// <summary>
+/// Generates the register facade classes for both emulator variants.
+/// </summary>
 public sealed class RegistersClassesGenerator : TypeGenerator
 {
     public static readonly RegistersClassesGenerator Instance = new();
@@ -51,11 +54,7 @@ public sealed class RegistersClassesGenerator : TypeGenerator
             ? $"Provides access to the {context.Cpu.Name} registers."
             : $"Provides access to the {context.Cpu.Name} {category.ToLowerInvariant()} registers.";
 
-        return WithXmlDocumentation(
-            ClassDeclaration(Class.Name.Registers(context, category))
-                .AddModifiers(Public, Abstract)
-                .AddMembers(members.ToArray()),
-            summary);
+        return CreateFacadeBaseClass(Class.Name.Registers(context, category), summary, members);
     }
 
     [Pure]
@@ -66,17 +65,14 @@ public sealed class RegistersClassesGenerator : TypeGenerator
         TypeSyntax emulatorType,
         Func<GeneratorContext, string?, string> getConcreteClassName)
     {
-        var members = new List<MemberDeclarationSyntax>
-        {
-            CreateEmulatorField(emulatorType),
-            CreateConcreteConstructor(context, category, className, emulatorType, getConcreteClassName)
-        };
-        members.AddRange(CreateRegisterProperties(context, category, createOverrideProperty: true));
+        var members = CreateRegisterProperties(context, category, createOverrideProperty: true).Cast<MemberDeclarationSyntax>().ToArray();
 
-        return ClassDeclaration(className)
-            .AddModifiers(Internal, Sealed)
-            .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(Class.Name.Registers(context, category))))))
-            .AddMembers(members.ToArray());
+        return CreateFacadeConcreteClass(
+            className,
+            Class.Name.Registers(context, category),
+            emulatorType,
+            CreateConcreteConstructor(context, category, className, emulatorType, getConcreteClassName),
+            members);
     }
 
     [Pure]
@@ -109,27 +105,20 @@ public sealed class RegistersClassesGenerator : TypeGenerator
         TypeSyntax emulatorType,
         Func<GeneratorContext, string?, string> getConcreteClassName)
     {
-        var constructor = ConstructorDeclaration(className)
-            .WithModifiers(TokenList(Internal))
-            .WithParameterList(
-                ParameterList(
-                    SingletonSeparatedList(
-                        Parameter(Identifier(EmulatorFieldName))
-                            .WithType(emulatorType))))
-            .WithBody(Block(CreateAssignEmulatorFieldExpression()));
-
         if (category != null)
         {
-            return constructor;
+            return CreateFacadeConstructor(className, emulatorType);
         }
 
         var categories = GetCategories(context).ToArray();
         if (categories.Length == 0)
         {
-            return constructor;
+            return CreateFacadeConstructor(className, emulatorType);
         }
 
-        return constructor.WithInitializer(
+        return CreateFacadeConstructor(
+            className,
+            emulatorType,
             ConstructorInitializer(
                 SyntaxKind.BaseConstructorInitializer,
                 ArgumentList(

@@ -211,6 +211,56 @@ public abstract class TypeGenerator
                     .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(EmulatorFieldName)))))
             .WithModifiers(TokenList(Private, ReadOnly));
 
+    /// <summary>
+    /// Creates the abstract base class used by generated facade types such as flags, interrupts, and registers.
+    /// </summary>
+    [Pure]
+    protected static ClassDeclarationSyntax CreateFacadeBaseClass(string className, string summary, IReadOnlyList<MemberDeclarationSyntax> members) =>
+        WithXmlDocumentation(
+            ClassDeclaration(className)
+                .AddModifiers(Public, Abstract)
+                .AddMembers(members.ToArray()),
+            summary);
+
+    /// <summary>
+    /// Creates an internal concrete facade class that stores an emulator reference and inherits from the supplied base class.
+    /// </summary>
+    [Pure]
+    protected static ClassDeclarationSyntax CreateFacadeConcreteClass(string className, string baseClassName, TypeSyntax emulatorType, ConstructorDeclarationSyntax constructor, IReadOnlyList<MemberDeclarationSyntax> members)
+    {
+        var declarations = new List<MemberDeclarationSyntax>
+        {
+            CreateEmulatorField(emulatorType),
+            constructor
+        };
+        declarations.AddRange(members);
+
+        return ClassDeclaration(className)
+            .AddModifiers(Internal, Sealed)
+            .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(baseClassName)))))
+            .AddMembers(declarations.ToArray());
+    }
+
+    /// <summary>
+    /// Creates the standard constructor used by generated facade wrappers that store an emulator reference.
+    /// </summary>
+    [Pure]
+    protected static ConstructorDeclarationSyntax CreateFacadeConstructor(string className, TypeSyntax emulatorType, ConstructorInitializerSyntax? initializer = null)
+    {
+        var constructor = ConstructorDeclaration(className)
+            .WithModifiers(TokenList(Internal))
+            .WithParameterList(
+                ParameterList(
+                    SingletonSeparatedList(
+                        Parameter(Identifier(EmulatorFieldName))
+                            .WithType(emulatorType))))
+            .WithBody(Block(CreateAssignEmulatorFieldExpression()));
+
+        return initializer == null
+            ? constructor
+            : constructor.WithInitializer(initializer);
+    }
+
     [Pure]
     protected static FunctionPointerTypeSyntax CreateInstructionHandlerType(GeneratorContext context) =>
         FunctionPointerType(

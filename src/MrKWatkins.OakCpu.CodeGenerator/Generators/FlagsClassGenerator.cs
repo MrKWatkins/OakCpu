@@ -7,6 +7,9 @@ using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
+/// <summary>
+/// Generates the flags facade classes for both emulator variants.
+/// </summary>
 public sealed class FlagsClassGenerator : TypeGenerator
 {
     public static readonly FlagsClassGenerator Instance = new();
@@ -32,27 +35,19 @@ public sealed class FlagsClassGenerator : TypeGenerator
     {
         var members = CreateFlagProperties(context, createOverrideProperty: false).Cast<MemberDeclarationSyntax>().ToArray();
 
-        return WithXmlDocumentation(
-            ClassDeclaration(Class.Name.Flags(context))
-                .AddModifiers(Public, Abstract)
-                .AddMembers(members),
-            $"Provides access to the {context.Cpu.Name} flags.");
+        return CreateFacadeBaseClass(Class.Name.Flags(context), $"Provides access to the {context.Cpu.Name} flags.", members);
     }
 
     [Pure]
     private static ClassDeclarationSyntax CreateConcreteClass(GeneratorContext context, string className, TypeSyntax emulatorType)
     {
-        var members = new List<MemberDeclarationSyntax>
-        {
-            CreateEmulatorField(emulatorType),
-            CreateConstructor(className, emulatorType)
-        };
-        members.AddRange(CreateFlagProperties(context, createOverrideProperty: true));
-
-        return ClassDeclaration(className)
-            .AddModifiers(Internal, Sealed)
-            .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(Class.Name.Flags(context))))))
-            .AddMembers(members.ToArray());
+        var members = CreateFlagProperties(context, createOverrideProperty: true).Cast<MemberDeclarationSyntax>().ToArray();
+        return CreateFacadeConcreteClass(
+            className,
+            Class.Name.Flags(context),
+            emulatorType,
+            CreateFacadeConstructor(className, emulatorType),
+            members);
     }
 
     [Pure]
@@ -105,14 +100,4 @@ public sealed class FlagsClassGenerator : TypeGenerator
         return CreateOverrideGetSetProperty(context, BoolType, flag.Name, getExpression, setExpression);
     }
 
-    [Pure]
-    private static ConstructorDeclarationSyntax CreateConstructor(string className, TypeSyntax emulatorType) =>
-        ConstructorDeclaration(className)
-            .WithModifiers(TokenList(Internal))
-            .WithParameterList(
-                ParameterList(
-                    SingletonSeparatedList(
-                        Parameter(Identifier(EmulatorFieldName))
-                            .WithType(emulatorType))))
-            .WithBody(Block(CreateAssignEmulatorFieldExpression()));
 }

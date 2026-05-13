@@ -8,6 +8,9 @@ using Field = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Field;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
+/// <summary>
+/// Generates the interrupts facade classes for both emulator variants.
+/// </summary>
 public sealed class InterruptsClassGenerator : TypeGenerator
 {
     public static readonly InterruptsClassGenerator Instance = new();
@@ -33,27 +36,19 @@ public sealed class InterruptsClassGenerator : TypeGenerator
     {
         var members = CreateInterruptProperties(context, createOverrideProperty: false).Cast<MemberDeclarationSyntax>().ToArray();
 
-        return WithXmlDocumentation(
-            ClassDeclaration(Class.Name.Interrupts(context))
-                .AddModifiers(Public, Abstract)
-                .AddMembers(members),
-            $"Provides access to the {context.Cpu.Name} interrupt state.");
+        return CreateFacadeBaseClass(Class.Name.Interrupts(context), $"Provides access to the {context.Cpu.Name} interrupt state.", members);
     }
 
     [Pure]
     private static ClassDeclarationSyntax CreateConcreteClass(GeneratorContext context, string className, TypeSyntax emulatorType, bool instructionEmulator)
     {
-        var members = new List<MemberDeclarationSyntax>
-        {
-            CreateEmulatorField(emulatorType),
-            CreateConstructor(className, emulatorType)
-        };
-        members.AddRange(CreateInterruptProperties(context, createOverrideProperty: true, instructionEmulator));
-
-        return ClassDeclaration(className)
-            .AddModifiers(Internal, Sealed)
-            .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(Class.Name.Interrupts(context))))))
-            .AddMembers(members.ToArray());
+        var members = CreateInterruptProperties(context, createOverrideProperty: true, instructionEmulator).Cast<MemberDeclarationSyntax>().ToArray();
+        return CreateFacadeConcreteClass(
+            className,
+            Class.Name.Interrupts(context),
+            emulatorType,
+            CreateFacadeConstructor(className, emulatorType),
+            members);
     }
 
     [Pure]
@@ -145,14 +140,4 @@ public sealed class InterruptsClassGenerator : TypeGenerator
                 ]));
     }
 
-    [Pure]
-    private static ConstructorDeclarationSyntax CreateConstructor(string className, TypeSyntax emulatorType) =>
-        ConstructorDeclaration(className)
-            .WithModifiers(TokenList(Internal))
-            .WithParameterList(
-                ParameterList(
-                    SingletonSeparatedList(
-                        Parameter(Identifier(EmulatorFieldName))
-                            .WithType(emulatorType))))
-            .WithBody(Block(CreateAssignEmulatorFieldExpression()));
 }
