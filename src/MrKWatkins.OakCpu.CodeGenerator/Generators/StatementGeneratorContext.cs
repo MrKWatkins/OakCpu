@@ -7,7 +7,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 public sealed class StatementGeneratorContext
 {
     public StatementGeneratorContext(FileGeneratorContext fileContext, Step? step)
-        : this(fileContext, step, new HashSet<string>(), ImmutableDictionary<string, Expression>.Empty, false, null, StatementGenerationMode.Normal, null, null)
+        : this(fileContext, step, new HashSet<string>(), ImmutableDictionary<string, Expression>.Empty, false, null, StatementGenerationMode.Normal)
     {
     }
 
@@ -18,25 +18,8 @@ public sealed class StatementGeneratorContext
         ImmutableDictionary<string, Expression> argumentScope,
         bool inBooleanContext,
         Expression? parent,
-        StatementGenerationMode mode,
-        InstructionStepState? instructionStep,
-        string? instructionUpdatesFlagsParameterName)
+        StatementGenerationMode mode)
     {
-        if (mode == StatementGenerationMode.InstructionStep && instructionStep == null)
-        {
-            throw new InvalidOperationException("Instruction-step mode requires instruction-step state.");
-        }
-
-        if (mode != StatementGenerationMode.InstructionStep && instructionStep != null)
-        {
-            throw new InvalidOperationException("Instruction-step state is only valid in instruction-step mode.");
-        }
-
-        if (mode != StatementGenerationMode.InstructionCompletion && instructionUpdatesFlagsParameterName != null)
-        {
-            throw new InvalidOperationException("An instruction-updates-flags parameter is only valid in instruction-completion mode.");
-        }
-
         FileContext = fileContext;
         GeneratorContext = fileContext.GeneratorContext;
         Step = step;
@@ -45,8 +28,6 @@ public sealed class StatementGeneratorContext
         InBooleanContext = inBooleanContext;
         Parent = parent;
         Mode = mode;
-        InstructionStep = instructionStep;
-        InstructionUpdatesFlagsParameterName = instructionUpdatesFlagsParameterName;
     }
 
     internal FileGeneratorContext FileContext { get; }
@@ -69,17 +50,17 @@ public sealed class StatementGeneratorContext
 
     public StatementGenerationMode Mode { get; }
 
-    public InstructionStepState? InstructionStep { get; }
+    public InstructionStepState? InstructionStep => Mode.InstructionStep;
 
-    public string? InstructionUpdatesFlagsParameterName { get; }
+    public string? InstructionUpdatesFlagsParameterName => Mode.InstructionUpdatesFlagsParameterName;
 
-    public bool SkipHandleInterrupts => Mode == StatementGenerationMode.Overlap;
+    public bool SkipHandleInterrupts => Mode.SkipHandleInterruptsCall;
 
-    public bool InstructionCompletionMode => Mode == StatementGenerationMode.InstructionCompletion;
+    public bool InstructionCompletionMode => Mode is StatementGenerationMode.InstructionCompletionMode;
 
-    public bool InstructionStepMode => Mode == StatementGenerationMode.InstructionStep;
+    public bool InstructionStepMode => Mode is StatementGenerationMode.InstructionStepMode;
 
-    public bool InstructionEmulatorMode => Mode is StatementGenerationMode.InstructionEmulator or StatementGenerationMode.InstructionStep;
+    public bool InstructionEmulatorMode => Mode.IsInstructionEmulatorMode;
 
     [Pure]
     public StatementGeneratorContext WithArguments(IEnumerable<string> parameters, IEnumerable<Expression> arguments)
@@ -103,17 +84,14 @@ public sealed class StatementGeneratorContext
 
     [Pure]
     public StatementGeneratorContext WithInstructionStepMode(string? nextInstructionVariableName, Step? instructionExitOverlapStep, int instructionTStatesBeforeStep) =>
-        With(mode: StatementGenerationMode.InstructionStep, instructionStep: new InstructionStepState(nextInstructionVariableName, instructionExitOverlapStep, instructionTStatesBeforeStep), updateInstructionStep: true);
+        With(mode: StatementGenerationMode.CreateInstructionStep(nextInstructionVariableName, instructionExitOverlapStep, instructionTStatesBeforeStep));
 
     [Pure]
     public StatementGeneratorContext WithInstructionEmulatorMode() => With(mode: StatementGenerationMode.InstructionEmulator);
 
     [Pure]
     public StatementGeneratorContext WithInstructionCompletionMode(string instructionUpdatesFlagsParameterName) =>
-        With(
-            mode: StatementGenerationMode.InstructionCompletion,
-            instructionUpdatesFlagsParameterName: instructionUpdatesFlagsParameterName,
-            updateInstructionUpdatesFlagsParameterName: true);
+        With(mode: StatementGenerationMode.CreateInstructionCompletion(instructionUpdatesFlagsParameterName));
 
     [Pure]
     public InstructionStepState RequiredInstructionStep => InstructionStep ?? throw new InvalidOperationException("Instruction-step state is only available in instruction-step mode.");
@@ -125,24 +103,8 @@ public sealed class StatementGeneratorContext
         bool? inBooleanContext = null,
         Expression? parent = null,
         bool updateParent = false,
-        StatementGenerationMode? mode = null,
-        InstructionStepState? instructionStep = null,
-        bool updateInstructionStep = false,
-        string? instructionUpdatesFlagsParameterName = null,
-        bool updateInstructionUpdatesFlagsParameterName = false)
+        StatementGenerationMode? mode = null)
     {
-        var updatedMode = mode ?? Mode;
-        var updatedInstructionStep = updateInstructionStep
-            ? instructionStep
-            : updatedMode == Mode
-                ? InstructionStep
-                : null;
-        var updatedInstructionUpdatesFlagsParameterName = updateInstructionUpdatesFlagsParameterName
-            ? instructionUpdatesFlagsParameterName
-            : updatedMode == Mode
-                ? InstructionUpdatesFlagsParameterName
-                : null;
-
         return new StatementGeneratorContext(
             FileContext,
             Step,
@@ -150,9 +112,7 @@ public sealed class StatementGeneratorContext
             argumentScope ?? ArgumentScope,
             inBooleanContext ?? InBooleanContext,
             updateParent ? parent : Parent,
-            updatedMode,
-            updatedInstructionStep,
-            updatedInstructionUpdatesFlagsParameterName);
+            mode ?? Mode);
     }
 
     public sealed record InstructionStepState(

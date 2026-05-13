@@ -10,7 +10,6 @@ using Parameter = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Paramet
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
-[SuppressMessage("Maintainability", "CA1506:Avoid excessive class coupling", Justification = "Generator code necessarily composes many Roslyn syntax node types.")]
 public sealed class InstructionEmulatorGenerator : TypeGenerator
 {
     internal const string ExecuteDecodedInstructionMethodName = "ExecuteDecodedInstruction";

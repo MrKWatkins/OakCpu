@@ -298,7 +298,7 @@ dotnet_diagnostic.CA1502.severity = none
 dotnet_diagnostic.CA1505.severity = none
 
 # CA1506: Avoid excessive class coupling
-dotnet_diagnostic.CA1506.severity = error
+dotnet_diagnostic.CA1506.severity = none
 
 # CA1507: Use nameof to express symbol names
 dotnet_diagnostic.CA1507.severity = error

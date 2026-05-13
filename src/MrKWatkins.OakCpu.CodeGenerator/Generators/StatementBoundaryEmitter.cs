@@ -20,7 +20,7 @@ internal static class StatementBoundaryEmitter
             throw new InvalidOperationException("Cannot use handled() inside an instruction.");
         }
 
-        if (!context.InstructionEmulatorMode)
+        if (!context.Mode.IsInstructionEmulatorMode)
         {
             yield return ExpressionStatement(
                 AssignmentExpression(
@@ -33,43 +33,19 @@ internal static class StatementBoundaryEmitter
     }
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateHandleInterrupts(StatementGeneratorContext context)
-    {
-        if (context.InstructionCompletionMode)
-        {
-            yield return ExpressionStatement(
-                InvocationExpression(IdentifierName(Method.Name.HandleInterrupts))
-                    .WithArgumentList(ArgumentList([CreateEmulatorArgument()])));
-            yield break;
-        }
-
-        yield return GenerateHandleInterruptsAndReturnIfHandled(context);
-    }
+    public static IEnumerable<StatementSyntax> GenerateHandleInterrupts(StatementGeneratorContext context) =>
+        context.Mode is StatementGenerationMode.InstructionCompletionMode
+            ? [CreateHandleInterruptsStatement()]
+            : [GenerateHandleInterruptsAndReturnIfHandled(context)];
 
     [Pure]
-    public static IEnumerable<StatementSyntax> GenerateInstructionComplete(StatementGeneratorContext context)
-    {
-        if (context.InstructionStepMode)
+    public static IEnumerable<StatementSyntax> GenerateInstructionComplete(StatementGeneratorContext context) =>
+        context.Mode switch
         {
-            foreach (var statement in GenerateCompleteInstructionAndReturn(context))
-            {
-                yield return statement;
-            }
-            yield break;
-        }
-
-        if (context.InstructionEmulatorMode)
-        {
-            throw new InvalidOperationException("instruction_complete is only supported when generating instruction-emulator steps.");
-        }
-
-        foreach (var statement in context.GeneratorContext.OnInstructionComplete.SelectMany(s => StatementStatementEmitter.Generate(context, s)))
-        {
-            yield return statement;
-        }
-
-        yield return StatementTransitionEmitter.CreateSetStep(context.GeneratorContext.OpcodeRead.FirstStep).WithLeadingTrivia(Comment("// Finish instruction."));
-    }
+            StatementGenerationMode.InstructionStepMode => GenerateCompleteInstructionAndReturn(context),
+            StatementGenerationMode.InstructionEmulatorMode => throw new InvalidOperationException("instruction_complete is only supported when generating instruction-emulator steps."),
+            _ => GenerateStepInstructionComplete(context)
+        };
 
     [Pure]
     public static IEnumerable<StatementSyntax> GenerateBoundaryStatements(StatementGeneratorContext context)
@@ -79,65 +55,32 @@ internal static class StatementBoundaryEmitter
             return [];
         }
 
-        if (context.InstructionEmulatorMode)
+        return context.Mode switch
         {
-            return
+            StatementGenerationMode.InstructionEmulatorMode or StatementGenerationMode.InstructionStepMode =>
             [
                 GenerateHandleInterruptsAndReturnIfHandled(context).WithLeadingTrivia(Comment("// Check interrupts at the instruction boundary."))
-            ];
-        }
-
-        return
-        [
-            StatementTransitionEmitter.GenerateQueueOverlap(context.GeneratorContext, step.QueuedOverlapStep).WithLeadingTrivia(Comment("// Queue overlap step.")),
-            GenerateHandleInterruptsAndReturnIfHandled(context).WithLeadingTrivia(Comment("// Check interrupts at the instruction boundary."))
-        ];
+            ],
+            _ =>
+            [
+                StatementTransitionEmitter.GenerateQueueOverlap(context.GeneratorContext, step.QueuedOverlapStep).WithLeadingTrivia(Comment("// Queue overlap step.")),
+                GenerateHandleInterruptsAndReturnIfHandled(context).WithLeadingTrivia(Comment("// Check interrupts at the instruction boundary."))
+            ]
+        };
     }
 
     [Pure]
-    public static IfStatementSyntax GenerateHandleInterruptsAndReturnIfHandled(StatementGeneratorContext context)
-    {
-        if (context.InstructionStepMode)
+    public static IfStatementSyntax GenerateHandleInterruptsAndReturnIfHandled(StatementGeneratorContext context) =>
+        context.Mode switch
         {
-            var instructionStep = context.RequiredInstructionStep;
-            if (context.Step?.Sequence is not Instruction)
-            {
-                return IfStatement(
-                    InvocationExpression(IdentifierName(Method.Name.HandleInterrupts))
-                        .WithArgumentList(ArgumentList([CreateEmulatorArgument()])),
-                    Block(SingletonList<StatementSyntax>(
-                        ReturnStatement(GenerateNumericLiteralExpression(instructionStep.TStatesBeforeStep + 1)))));
-            }
-
-            return IfStatement(
-                InvocationExpression(IdentifierName(Method.Name.HandleInterrupts))
-                    .WithArgumentList(ArgumentList([CreateEmulatorArgument()])),
-                Block(GenerateCompleteInstructionAndReturn(context)));
-        }
-
-        if (context.InstructionEmulatorMode)
-        {
-            throw new InvalidOperationException("handle_interrupts is only supported when generating instruction-emulator steps.");
-        }
-
-        return IfStatement(
-            InvocationExpression(IdentifierName(Method.Name.HandleInterrupts))
-                .WithArgumentList(ArgumentList(
-                [
-                    CreateEmulatorArgument(),
-                    Argument(RefExpression(IdentifierName(Parameter.Name.ActionRequired)))
-                ])),
-            Block(ReturnStatement()));
-    }
+            StatementGenerationMode.InstructionStepMode => GenerateInstructionStepHandleInterruptsAndReturnIfHandled(context),
+            StatementGenerationMode.InstructionEmulatorMode => throw new InvalidOperationException("handle_interrupts is only supported when generating instruction-emulator steps."),
+            _ => GenerateStepHandleInterruptsAndReturnIfHandled()
+        };
 
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateCompleteInstructionAndReturn(StatementGeneratorContext context)
     {
-        if (!context.InstructionStepMode)
-        {
-            throw new InvalidOperationException("Instruction completion statements can only be generated for instruction-emulator steps.");
-        }
-
         var instructionStep = context.RequiredInstructionStep;
 
         if (instructionStep.ExitOverlapStep != null)
@@ -167,4 +110,51 @@ internal static class StatementBoundaryEmitter
         context.Step?.Sequence is Instruction instruction
             ? LiteralExpression(instruction.UpdatesFlags ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression)
             : throw new InvalidOperationException("Instruction completion can only be generated inside an instruction.");
+
+    [Pure]
+    private static StatementSyntax CreateHandleInterruptsStatement() =>
+        ExpressionStatement(
+            InvocationExpression(IdentifierName(Method.Name.HandleInterrupts))
+                .WithArgumentList(ArgumentList([CreateEmulatorArgument()])));
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateStepInstructionComplete(StatementGeneratorContext context)
+    {
+        foreach (var statement in context.GeneratorContext.OnInstructionComplete.SelectMany(s => StatementStatementEmitter.Generate(context, s)))
+        {
+            yield return statement;
+        }
+
+        yield return StatementTransitionEmitter.CreateSetStep(context.GeneratorContext.OpcodeRead.FirstStep).WithLeadingTrivia(Comment("// Finish instruction."));
+    }
+
+    [Pure]
+    private static IfStatementSyntax GenerateInstructionStepHandleInterruptsAndReturnIfHandled(StatementGeneratorContext context)
+    {
+        var instructionStep = context.RequiredInstructionStep;
+        if (context.Step?.Sequence is not Instruction)
+        {
+            return IfStatement(
+                InvocationExpression(IdentifierName(Method.Name.HandleInterrupts))
+                    .WithArgumentList(ArgumentList([CreateEmulatorArgument()])),
+                Block(SingletonList<StatementSyntax>(
+                    ReturnStatement(GenerateNumericLiteralExpression(instructionStep.TStatesBeforeStep + 1)))));
+        }
+
+        return IfStatement(
+            InvocationExpression(IdentifierName(Method.Name.HandleInterrupts))
+                .WithArgumentList(ArgumentList([CreateEmulatorArgument()])),
+            Block(GenerateCompleteInstructionAndReturn(context)));
+    }
+
+    [Pure]
+    private static IfStatementSyntax GenerateStepHandleInterruptsAndReturnIfHandled() =>
+        IfStatement(
+            InvocationExpression(IdentifierName(Method.Name.HandleInterrupts))
+                .WithArgumentList(ArgumentList(
+                [
+                    CreateEmulatorArgument(),
+                    Argument(RefExpression(IdentifierName(Parameter.Name.ActionRequired)))
+                ])),
+            Block(ReturnStatement()));
 }

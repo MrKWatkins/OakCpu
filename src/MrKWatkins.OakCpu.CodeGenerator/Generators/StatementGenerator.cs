@@ -23,18 +23,7 @@ public abstract class StatementGenerator
             yield return statement;
         }
 
-        var trailingStatements = step.NextOpcode switch
-        {
-            NextOpcodeMode.Read => StatementTransitionEmitter.GenerateMoveToSequenceStart(context.GeneratorContext.OpcodeRead),
-            NextOpcodeMode.Overlapped when step.Sequence is PrefixJump => StatementTransitionEmitter.GenerateExecuteSequenceOnStart(context.GeneratorContext.OpcodeRead, "Overlapped opcode read."),
-            NextOpcodeMode.Overlapped => [],
-            NextOpcodeMode.Custom => [],
-            NextOpcodeMode.Loop => [],
-            null => [],
-            _ => throw new NotSupportedException($"The next opcode mode {step.NextOpcode} is not supported.")
-        };
-
-        foreach (var statement in trailingStatements)
+        foreach (var statement in GenerateTrailingStatements(context, step))
         {
             yield return statement;
         }
@@ -105,24 +94,26 @@ public abstract class StatementGenerator
             yield return statement;
         }
 
-        var trailingStatements = context.InstructionEmulatorMode
+        foreach (var statement in GenerateTrailingStatements(context, step))
+        {
+            yield return statement;
+        }
+    }
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateTrailingStatements(StatementGeneratorContext context, Step step) =>
+        !context.Mode.EmitsTrailingStatements
             ? []
             : step.NextOpcode switch
             {
                 NextOpcodeMode.Read => StatementTransitionEmitter.GenerateMoveToSequenceStart(context.GeneratorContext.OpcodeRead),
-                NextOpcodeMode.Overlapped when step.Sequence is PrefixJump => throw new InvalidOperationException("Prefix jumps should not be generated as instruction statements."),
+                NextOpcodeMode.Overlapped when step.Sequence is PrefixJump => StatementTransitionEmitter.GenerateExecuteSequenceOnStart(context.GeneratorContext.OpcodeRead, "Overlapped opcode read."),
                 NextOpcodeMode.Overlapped => [],
                 NextOpcodeMode.Custom => [],
                 NextOpcodeMode.Loop => [],
                 null => [],
                 _ => throw new NotSupportedException($"The next opcode mode {step.NextOpcode} is not supported.")
             };
-
-        foreach (var statement in trailingStatements)
-        {
-            yield return statement;
-        }
-    }
 
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateStepStatements(StatementGeneratorContext context, Step step, int trailingStatementsToSkip = 0)
@@ -132,7 +123,7 @@ public abstract class StatementGenerator
             yield return StatementTransitionEmitter.GenerateSetOpcodeStepTable(context.Configuration.OpcodeStepTables.NoPrefix);
         }
 
-        if (step.ExecutesStoredOverlapOnStart && !context.InstructionEmulatorMode)
+        if (step.ExecutesStoredOverlapOnStart && context.Mode.ExecutesStoredOverlapOnStart)
         {
             yield return StatementTransitionEmitter.GenerateExecuteOverlap().WithLeadingTrivia(Microsoft.CodeAnalysis.CSharp.SyntaxFactory.Comment("// Execute queued overlap."));
         }

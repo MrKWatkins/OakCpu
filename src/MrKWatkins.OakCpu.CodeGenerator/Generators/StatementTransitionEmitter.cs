@@ -55,7 +55,7 @@ internal static class StatementTransitionEmitter
             EmulatorMemberIdentifier(PreDefinedDataMember.OpcodeStepTable.FieldName),
             EmulatorMemberIdentifier(PreDefinedDataMember.Data.FieldName));
 
-        if (context.InstructionStepMode)
+        if (context.Mode.SequenceTransitionTarget == SequenceTransitionTarget.NextInstruction)
         {
             yield return CreateSetNextInstruction(context, opcodeStep);
             yield break;
@@ -142,7 +142,7 @@ internal static class StatementTransitionEmitter
     {
         var index = GenerateNumericLiteralExpression(context.GeneratorContext.GetInstructionEmulatorSequenceIndex(sequence));
 
-        return GetSequenceTransitionTarget(context) switch
+        return context.Mode.SequenceTransitionTarget switch
         {
             SequenceTransitionTarget.NextInstruction => [CreateSetNextInstruction(context, index)],
             SequenceTransitionTarget.NextSequence => [CreateSetNextSequence(index)],
@@ -161,7 +161,7 @@ internal static class StatementTransitionEmitter
     [MustUseReturnValue]
     private static IEnumerable<StatementSyntax> GenerateSequenceTransition(StatementGeneratorContext context, ExpressionSyntax index, string? comment = null)
     {
-        switch (GetSequenceTransitionTarget(context))
+        switch (context.Mode.SequenceTransitionTarget)
         {
             case SequenceTransitionTarget.NextInstruction:
                 yield return CreateSetNextInstruction(context, index);
@@ -177,14 +177,6 @@ internal static class StatementTransitionEmitter
                 yield break;
         }
     }
-
-    [Pure]
-    private static SequenceTransitionTarget GetSequenceTransitionTarget(StatementGeneratorContext context) =>
-        context.InstructionStepMode
-            ? SequenceTransitionTarget.NextInstruction
-            : context.InstructionEmulatorMode || context.InstructionCompletionMode
-                ? SequenceTransitionTarget.NextSequence
-                : SequenceTransitionTarget.CurrentStep;
 
     [MustUseReturnValue]
     private static LocalDeclarationStatementSyntax CreateSelectedStepDeclaration(StatementGeneratorContext context) =>
@@ -274,11 +266,4 @@ internal static class StatementTransitionEmitter
                 SyntaxKind.SimpleAssignmentExpression,
                 EmulatorMemberIdentifier(PreDefinedDataMember.CurrentStep.FieldName),
                 value));
-
-    private enum SequenceTransitionTarget
-    {
-        CurrentStep,
-        NextInstruction,
-        NextSequence
-    }
 }
