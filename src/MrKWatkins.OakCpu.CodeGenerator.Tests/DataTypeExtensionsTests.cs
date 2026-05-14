@@ -85,4 +85,18 @@ public sealed class DataTypeExtensionsTests
         invalidType.Invoking(t => t.BinaryReaderMethodName()).Should().Throw<NotSupportedException>()
             .That.Should().HaveMessage("The DataType Void is not supported.");
     }
+
+    [TestCase(DataType.U8, false)]
+    [TestCase(DataType.I8, true)]
+    [TestCase(DataType.U16, false)]
+    [TestCase(DataType.I32, true)]
+    [TestCase(DataType.I32Bool, true)]
+    public void IsSigned(DataType type, bool expected) => type.IsSigned.Should().Equal(expected);
+
+    [Test]
+    public void IsSigned_ThrowsForNonNumericType()
+    {
+        DataType.Bool.Invoking(t => _ = t.IsSigned).Should().Throw<NotSupportedException>()
+            .That.Should().HaveMessage("The DataType Bool is not numeric.");
+    }
 }

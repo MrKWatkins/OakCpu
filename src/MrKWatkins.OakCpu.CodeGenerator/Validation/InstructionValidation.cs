@@ -17,14 +17,14 @@ internal static class InstructionValidation
     private static IEnumerable<ValidationError> ValidateDuplicateOpcodes(IReadOnlyList<InstructionYaml> instructions)
     {
         foreach (var duplicate in instructions
-                     .SelectMany(
-                         (instruction, instructionIndex) => instruction.Opcodes.Select(
-                             (opcode, opcodeIndex) => (
-                                 instruction.OpcodeTable,
-                                 opcode.PrefixByte,
-                                 opcode.OpcodeByte,
-                                 instruction,
-                                 Path: $"instructions[{instructionIndex}].opcodes[{opcodeIndex}].opcode")))
+                     .Indexed()
+                     .SelectMany(item => item.Item.Opcodes.Indexed().Select(
+                         opcode => (
+                             item.Item.OpcodeTable,
+                             opcode.Item.PrefixByte,
+                             opcode.Item.OpcodeByte,
+                             Instruction: item.Item,
+                             Path: $"instructions[{item.Index}].opcodes[{opcode.Index}].opcode")))
                      .GroupBy(opcode => (opcode.OpcodeTable, opcode.PrefixByte, opcode.OpcodeByte))
                      .Where(group => group.Count() > 1)
                      .OrderBy(group => group.Key.OpcodeTable, StringComparer.Ordinal)
@@ -32,8 +32,8 @@ internal static class InstructionValidation
                      .ThenBy(group => group.Key.OpcodeByte))
         {
             var groupText = duplicate.Key.OpcodeTable != null ? $"in opcode table {duplicate.Key.OpcodeTable} " : "";
-            var mnemonics = ValidationHelpers.FormatNames(duplicate.Select(item => item.instruction.Mnemonic));
-            var instructionText = duplicate.Select(item => item.instruction.Mnemonic).Distinct(StringComparer.Ordinal).Count() == 1 ? "instruction" : "instructions";
+            var mnemonics = ValidationHelpers.FormatNames(duplicate.Select(item => item.Instruction.Mnemonic));
+            var instructionText = duplicate.Select(item => item.Instruction.Mnemonic).Distinct(StringComparer.Ordinal).Count() == 1 ? "instruction" : "instructions";
             yield return new ValidationError(
                 $"The opcodes {groupText}are defined multiple times by {instructionText} {mnemonics}: {(duplicate.Key.PrefixByte.HasValue ? $"0x{duplicate.Key.PrefixByte.Value:X2} " : "")}0x{duplicate.Key.OpcodeByte:X2}",
                 duplicate.Select(item => item.Path).OrderBy(path => path, StringComparer.Ordinal).ToArray());
@@ -43,8 +43,9 @@ internal static class InstructionValidation
     [Pure]
     private static IEnumerable<ValidationError> ValidateOverlappedSequences(IReadOnlyList<InstructionYaml> instructions, HashSet<string> availableSequenceNames)
     {
-        foreach (var (instruction, index) in instructions.Select((instruction, index) => (instruction, index))
-                     .Where(item => item.instruction.OverlappedSequence != null))
+        foreach (var (instruction, index) in instructions.Indexed()
+                     .Where(item => item.Item.OverlappedSequence != null)
+                     .Select(item => (item.Item, item.Index)))
         {
             if (instruction.NextOpcode != NextOpcodeMode.Overlapped)
             {

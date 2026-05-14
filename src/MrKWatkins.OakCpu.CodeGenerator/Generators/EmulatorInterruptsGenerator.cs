@@ -24,7 +24,7 @@ public sealed class EmulatorInterruptsGenerator : EmulatorClassGenerator
                 CreateHandleInterruptsMethod(context)
             ]);
 
-    [Pure]
+    [MustUseReturnValue]
     private static MethodDeclarationSyntax CreateHandleInterruptsMethod(FileGeneratorContext context)
     {
         StatementSyntax[] statements =

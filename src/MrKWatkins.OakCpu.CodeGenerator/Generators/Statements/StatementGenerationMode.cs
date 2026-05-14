@@ -1,6 +1,6 @@
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
-namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
+namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Statements;
 
 public abstract record StatementGenerationMode
 {

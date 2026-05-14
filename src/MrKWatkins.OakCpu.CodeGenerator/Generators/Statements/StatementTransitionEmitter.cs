@@ -9,7 +9,7 @@ using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 using Parameter = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Parameter;
 using Field = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Field;
 
-namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
+namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Statements;
 
 internal static class StatementTransitionEmitter
 {

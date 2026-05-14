@@ -13,7 +13,6 @@ internal sealed class Lexer(TextReader input) : IEnumerable<Token>
 {
     private static readonly FrozenSet<char> NumberCharacters = new List<char>("x01234567890ABCDEF").ToFrozenSet();
     private static readonly FrozenSet<char> IdentifierCharacters = new List<char>("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.$").ToFrozenSet();
-    private static readonly FrozenSet<char> OperatorChars = new HashSet<char>(Operator.UnaryOperators.Keys.Concat(Operator.BinaryOperators.Keys).SelectMany(o => o)).ToFrozenSet();
     private int currentIndex;
     private Token? peeked;
 
@@ -92,7 +91,7 @@ internal sealed class Lexer(TextReader input) : IEnumerable<Token>
             }
 
             // Make more generic if we have multiple two character operators.
-            if (OperatorChars.Contains(character))
+            if (Operator.OperatorCharacters.Contains(character))
             {
                 return ReadOperator(startIndex);
             }
@@ -123,7 +122,7 @@ internal sealed class Lexer(TextReader input) : IEnumerable<Token>
     [MustUseReturnValue]
     private Token ReadOperator(int startIndex)
     {
-        var value = ReadString(OperatorChars);
+        var value = ReadString(Operator.OperatorCharacters);
 
         if (Operator.BinaryOperators.TryGetValue(value, out var binaryOperator))
         {

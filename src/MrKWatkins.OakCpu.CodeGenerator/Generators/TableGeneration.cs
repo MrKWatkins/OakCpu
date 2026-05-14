@@ -18,8 +18,8 @@ internal static class TableGeneration
     [MustUseReturnValue]
     internal static IfStatementSyntax CreateLittleEndianStatement(FileGeneratorContext context)
     {
-        context.RequiredUsings.Add(typeof(BitConverter).Namespace!);
-        context.RequiredUsings.Add(typeof(NotSupportedException).Namespace!);
+        context.RequiredUsings.Add(typeof(BitConverter));
+        context.RequiredUsings.Add(typeof(NotSupportedException));
 
         var throwStatement = ThrowStatement(
             ObjectCreationExpression(IdentifierName(nameof(NotSupportedException)))

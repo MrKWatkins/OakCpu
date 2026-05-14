@@ -7,6 +7,6 @@ internal static class FunctionValidation
     [Pure]
     public static IEnumerable<ValidationError> Validate(IReadOnlyList<FunctionYaml> functions) =>
         ValidationHelpers.ValidateDuplicateNames(
-            functions.Select((function, index) => (function.Name, $"functions[{index}].name")),
+            functions.Indexed().Select(item => (item.Item.Name, $"functions[{item.Index}].name")),
             "function");
 }

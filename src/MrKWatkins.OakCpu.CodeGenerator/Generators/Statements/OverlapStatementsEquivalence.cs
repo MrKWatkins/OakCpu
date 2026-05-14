@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
+namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Statements;
 
 internal static class OverlapStatementsEquivalence
 {

@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -29,7 +28,7 @@ public sealed class EmulatorOverlapsGenerator : EmulatorClassGenerator
             .AddMembers(CreateExecuteOverlapMethod(context), CreateSerializeOverlapPipelineMethod(), CreateRestoreOverlapPipelineMethod())
             .AddMembers(context.GeneratorContext.OverlapSteps.Select(step => CreateOverlapMethod(context, step)).ToArray());
 
-    [Pure]
+    [MustUseReturnValue]
     private static MemberDeclarationSyntax CreateOverlapMethod(FileGeneratorContext context, Step step)
     {
         var statements = StatementGenerator.GenerateOverlapStatements(context, step);
@@ -45,18 +44,18 @@ public sealed class EmulatorOverlapsGenerator : EmulatorClassGenerator
             .WithBody(Block(statements));
 
         return step == context.GeneratorContext.GetStepLayout(context.GeneratorContext.OpcodeRead.FirstStep).Implementation
-            ? function.WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(comments)])
+            ? function.WithAttributeLists([CreateAggressiveInliningAttributeList(context.RequiredUsings).WithLeadingTrivia(comments)])
             : function.WithLeadingTrivia(comments);
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static MemberDeclarationSyntax CreateExecuteOverlapMethod(FileGeneratorContext context)
     {
         const string overlapVariableName = "overlap";
 
         return MethodDeclaration(VoidType, Identifier(Method.Name.ExecuteOverlap))
             .WithModifiers([Private])
-            .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)])])
+            .WithAttributeLists([CreateAggressiveInliningAttributeList(context.RequiredUsings)])
             .WithBody(Block(
                 IfStatement(
                     BinaryExpression(

@@ -13,8 +13,9 @@ internal static class RegisterValidation
     [Pure]
     private static IEnumerable<ValidationError> ValidateRegisterTypes(IReadOnlyList<RegisterYaml> registers)
     {
-        foreach (var (register, index) in registers.Select((register, index) => (register, index))
-                     .Where(item => item.register.Type != DataType.U8 && item.register.Type != DataType.U16))
+        foreach (var (register, index) in registers.Indexed()
+                     .Where(item => item.Item.Type != DataType.U8 && item.Item.Type != DataType.U16)
+                     .Select(item => (item.Item, item.Index)))
         {
             yield return new ValidationError($"Register {register.Name} must have type u8 or u16.", $"registers[{index}].type");
         }
@@ -23,7 +24,7 @@ internal static class RegisterValidation
     [Pure]
     private static IEnumerable<ValidationError> ValidateSubRegisterTypes(IReadOnlyList<RegisterYaml> registers)
     {
-        foreach (var (register, index) in registers.Select((register, index) => (register, index)))
+        foreach (var (register, index) in registers.Indexed().Select(item => (item.Item, item.Index)))
         {
             if (register.High != null && register.High.Type != DataType.U8)
             {

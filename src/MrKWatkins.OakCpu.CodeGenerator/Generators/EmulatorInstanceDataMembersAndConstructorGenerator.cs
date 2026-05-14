@@ -77,7 +77,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
             $"Initializes a new {Class.Name.Emulator(context)} instance.");
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static IEnumerable<MemberDeclarationSyntax> CreateDataMember(FileGeneratorContext context, DataMember member, int fieldOffset)
     {
         yield return ExplicitLayoutBuilder.CreateOffsetField(context, member.TypeSyntax, member.FieldName, fieldOffset, member.FieldVisibility.ToSyntax());
@@ -92,11 +92,11 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
             member.Documentation);
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static FieldDeclarationSyntax CreateOverlapPipelineField(FileGeneratorContext context, int fieldOffset) =>
         ExplicitLayoutBuilder.CreateOffsetField(context, CreateOverlapHandlerType(context), PreDefinedDataMember.OverlapPipeline.FieldName, fieldOffset, PreDefinedDataMember.OverlapPipeline.FieldVisibility.ToSyntax());
 
-    [Pure]
+    [MustUseReturnValue]
     private static PropertyDeclarationSyntax CreateObjectProperty(FileGeneratorContext context, string typeName, string propertyName, int fieldOffset) =>
         WithXmlDocumentation(
             ExplicitLayoutBuilder.CreateGetOnlyPropertyWithFieldOffset(context, typeName, propertyName, fieldOffset),

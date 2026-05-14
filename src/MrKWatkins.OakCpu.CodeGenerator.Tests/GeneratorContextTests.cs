@@ -17,6 +17,37 @@ public sealed class GeneratorContextTests : TestFixture
     }
 
     [Test]
+    public async Task CreateAsync()
+    {
+        var generatorInput = await GeneratorContext.CreateAsync("MrKWatkins.OakCpu.Z80", new DirectoryInfo(Z80DefinitionsDirectory));
+
+        generatorInput.Cpu.Name.Should().Equal("Z80");
+        generatorInput.Instructions.Count.Should().Equal(Z80GeneratorContext.Instructions.Count);
+        generatorInput.PrefixJumps.Count.Should().Equal(Z80GeneratorContext.PrefixJumps.Count);
+    }
+
+    [Test]
+    public void CreateAsync_ThrowsWhenYamlCannotBeLoaded()
+    {
+        var directory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), $"oakcpu-codegen-{Guid.NewGuid():N}"));
+        directory.Create();
+
+        try
+        {
+            File.WriteAllText(Path.Combine(directory.FullName, "broken.yaml"), "cpu: [");
+
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => _ = await GeneratorContext.CreateAsync("MrKWatkins.OakCpu.Z80", directory));
+
+            exception!.Message.Should().Contain("Could not load YAML file");
+            exception.InnerException.Should().NotBeNull();
+        }
+        finally
+        {
+            directory.Delete(true);
+        }
+    }
+
+    [Test]
     public void Create_DeduplicatesIdenticalOverlapHandlers()
     {
         var generatorInput = GeneratorContext.Create("MrKWatkins.OakCpu.Z80", Z80Yaml);

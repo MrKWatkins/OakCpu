@@ -6,6 +6,16 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Instruction : StepSequence
 {
+    private static readonly IReadOnlyList<IOpcodePlaceholder> OpcodePlaceholders =
+    [
+        new StringOpcodePlaceholder(static opcode => opcode.R0, static (context, value, replacement) => ReplaceRegister(context, value, "R0", replacement)),
+        new StringOpcodePlaceholder(static opcode => opcode.R1, static (context, value, replacement) => ReplaceRegister(context, value, "R1", replacement)),
+        new StringOpcodePlaceholder(static opcode => opcode.RP0, static (context, value, replacement) => ReplaceRegister(context, value, "RP0", replacement)),
+        new StringOpcodePlaceholder(static opcode => opcode.RP1, static (context, value, replacement) => ReplaceRegister(context, value, "RP1", replacement)),
+        new StringOpcodePlaceholder(static opcode => opcode.C0, static (context, value, replacement) => ReplaceCondition(context, value, "C0", replacement)),
+        new NumberOpcodePlaceholder(static opcode => opcode.N0, static (_, value, replacement) => ReplaceNumber(value, "N0", replacement))
+    ];
+
     private Instruction(string group, string mnemonic, string? opcodeTable, byte? prefix, byte opcode, NextOpcodeMode nextOpcode, string? overlappedSequence, IReadOnlyList<Step> steps, IReadOnlyDictionary<string, Expression> flags, IReadOnlyList<(byte? Prefix, byte Opcode, Step Step)> duplicates)
         : base(null, steps, nextOpcode, overlappedSequenceName: overlappedSequence)
     {
@@ -128,13 +138,7 @@ public sealed class Instruction : StepSequence
             return "";
         }
 
-        value = ReplaceRegister(context, value, "R0", opcodeYaml.R0);
-        value = ReplaceRegister(context, value, "R1", opcodeYaml.R1);
-        value = ReplaceRegister(context, value, "RP0", opcodeYaml.RP0);
-        value = ReplaceRegister(context, value, "RP1", opcodeYaml.RP1);
-        value = ReplaceCondition(context, value, "C0", opcodeYaml.C0);
-        value = ReplaceNumber(value, "N0", opcodeYaml.N0);
-        return value;
+        return OpcodePlaceholders.Aggregate(value, (current, placeholder) => placeholder.Replace(context, current, opcodeYaml));
     }
 
     [Pure]
@@ -181,5 +185,27 @@ public sealed class Instruction : StepSequence
         }
 
         return value;
+    }
+
+    private interface IOpcodePlaceholder
+    {
+        [Pure]
+        string Replace(ParserContext context, string value, OpcodeYaml opcode);
+    }
+
+    private sealed record StringOpcodePlaceholder(
+        Func<OpcodeYaml, string?> GetReplacement,
+        Func<ParserContext, string, string?, string> ReplaceCore) : IOpcodePlaceholder
+    {
+        [Pure]
+        public string Replace(ParserContext context, string value, OpcodeYaml opcode) => ReplaceCore(context, value, GetReplacement(opcode));
+    }
+
+    private sealed record NumberOpcodePlaceholder(
+        Func<OpcodeYaml, byte?> GetReplacement,
+        Func<ParserContext, string, byte?, string> ReplaceCore) : IOpcodePlaceholder
+    {
+        [Pure]
+        public string Replace(ParserContext context, string value, OpcodeYaml opcode) => ReplaceCore(context, value, GetReplacement(opcode));
     }
 }

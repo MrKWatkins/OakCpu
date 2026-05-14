@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -43,7 +42,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
         return CreateFunction(context, Method.Name.Error, [throwStatement]);
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static MemberDeclarationSyntax CreateStepMethod(FileGeneratorContext context, Step step)
     {
         var statements = StatementGenerator.GenerateStatements(context, step);
@@ -54,7 +53,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
 
         // Aggressively inline step 0 as it is called for overlapped reads.
         function = step == context.GeneratorContext.OpcodeRead.FirstStep
-            ? function.WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, MethodImplOptions.AggressiveInlining)]).WithLeadingTrivia(comments)])
+            ? function.WithAttributeLists([CreateAggressiveInliningAttributeList(context.RequiredUsings).WithLeadingTrivia(comments)])
             : function.WithLeadingTrivia(comments);
 
         return function;
@@ -71,7 +70,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
             ]))
             .WithBody(Block(statements));
 
-    [Pure]
+    [MustUseReturnValue]
     private static MethodDeclarationSyntax CreateStepMethod(FileGeneratorContext context)
     {
         const string stepVariableName = "step";

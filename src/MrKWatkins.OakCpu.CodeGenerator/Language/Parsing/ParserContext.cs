@@ -2,40 +2,20 @@ using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
 
-public sealed class ParserContext(Configuration configuration)
+public sealed record ParserContext(Configuration Configuration)
 {
-    public Configuration Configuration { get; } = configuration;
+    public IReadOnlyCollection<string> Arguments { get; init; } = [];
 
-    public IReadOnlyCollection<string> Arguments { get; private set; } = [];
+    public IReadOnlyList<Statement> OnInstructionComplete { get; init; } = [];
 
-    public IReadOnlyList<Statement> OnInstructionComplete { get; private set; } = [];
-
-    public Dictionary<string, TemporaryVariable> TemporaryVariables { get; private set; } = new();
+    public Dictionary<string, TemporaryVariable> TemporaryVariables { get; init; } = new();
 
     [Pure]
-    public ParserContext WithArguments(IReadOnlyCollection<string> arguments) =>
-        new(Configuration)
-        {
-            Arguments = arguments,
-            OnInstructionComplete = OnInstructionComplete,
-            TemporaryVariables = TemporaryVariables
-        };
+    public ParserContext WithArguments(IReadOnlyCollection<string> arguments) => this with { Arguments = arguments };
 
     [Pure]
-    public ParserContext WithOnInstructionComplete(IReadOnlyList<Statement> onInstructionComplete) =>
-        new(Configuration)
-        {
-            Arguments = Arguments,
-            OnInstructionComplete = onInstructionComplete,
-            TemporaryVariables = TemporaryVariables
-        };
+    public ParserContext WithOnInstructionComplete(IReadOnlyList<Statement> onInstructionComplete) => this with { OnInstructionComplete = onInstructionComplete };
 
     [Pure]
-    public ParserContext WithChildVariableScope() =>
-        new(Configuration)
-        {
-            Arguments = Arguments,
-            OnInstructionComplete = OnInstructionComplete,
-            TemporaryVariables = new Dictionary<string, TemporaryVariable>(TemporaryVariables)
-        };
+    public ParserContext WithChildVariableScope() => this with { TemporaryVariables = new Dictionary<string, TemporaryVariable>(TemporaryVariables) };
 }

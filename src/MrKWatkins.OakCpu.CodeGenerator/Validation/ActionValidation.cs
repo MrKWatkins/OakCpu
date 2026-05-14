@@ -8,7 +8,7 @@ internal static class ActionValidation
     [Pure]
     public static IEnumerable<ValidationError> Validate(IReadOnlyList<ActionYaml> actions) =>
         ValidationHelpers.ValidateDuplicateNames(
-            actions.Select((action, index) => (action.Name, $"cpu.actions[{index}].name"))
+            actions.Indexed().Select(item => (item.Item.Name, $"cpu.actions[{item.Index}].name"))
                 .Append((Action.None.Name, "builtin.actions.none")),
             "action");
 }

@@ -38,7 +38,7 @@ public sealed class FlagsClassGenerator : TypeGenerator
         return CreateFacadeBaseClass(Class.Name.Flags(context), $"Provides access to the {context.GeneratorContext.Cpu.Name} flags.", members);
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static ClassDeclarationSyntax CreateConcreteClass(FileGeneratorContext context, string className, TypeSyntax emulatorType)
     {
         var members = CreateFlagProperties(context, createOverrideProperty: true).Cast<MemberDeclarationSyntax>().ToArray();
@@ -50,11 +50,11 @@ public sealed class FlagsClassGenerator : TypeGenerator
             members);
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static IEnumerable<PropertyDeclarationSyntax> CreateFlagProperties(FileGeneratorContext context, bool createOverrideProperty) =>
         context.GeneratorContext.Configuration.Flags.Values.Select(flag => CreateFlagProperty(context, flag, createOverrideProperty));
 
-    [Pure]
+    [MustUseReturnValue]
     private static PropertyDeclarationSyntax CreateFlagProperty(FileGeneratorContext context, Flag flag, bool createOverrideProperty)
     {
         if (!createOverrideProperty)

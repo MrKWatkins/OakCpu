@@ -6,7 +6,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 
-namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
+namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Statements;
 
 internal static class StatementCallEmitter
 {

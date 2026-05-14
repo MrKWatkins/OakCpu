@@ -4,13 +4,13 @@ using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
 
-namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
+namespace MrKWatkins.OakCpu.CodeGenerator.Generators.InstructionMethods;
 
 internal static class InstructionMethodPlanner
 {
     private const string NextInstructionVariableNamePrefix = "nextInstruction";
 
-    [Pure]
+    [MustUseReturnValue]
     internal static InstructionMethodPlan CreatePlan(FileGeneratorContext context, StepSequence sequence, IReadOnlyList<Step> steps, string methodName, string comment)
     {
         var overlapStep = sequence.Steps.FirstOrDefault(step => context.GeneratorContext.GetStepLayout(step).ExecutesAsOverlapOnly);
@@ -79,7 +79,7 @@ internal static class InstructionMethodPlanner
         } && dataMember == PreDefinedDataMember.CurrentStep && assignmentValue == value ||
         node.Children.Any(child => ContainsCurrentStepAssignment(child, value));
 
-    [Pure]
+    [MustUseReturnValue]
     private static InstructionStepPlan CreateStepPlan(FileGeneratorContext context, Step step, Step? instructionExitOverlapStep, int instructionTStatesBeforeStep)
     {
         var stepLayout = context.GeneratorContext.GetStepLayout(step);

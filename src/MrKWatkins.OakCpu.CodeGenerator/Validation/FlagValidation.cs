@@ -7,7 +7,7 @@ internal static class FlagValidation
     [Pure]
     public static IEnumerable<ValidationError> Validate(IReadOnlyList<FlagYaml> flags) =>
         ValidationHelpers.ValidateDuplicateNames(
-                flags.Select((flag, index) => (flag.Name, $"flags[{index}].name")),
+                flags.Indexed().Select(item => (item.Item.Name, $"flags[{item.Index}].name")),
                 "flag")
             .Concat(ValidateDuplicateIndexes(flags))
             .Concat(ValidateDuplicateConditions(flags));
@@ -16,15 +16,15 @@ internal static class FlagValidation
     private static IEnumerable<ValidationError> ValidateDuplicateIndexes(IReadOnlyList<FlagYaml> flags)
     {
         foreach (var duplicate in flags
-                     .Select((flag, index) => (flag, index))
-                     .GroupBy(item => item.flag.Index)
+                     .Indexed()
+                     .GroupBy(item => item.Item.Index)
                      .Where(group => group.Count() > 1)
                      .OrderBy(group => group.Key))
         {
-            var names = ValidationHelpers.FormatNames(duplicate.Select(item => item.flag.Name));
+            var names = ValidationHelpers.FormatNames(duplicate.Select(item => item.Item.Name));
             yield return new ValidationError(
                 $"The flag index {duplicate.Key} is defined multiple times by flags {names}.",
-                duplicate.Select(item => $"flags[{item.index}].index").OrderBy(path => path, StringComparer.Ordinal).ToArray());
+                duplicate.Select(item => $"flags[{item.Index}].index").OrderBy(path => path, StringComparer.Ordinal).ToArray());
         }
     }
 

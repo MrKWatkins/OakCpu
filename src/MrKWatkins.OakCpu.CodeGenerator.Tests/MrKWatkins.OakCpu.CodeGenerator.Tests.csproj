@@ -11,6 +11,7 @@
 
     <ItemGroup>
         <Using Include="VerifyNUnit" />
+        <Using Include="MrKWatkins.OakCpu.CodeGenerator.Generators.Statements" />
     </ItemGroup>
 
     <ItemGroup>

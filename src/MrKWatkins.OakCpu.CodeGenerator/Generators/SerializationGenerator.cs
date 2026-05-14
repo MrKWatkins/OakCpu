@@ -89,7 +89,7 @@ public abstract class SerializationGenerator : TypeGenerator
     [MustUseReturnValue]
     private MemberDeclarationSyntax GenerateRestore(FileGeneratorContext context)
     {
-        context.RequiredUsings.Add("System.IO");
+        context.RequiredUsings.Add(typeof(Stream));
 
         var statements = GenerateUsingBinaryReaderOrWriter<BinaryReader>(context, ReaderParameterName)
             .Concat(GenerateRestoreOpcodeStepTable(context))
@@ -145,7 +145,7 @@ public abstract class SerializationGenerator : TypeGenerator
     [MustUseReturnValue]
     private MemberDeclarationSyntax GenerateSerialize(FileGeneratorContext context)
     {
-        context.RequiredUsings.Add("System.IO");
+        context.RequiredUsings.Add(typeof(Stream));
 
         var statements = GenerateUsingBinaryReaderOrWriter<BinaryWriter>(context, WriterParameterName)
             .Concat(GenerateSerializeOpcodeStepTable(context))

@@ -88,7 +88,7 @@ public abstract class ExpressionGenerator
     [MustUseReturnValue]
     private static ExpressionSyntax GeneratePopCountExpressionSyntax(StatementGeneratorContext context, Expression argument)
     {
-        context.RequiredUsings.Add("System.Numerics");
+        context.RequiredUsings.Add(typeof(System.Numerics.BitOperations));
 
         var argumentExpression = GenerateExpressionSyntax(context, argument);
 

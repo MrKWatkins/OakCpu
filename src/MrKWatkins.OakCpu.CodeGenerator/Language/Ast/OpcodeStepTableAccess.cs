@@ -1,5 +1,3 @@
-using MrKWatkins.OakCpu.CodeGenerator.Generators;
-
 namespace MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 
 public sealed class OpcodeStepTableAccess(OpcodeStepTable opcodeStepTable) : Access(opcodeStepTable.Name)

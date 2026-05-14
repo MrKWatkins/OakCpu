@@ -5,6 +5,9 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Validation;
 internal static class ValidationHelpers
 {
     [Pure]
+    public static IEnumerable<(T Item, int Index)> Indexed<T>(this IEnumerable<T> items) => items.Select((item, index) => (item, index));
+
+    [Pure]
     public static IEnumerable<ValidationError> ValidateDuplicateNames(IEnumerable<(string Name, string Path)> items, string itemType)
     {
         foreach (var duplicate in items

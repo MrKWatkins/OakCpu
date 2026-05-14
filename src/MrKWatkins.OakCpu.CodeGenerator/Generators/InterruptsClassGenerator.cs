@@ -39,7 +39,7 @@ public sealed class InterruptsClassGenerator : TypeGenerator
         return CreateFacadeBaseClass(Class.Name.Interrupts(context), $"Provides access to the {context.GeneratorContext.Cpu.Name} interrupt state.", members);
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static ClassDeclarationSyntax CreateConcreteClass(FileGeneratorContext context, string className, TypeSyntax emulatorType, bool instructionEmulator)
     {
         var members = CreateInterruptProperties(context, createOverrideProperty: true, instructionEmulator).Cast<MemberDeclarationSyntax>().ToArray();
@@ -51,13 +51,13 @@ public sealed class InterruptsClassGenerator : TypeGenerator
             members);
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static IEnumerable<PropertyDeclarationSyntax> CreateInterruptProperties(FileGeneratorContext context, bool createOverrideProperty, bool instructionEmulator = false) =>
         context.GeneratorContext.Interrupts.Properties.Values
             .OrderBy(property => property.PropertyName)
             .Select(property => CreateInterruptProperty(context, property, createOverrideProperty, instructionEmulator));
 
-    [Pure]
+    [MustUseReturnValue]
     private static PropertyDeclarationSyntax CreateInterruptProperty(FileGeneratorContext context, UserDefinedDataMember property, bool createOverrideProperty, bool instructionEmulator)
     {
         if (!createOverrideProperty)
@@ -86,7 +86,7 @@ public sealed class InterruptsClassGenerator : TypeGenerator
                 IdentifierName("value")));
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static PropertyDeclarationSyntax CreateInstructionEmulatorHaltedProperty(FileGeneratorContext context, UserDefinedDataMember property, ExpressionSyntax memberAccessExpression)
     {
         var nextSequenceStepExpression = MemberAccessExpression(
@@ -110,7 +110,7 @@ public sealed class InterruptsClassGenerator : TypeGenerator
                 [
                     AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
                         .WithExpressionBody(ArrowExpressionClause(memberAccessExpression))
-                        .WithAttributeLists([AttributeList([CreateMethodImplAttribute(context.RequiredUsings, System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)])])
+                        .WithAttributeLists([CreateAggressiveInliningAttributeList(context.RequiredUsings)])
                         .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
                     AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
                         .WithBody(

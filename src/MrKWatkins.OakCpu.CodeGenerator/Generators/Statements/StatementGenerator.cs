@@ -4,11 +4,11 @@ using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Yaml;
 
-namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
+namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Statements;
 
 public abstract class StatementGenerator
 {
-    [Pure]
+    [MustUseReturnValue]
     public static IEnumerable<StatementSyntax> GenerateStatements(FileGeneratorContext input, Step step)
     {
         var context = new StatementGeneratorContext(input, step);
@@ -29,7 +29,7 @@ public abstract class StatementGenerator
         }
     }
 
-    [Pure]
+    [MustUseReturnValue]
     public static IEnumerable<StatementSyntax> GenerateStatements(FileGeneratorContext context, IEnumerable<Statement> statements, bool instructionEmulatorMode = false)
     {
         var statementContext = new StatementGeneratorContext(context, null);
@@ -41,18 +41,18 @@ public abstract class StatementGenerator
         return statements.SelectMany(statement => GenerateStatement(statementContext, statement));
     }
 
-    [Pure]
+    [MustUseReturnValue]
     public static IEnumerable<StatementSyntax> GenerateInstructionCompletionStatements(FileGeneratorContext context, IEnumerable<Statement> statements, string instructionUpdatesFlagsParameterName)
     {
         var statementContext = new StatementGeneratorContext(context, null).WithInstructionCompletionMode(instructionUpdatesFlagsParameterName);
         return statements.SelectMany(statement => GenerateStatement(statementContext, statement));
     }
 
-    [Pure]
+    [MustUseReturnValue]
     public static IEnumerable<StatementSyntax> GenerateOverlapStatements(FileGeneratorContext input, Step step)
         => GenerateOverlapStatements(input, step, 0);
 
-    [Pure]
+    [MustUseReturnValue]
     public static IEnumerable<StatementSyntax> GenerateOverlapStatements(FileGeneratorContext input, Step step, int trailingStatementsToSkip)
     {
         var context = new StatementGeneratorContext(input, step).WithoutHandleInterrupts();
@@ -69,7 +69,7 @@ public abstract class StatementGenerator
         }
     }
 
-    [Pure]
+    [MustUseReturnValue]
     public static IEnumerable<StatementSyntax> GenerateInstructionStatements(
         FileGeneratorContext input,
         Step step,

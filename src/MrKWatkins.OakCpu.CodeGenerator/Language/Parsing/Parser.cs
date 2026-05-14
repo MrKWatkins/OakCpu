@@ -13,6 +13,15 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
 public static class Parser
 {
     private const int UnaryBindingPower = int.MaxValue;
+    private static readonly IReadOnlyList<IdentifierPrefixLookup> IdentifierPrefixLookups =
+    [
+        new("flag.", static (context, name) => context.Configuration.Flags.TryGetValue(name, out var flag) ? new FlagAccess(flag) : null),
+        new("condition.", static (context, name) => context.Configuration.Conditions.TryGetValue(name, out var condition) ? new ConditionAccess(condition) : null),
+        new("action.", static (context, name) => context.Configuration.Actions.TryGetValue(name, out var action) ? new ActionAccess(action) : null),
+        new("opcode_table.", static (context, name) => context.Configuration.OpcodeStepTables.Custom.TryGetValue(name, out var opcodeStepTable) ? new OpcodeStepTableAccess(opcodeStepTable) : null),
+        new("sequence.", static (_, name) => new SequenceAccess(name)),
+        new("sequence_group.", static (_, name) => new SequenceGroupAccess(name))
+    ];
 
     [Pure]
     public static List<Statement> ParseStatements(ParserContext context, string? input)
@@ -219,7 +228,6 @@ public static class Parser
     [Pure]
     private static AstNode ParseIdentifier(ParserContext context, string identifier)
     {
-        // TODO: This feels like it could be done in a better way.
         if (context.Arguments.Contains(identifier))
         {
             return new ArgumentAccess(identifier);
@@ -240,34 +248,12 @@ public static class Parser
             return new TemporaryVariableAccess(DeclareOrReferenceTemporaryVariable(context, identifier[1..]));
         }
 
-        if (identifier.StartsWith("flag.", StringComparison.Ordinal) && context.Configuration.Flags.TryGetValue(identifier[5..], out var flag))
+        foreach (var lookup in IdentifierPrefixLookups)
         {
-            return new FlagAccess(flag);
-        }
-
-        if (identifier.StartsWith("condition.", StringComparison.Ordinal) && context.Configuration.Conditions.TryGetValue(identifier[10..], out var condition))
-        {
-            return new ConditionAccess(condition);
-        }
-
-        if (identifier.StartsWith("action.", StringComparison.Ordinal) && context.Configuration.Actions.TryGetValue(identifier[7..], out var action))
-        {
-            return new ActionAccess(action);
-        }
-
-        if (identifier.StartsWith("opcode_table.", StringComparison.Ordinal) && context.Configuration.OpcodeStepTables.Custom.TryGetValue(identifier[13..], out var opcodeStepTable))
-        {
-            return new OpcodeStepTableAccess(opcodeStepTable);
-        }
-
-        if (identifier.StartsWith("sequence.", StringComparison.Ordinal))
-        {
-            return new SequenceAccess(identifier[9..]);
-        }
-
-        if (identifier.StartsWith("sequence_group.", StringComparison.Ordinal))
-        {
-            return new SequenceGroupAccess(identifier[15..]);
+            if (lookup.Resolve(context, identifier) is { } resolved)
+            {
+                return resolved;
+            }
         }
 
         throw new NotSupportedException($"Unsupported identifier {identifier}.");
@@ -318,5 +304,14 @@ public static class Parser
         }
 
         return variable;
+    }
+
+    private sealed record IdentifierPrefixLookup(string Prefix, Func<ParserContext, string, AstNode?> Resolver)
+    {
+        [Pure]
+        public AstNode? Resolve(ParserContext context, string identifier) =>
+            identifier.StartsWith(Prefix, StringComparison.Ordinal)
+                ? Resolver(context, identifier[Prefix.Length..])
+                : null;
     }
 }

@@ -48,6 +48,11 @@ public sealed class Operator
         }
         .ToFrozenDictionary(o => o.Symbol);
 
+    internal static readonly FrozenSet<char> OperatorCharacters = UnaryOperators.Keys
+        .Concat(BinaryOperators.Keys)
+        .SelectMany(static o => o)
+        .ToFrozenSet();
+
     private Operator(string symbol, SyntaxKind syntaxKind, int precedence, DataType type, SyntaxKind? compoundAssignmentSyntaxKind = null, int? leftIdentity = null, int? rightIdentity = null)
     {
         Symbol = symbol;

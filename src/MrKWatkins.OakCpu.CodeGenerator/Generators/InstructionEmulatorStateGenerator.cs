@@ -89,7 +89,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
             $"Initializes a new {Class.Name.InstructionEmulator(context)} instance.");
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static IEnumerable<MemberDeclarationSyntax> CreateDataMember(FileGeneratorContext context, DataMember member, int fieldOffset)
     {
         yield return ExplicitLayoutBuilder.CreateOffsetField(context, member.TypeSyntax, member.FieldName, fieldOffset, member.FieldVisibility.ToSyntax());
@@ -116,7 +116,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
                                         ParseExpression("ushort.MaxValue"))))))
             .WithModifiers(TokenList(Internal, Token(SyntaxKind.ConstKeyword)));
 
-    [Pure]
+    [MustUseReturnValue]
     private static FieldDeclarationSyntax CreateNextSequenceStepField(FileGeneratorContext context, int fieldOffset) =>
         ExplicitLayoutBuilder.CreateOffsetField(context, UShortType, Field.Name.NextSequenceStep, fieldOffset, Internal);
 
@@ -186,14 +186,14 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
             returns: "The number of T-states executed.");
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static MemberDeclarationSyntax CreateExecuteDecodedInstructionMethod(FileGeneratorContext context)
     {
         const string decodedStepParameterName = "decodedStep";
         const string instructionVariableName = "instruction";
 
         return MethodDeclaration(IntType, Identifier(InstructionEmulatorGenerator.ExecuteDecodedInstructionMethodName))
-            .AddAttributeLists(AttributeList([CreateMethodImplAttribute(context.RequiredUsings, System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]))
+            .AddAttributeLists(CreateAggressiveInliningAttributeList(context.RequiredUsings))
             .WithModifiers(TokenList(Private))
             .WithParameterList(
                 ParameterList(
@@ -224,7 +224,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
                     ])));
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static MemberDeclarationSyntax CreateCompleteInstructionMethod(FileGeneratorContext context)
     {
         const string instructionUpdatesFlagsParameterName = "instructionUpdatesFlags";
@@ -237,7 +237,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         statements.Add(ReturnStatement(IdentifierName("tStates")));
 
         return MethodDeclaration(IntType, Identifier(Method.Name.CompleteInstruction))
-            .AddAttributeLists(AttributeList([CreateMethodImplAttribute(context.RequiredUsings, System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]))
+            .AddAttributeLists(CreateAggressiveInliningAttributeList(context.RequiredUsings))
             .WithModifiers(TokenList(Private))
             .WithParameterList(
                 ParameterList(
@@ -248,7 +248,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
             .WithBody(Block(List(statements)));
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static PropertyDeclarationSyntax CreateObjectProperty(FileGeneratorContext context, string typeName, string propertyName, int fieldOffset) =>
         WithXmlDocumentation(
             ExplicitLayoutBuilder.CreateGetOnlyPropertyWithFieldOffset(context, typeName, propertyName, fieldOffset),

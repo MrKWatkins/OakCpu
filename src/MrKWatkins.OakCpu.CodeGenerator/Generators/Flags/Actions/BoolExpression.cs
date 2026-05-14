@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -57,12 +58,12 @@ internal sealed class BoolExpression : FlagAction
     [MustUseReturnValue]
     private static ExpressionSyntax GenerateBitCastFromBoolToByte(StatementGeneratorContext context, ExpressionSyntax value)
     {
-        context.RequiredUsings.Add("System.Runtime.CompilerServices");
+        context.RequiredUsings.Add(typeof(Unsafe));
 
         return InvocationExpression(
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName(nameof(Unsafe)),
+                    IdentifierName("Unsafe"),
                     GenericName(Identifier("BitCast"))
                         .WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>([BoolType, ByteType])))))
             .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(value))));

@@ -1,4 +1,4 @@
-namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
+namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Statements;
 
 public enum SequenceTransitionTarget
 {

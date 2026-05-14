@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -78,8 +79,8 @@ internal static class CommonSyntax
     [MustUseReturnValue]
     internal static ExpressionSyntax CreateArrayGetWithoutBoundsCheck(RequiredUsings requiredUsings, ExpressionSyntax array, ExpressionSyntax index)
     {
-        requiredUsings.Add("System.Runtime.CompilerServices");
-        requiredUsings.Add("System.Runtime.InteropServices");
+        requiredUsings.Add(typeof(Unsafe));
+        requiredUsings.Add(typeof(MemoryMarshal));
 
         // Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(values), index);
         return InvocationExpression(
@@ -98,7 +99,7 @@ internal static class CommonSyntax
     [MustUseReturnValue]
     internal static AttributeSyntax CreateMethodImplAttribute(RequiredUsings requiredUsings, string options)
     {
-        requiredUsings.Add("System.Runtime.CompilerServices");
+        requiredUsings.Add(typeof(MethodImplAttribute));
 
         return Attribute(
             IdentifierName("MethodImpl"),
@@ -112,7 +113,11 @@ internal static class CommonSyntax
     }
 
     [Pure]
-    internal static IdentifierNameSyntax EmulatorMemberIdentifier(string name) => IdentifierName($"emulator.{name}");
+    internal static ExpressionSyntax EmulatorMemberIdentifier(string name) =>
+        MemberAccessExpression(
+            SyntaxKind.SimpleMemberAccessExpression,
+            IdentifierName("emulator"),
+            IdentifierName(name));
 
     [Pure]
     internal static ArgumentSyntax CreateEmulatorArgument() => Argument(IdentifierName("emulator"));
@@ -150,19 +155,20 @@ internal static class CommonSyntax
                             SeparatedList(constructorArguments.Select(Argument).ToArray())))));
 
     [MustUseReturnValue]
-    private static AttributeSyntax CreateAggressiveInliningAttribute(RequiredUsings requiredUsings) => CreateMethodImplAttribute(requiredUsings, MethodImplOptions.AggressiveInlining);
+    internal static AttributeListSyntax CreateAggressiveInliningAttributeList(RequiredUsings requiredUsings) =>
+        AttributeList([CreateMethodImplAttribute(requiredUsings, MethodImplOptions.AggressiveInlining)]);
 
     [MustUseReturnValue]
     internal static AccessorDeclarationSyntax CreateGetAccessor(RequiredUsings requiredUsings) =>
         AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-            .WithAttributeLists([AttributeList([CreateAggressiveInliningAttribute(requiredUsings)])])
+            .WithAttributeLists([CreateAggressiveInliningAttributeList(requiredUsings)])
             .WithSemicolonToken(Semicolon);
 
     [MustUseReturnValue]
     internal static AccessorDeclarationSyntax CreateGetAccessor(RequiredUsings requiredUsings, ExpressionSyntax getExpression) =>
         AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
             .WithExpressionBody(ArrowExpressionClause(getExpression))
-            .WithAttributeLists([AttributeList([CreateAggressiveInliningAttribute(requiredUsings)])])
+            .WithAttributeLists([CreateAggressiveInliningAttributeList(requiredUsings)])
             .WithSemicolonToken(Semicolon);
 
     [MustUseReturnValue]
@@ -170,7 +176,7 @@ internal static class CommonSyntax
     {
         var accessor = AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
             .WithExpressionBody(ArrowExpressionClause(setExpression))
-            .WithAttributeLists([AttributeList([CreateAggressiveInliningAttribute(requiredUsings)])])
+            .WithAttributeLists([CreateAggressiveInliningAttributeList(requiredUsings)])
             .WithSemicolonToken(Semicolon);
 
         if (modifiers is { Count: > 0 })

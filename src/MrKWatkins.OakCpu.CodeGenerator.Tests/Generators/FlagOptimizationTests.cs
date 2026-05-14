@@ -1,4 +1,3 @@
-using MrKWatkins.OakCpu.CodeGenerator.Generators;
 using MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Actions;
 using MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Optimization;
 

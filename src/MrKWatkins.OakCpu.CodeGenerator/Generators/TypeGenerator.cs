@@ -74,11 +74,11 @@ public abstract class TypeGenerator
         throw new NotImplementedException($"{nameof(CreateType)} is not implemented and {nameof(CreateTypes)} has not been overridden.");
     }
 
-    [Pure]
+    [MustUseReturnValue]
     protected static PropertyDeclarationSyntax CreateGetOnlyProperty(FileGeneratorContext context, string typeName, string propertyName) =>
         CreateGetOnlyProperty(context, IdentifierName(typeName), propertyName, TokenList(Public));
 
-    [Pure]
+    [MustUseReturnValue]
     protected static PropertyDeclarationSyntax CreateGetOnlyProperty(FileGeneratorContext context, TypeSyntax type, string propertyName, SyntaxTokenList modifiers) =>
         PropertyDeclaration(type, Identifier(propertyName))
             .WithModifiers(modifiers)
@@ -99,11 +99,11 @@ public abstract class TypeGenerator
                         .WithSemicolonToken(Semicolon)
                 ]));
 
-    [Pure]
+    [MustUseReturnValue]
     protected static PropertyDeclarationSyntax CreateGetSetProperty(FileGeneratorContext context, TypeSyntax type, string propertyName, ExpressionSyntax getExpression, ExpressionSyntax setExpression) =>
         CreateGetSetProperty(context, type, propertyName, getExpression, setExpression, TokenList(Public));
 
-    [Pure]
+    [MustUseReturnValue]
     protected static PropertyDeclarationSyntax CreateGetSetProperty(FileGeneratorContext context, TypeSyntax type, string propertyName, ExpressionSyntax getExpression, ExpressionSyntax setExpression, SyntaxTokenList modifiers) =>
         PropertyDeclaration(type, Identifier(propertyName))
             .WithModifiers(modifiers)
@@ -128,7 +128,7 @@ public abstract class TypeGenerator
                         .WithSemicolonToken(Semicolon)
                 ]));
 
-    [Pure]
+    [MustUseReturnValue]
     protected static PropertyDeclarationSyntax CreateOverrideGetSetProperty(FileGeneratorContext context, TypeSyntax type, string propertyName, ExpressionSyntax getExpression, ExpressionSyntax setExpression) =>
         CreateGetSetProperty(context, type, propertyName, getExpression, setExpression, TokenList(Public, Override));
 

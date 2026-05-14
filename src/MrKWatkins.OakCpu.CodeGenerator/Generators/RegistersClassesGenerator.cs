@@ -57,7 +57,7 @@ public sealed class RegistersClassesGenerator : TypeGenerator
         return CreateFacadeBaseClass(Class.Name.Registers(context, category), summary, members);
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static ClassDeclarationSyntax CreateConcreteClass(
         FileGeneratorContext context,
         string? category,
@@ -129,20 +129,20 @@ public sealed class RegistersClassesGenerator : TypeGenerator
                                     .WithArgumentList(ArgumentList(SingletonSeparatedList(CreateEmulatorArgument())))))))));
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static IEnumerable<PropertyDeclarationSyntax> CreateCategoryProperties(FileGeneratorContext context, IReadOnlyList<string> categories) =>
         categories.Select(category => WithXmlDocumentation(
             CreateGetOnlyProperty(context, Class.Name.Registers(context, category), category),
             $"Gets the {context.GeneratorContext.Cpu.Name} {category.ToLowerInvariant()} registers."));
 
-    [Pure]
+    [MustUseReturnValue]
     private static IEnumerable<PropertyDeclarationSyntax> CreateRegisterProperties(FileGeneratorContext context, string? category, bool createOverrideProperty) =>
         context.GeneratorContext.Configuration.Registers.Values
             .Where(register => register.HasRegisterClassProperty && register.Category == category)
             .OrderBy(register => register.Name)
             .Select(register => CreateRegisterProperty(context, register, createOverrideProperty));
 
-    [Pure]
+    [MustUseReturnValue]
     private static PropertyDeclarationSyntax CreateRegisterProperty(FileGeneratorContext context, Register register, bool createOverrideProperty)
     {
         if (!createOverrideProperty)

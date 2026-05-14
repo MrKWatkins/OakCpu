@@ -5,6 +5,11 @@ namespace MrKWatkins.OakCpu.CodeGenerator;
 
 public static class StringExtensions
 {
+    private static readonly IReadOnlyDictionary<string, string> Acronyms = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["io"] = "IO"
+    };
+
     [Pure]
     public static string ToUpperCamelCaseFromSnakeCase(this string snakeCase) => ToCamelCaseFromSnakeCase(snakeCase, false);
 
@@ -23,9 +28,9 @@ public static class StringExtensions
                 continue;
             }
 
-            if (string.Equals(segment, "io", StringComparison.OrdinalIgnoreCase))
+            if (Acronyms.TryGetValue(segment, out var acronym))
             {
-                result.Append(lower && first ? "io" : "IO");
+                result.Append(lower && first ? acronym.ToLower(CultureInfo.InvariantCulture) : acronym);
             }
             else if (lower && first)
             {

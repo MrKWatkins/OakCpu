@@ -33,4 +33,30 @@ public sealed class StepSequenceYamlTests : TestFixture
         sequence.Steps[0].Should().Equal("step_one");
         sequence.Steps[1].Should().Equal("step_two");
     }
+
+    [Test]
+    public void Deserialize_ValidStepSequenceWithoutStepsDefaultsToEmptyList()
+    {
+        var yaml = """
+                   name: opcode_read
+                   next_opcode: read
+                   """;
+
+        var sequence = YamlSerializer.Deserialize<StepSequenceYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        sequence.Steps.Should().BeEmpty();
+    }
+
+    [Test]
+    public void Create()
+    {
+        var steps = new[] { "step_one", null };
+        var sequence = StepSequenceYaml.Create("opcode_read", steps, NextOpcodeMode.Overlapped, true);
+
+        sequence.Name.Should().Equal("opcode_read");
+        sequence.Group.Should().BeNull();
+        sequence.ExecuteOverlapOnStart.Should().BeTrue();
+        sequence.NextOpcode.Should().Equal(NextOpcodeMode.Overlapped);
+        sequence.Steps.Should().SequenceEqual(steps);
+    }
 }

@@ -2,7 +2,6 @@ using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
-using MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 namespace MrKWatkins.OakCpu.CodeGenerator;
 

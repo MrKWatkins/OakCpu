@@ -1,5 +1,4 @@
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
-using MrKWatkins.OakCpu.CodeGenerator.Generators;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
 

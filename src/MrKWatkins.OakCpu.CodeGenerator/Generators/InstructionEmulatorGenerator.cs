@@ -27,7 +27,7 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
             context,
             ClassDeclaration(Class.Name.InstructionEmulator(context)).AddModifiers(Public, Sealed, Unsafe, Partial));
 
-    [Pure]
+    [MustUseReturnValue]
     private static ClassDeclarationSyntax PopulateClass(FileGeneratorContext context, ClassDeclarationSyntax classDeclaration)
     {
         var members = new List<MemberDeclarationSyntax>
@@ -193,7 +193,7 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
     [MustUseReturnValue]
     private static MethodDeclarationSyntax CreateErrorMethod(FileGeneratorContext context)
     {
-        context.RequiredUsings.Add(typeof(NotSupportedException).Namespace!);
+        context.RequiredUsings.Add(typeof(NotSupportedException));
 
         return MethodDeclaration(IntType, Identifier(Method.Name.Error))
             .WithModifiers([Private, Static])
@@ -214,7 +214,7 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
                                 ])))));
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static MemberDeclarationSyntax CreateInstructionMethod(FileGeneratorContext context, StepSequence sequence, IReadOnlyList<Step> steps)
     {
         if (sequence is PrefixJump prefixJump)
@@ -232,7 +232,7 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
         return InstructionMethodEmitter.CreateMethod(context, plan);
     }
 
-    [Pure]
+    [MustUseReturnValue]
     private static MemberDeclarationSyntax CreatePrefixJumpMethod(FileGeneratorContext context, PrefixJump sequence, IReadOnlyList<Step> steps)
     {
         var comments = new[] { Comment($"// {GetInstructionMethodComment(sequence)}") };

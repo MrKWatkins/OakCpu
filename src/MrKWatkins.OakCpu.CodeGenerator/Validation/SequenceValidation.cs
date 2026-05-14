@@ -11,7 +11,7 @@ internal static class SequenceValidation
         var availableSequenceNames = ValidationHelpers.GetAvailableSequenceNames(yaml);
 
         return ValidationHelpers.ValidateDuplicateNames(
-                yaml.Sequences.Select((sequence, index) => (sequence.Name, $"sequences[{index}].name")),
+                yaml.Sequences.Indexed().Select(item => (item.Item.Name, $"sequences[{item.Index}].name")),
                 "sequence")
             .Concat(ValidateOpcodeRead(yaml))
             .Concat(ValidateHaltedSequence(yaml, availableSequenceNames))
@@ -41,17 +41,17 @@ internal static class SequenceValidation
     private static IEnumerable<ValidationError> ValidateSequenceGroups(IReadOnlyList<StepSequenceYaml> sequences)
     {
         foreach (var duplicate in sequences
-                     .Select((sequence, index) => (sequence, index))
-                     .Where(item => item.sequence.Group != null)
-                     .GroupBy(item => (item.sequence.Group!.Name, item.sequence.Group.Number))
+                     .Indexed()
+                     .Where(item => item.Item.Group != null)
+                     .GroupBy(item => (item.Item.Group!.Name, item.Item.Group.Number))
                      .Where(group => group.Count() > 1)
                      .OrderBy(group => group.Key.Name, StringComparer.Ordinal)
                      .ThenBy(group => group.Key.Number))
         {
-            var sequenceNames = ValidationHelpers.FormatNames(duplicate.Select(item => item.sequence.Name));
+            var sequenceNames = ValidationHelpers.FormatNames(duplicate.Select(item => item.Item.Name));
             yield return new ValidationError(
                 $"The sequence group {duplicate.Key.Name} contains multiple sequences for number {duplicate.Key.Number}: {sequenceNames}.",
-                duplicate.Select(item => $"sequences[{item.index}].group.number").OrderBy(path => path, StringComparer.Ordinal).ToArray());
+                duplicate.Select(item => $"sequences[{item.Index}].group.number").OrderBy(path => path, StringComparer.Ordinal).ToArray());
         }
     }
 
@@ -64,20 +64,20 @@ internal static class SequenceValidation
             .ToHashSet();
 
         foreach (var duplicate in yaml.Interrupts.Modes
-                     .Select((mode, index) => (mode, index))
-                     .Where(item => !explicitInterruptModes.Contains(item.mode.Number))
-                     .GroupBy(item => item.mode.Number)
+                     .Indexed()
+                     .Where(item => !explicitInterruptModes.Contains(item.Item.Number))
+                     .GroupBy(item => item.Item.Number)
                      .Where(group => group.Count() > 1)
                      .OrderBy(group => group.Key))
         {
             yield return new ValidationError(
                 $"Interrupt mode {duplicate.Key} is defined multiple times.",
-                duplicate.Select(item => $"interrupts.modes[{item.index}].number").OrderBy(path => path, StringComparer.Ordinal).ToArray());
+                duplicate.Select(item => $"interrupts.modes[{item.Index}].number").OrderBy(path => path, StringComparer.Ordinal).ToArray());
         }
 
-        foreach (var (mode, index) in yaml.Interrupts.Modes
-                     .Select((mode, index) => (mode, index))
-                     .Where(item => item.mode.Sequence != null && !availableSequenceNames.Contains(item.mode.Sequence)))
+        foreach (var (mode, index) in yaml.Interrupts.Modes.Indexed()
+                     .Where(item => item.Item.Sequence != null && !availableSequenceNames.Contains(item.Item.Sequence))
+                     .Select(item => (item.Item, item.Index)))
         {
             yield return new ValidationError(
                 $"No sequence named {mode.Sequence} exists for interrupt mode {mode.Number}.",

@@ -3,4 +3,10 @@
       <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
       <PackageReference Include="VYaml" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Using Include="MrKWatkins.OakCpu.CodeGenerator.Generators" />
+      <Using Include="MrKWatkins.OakCpu.CodeGenerator.Generators.InstructionMethods" />
+      <Using Include="MrKWatkins.OakCpu.CodeGenerator.Generators.Statements" />
+    </ItemGroup>
 </Project>

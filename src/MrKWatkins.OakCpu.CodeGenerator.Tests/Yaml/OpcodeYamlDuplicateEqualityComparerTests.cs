@@ -7,6 +7,35 @@ public sealed class OpcodeYamlDuplicateEqualityComparerTests
     [TestCaseSource(nameof(TestCases))]
     public void Equals(OpcodeYaml x, OpcodeYaml y, bool equal) => OpcodeYamlDuplicateEqualityComparer.Instance.Equals(x, y).Should().Equal(equal);
 
+    [Test]
+    public void Equals_SameReference()
+    {
+        var opcode = new OpcodeYaml { Opcode = "0x00" };
+
+        OpcodeYamlDuplicateEqualityComparer.Instance.Equals(opcode, opcode).Should().BeTrue();
+    }
+
+    [Test]
+    public void Equals_NullLeft()
+    {
+        OpcodeYamlDuplicateEqualityComparer.Instance.Equals(null, new OpcodeYaml { Opcode = "0x00" }).Should().BeFalse();
+    }
+
+    [Test]
+    public void Equals_NullRight()
+    {
+        OpcodeYamlDuplicateEqualityComparer.Instance.Equals(new OpcodeYaml { Opcode = "0x00" }, null).Should().BeFalse();
+    }
+
+    [Test]
+    public void GetHashCode_EquivalentOpcodesMatch()
+    {
+        var x = new OpcodeYaml { Opcode = "0xED 0x00", R0 = "X", N0 = 1 };
+        var y = new OpcodeYaml { Opcode = "0xED 0x01", R0 = "X", N0 = 1 };
+
+        OpcodeYamlDuplicateEqualityComparer.Instance.GetHashCode(x).Should().Equal(OpcodeYamlDuplicateEqualityComparer.Instance.GetHashCode(y));
+    }
+
     [Pure]
     public static IEnumerable<TestCaseData> TestCases()
     {

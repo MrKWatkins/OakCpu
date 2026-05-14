@@ -57,4 +57,15 @@ public sealed class ValidationHelpersTests
         names.Contains("opcode_read").Should().BeTrue();
         names.Contains("halted").Should().BeTrue();
     }
+
+    [Test]
+    public void Indexed()
+    {
+        var indexed = new[] { "zero", "one", "two" }.Indexed().ToArray();
+
+        indexed.Should().HaveCount(3);
+        indexed[0].Should().Equal(("zero", 0));
+        indexed[1].Should().Equal(("one", 1));
+        indexed[2].Should().Equal(("two", 2));
+    }
 }
