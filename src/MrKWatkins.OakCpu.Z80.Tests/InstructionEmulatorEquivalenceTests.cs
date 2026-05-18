@@ -6,34 +6,27 @@ namespace MrKWatkins.OakCpu.Z80.Tests;
 public sealed class InstructionEmulatorEquivalenceTests
 {
     [Test]
-    public void ExecuteInstruction_NoOverlappedRead()
-    {
+    public void ExecuteInstruction_NoOverlappedRead() =>
         AssertEquivalentAfterInstructions(
             setup =>
             {
                 setup.WriteByteToMemory(0x0000, 0x06);
                 setup.WriteByteToMemory(0x0001, 0x42);
             });
-    }
 
     [Test]
-    public void ExecuteInstruction_OverlappedRead()
-    {
+    public void ExecuteInstruction_OverlappedRead() =>
         AssertEquivalentAfterInstructions(
             setup => setup.WriteByteToMemory(0x0000, 0x04));
-    }
 
     [Test]
-    public void ExecuteInstruction_HaltAndHaltedCycle()
-    {
+    public void ExecuteInstruction_HaltAndHaltedCycle() =>
         AssertEquivalentAfterInstructions(
             setup => setup.WriteByteToMemory(0x0000, 0x76),
             instructionCount: 2);
-    }
 
     [Test]
-    public void ExecuteInstruction_PrefixedAlternativeFollowedByFlagInstruction()
-    {
+    public void ExecuteInstruction_PrefixedAlternativeFollowedByFlagInstruction() =>
         AssertEquivalentAfterInstructions(
             setup =>
             {
@@ -45,11 +38,9 @@ public sealed class InstructionEmulatorEquivalenceTests
                 setup.WriteByteToMemory(0x8337, 0x3F);
             },
             instructionCount: 2);
-    }
 
     [Test]
-    public void ExecuteInstruction_IndexedHighRegisterInstruction()
-    {
+    public void ExecuteInstruction_IndexedHighRegisterInstruction() =>
         AssertEquivalentAfterInstructions(
             setup =>
             {
@@ -58,11 +49,9 @@ public sealed class InstructionEmulatorEquivalenceTests
                 setup.WriteByteToMemory(0x0000, 0xDD);
                 setup.WriteByteToMemory(0x0001, 0x84);
             });
-    }
 
     [Test]
-    public void ExecuteInstruction_IndexedDisplacementRead()
-    {
+    public void ExecuteInstruction_IndexedDisplacementRead() =>
         AssertEquivalentAfterInstructions(
             setup =>
             {
@@ -73,11 +62,9 @@ public sealed class InstructionEmulatorEquivalenceTests
                 setup.WriteByteToMemory(0x0002, 0x05);
                 setup.WriteByteToMemory(0x4005, 0x34);
             });
-    }
 
     [Test]
-    public void ExecuteInstruction_InterruptAfterOverlappedInstruction_CompletesOverlapBeforeInterruptHandling()
-    {
+    public void ExecuteInstruction_InterruptAfterOverlappedInstruction_CompletesOverlapBeforeInterruptHandling() =>
         AssertEquivalentAfterInstructions(
             setup =>
             {
@@ -92,11 +79,9 @@ public sealed class InstructionEmulatorEquivalenceTests
             },
             instructionCount: 2,
             setInterruptAfterInstruction: 2);
-    }
 
     [Test]
-    public void ExecuteInstruction_PrefixTableResetAfterDDPrefixedInstruction()
-    {
+    public void ExecuteInstruction_PrefixTableResetAfterDDPrefixedInstruction() =>
         AssertEquivalentAfterInstructions(
             setup =>
             {
@@ -107,11 +92,9 @@ public sealed class InstructionEmulatorEquivalenceTests
                 setup.WriteByteToMemory(0x0002, 0x3C);
             },
             instructionCount: 2);
-    }
 
     [Test]
-    public void ExecuteInstruction_PrefixTableResetAfterFDPrefixedInstruction()
-    {
+    public void ExecuteInstruction_PrefixTableResetAfterFDPrefixedInstruction() =>
         AssertEquivalentAfterInstructions(
             setup =>
             {
@@ -122,11 +105,9 @@ public sealed class InstructionEmulatorEquivalenceTests
                 setup.WriteByteToMemory(0x0002, 0x04);
             },
             instructionCount: 2);
-    }
 
     [Test]
-    public void ExecuteInstruction_PrefixTableResetAfterCBPrefixedInstruction()
-    {
+    public void ExecuteInstruction_PrefixTableResetAfterCBPrefixedInstruction() =>
         AssertEquivalentAfterInstructions(
             setup =>
             {
@@ -136,11 +117,9 @@ public sealed class InstructionEmulatorEquivalenceTests
                 setup.WriteByteToMemory(0x0002, 0x3C);
             },
             instructionCount: 2);
-    }
 
     [Test]
-    public void ExecuteInstruction_OverlapFoldingAcrossInstructionBoundary()
-    {
+    public void ExecuteInstruction_OverlapFoldingAcrossInstructionBoundary() =>
         AssertEquivalentAfterInstructions(
             setup =>
             {
@@ -148,11 +127,9 @@ public sealed class InstructionEmulatorEquivalenceTests
                 setup.WriteByteToMemory(0x0001, 0x04);
             },
             instructionCount: 2);
-    }
 
     [Test]
-    public void ExecuteInstruction_HaltFollowedByInterrupt()
-    {
+    public void ExecuteInstruction_HaltFollowedByInterrupt() =>
         AssertEquivalentAfterInstructions(
             setup =>
             {
@@ -166,7 +143,6 @@ public sealed class InstructionEmulatorEquivalenceTests
             },
             instructionCount: 4,
             setInterruptAfterInstruction: 3);
-    }
 
     private static void AssertEquivalentAfterInstructions(Action<Z80TestHarness> setup, int instructionCount = 1, int? setInterruptAfterInstruction = null)
     {

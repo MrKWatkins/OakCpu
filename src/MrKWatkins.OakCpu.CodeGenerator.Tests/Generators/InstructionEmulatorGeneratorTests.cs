@@ -41,7 +41,7 @@ public sealed class InstructionEmulatorGeneratorTests : TestFixture
     [Test]
     public void GetInstructionMethodName_UsesEncodingSuffixForCollidingInstruction()
     {
-        var instruction = Z80GeneratorContext.Instructions.Single(i => i.Mnemonic == "NOP" && i.Prefix == 0xDD);
+        var instruction = Z80GeneratorContext.Instructions.Single(i => i is { Mnemonic: "NOP", Prefix: 0xDD });
 
         var name = InstructionEmulatorGenerator.GetInstructionMethodName(Z80GeneratorContext, instruction);
 
