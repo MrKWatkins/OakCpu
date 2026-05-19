@@ -10,7 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\.gitignore = ..\.gitignore
 		..\Icon.png = ..\Icon.png
 		..\License.md = ..\License.md
-		Disassemble.sh = Disassemble.sh
 		global.json = global.json
 		..\AGENTS.md = ..\AGENTS.md
 		..\CLAUDE.md = ..\CLAUDE.md
@@ -45,8 +44,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrKWatkins.OakCpu.Z80.Benchmarks", "MrKWatkins.OakCpu.Z80.Benchmarks\MrKWatkins.OakCpu.Z80.Benchmarks.csproj", "{6DB10592-77D9-42C7-9659-ACE1DA57DBD8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrKWatkins.OakCpu.Z80.Disassemble", "MrKWatkins.OakCpu.Z80.Disassemble\MrKWatkins.OakCpu.Z80.Disassemble.csproj", "{493D39D5-AC5C-4EBD-AADC-A3E2D5E9A86F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "8-bit-arithmetic", "8-bit-arithmetic", "{A47A6EEC-AEF6-41CF-AD3C-A5C80845A97C}"
 	ProjectSection(SolutionItems) = preProject
@@ -203,10 +200,6 @@ Global
 		{6DB10592-77D9-42C7-9659-ACE1DA57DBD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6DB10592-77D9-42C7-9659-ACE1DA57DBD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6DB10592-77D9-42C7-9659-ACE1DA57DBD8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{493D39D5-AC5C-4EBD-AADC-A3E2D5E9A86F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{493D39D5-AC5C-4EBD-AADC-A3E2D5E9A86F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{493D39D5-AC5C-4EBD-AADC-A3E2D5E9A86F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{493D39D5-AC5C-4EBD-AADC-A3E2D5E9A86F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EFC433E9-9559-45D0-B91A-EADCED9CC4EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EFC433E9-9559-45D0-B91A-EADCED9CC4EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFC433E9-9559-45D0-B91A-EADCED9CC4EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
