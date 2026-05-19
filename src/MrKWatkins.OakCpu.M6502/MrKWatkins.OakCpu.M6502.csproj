@@ -1,0 +1,84 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>MrKWatkins.OakCpu.M6502.Testing</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>MrKWatkins.OakCpu.M6502.Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="M6502StepEmulator.initialization.generated.cs">
+            <DependentUpon>M6502StepEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502StepEmulator.interrupts.generated.cs">
+            <DependentUpon>M6502StepEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502StepEmulator.overlaps.generated.cs">
+            <DependentUpon>M6502StepEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502StepEmulator.reset.generated.cs">
+            <DependentUpon>M6502StepEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502StepEmulator.serialization.generated.cs">
+            <DependentUpon>M6502StepEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502StepEmulator.steps.generated.cs">
+            <DependentUpon>M6502StepEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502InstructionEmulator.generated.cs">
+            <DependentUpon>M6502InstructionEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502InstructionEmulator.instructions.generated.cs">
+            <DependentUpon>M6502InstructionEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502InstructionEmulator.interrupts.generated.cs">
+            <DependentUpon>M6502InstructionEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502InstructionEmulator.reset.generated.cs">
+            <DependentUpon>M6502InstructionEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502InstructionEmulator.tables.generated.cs">
+            <DependentUpon>M6502InstructionEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502InstructionEmulator.serialization.generated.cs">
+            <DependentUpon>M6502InstructionEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502StepEmulator.generated.cs">
+            <DependentUpon>M6502StepEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502Flags.generated.cs">
+            <DependentUpon>M6502StepEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502StepFlags.generated.cs">
+            <DependentUpon>M6502StepEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502InstructionFlags.generated.cs">
+            <DependentUpon>M6502InstructionEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502Interrupts.generated.cs">
+            <DependentUpon>M6502StepEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502StepInterrupts.generated.cs">
+            <DependentUpon>M6502StepEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502InstructionInterrupts.generated.cs">
+            <DependentUpon>M6502InstructionEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502Registers.generated.cs">
+            <DependentUpon>M6502StepEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502StepRegisters.generated.cs">
+            <DependentUpon>M6502StepEmulator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="M6502InstructionRegisters.generated.cs">
+            <DependentUpon>M6502InstructionEmulator.cs</DependentUpon>
+        </Compile>
+    </ItemGroup>
+</Project>

@@ -1,0 +1,26 @@
+registers:
+  - name: A
+    type: u8
+    documentation: Gets or sets the accumulator register.
+
+  - name: X
+    type: u8
+    documentation: Gets or sets the X index register.
+
+  - name: Y
+    type: u8
+    documentation: Gets or sets the Y index register.
+
+  - name: S
+    type: u8
+    documentation: Gets or sets the stack pointer.
+
+  - name: P
+    type: u8
+    flags: true
+    documentation: Gets or sets the processor status register.
+
+  - name: PC
+    type: u16
+    program_counter: true
+    documentation: Gets or sets the program counter.

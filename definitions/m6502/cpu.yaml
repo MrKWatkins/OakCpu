@@ -1,0 +1,19 @@
+cpu:
+  name: M6502
+  documentation: Provides generated MOS 6502 CPU emulators.
+  actions:
+    - name: opcode_read
+      documentation: The host must read an opcode byte from memory.
+
+    - name: memory_read
+      documentation: The host must read a byte from memory.
+
+    - name: memory_write
+      documentation: The host must write a byte to memory.
+
+sequences:
+  - name: opcode_read
+    next_opcode: custom
+    steps:
+      - Address = PC; PC = PC + 1; request(action.opcode_read);
+      - move_to_opcode();

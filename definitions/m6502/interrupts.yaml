@@ -1,0 +1,12 @@
+interrupts:
+  handle:
+
+  modes:
+    - number: 0
+      next_opcode: read
+      steps:
+        -
+
+  halted_cycle:
+    - Address = PC; PC = PC + 1; request(action.opcode_read);
+    - move_to_opcode();

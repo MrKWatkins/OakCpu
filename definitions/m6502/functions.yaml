@@ -1,0 +1,5 @@
+functions:
+  - name: is_negative
+    type: i32_bool
+    parameters: [value]
+    expression: (value & 0x80) >> 7

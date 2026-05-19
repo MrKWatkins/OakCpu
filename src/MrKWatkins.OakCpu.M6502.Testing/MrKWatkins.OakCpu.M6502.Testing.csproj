@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>MrKWatkins.OakCpu.M6502.Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\MrKWatkins.OakCpu.M6502\MrKWatkins.OakCpu.M6502.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="MrKWatkins.EmulatorTestSuites.M6502" />
+        <PackageReference Include="NUnit" PrivateAssets="All" />
+    </ItemGroup>
+</Project>

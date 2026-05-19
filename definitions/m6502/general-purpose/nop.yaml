@@ -1,0 +1,8 @@
+instructions:
+  - group: General Purpose
+    mnemonic: NOP
+    opcodes:
+      - opcode: 0xEA
+    steps:
+      -
+    next_opcode: overlapped
