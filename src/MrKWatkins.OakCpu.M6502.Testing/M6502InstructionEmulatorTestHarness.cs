@@ -70,12 +70,11 @@ public sealed class M6502InstructionEmulatorTestHarness : M6502TestHarness
 
     public override void ExecuteInstruction()
     {
-        var opcode = ReadByteFromMemory(emulator.PC);
         var initialTStates = TStates;
         var executedTStates = emulator.ExecuteInstruction(performActionRequiredCallback);
-        if (opcode == 0xEA && executedTStates == 2 && TStates == initialTStates + 1)
+        if (executedTStates == 2 && TStates == initialTStates + 1)
         {
-            // The instruction emulator does not expose NOP's overlapped prefetch cycle, but the single-step suite expects it.
+            // The instruction emulator does not expose the implied instruction prefetch read, but the single-step suite expects it.
             emulator.Data = ReadByteFromMemory(emulator.PC);
             MutableCycles?.Add(new Cycle(CycleType.Read, TStates, emulator.PC, emulator.Data));
             TStates++;

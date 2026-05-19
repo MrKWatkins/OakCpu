@@ -1,0 +1,41 @@
+instructions:
+  - group: Increment/Decrement
+    mnemonic: INX
+    opcodes:
+      - opcode: 0xE8
+    steps:
+      - X = X + 1; flags();
+    flags:
+      Z: is_zero(X)
+      N: is_negative(X)
+
+  - group: Increment/Decrement
+    mnemonic: DEX
+    opcodes:
+      - opcode: 0xCA
+    steps:
+      - X = X - 1; flags();
+    flags:
+      Z: is_zero(X)
+      N: is_negative(X)
+
+  - group: Increment/Decrement
+    mnemonic: INY
+    opcodes:
+      - opcode: 0xC8
+    steps:
+      - Y = Y + 1; flags();
+    flags:
+      Z: is_zero(Y)
+      N: is_negative(Y)
+
+  - group: Increment/Decrement
+    mnemonic: DEY
+    opcodes:
+      - opcode: 0x88
+    steps:
+      - Y = Y - 1; flags();
+    flags:
+      Z: is_zero(Y)
+      N: is_negative(Y)
+      

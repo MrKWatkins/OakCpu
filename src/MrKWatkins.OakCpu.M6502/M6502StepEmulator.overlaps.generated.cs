@@ -54,8 +54,185 @@ public sealed unsafe partial class M6502StepEmulator
         overlapPipeline = Overlaps[overlapIndex];
     }
 
+    // Overlap 0x08: PHP [2]
+    // Overlap 0x48: PHA [2]
     // Overlap 0xEA: NOP [0]
     private static void Overlap0(M6502StepEmulator emulator)
     {
+    }
+
+    // Overlap 0x18: CLC [0]
+    private static void Overlap1(M6502StepEmulator emulator)
+    {
+        emulator.P &= 0xFE;
+    }
+
+    // Overlap 0x28: PLP [3]
+    private static void Overlap2(M6502StepEmulator emulator)
+    {
+        emulator.P = (byte)(emulator.data & 0b11101111 | 0b00100000);
+    }
+
+    // Overlap 0x38: SEC [0]
+    private static void Overlap3(M6502StepEmulator emulator)
+    {
+        emulator.P |= 0x01;
+    }
+
+    // Overlap 0x58: CLI [0]
+    private static void Overlap4(M6502StepEmulator emulator)
+    {
+        emulator.P &= 0xFB;
+    }
+
+    // Overlap 0x68: PLA [3]
+    // Overlap 0xA9: LDA #n [1]
+    private static void Overlap5(M6502StepEmulator emulator)
+    {
+        emulator.A = emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= emulator.A & 0b10000000; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+    }
+
+    // Overlap 0x78: SEI [0]
+    private static void Overlap6(M6502StepEmulator emulator)
+    {
+        emulator.P |= 0x04;
+    }
+
+    // Overlap 0x88: DEY [0]
+    private static void Overlap7(M6502StepEmulator emulator)
+    {
+        emulator.Y -= 0x01;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.Y == 0)) << 1; // Set Z if is_zero(Y) is true.
+        flags |= emulator.Y & 0b10000000; // Set N if is_negative(Y) is true.
+        emulator.P = (byte)flags;
+    }
+
+    // Overlap 0x8A: TXA [0]
+    private static void Overlap8(M6502StepEmulator emulator)
+    {
+        emulator.A = emulator.X;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= emulator.A & 0b10000000; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+    }
+
+    // Overlap 0x98: TYA [0]
+    private static void Overlap9(M6502StepEmulator emulator)
+    {
+        emulator.A = emulator.Y;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= emulator.A & 0b10000000; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+    }
+
+    // Overlap 0x9A: TXS [0]
+    private static void Overlap10(M6502StepEmulator emulator)
+    {
+        emulator.S = emulator.X;
+    }
+
+    // Overlap 0xA8: TAY [0]
+    private static void Overlap11(M6502StepEmulator emulator)
+    {
+        emulator.Y = emulator.A;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.Y == 0)) << 1; // Set Z if is_zero(Y) is true.
+        flags |= emulator.Y & 0b10000000; // Set N if is_negative(Y) is true.
+        emulator.P = (byte)flags;
+    }
+
+    // Overlap 0xAA: TAX [0]
+    private static void Overlap12(M6502StepEmulator emulator)
+    {
+        emulator.X = emulator.A;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.X == 0)) << 1; // Set Z if is_zero(X) is true.
+        flags |= emulator.X & 0b10000000; // Set N if is_negative(X) is true.
+        emulator.P = (byte)flags;
+    }
+
+    // Overlap 0xB8: CLV [0]
+    private static void Overlap13(M6502StepEmulator emulator)
+    {
+        emulator.P &= 0xBF;
+    }
+
+    // Overlap 0xBA: TSX [0]
+    private static void Overlap14(M6502StepEmulator emulator)
+    {
+        emulator.X = emulator.S;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.X == 0)) << 1; // Set Z if is_zero(X) is true.
+        flags |= emulator.X & 0b10000000; // Set N if is_negative(X) is true.
+        emulator.P = (byte)flags;
+    }
+
+    // Overlap 0xC8: INY [0]
+    private static void Overlap15(M6502StepEmulator emulator)
+    {
+        emulator.Y += 0x01;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.Y == 0)) << 1; // Set Z if is_zero(Y) is true.
+        flags |= emulator.Y & 0b10000000; // Set N if is_negative(Y) is true.
+        emulator.P = (byte)flags;
+    }
+
+    // Overlap 0xCA: DEX [0]
+    private static void Overlap16(M6502StepEmulator emulator)
+    {
+        emulator.X -= 0x01;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.X == 0)) << 1; // Set Z if is_zero(X) is true.
+        flags |= emulator.X & 0b10000000; // Set N if is_negative(X) is true.
+        emulator.P = (byte)flags;
+    }
+
+    // Overlap 0xD8: CLD [0]
+    private static void Overlap17(M6502StepEmulator emulator)
+    {
+        emulator.P &= 0xF7;
+    }
+
+    // Overlap 0xE8: INX [0]
+    private static void Overlap18(M6502StepEmulator emulator)
+    {
+        emulator.X += 0x01;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.X == 0)) << 1; // Set Z if is_zero(X) is true.
+        flags |= emulator.X & 0b10000000; // Set N if is_negative(X) is true.
+        emulator.P = (byte)flags;
+    }
+
+    // Overlap 0xF8: SED [0]
+    private static void Overlap19(M6502StepEmulator emulator)
+    {
+        emulator.P |= 0x08;
     }
 }

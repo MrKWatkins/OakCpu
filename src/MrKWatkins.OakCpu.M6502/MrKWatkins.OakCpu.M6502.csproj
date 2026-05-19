@@ -53,26 +53,17 @@
         <Compile Update="M6502StepEmulator.generated.cs">
             <DependentUpon>M6502StepEmulator.cs</DependentUpon>
         </Compile>
-        <Compile Update="M6502Flags.generated.cs">
-            <DependentUpon>M6502StepEmulator.cs</DependentUpon>
-        </Compile>
         <Compile Update="M6502StepFlags.generated.cs">
             <DependentUpon>M6502StepEmulator.cs</DependentUpon>
         </Compile>
         <Compile Update="M6502InstructionFlags.generated.cs">
             <DependentUpon>M6502InstructionEmulator.cs</DependentUpon>
         </Compile>
-        <Compile Update="M6502Interrupts.generated.cs">
-            <DependentUpon>M6502StepEmulator.cs</DependentUpon>
-        </Compile>
         <Compile Update="M6502StepInterrupts.generated.cs">
             <DependentUpon>M6502StepEmulator.cs</DependentUpon>
         </Compile>
         <Compile Update="M6502InstructionInterrupts.generated.cs">
             <DependentUpon>M6502InstructionEmulator.cs</DependentUpon>
-        </Compile>
-        <Compile Update="M6502Registers.generated.cs">
-            <DependentUpon>M6502StepEmulator.cs</DependentUpon>
         </Compile>
         <Compile Update="M6502StepRegisters.generated.cs">
             <DependentUpon>M6502StepEmulator.cs</DependentUpon>

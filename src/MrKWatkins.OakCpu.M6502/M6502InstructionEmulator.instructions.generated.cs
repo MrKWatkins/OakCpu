@@ -61,6 +61,151 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 1;
     }
 
+    // PHP
+    private static int PHP(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(0x0100 | emulator.S);
+        emulator.data = (byte)(emulator.P | 0b00110000);
+        emulator.S -= 0x01;
+        onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
+        return 2;
+    }
+
+    // CLC
+    private static int CLC(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.P &= 0xFE;
+        return 0;
+    }
+
+    // PLP
+    private static int PLP(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(0x0100 | emulator.S);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.S += 0x01;
+        emulator.address = (ushort)(0x0100 | emulator.S);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.P = (byte)(emulator.data & 0b11101111 | 0b00100000);
+        return 3;
+    }
+
+    // SEC
+    private static int SEC(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.P |= 0x01;
+        return 0;
+    }
+
+    // PHA
+    private static int PHA(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(0x0100 | emulator.S);
+        emulator.data = emulator.A;
+        emulator.S -= 0x01;
+        onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
+        return 2;
+    }
+
+    // CLI
+    private static int CLI(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.P &= 0xFB;
+        return 0;
+    }
+
+    // PLA
+    private static int PLA(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(0x0100 | emulator.S);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.S += 0x01;
+        emulator.address = (ushort)(0x0100 | emulator.S);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A = emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= emulator.A & 0b10000000; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 3;
+    }
+
+    // SEI
+    private static int SEI(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.P |= 0x04;
+        return 0;
+    }
+
+    // DEY
+    private static int DEY(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.Y -= 0x01;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.Y == 0)) << 1; // Set Z if is_zero(Y) is true.
+        flags |= emulator.Y & 0b10000000; // Set N if is_negative(Y) is true.
+        emulator.P = (byte)flags;
+        return 0;
+    }
+
+    // TXA
+    private static int TXA(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.A = emulator.X;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= emulator.A & 0b10000000; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 0;
+    }
+
+    // TYA
+    private static int TYA(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.A = emulator.Y;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= emulator.A & 0b10000000; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 0;
+    }
+
+    // TXS
+    private static int TXS(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.S = emulator.X;
+        return 0;
+    }
+
+    // TAY
+    private static int TAY(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.Y = emulator.A;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.Y == 0)) << 1; // Set Z if is_zero(Y) is true.
+        flags |= emulator.Y & 0b10000000; // Set N if is_negative(Y) is true.
+        emulator.P = (byte)flags;
+        return 0;
+    }
+
     // LDA #n
     private static int LDA_n(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -74,12 +219,98 @@ public sealed unsafe partial class M6502InstructionEmulator
         flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
         flags |= emulator.A & 0b10000000; // Set N if is_negative(A) is true.
         emulator.P = (byte)flags;
-        return 2;
+        return 1;
+    }
+
+    // TAX
+    private static int TAX(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.X = emulator.A;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.X == 0)) << 1; // Set Z if is_zero(X) is true.
+        flags |= emulator.X & 0b10000000; // Set N if is_negative(X) is true.
+        emulator.P = (byte)flags;
+        return 0;
+    }
+
+    // CLV
+    private static int CLV(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.P &= 0xBF;
+        return 0;
+    }
+
+    // TSX
+    private static int TSX(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.X = emulator.S;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.X == 0)) << 1; // Set Z if is_zero(X) is true.
+        flags |= emulator.X & 0b10000000; // Set N if is_negative(X) is true.
+        emulator.P = (byte)flags;
+        return 0;
+    }
+
+    // INY
+    private static int INY(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.Y += 0x01;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.Y == 0)) << 1; // Set Z if is_zero(Y) is true.
+        flags |= emulator.Y & 0b10000000; // Set N if is_negative(Y) is true.
+        emulator.P = (byte)flags;
+        return 0;
+    }
+
+    // DEX
+    private static int DEX(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.X -= 0x01;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.X == 0)) << 1; // Set Z if is_zero(X) is true.
+        flags |= emulator.X & 0b10000000; // Set N if is_negative(X) is true.
+        emulator.P = (byte)flags;
+        return 0;
+    }
+
+    // CLD
+    private static int CLD(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.P &= 0xF7;
+        return 0;
+    }
+
+    // INX
+    private static int INX(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.X += 0x01;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.X == 0)) << 1; // Set Z if is_zero(X) is true.
+        flags |= emulator.X & 0b10000000; // Set N if is_negative(X) is true.
+        emulator.P = (byte)flags;
+        return 0;
     }
 
     // NOP
     private static int NOP(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
+        return 0;
+    }
+
+    // SED
+    private static int SED(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.P |= 0x08;
         return 0;
     }
 }

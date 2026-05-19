@@ -63,11 +63,7 @@ public sealed class M6502InstructionEmulatorTests
         m6502.TStates.Should().Equal(2);
         m6502.RegisterPC.Should().Equal(0x0001);
         m6502.RegisterA.Should().Equal(0x00);
-        m6502.Cycles.Should().SequenceEqual(
-        [
-            new MrKWatkins.EmulatorTestSuites.M6502.Cycle(MrKWatkins.EmulatorTestSuites.M6502.CycleType.Read, 0, 0x0000, 0xEA),
-            new MrKWatkins.EmulatorTestSuites.M6502.Cycle(MrKWatkins.EmulatorTestSuites.M6502.CycleType.Read, 1, 0x0001, 0x99)
-        ]);
+        m6502.Cycles.Should().SequenceEqual(new Cycle(CycleType.Read, 0, 0x0000, 0xEA), new Cycle(CycleType.Read, 1, 0x0001, 0x99));
     }
 
     [Test]

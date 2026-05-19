@@ -1,0 +1,57 @@
+instructions:
+  - group: Transfer
+    mnemonic: TAX
+    opcodes:
+      - opcode: 0xAA
+    steps:
+      - X = A; flags();
+    flags:
+      Z: is_zero(X)
+      N: is_negative(X)
+
+  - group: Transfer
+    mnemonic: TXA
+    opcodes:
+      - opcode: 0x8A
+    steps:
+      - A = X; flags();
+    flags:
+      Z: is_zero(A)
+      N: is_negative(A)
+
+  - group: Transfer
+    mnemonic: TAY
+    opcodes:
+      - opcode: 0xA8
+    steps:
+      - Y = A; flags();
+    flags:
+      Z: is_zero(Y)
+      N: is_negative(Y)
+
+  - group: Transfer
+    mnemonic: TYA
+    opcodes:
+      - opcode: 0x98
+    steps:
+      - A = Y; flags();
+    flags:
+      Z: is_zero(A)
+      N: is_negative(A)
+
+  - group: Transfer
+    mnemonic: TSX
+    opcodes:
+      - opcode: 0xBA
+    steps:
+      - X = S; flags();
+    flags:
+      Z: is_zero(X)
+      N: is_negative(X)
+
+  - group: Transfer
+    mnemonic: TXS
+    opcodes:
+      - opcode: 0x9A
+    steps:
+      - S = X;

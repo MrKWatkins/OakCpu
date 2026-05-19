@@ -9,7 +9,7 @@ public partial class M6502StepEmulator
     /// </summary>
     /// <param name="onStepComplete">Called after every step. Use to perform any action required at the end of a step.</param>
     /// <param name="onBeforeStep">Optional function that is called before each step.</param>
-    public void ExecuteInstruction(Action<ActionRequired> onStepComplete, Action? onBeforeStep = null)
+    public unsafe void ExecuteInstruction(Action<ActionRequired> onStepComplete, Action? onBeforeStep = null)
     {
         ArgumentNullException.ThrowIfNull(onStepComplete);
 
@@ -24,6 +24,10 @@ public partial class M6502StepEmulator
             {
                 if (currentStep == OpcodeReadStep0)
                 {
+                    if (overlapPipeline != null)
+                    {
+                        ExecuteOverlap();
+                    }
                     return;
                 }
                 if (actionRequired == ActionRequired.OpcodeRead && currentStep == OpcodeReadStep1)

@@ -38,38 +38,51 @@ public sealed unsafe partial class M6502StepEmulator
 
         Steps = 
         [
-            new(&Step0, 1, ActionRequired.OpcodeRead, default), new(&Step1, 8, ActionRequired.None, default), new(&Step2, 3, ActionRequired.OpcodeRead, default), new(&Step3, 2, ActionRequired.None, default), new(default, 0, ActionRequired.None, default), 
-            new(&Step4, 6, ActionRequired.MemoryRead, default), new(&Step5, 0, ActionRequired.None, default), new(default, 0, ActionRequired.None, &Overlap0), new(&Error, 0, ActionRequired.None, default)
+            new(&Step0, 1, ActionRequired.OpcodeRead, default), new(&Step1, 39, ActionRequired.None, default), new(&Step0, 3, ActionRequired.OpcodeRead, default), new(&Step2, 2, ActionRequired.None, default), new(default, 0, ActionRequired.None, default), 
+            new(&Step3, 6, ActionRequired.MemoryRead, default), new(&Step4, 0, ActionRequired.MemoryWrite, default), new(default, 0, ActionRequired.None, &Overlap0), new(default, 0, ActionRequired.None, &Overlap1), new(&Step3, 10, ActionRequired.MemoryRead, default), 
+            new(&Step7, 11, ActionRequired.MemoryRead, default), new(&Step8, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap2), new(default, 0, ActionRequired.None, &Overlap3), new(&Step3, 15, ActionRequired.MemoryRead, default), 
+            new(&Step11, 0, ActionRequired.MemoryWrite, default), new(default, 0, ActionRequired.None, &Overlap0), new(default, 0, ActionRequired.None, &Overlap4), new(&Step13, 19, ActionRequired.MemoryRead, default), new(&Step14, 20, ActionRequired.MemoryRead, default), 
+            new(&Step15, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap5), new(default, 0, ActionRequired.None, &Overlap6), new(default, 0, ActionRequired.None, &Overlap7), new(default, 0, ActionRequired.None, &Overlap8), 
+            new(default, 0, ActionRequired.None, &Overlap9), new(default, 0, ActionRequired.None, &Overlap10), new(default, 0, ActionRequired.None, &Overlap11), new(&Step23, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap5), 
+            new(default, 0, ActionRequired.None, &Overlap12), new(default, 0, ActionRequired.None, &Overlap13), new(default, 0, ActionRequired.None, &Overlap14), new(default, 0, ActionRequired.None, &Overlap15), new(default, 0, ActionRequired.None, &Overlap16), 
+            new(default, 0, ActionRequired.None, &Overlap17), new(default, 0, ActionRequired.None, &Overlap18), new(default, 0, ActionRequired.None, &Overlap0), new(default, 0, ActionRequired.None, &Overlap19), new(&Error, 0, ActionRequired.None, default)
         ];
-        Overlaps = [default(delegate*<M6502StepEmulator, void>), &Overlap0];
+        Overlaps = 
+        [
+            default(delegate*<M6502StepEmulator, void>), &Overlap0, &Overlap1, &Overlap2, &Overlap3, 
+            &Overlap4, &Overlap5, &Overlap6, &Overlap7, &Overlap8, 
+            &Overlap9, &Overlap10, &Overlap11, &Overlap12, &Overlap13, 
+            &Overlap14, &Overlap15, &Overlap16, &Overlap17, &Overlap18, 
+            &Overlap19
+        ];
         OpcodeStepTableNoPrefix = 
         [
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 5, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-            8, 8, 8, 8, 8, 8
+            39, 39, 39, 39, 39, 39, 39, 39, 5, 39, 
+            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
+            39, 39, 39, 39, 8, 39, 39, 39, 39, 39, 
+            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
+            9, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
+            39, 39, 39, 39, 39, 39, 13, 39, 39, 39, 
+            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
+            39, 39, 14, 39, 39, 39, 39, 39, 39, 39, 
+            39, 39, 39, 39, 39, 39, 39, 39, 17, 39, 
+            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
+            39, 39, 39, 39, 18, 39, 39, 39, 39, 39, 
+            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
+            22, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
+            39, 39, 39, 39, 39, 39, 23, 39, 24, 39, 
+            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
+            39, 39, 25, 39, 26, 39, 39, 39, 39, 39, 
+            39, 39, 39, 39, 39, 39, 39, 39, 27, 28, 
+            30, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
+            39, 39, 39, 39, 31, 39, 32, 39, 39, 39, 
+            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
+            33, 39, 34, 39, 39, 39, 39, 39, 39, 39, 
+            39, 39, 39, 39, 39, 39, 35, 39, 39, 39, 
+            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
+            39, 39, 36, 39, 37, 39, 39, 39, 39, 39, 
+            39, 39, 39, 39, 39, 39, 39, 39, 38, 39, 
+            39, 39, 39, 39, 39, 39
         ];
         InterruptModeStepTable = [4];
     }

@@ -1,0 +1,43 @@
+instructions:
+  - group: Stack
+    mnemonic: PHA
+    opcodes:
+      - opcode: 0x48
+    steps:
+      - Address = PC; request(action.memory_read);
+      - Address = 0x0100 | S; Data = A; S = S - 1; request(action.memory_write);
+      -
+    next_opcode: overlapped
+
+  - group: Stack
+    mnemonic: PHP
+    opcodes:
+      - opcode: 0x08
+    steps:
+      - Address = PC; request(action.memory_read);
+      - Address = 0x0100 | S; Data = P | 0x30; S = S - 1; request(action.memory_write);
+      -
+    next_opcode: overlapped
+
+  - group: Stack
+    mnemonic: PLA
+    opcodes:
+      - opcode: 0x68
+    steps:
+      - Address = PC; request(action.memory_read);
+      - Address = 0x0100 | S; request(action.memory_read);
+      - S = S + 1; Address = 0x0100 | S; request(action.memory_read);
+      - A = Data; flags();
+    flags:
+      Z: is_zero(A)
+      N: is_negative(A)
+
+  - group: Stack
+    mnemonic: PLP
+    opcodes:
+      - opcode: 0x28
+    steps:
+      - Address = PC; request(action.memory_read);
+      - Address = 0x0100 | S; request(action.memory_read);
+      - S = S + 1; Address = 0x0100 | S; request(action.memory_read);
+      - P = (Data & 0xEF) | 0x20;

@@ -21,7 +21,32 @@ public sealed class M6502StepSingleStepTests
 
 internal static class SingleStepTestCases
 {
-    private static readonly HashSet<string> SupportedOpcodes = ["a9", "ea"];
+    private static readonly HashSet<string> SupportedOpcodes =
+    [
+        "08",
+        "18",
+        "28",
+        "38",
+        "48",
+        "58",
+        "68",
+        "78",
+        "88",
+        "8a",
+        "98",
+        "9a",
+        "a8",
+        "a9",
+        "aa",
+        "b8",
+        "ba",
+        "c8",
+        "ca",
+        "d8",
+        "e8",
+        "ea",
+        "f8"
+    ];
 
     [Pure]
     public static IEnumerable<TestCaseData> Create() =>

@@ -1,6 +1,7 @@
 cpu:
   name: M6502
   documentation: Provides generated MOS 6502 CPU emulators.
+  default_next_opcode: overlapped
   actions:
     - name: opcode_read
       documentation: The host must read an opcode byte from memory.
@@ -13,6 +14,7 @@ cpu:
 
 sequences:
   - name: opcode_read
+    execute_overlap_on_start: true
     next_opcode: custom
     steps:
       - Address = PC; PC = PC + 1; request(action.opcode_read);

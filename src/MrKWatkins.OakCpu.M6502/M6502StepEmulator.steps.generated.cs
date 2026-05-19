@@ -39,9 +39,12 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Opcode read [0]
+    // Halt cycle [0]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void Step0(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
+        // Execute queued overlap.
+        emulator.ExecuteOverlap();
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
     }
@@ -64,17 +67,8 @@ public sealed unsafe partial class M6502StepEmulator
         }
     }
 
-    // Halt cycle [0]
-    private static void Step2(M6502StepEmulator emulator, ref ActionRequired actionRequired)
-    {
-        // Execute queued overlap.
-        emulator.ExecuteOverlap();
-        emulator.address = emulator.PC;
-        emulator.PC += 0x01;
-    }
-
     // Halt cycle [1]
-    private static void Step3(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    private static void Step2(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.currentStep = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(emulator.opcodeStepTable), emulator.data);
         var selectedStep = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(Steps), emulator.currentStep);
@@ -91,23 +85,76 @@ public sealed unsafe partial class M6502StepEmulator
         }
     }
 
-    // 0xA9: LDA #n [0]
+    // 0x08: PHP [0]
+    // 0x28: PLP [0]
+    // 0x48: PHA [0]
+    private static void Step3(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = emulator.PC;
+    }
+
+    // 0x08: PHP [1]
     private static void Step4(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(0x0100 | emulator.S);
+        emulator.data = (byte)(emulator.P | 0b00110000);
+        emulator.S -= 0x01;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap0;
+    }
+
+    // 0x28: PLP [1]
+    private static void Step7(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(0x0100 | emulator.S);
+    }
+
+    // 0x28: PLP [2]
+    private static void Step8(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.S += 0x01;
+        emulator.address = (ushort)(0x0100 | emulator.S);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap2;
+    }
+
+    // 0x48: PHA [1]
+    private static void Step11(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(0x0100 | emulator.S);
+        emulator.data = emulator.A;
+        emulator.S -= 0x01;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap0;
+    }
+
+    // 0x68: PLA [0]
+    private static void Step13(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = emulator.PC;
+    }
+
+    // 0x68: PLA [1]
+    private static void Step14(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(0x0100 | emulator.S);
+    }
+
+    // 0x68: PLA [2]
+    private static void Step15(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.S += 0x01;
+        emulator.address = (ushort)(0x0100 | emulator.S);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap5;
+    }
+
+    // 0xA9: LDA #n [0]
+    private static void Step23(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
-    }
-
-    // 0xA9: LDA #n [1]
-    private static void Step5(M6502StepEmulator emulator, ref ActionRequired actionRequired)
-    {
-        emulator.A = emulator.data;
-
-        // Update flags.
-        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
-        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
-        flags |= emulator.A & 0b10000000; // Set N if is_negative(A) is true.
-        emulator.P = (byte)flags;
-        emulator.currentStep = 0;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap5;
     }
 }
