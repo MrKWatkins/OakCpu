@@ -57,7 +57,6 @@ instructions:
       Y: copy_from(A)
       Z: is_zero(A)
       S: copy_from(A)
-    next_opcode: overlapped
 
   - group: 8-Bit Arithmetic
     mnemonic: XOR n
@@ -68,6 +67,7 @@ instructions:
     steps:
       - Address = PC; PC = PC + 1; request(action.memory_read);
       - A = A ^ Data; flags();
+      - 
       - 
     flags:
       C: 0
@@ -86,6 +86,7 @@ instructions:
     steps:
       - Address = HL; request(action.memory_read);
       - A = A ^ Data; flags();
+      - 
       - 
     flags:
       C: 0
@@ -116,6 +117,7 @@ instructions:
       - WZ = RP0 + signed(Data); Address = WZ; request(action.memory_read);
       - A = A ^ Data; flags();
       -
+      - 
     flags:
       C: 0
       N: 0

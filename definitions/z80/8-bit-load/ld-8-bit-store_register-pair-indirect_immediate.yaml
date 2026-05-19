@@ -11,6 +11,7 @@ instructions:
       - 
       - 
   
+      - 
   - group: 8-Bit Load
     mnemonic: LD (RP0 + d), n
     opcodes:
@@ -28,5 +29,6 @@ instructions:
       - 
       - 
       - WZ = RP0 + signed(Latch); Address = WZ; request(action.memory_write);
+      - 
       - 
       - 

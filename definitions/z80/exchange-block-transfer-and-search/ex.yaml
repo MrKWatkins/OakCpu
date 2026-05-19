@@ -7,7 +7,6 @@ instructions:
       - opcode: 0xFD 0x08
     steps:
       - $temp = AF'; AF' = AF; AF = $temp;
-    next_opcode: overlapped
     
   - group: Exchange, Block Transfer, and Search
     mnemonic: EX DE; HL
@@ -17,7 +16,6 @@ instructions:
       - opcode: 0xFD 0xEB
     steps:
       - $temp = DE; DE = HL; HL = $temp;
-    next_opcode: overlapped
     
   - group: Exchange, Block Transfer, and Search
     mnemonic: EX (SP); RP0
@@ -45,3 +43,4 @@ instructions:
       - 
       - RP0 = WZ;
     
+      - 

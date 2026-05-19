@@ -25,6 +25,7 @@ instructions:
       - 
       - 
       - 
+      - 
     flags:
       N: 0
       PV: BC != 0;

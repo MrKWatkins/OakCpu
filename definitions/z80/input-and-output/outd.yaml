@@ -15,6 +15,7 @@ instructions:
         $temp = Data + (L & 0xFF);
         $pv = (($temp & 0x07) ^ B);
         flags();
+      - 
     flags:
       C: $temp > 0xFF
       N: is_negative(Data)

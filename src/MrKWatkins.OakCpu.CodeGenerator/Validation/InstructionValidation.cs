@@ -8,9 +8,10 @@ internal static class InstructionValidation
     public static IEnumerable<ValidationError> Validate(IReadOnlyList<InstructionYaml> instructions, YamlFile yaml)
     {
         var availableSequenceNames = ValidationHelpers.GetAvailableSequenceNames(yaml);
+        var defaultNextOpcode = yaml.Cpu.EffectiveDefaultNextOpcode;
 
         return ValidateDuplicateOpcodes(instructions)
-            .Concat(ValidateOverlappedSequences(instructions, availableSequenceNames));
+            .Concat(ValidateOverlappedSequences(instructions, availableSequenceNames, defaultNextOpcode));
     }
 
     [Pure]
@@ -41,13 +42,13 @@ internal static class InstructionValidation
     }
 
     [Pure]
-    private static IEnumerable<ValidationError> ValidateOverlappedSequences(IReadOnlyList<InstructionYaml> instructions, HashSet<string> availableSequenceNames)
+    private static IEnumerable<ValidationError> ValidateOverlappedSequences(IReadOnlyList<InstructionYaml> instructions, HashSet<string> availableSequenceNames, NextOpcodeMode defaultNextOpcode)
     {
         foreach (var (instruction, index) in instructions.Indexed()
                      .Where(item => item.Item.OverlappedSequence != null)
                      .Select(item => (item.Item, item.Index)))
         {
-            if (instruction.NextOpcode != NextOpcodeMode.Overlapped)
+            if (instruction.GetEffectiveNextOpcode(defaultNextOpcode) != NextOpcodeMode.Overlapped)
             {
                 yield return new ValidationError(
                     $"Instruction {instruction.Mnemonic} specifies an overlapped sequence but does not use next_opcode: overlapped.",

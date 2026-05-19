@@ -10,4 +10,3 @@ instructions:
         $temp = BC'; BC' = BC; BC = $temp;
         $temp = DE'; DE' = DE; DE = $temp;
         $temp = HL'; HL' = HL; HL = $temp;
-    next_opcode: overlapped

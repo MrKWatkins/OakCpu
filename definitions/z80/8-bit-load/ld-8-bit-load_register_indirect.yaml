@@ -16,6 +16,7 @@ instructions:
       - A = Data;
       - 
 
+      - 
   - group: 8-Bit Load
     mnemonic: LD R0, (RP0 + d)
     opcodes:
@@ -74,3 +75,4 @@ instructions:
       - WZ = RP0 + signed(Data); Address = WZ; request(action.memory_read);
       - R0 = Data;
       -
+      - 

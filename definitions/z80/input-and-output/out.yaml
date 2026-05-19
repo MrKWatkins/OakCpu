@@ -14,6 +14,7 @@ instructions:
       - Z = Z + 1;
       -
 
+      - 
   - group: Input and Output
     mnemonic: OUT R0, (C)
     opcodes:
@@ -37,6 +38,7 @@ instructions:
       - WZ = BC + 1;
       - 
 
+      - 
   - group: Input and Output
     mnemonic: OUT (C)
     opcodes:
@@ -47,3 +49,4 @@ instructions:
       - WZ = BC + 1;
       - 
         
+      - 

@@ -14,6 +14,7 @@ instructions:
       - $lowA = A & 0x0F; A = (A & 0xF0) | (Data & 0x0F); Data = (Data >> 4) | ($lowA << 4); flags(); WZ = HL + 1; Address = HL; request(action.memory_write);
       - 
       - 
+      - 
     flags:
       N: 0
       PV: even_parity(A)

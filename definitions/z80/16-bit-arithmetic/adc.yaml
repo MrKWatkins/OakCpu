@@ -18,6 +18,7 @@ instructions:
       -
       -
       -
+      - 
     flags:
       C: ($result & 0x10000) == 0x10000
       N: 0

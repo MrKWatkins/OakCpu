@@ -45,13 +45,21 @@ public sealed class Instruction : StepSequence
     public bool UpdatesFlags => Flags.Any();
 
     [Pure]
-    public static IReadOnlyList<Instruction> Create(ParserContext context, IReadOnlyList<InstructionYaml> yamls) =>
-        yamls.SelectMany(y => Create(context, y)).OrderBy(i => i.OpcodeTable).ThenBy(i => i.Prefix).ThenBy(i => i.Opcode).ToList();
+    public static IReadOnlyList<Instruction> Create(ParserContext context, Cpu cpu, IReadOnlyList<InstructionYaml> yamls) =>
+        yamls.SelectMany(y => Create(context, cpu, y)).OrderBy(i => i.OpcodeTable).ThenBy(i => i.Prefix).ThenBy(i => i.Opcode).ToList();
 
     [Pure]
-    private static IEnumerable<Instruction> Create(ParserContext context, InstructionYaml yaml)
+    private static IEnumerable<Instruction> Create(ParserContext context, Cpu cpu, InstructionYaml yaml)
     {
         var tablePrefix = yaml.OpcodeTable != null ? $"{yaml.OpcodeTable} " : "";
+        var nextOpcode = yaml.GetEffectiveNextOpcode(cpu.DefaultNextOpcode);
+        var stepExpressions = ShouldCollapseImplicitEmptyOverlap(yaml, nextOpcode)
+            ? yaml.Steps.Take(yaml.Steps.Count - 1).ToList()
+            : yaml.Steps;
+        if (stepExpressions.Count != yaml.Steps.Count)
+        {
+            nextOpcode = NextOpcodeMode.Read;
+        }
 
         foreach (var group in yaml.Opcodes.GroupBy(o => o, OpcodeYamlDuplicateEqualityComparer.Instance))
         {
@@ -62,12 +70,12 @@ public sealed class Instruction : StepSequence
 
             var mnemonic = Substitute(context, opcodeYaml, yaml.Mnemonic);
 
-            var steps = yaml.Steps
+            var steps = stepExpressions
                 .Select((expressions, index) =>
                 {
                     var step = Substitute(context, opcodeYaml, expressions);
 
-                    var requiresCompleteInstruction = yaml.NextOpcode != NextOpcodeMode.Custom && index == yaml.Steps.Count - 1;
+                    var requiresCompleteInstruction = nextOpcode != NextOpcodeMode.Custom && index == stepExpressions.Count - 1;
 
                     return Step.Parse($"{tablePrefix}{opcodeYaml.Opcode}: {mnemonic} [{index}]", context, step, requiresCompleteInstruction);
                 })
@@ -79,9 +87,17 @@ public sealed class Instruction : StepSequence
 
             ResolveTypesInFlagsExpressions(steps, flags);
 
-            yield return new Instruction(yaml.Group, mnemonic, yaml.OpcodeTable, opcodeYaml.PrefixByte, opcodeYaml.OpcodeByte, yaml.NextOpcode, yaml.OverlappedSequence, steps, flags, duplicates);
+            yield return new Instruction(yaml.Group, mnemonic, yaml.OpcodeTable, opcodeYaml.PrefixByte, opcodeYaml.OpcodeByte, nextOpcode, yaml.OverlappedSequence, steps, flags, duplicates);
         }
     }
+
+    [Pure]
+    private static bool ShouldCollapseImplicitEmptyOverlap(InstructionYaml yaml, NextOpcodeMode nextOpcode) =>
+        yaml.NextOpcode == null &&
+        yaml.OverlappedSequence == null &&
+        nextOpcode == NextOpcodeMode.Overlapped &&
+        yaml.Steps.Count > 1 &&
+        string.IsNullOrWhiteSpace(yaml.Steps[^1]);
 
     private static void ResolveTypesInFlagsExpressions(IReadOnlyList<Step> steps, IReadOnlyDictionary<string, Expression> flags)
     {

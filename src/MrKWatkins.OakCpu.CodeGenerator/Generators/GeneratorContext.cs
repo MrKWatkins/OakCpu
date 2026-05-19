@@ -173,9 +173,10 @@ public sealed class GeneratorContext
     {
         var configuration = CreateConfiguration(yaml);
         var parserContext = CreateParserContext(configuration, yaml.OnInstructionComplete);
+        var cpu = Cpu.Create(yaml.Cpu);
         var namedSequences = CreateNamedSequences(parserContext, yaml.Sequences);
         var opcodeRead = CreateOpcodeReadSequence(parserContext, namedSequences, yaml);
-        var instructions = Instruction.Create(parserContext, yaml.Instructions);
+        var instructions = Instruction.Create(parserContext, cpu, yaml.Instructions);
         var prefixJumps = PrefixJump.Create(parserContext, instructions);
         var interrupts = Interrupts.Create(parserContext, yaml.Interrupts, namedSequences);
         var sequences = CreateSequences(namedSequences, opcodeRead, interrupts);
@@ -183,7 +184,7 @@ public sealed class GeneratorContext
         var allSteps = CreateAllSteps(opcodeRead, prefixJumps, sequences, instructions);
         var stepLayouts = StepFinalizer.Finalize(allSteps, CreateStepSequences(opcodeRead, prefixJumps, sequences, instructions));
 
-        return new ModelState(configuration, Cpu.Create(yaml.Cpu), interrupts, sequences, sequenceGroups, opcodeRead, parserContext.OnInstructionComplete, instructions, prefixJumps, allSteps, stepLayouts.Layouts, stepLayouts.FunctionSteps);
+        return new ModelState(configuration, cpu, interrupts, sequences, sequenceGroups, opcodeRead, parserContext.OnInstructionComplete, instructions, prefixJumps, allSteps, stepLayouts.Layouts, stepLayouts.FunctionSteps);
     }
 
     [Pure]

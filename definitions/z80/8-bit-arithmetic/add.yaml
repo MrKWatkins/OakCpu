@@ -46,6 +46,7 @@ instructions:
       - 
       - 
       - 
+      - 
     flags:
       C: ($result & 0x10000) == 0x10000
       N: 0
@@ -111,7 +112,6 @@ instructions:
       Y: copy_from($result)
       Z: is_zero(A)
       S: copy_from($result)
-    next_opcode: overlapped
     
   - group: 8-Bit Arithmetic
     mnemonic: ADD A, n
@@ -123,6 +123,7 @@ instructions:
       - Address = PC; PC = PC + 1; request(action.memory_read);
       -
       - $left = A; $right = Data; $result = $left + $right; A = $result; flags();
+      - 
     flags:
       C: ($result & 0x100) == 0x100
       N: 0
@@ -141,6 +142,7 @@ instructions:
       - Address = HL; request(action.memory_read);
       - 
       - $left = A; $right = Data; $result = $left + $right; A = $result; flags();
+      - 
     flags:
       C: ($result & 0x100) == 0x100
       N: 0
@@ -169,6 +171,7 @@ instructions:
       -
       - WZ = RP0 + signed(Data); Address = WZ; request(action.memory_read);
       - $left = A; $right = Data; $result = $left + $right; A = $result; flags();
+      - 
       - 
     flags:
       C: ($result & 0x100) == 0x100

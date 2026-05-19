@@ -12,4 +12,3 @@ instructions:
       X: copy_from(A)
       H: 1
       Y: copy_from(A)
-    next_opcode: overlapped

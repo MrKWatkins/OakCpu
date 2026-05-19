@@ -45,8 +45,9 @@ public sealed class InstructionTests
                     }
                 });
         var context = new ParserContext(CreateConfiguration());
+        var cpu = Cpu.Create(YamlSerializer.Deserialize<CpuYaml>(Encoding.UTF8.GetBytes("name: Test"), YamlOptions.Instance));
 
-        var instruction = Instruction.Create(context, [yaml]).Single();
+        var instruction = Instruction.Create(context, cpu, [yaml]).Single();
 
         instruction.Mnemonic.Should().Equal("TEST B,C,BC,DE,Z,0x12");
         instruction.Steps.Should().HaveCount(1);

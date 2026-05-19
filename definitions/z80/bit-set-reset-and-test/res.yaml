@@ -179,7 +179,6 @@ instructions:
         R0: A
     steps:
       - R0 = R0 & ~(1 << N0);
-    next_opcode: overlapped
     
   - group: Bit Set, Reset, and Test
     mnemonic: RES N0, (HL)
@@ -209,6 +208,7 @@ instructions:
       -
       -
 
+      - 
   - group: Bit Set, Reset, and Test
     mnemonic: RES N0, (IX + d)
     opcode_table: DDCB
@@ -240,6 +240,7 @@ instructions:
       -
       -  
   
+      - 
   - group: Bit Set, Reset, and Test
     mnemonic: RES N0, (IX + d), R0
     opcode_table: DDCB
@@ -430,6 +431,7 @@ instructions:
       -
       - 
   
+      - 
   - group: Bit Set, Reset, and Test
     mnemonic: RES N0, (IY + d), R0
     opcode_table: FDCB
@@ -620,6 +622,7 @@ instructions:
       -
       -
 
+      - 
   - group: Bit Set, Reset, and Test
     mnemonic: RES N0, (IY + d)
     opcode_table: FDCB
@@ -652,3 +655,4 @@ instructions:
       -  
          
         
+      - 

@@ -12,6 +12,7 @@ instructions:
       - 
       - 
       - $result = A + Data; BC = BC - 1; flags();
+      - 
     flags:
       N: 0
       PV: BC != 0;

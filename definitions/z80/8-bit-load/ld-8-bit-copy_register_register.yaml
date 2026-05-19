@@ -466,7 +466,6 @@ instructions:
         
     steps:
       - R0 = R1;
-    next_opcode: overlapped
 
   - group: 8-Bit Load
     mnemonic: LD R0, A
@@ -478,6 +477,7 @@ instructions:
     steps:
       - R0 = A;
 
+      - 
   - group: 8-Bit Load
     mnemonic: LD A, R0
     opcodes:
@@ -487,6 +487,7 @@ instructions:
         R0: R
     steps:
       - A = R0; flags();
+      - 
     flags:
       N: 0
       PV: IFF2

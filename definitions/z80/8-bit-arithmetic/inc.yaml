@@ -54,7 +54,6 @@ instructions:
       Y: copy_from(R0)
       Z: is_zero(R0)
       S: is_negative(R0)
-    next_opcode: overlapped
     
   - group: 8-Bit Arithmetic
     mnemonic: INC (HL)
@@ -66,6 +65,7 @@ instructions:
       - Data = Data + 1; flags();
       - 
       - request(action.memory_write); # Skipping setting Address = HL as it should still contain HL. Skipping setting Data as it should still contain Data + 1.
+      - 
       - 
       - 
     flags:
@@ -100,6 +100,7 @@ instructions:
       - request(action.memory_write);
       -
       -
+      - 
     flags:
       N: 0
       PV: Data == 0x80

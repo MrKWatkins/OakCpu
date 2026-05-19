@@ -28,7 +28,6 @@ instructions:
       Y: copy_from(R0)
       Z: is_zero(R0)
       S: copy_from(R0)
-    next_opcode: overlapped
   
   - group: Rotate and Shift
     mnemonic: SLA (HL)
@@ -42,6 +41,7 @@ instructions:
       - request(action.memory_write); # Skipping setting Address = HL as it should still contain HL. Skipping setting Data as it should still contain Data + 1.
       -
       -
+      - 
     flags:
       C: ($temp & 0x80) == 0x80
       N: 0
@@ -67,6 +67,7 @@ instructions:
       - request(action.memory_write);
       -
       -
+      - 
     flags:
       C: ($temp & 0x80) == 0x80
       N: 0
@@ -105,6 +106,7 @@ instructions:
       - request(action.memory_write);
       -
       -
+      - 
     flags:
       C: ($temp & 0x80) == 0x80
       N: 0
@@ -130,6 +132,7 @@ instructions:
       - request(action.memory_write);
       -
       -
+      - 
     flags:
       C: ($temp & 0x80) == 0x80
       N: 0
@@ -168,6 +171,7 @@ instructions:
       - request(action.memory_write);
       -
       -
+      - 
     flags:
       C: ($temp & 0x80) == 0x80
       N: 0

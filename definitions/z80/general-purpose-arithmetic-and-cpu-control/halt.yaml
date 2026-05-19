@@ -10,5 +10,4 @@ instructions:
       # until the CPU is no longer halted. See http://www.primrosebank.net/computers/z80/z80_special_reset.htm for details.
       # We use a special cycle for this to avoid the overhead of having to check halted during a normal opcode read cycle.
       - halted = true;
-    next_opcode: overlapped
     overlapped_sequence: halted

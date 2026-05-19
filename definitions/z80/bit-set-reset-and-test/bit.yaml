@@ -187,7 +187,6 @@ instructions:
       Y: copy_from(R0)
       Z: is_zero($comparison)
       S: copy_from($comparison)
-    next_opcode: overlapped
     
   - group: Bit Set, Reset, and Test
     mnemonic: BIT N0, (HL)
@@ -213,6 +212,7 @@ instructions:
       -
       -
       - $comparison = Data & (1 << N0); flags();
+      - 
     flags:
       N: 0
       PV: is_zero($comparison)
@@ -368,6 +368,7 @@ instructions:
       -
       - $comparison = Data & (1 << N0); flags();
       -
+      - 
     flags:
       N: 0
       PV: is_zero($comparison)
@@ -523,6 +524,7 @@ instructions:
       -
       - $comparison = Data & (1 << N0); flags();
       -
+      - 
     flags:
       N: 0
       PV: is_zero($comparison)

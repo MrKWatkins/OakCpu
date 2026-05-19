@@ -48,6 +48,7 @@ instructions:
         
         flags();
 
+      - 
     flags:
       C: $temp > 0xFF
       N: is_negative(Data)

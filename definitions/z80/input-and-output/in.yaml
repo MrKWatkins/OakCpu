@@ -14,6 +14,7 @@ instructions:
       - A = Data; WZ = WZ + 1;
       -
 
+      - 
   - group: Input and Output
     mnemonic: IN R0, (C)
     opcodes:
@@ -36,6 +37,7 @@ instructions:
       - request(action.io_read);
       - WZ = BC + 1;
       - R0 = Data; flags();
+      - 
     flags:
       N: 0
       PV: even_parity(Data)
@@ -54,6 +56,7 @@ instructions:
       - request(action.io_read);
       - WZ = BC + 1;
       - flags();
+      - 
     flags:
       N: 0
       PV: even_parity(Data)

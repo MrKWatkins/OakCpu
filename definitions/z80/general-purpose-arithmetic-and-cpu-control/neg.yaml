@@ -22,4 +22,3 @@ instructions:
       Y: copy_from(A)
       Z: is_zero(A)
       S: copy_from(A)
-    next_opcode: overlapped

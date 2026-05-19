@@ -21,6 +21,7 @@ instructions:
       -
       -
   
+      - 
   - group: Call and Return
     mnemonic: CALL C0, nn
     opcodes:
@@ -89,3 +90,4 @@ instructions:
       - SP = SP - 1; Address = SP; Data = PCL; PC = WZ; request(action.memory_write);
       -
       -
+      - 

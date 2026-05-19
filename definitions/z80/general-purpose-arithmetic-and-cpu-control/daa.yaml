@@ -46,4 +46,3 @@ instructions:
       Z: is_zero(A)
       S: copy_from(A)
 
-    next_opcode: overlapped

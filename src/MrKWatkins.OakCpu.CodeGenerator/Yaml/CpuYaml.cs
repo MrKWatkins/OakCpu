@@ -35,5 +35,10 @@ public sealed partial class CpuYaml
         private set => opcodeRead = value;
     }
 
+    public NextOpcodeMode? DefaultNextOpcode { get; private set; }
+
+    [YamlIgnore]
+    public NextOpcodeMode EffectiveDefaultNextOpcode => DefaultNextOpcode ?? NextOpcodeMode.Read;
+
     public override string ToString() => Name;
 }

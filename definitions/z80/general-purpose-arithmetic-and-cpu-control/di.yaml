@@ -7,5 +7,4 @@ instructions:
       - opcode: 0xFD 0xF3
     steps:
       - IFF1 = false; IFF2 = false;
-    next_opcode: overlapped
     

@@ -22,6 +22,7 @@ instructions:
         $x = $xy & 0x08;
         $y = $xy & 0x02;
         flags();
+      - 
     flags:
       N: 1
       PV: BC != 0
