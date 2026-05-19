@@ -58,13 +58,12 @@ internal static class StatementBoundaryEmitter
         return context.Mode switch
         {
             StatementGenerationMode.InstructionEmulatorMode or StatementGenerationMode.InstructionStepMode =>
-            [
-                GenerateHandleInterruptsAndReturnIfHandled(context).WithLeadingTrivia(Comment("// Check interrupts at the instruction boundary."))
-            ],
+                GenerateInstructionCompleteStatements(context)
+                    .Select((statement, index) => index == 0 ? statement.WithLeadingTrivia(Comment("// Check interrupts at the instruction boundary.")) : statement),
             _ =>
             [
                 StatementTransitionEmitter.GenerateQueueOverlap(context.GeneratorContext, context.GeneratorContext.GetStepLayout(step).QueuedOverlapStep).WithLeadingTrivia(Comment("// Queue overlap step.")),
-                GenerateHandleInterruptsAndReturnIfHandled(context).WithLeadingTrivia(Comment("// Check interrupts at the instruction boundary."))
+                ..GenerateInstructionCompleteStatements(context).Select((statement, index) => index == 0 ? statement.WithLeadingTrivia(Comment("// Check interrupts at the instruction boundary.")) : statement)
             ]
         };
     }
@@ -85,7 +84,7 @@ internal static class StatementBoundaryEmitter
 
         if (instructionStep.ExitOverlapStep != null)
         {
-            foreach (var statement in StatementGenerator.GenerateOverlapStatements(context.FileContext, instructionStep.ExitOverlapStep, context.GeneratorContext.GetImplicitInstructionCompleteStatementCount(instructionStep.ExitOverlapStep)))
+            foreach (var statement in StatementGenerator.GenerateOverlapStatements(context.FileContext, instructionStep.ExitOverlapStep, context.GeneratorContext.GetImplicitInstructionStepsCompleteStatementCount(instructionStep.ExitOverlapStep)))
             {
                 yield return statement;
             }
@@ -120,7 +119,15 @@ internal static class StatementBoundaryEmitter
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateStepInstructionComplete(StatementGeneratorContext context)
     {
-        foreach (var statement in context.GeneratorContext.OnInstructionComplete.SelectMany(s => StatementStatementEmitter.Generate(context, s)))
+        if (context.Step is { } step && context.GeneratorContext.GetStepLayout(step).Sequence is Instruction)
+        {
+            foreach (var statement in context.GeneratorContext.OnInstructionStepsComplete.SelectMany(s => StatementStatementEmitter.Generate(context, s)))
+            {
+                yield return statement;
+            }
+        }
+
+        foreach (var statement in GenerateInstructionCompleteStatements(context))
         {
             yield return statement;
         }
@@ -157,4 +164,8 @@ internal static class StatementBoundaryEmitter
                     Argument(RefExpression(IdentifierName(Parameter.Name.ActionRequired)))
                 ])),
             Block(ReturnStatement()));
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateInstructionCompleteStatements(StatementGeneratorContext context) =>
+        context.GeneratorContext.OnInstructionComplete.SelectMany(s => StatementStatementEmitter.Generate(context, s));
 }

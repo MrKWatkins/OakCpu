@@ -233,6 +233,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         {
             InitializeVariableStatement(Parameter.Name.Emulator, ThisExpression())
         };
+        statements.AddRange(StatementGenerator.GenerateInstructionCompletionStatements(context, context.GeneratorContext.OnInstructionStepsComplete, instructionUpdatesFlagsParameterName));
         statements.AddRange(StatementGenerator.GenerateInstructionCompletionStatements(context, context.GeneratorContext.OnInstructionComplete, instructionUpdatesFlagsParameterName));
         statements.Add(ReturnStatement(IdentifierName("tStates")));
 

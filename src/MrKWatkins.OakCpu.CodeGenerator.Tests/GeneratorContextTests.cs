@@ -59,23 +59,23 @@ public sealed class GeneratorContextTests : TestFixture
     }
 
     [Test]
-    public void GetImplicitInstructionCompleteStatementCount_ReturnsSuffixCount_WhenStepEndsWithOnInstructionComplete()
+    public void GetImplicitInstructionStepsCompleteStatementCount_ReturnsSuffixCount_WhenStepEndsWithOnInstructionStepsComplete()
     {
         var step = Z80GeneratorContext.Instructions
             .SelectMany(instruction => instruction.Steps)
-            .First(EndsWithOnInstructionComplete);
+            .First(EndsWithOnInstructionStepsComplete);
 
-        Z80GeneratorContext.GetImplicitInstructionCompleteStatementCount(step).Should().Equal(Z80GeneratorContext.OnInstructionComplete.Count);
+        Z80GeneratorContext.GetImplicitInstructionStepsCompleteStatementCount(step).Should().Equal(Z80GeneratorContext.OnInstructionStepsComplete.Count);
     }
 
     [Test]
-    public void GetImplicitInstructionCompleteStatementCount_ReturnsZero_WhenStepDoesNotEndWithOnInstructionComplete()
+    public void GetImplicitInstructionStepsCompleteStatementCount_ReturnsZero_WhenStepDoesNotEndWithOnInstructionStepsComplete()
     {
         var step = Z80GeneratorContext.Instructions
             .SelectMany(instruction => instruction.Steps)
-            .First(step => !EndsWithOnInstructionComplete(step));
+            .First(step => !EndsWithOnInstructionStepsComplete(step));
 
-        Z80GeneratorContext.GetImplicitInstructionCompleteStatementCount(step).Should().Equal(0);
+        Z80GeneratorContext.GetImplicitInstructionStepsCompleteStatementCount(step).Should().Equal(0);
     }
 
     [Test]
@@ -160,9 +160,9 @@ public sealed class GeneratorContextTests : TestFixture
     }
 
     [Pure]
-    private static bool EndsWithOnInstructionComplete(Step step)
+    private static bool EndsWithOnInstructionStepsComplete(Step step)
     {
-        var suffix = Z80GeneratorContext.OnInstructionComplete;
+        var suffix = Z80GeneratorContext.OnInstructionStepsComplete;
         return suffix.Count != 0 &&
                step.Statements.Count >= suffix.Count &&
                step.Statements

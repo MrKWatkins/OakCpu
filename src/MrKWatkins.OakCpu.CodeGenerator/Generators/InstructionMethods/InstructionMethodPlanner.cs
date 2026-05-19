@@ -14,11 +14,11 @@ internal static class InstructionMethodPlanner
     internal static InstructionMethodPlan CreatePlan(FileGeneratorContext context, StepSequence sequence, IReadOnlyList<Step> steps, string methodName, string comment)
     {
         var overlapStep = sequence.Steps.FirstOrDefault(step => context.GeneratorContext.GetStepLayout(step).ExecutesAsOverlapOnly);
-        var overlapTrailingStatementsToSkip = overlapStep == null ? 0 : context.GeneratorContext.GetImplicitInstructionCompleteStatementCount(overlapStep);
+        var overlapTrailingStatementsToSkip = overlapStep == null ? 0 : context.GeneratorContext.GetImplicitInstructionStepsCompleteStatementCount(overlapStep);
         var overlapStatements = overlapStep == null ? [] : StatementGenerator.GenerateOverlapStatements(context, overlapStep, overlapTrailingStatementsToSkip).ToArray();
         var completesInstructionImplicitly = overlapStep != null
             ? overlapTrailingStatementsToSkip != 0
-            : steps.Count != 0 && context.GeneratorContext.GetImplicitInstructionCompleteStatementCount(steps[^1]) != 0;
+            : steps.Count != 0 && context.GeneratorContext.GetImplicitInstructionStepsCompleteStatementCount(steps[^1]) != 0;
         var deferredNextSequence = GetDeferredNextSequence(context, sequence);
 
         var stepPlans = steps
@@ -87,7 +87,7 @@ internal static class InstructionMethodPlanner
         var containsRedirect = ContainsRedirectCall(step);
         var rollsBackOpcodeRead = ShouldRollbackOpcodeRead(step, action);
         var nextInstructionVariableName = containsRedirect ? $"{NextInstructionVariableNamePrefix}{stepLayout.Index}" : null;
-        var trailingStatementsToSkip = context.GeneratorContext.GetImplicitInstructionCompleteStatementCount(step);
+        var trailingStatementsToSkip = context.GeneratorContext.GetImplicitInstructionStepsCompleteStatementCount(step);
         var requiresBody = !stepLayout.DoesNothing || stepLayout.QueuesOverlapStep || containsRedirect || ContainsCall(step.Statements, PreDefinedFunction.HandleInterrupts) || ContainsCall(step.Statements, PreDefinedFunction.InstructionComplete);
         var stepStatements = requiresBody
             ? StatementGenerator.GenerateInstructionStatements(context, step, nextInstructionVariableName, instructionExitOverlapStep, instructionTStatesBeforeStep, trailingStatementsToSkip).ToList()

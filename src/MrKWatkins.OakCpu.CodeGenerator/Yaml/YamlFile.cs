@@ -56,6 +56,8 @@ public sealed partial class YamlFile
         private set => functions = value;
     }
 
+    public string? OnInstructionStepsComplete { get; private set; }
+
     public string? OnInstructionComplete { get; private set; }
 
     [Pure]
@@ -64,6 +66,7 @@ public sealed partial class YamlFile
         // TODO: Validation on all this.
         CpuYaml? cpu = null;
         InterruptsYaml? interrupts = null;
+        string? onInstructionStepsComplete = null;
         string? onInstructionComplete = null;
         var registers = new List<RegisterYaml>();
         var opcodeRead = new List<string?>();
@@ -75,6 +78,7 @@ public sealed partial class YamlFile
         {
             cpu ??= file.Cpu;
             interrupts ??= file.Interrupts;
+            onInstructionStepsComplete ??= file.OnInstructionStepsComplete;
             onInstructionComplete ??= file.OnInstructionComplete;
             if (file.opcodeRead != null)
             {
@@ -90,6 +94,7 @@ public sealed partial class YamlFile
         {
             Cpu = cpu ?? throw new InvalidOperationException("No cpu definition found."),
             Interrupts = interrupts ?? throw new InvalidOperationException("No interrupts definition found."),
+            OnInstructionStepsComplete = onInstructionStepsComplete,
             OnInstructionComplete = onInstructionComplete,
             OpcodeRead = opcodeRead,
             Sequences = sequences,

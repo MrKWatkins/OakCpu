@@ -38,6 +38,8 @@ public sealed class GeneratorContext
 
     public StepSequence OpcodeRead => model.OpcodeRead;
 
+    public IReadOnlyList<Statement> OnInstructionStepsComplete => model.OnInstructionStepsComplete;
+
     public IReadOnlyList<Statement> OnInstructionComplete => model.OnInstructionComplete;
 
     public IReadOnlyList<Instruction> Instructions => model.Instructions;
@@ -64,18 +66,18 @@ public sealed class GeneratorContext
     public StepLayout GetStepLayout(Step step) => model.StepLayouts.TryGetValue(step, out var layout) ? layout : throw new InvalidOperationException($"No finalized layout has been defined for step {step.Name}.");
 
     [Pure]
-    internal int GetImplicitInstructionCompleteStatementCount(Step step)
+    internal int GetImplicitInstructionStepsCompleteStatementCount(Step step)
     {
-        if (OnInstructionComplete.Count == 0 || step.Statements.Count < OnInstructionComplete.Count)
+        if (OnInstructionStepsComplete.Count == 0 || step.Statements.Count < OnInstructionStepsComplete.Count)
         {
             return 0;
         }
 
         return step.Statements
-            .Skip(step.Statements.Count - OnInstructionComplete.Count)
-            .Zip(OnInstructionComplete, ReferenceEquals)
+            .Skip(step.Statements.Count - OnInstructionStepsComplete.Count)
+            .Zip(OnInstructionStepsComplete, ReferenceEquals)
             .All(match => match)
-                ? OnInstructionComplete.Count
+                ? OnInstructionStepsComplete.Count
                 : 0;
     }
 
@@ -172,7 +174,7 @@ public sealed class GeneratorContext
     private static ModelState CreateModelState(YamlFile yaml)
     {
         var configuration = CreateConfiguration(yaml);
-        var parserContext = CreateParserContext(configuration, yaml.OnInstructionComplete);
+        var parserContext = CreateParserContext(configuration, yaml.OnInstructionStepsComplete);
         var cpu = Cpu.Create(yaml.Cpu);
         var namedSequences = CreateNamedSequences(parserContext, yaml.Sequences);
         var opcodeRead = CreateOpcodeReadSequence(parserContext, namedSequences, yaml);
@@ -184,14 +186,21 @@ public sealed class GeneratorContext
         var allSteps = CreateAllSteps(opcodeRead, prefixJumps, sequences, instructions);
         var stepLayouts = StepFinalizer.Finalize(allSteps, CreateStepSequences(opcodeRead, prefixJumps, sequences, instructions));
 
-        return new ModelState(configuration, cpu, interrupts, sequences, sequenceGroups, opcodeRead, parserContext.OnInstructionComplete, instructions, prefixJumps, allSteps, stepLayouts.Layouts, stepLayouts.FunctionSteps);
+        return new ModelState(configuration, cpu, interrupts, sequences, sequenceGroups, opcodeRead, parserContext.OnInstructionStepsComplete, ParseStatements(configuration, yaml.OnInstructionComplete), instructions, prefixJumps, allSteps, stepLayouts.Layouts, stepLayouts.FunctionSteps);
     }
 
     [Pure]
-    private static ParserContext CreateParserContext(Configuration configuration, string? onInstructionComplete)
+    private static ParserContext CreateParserContext(Configuration configuration, string? onInstructionStepsComplete)
     {
         var context = new ParserContext(configuration);
-        return context.WithOnInstructionComplete(Parser.ParseStatements(context, onInstructionComplete));
+        return context.WithOnInstructionStepsComplete(Parser.ParseStatements(context, onInstructionStepsComplete));
+    }
+
+    [Pure]
+    private static IReadOnlyList<Statement> ParseStatements(Configuration configuration, string? statements)
+    {
+        var context = new ParserContext(configuration);
+        return Parser.ParseStatements(context, statements);
     }
 
     [Pure]
@@ -355,6 +364,7 @@ public sealed class GeneratorContext
         IReadOnlyDictionary<string, StepSequence> Sequences,
         IReadOnlyDictionary<string, SequenceGroup> SequenceGroups,
         StepSequence OpcodeRead,
+        IReadOnlyList<Statement> OnInstructionStepsComplete,
         IReadOnlyList<Statement> OnInstructionComplete,
         IReadOnlyList<Instruction> Instructions,
         IReadOnlyDictionary<byte, PrefixJump> PrefixJumps,

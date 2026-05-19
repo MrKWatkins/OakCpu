@@ -6,7 +6,7 @@ public sealed record ParserContext(Configuration Configuration)
 {
     public IReadOnlyCollection<string> Arguments { get; init; } = [];
 
-    public IReadOnlyList<Statement> OnInstructionComplete { get; init; } = [];
+    public IReadOnlyList<Statement> OnInstructionStepsComplete { get; init; } = [];
 
     public Dictionary<string, TemporaryVariable> TemporaryVariables { get; init; } = new();
 
@@ -14,7 +14,7 @@ public sealed record ParserContext(Configuration Configuration)
     public ParserContext WithArguments(IReadOnlyCollection<string> arguments) => this with { Arguments = arguments };
 
     [Pure]
-    public ParserContext WithOnInstructionComplete(IReadOnlyList<Statement> onInstructionComplete) => this with { OnInstructionComplete = onInstructionComplete };
+    public ParserContext WithOnInstructionStepsComplete(IReadOnlyList<Statement> onInstructionStepsComplete) => this with { OnInstructionStepsComplete = onInstructionStepsComplete };
 
     [Pure]
     public ParserContext WithChildVariableScope() => this with { TemporaryVariables = new Dictionary<string, TemporaryVariable>(TemporaryVariables) };

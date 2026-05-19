@@ -30,7 +30,7 @@ public sealed class Step
         var statements = Parser.ParseStatements(context, step);
         if (requiresCompleteInstruction)
         {
-            statements.AddRange(context.OnInstructionComplete);
+            statements.AddRange(context.OnInstructionStepsComplete);
         }
 
         var requestStatements = statements.Where(s => s is CallStatement call && call.Call.Function == PreDefinedFunction.Request).OfType<CallStatement>().ToList();

@@ -112,7 +112,8 @@ public abstract class StatementGenerator
             ? []
             : stepLayout.NextOpcode switch
             {
-                NextOpcodeMode.Read => StatementTransitionEmitter.GenerateMoveToSequenceStart(context.GeneratorContext, context.GeneratorContext.OpcodeRead),
+                NextOpcodeMode.Read => GenerateInstructionCompleteStatements(context)
+                    .Concat(StatementTransitionEmitter.GenerateMoveToSequenceStart(context.GeneratorContext, context.GeneratorContext.OpcodeRead)),
                 NextOpcodeMode.Overlapped when stepLayout.Sequence is PrefixJump => StatementTransitionEmitter.GenerateExecuteSequenceOnStart(context.GeneratorContext, context.GeneratorContext.OpcodeRead, "Overlapped opcode read."),
                 NextOpcodeMode.Overlapped => [],
                 NextOpcodeMode.Custom => [],
@@ -149,4 +150,8 @@ public abstract class StatementGenerator
     [Pure]
     private static IEnumerable<StatementSyntax> GenerateStatement(StatementGeneratorContext context, Statement statement) =>
         StatementStatementEmitter.Generate(context, statement);
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateInstructionCompleteStatements(StatementGeneratorContext context) =>
+        context.GeneratorContext.OnInstructionComplete.SelectMany(statement => GenerateStatement(context, statement));
 }
