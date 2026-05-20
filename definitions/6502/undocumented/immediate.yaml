@@ -1,0 +1,48 @@
+instructions:
+  - group: Undocumented
+    mnemonic: "ANC #n"
+    opcodes:
+      - opcode: 0x0B
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - A = A & Data; P = P & 0x7C; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x81; endif;
+
+  - group: Undocumented
+    mnemonic: "ANC #n"
+    opcodes:
+      - opcode: 0x2B
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - A = A & Data; P = P & 0x7C; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x81; endif;
+
+  - group: Undocumented
+    mnemonic: "ALR #n"
+    opcodes:
+      - opcode: 0x4B
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - $value = A & Data; A = $value >> 1; P = P & 0x7C; if is_zero(A); P = P | 0x02; endif; if ($value & 0x01) != 0; P = P | 0x01; endif;
+
+  - group: Undocumented
+    mnemonic: "ARR #n"
+    opcodes:
+      - opcode: 0x6B
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - $value = A & Data; A = (($value >> 1) | ((P & 0x01) << 7)) & 0xFF; P = P & 0x3C; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; if (((A >> 6) ^ (A >> 5)) & 0x01) != 0; P = P | 0x40; endif; if flag.D; if (($value & 0x0F) + ($value & 0x01)) > 0x05; A = (A & 0xF0) | ((A + 0x06) & 0x0F); endif; if (($value & 0xF0) + ($value & 0x10)) > 0x50; A = (A + 0x60) & 0xFF; P = P | 0x01; endif; else; if (A & 0x40) != 0; P = P | 0x01; endif; endif;
+
+  - group: Undocumented
+    mnemonic: "SBX #n"
+    opcodes:
+      - opcode: 0xCB
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - $value = A & X; X = ($value - Data) & 0xFF; P = P & 0x7C; if $value >= Data; P = P | 0x01; endif; if is_zero(X); P = P | 0x02; endif; if is_negative(X); P = P | 0x80; endif;
+
+  - group: Undocumented
+    mnemonic: "USBC #n"
+    opcodes:
+      - opcode: 0xEB
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - $borrow = 1 - (P & 0x01); $left = A; $right = Data; $binary_result = $left - $right - $borrow; if flag.D; $low = ($left & 0x0F) - ($right & 0x0F) - $borrow; $high = ($left & 0xF0) - ($right & 0xF0); P = P & 0x1C; if ($low & 0x10) != 0; $low = $low - 0x06; $high = $high - 0x10; endif; if did_8_bit_subtraction_overflow($left, $right, $binary_result); P = P | 0x40; endif; if ($binary_result & 0x0100) == 0; P = P | 0x01; endif; if ($binary_result & 0xFF) == 0; P = P | 0x02; endif; if is_negative($binary_result); P = P | 0x80; endif; if ($high & 0x0100) != 0; $high = $high - 0x60; endif; A = ($low & 0x0F) | ($high & 0xF0); else; A = $binary_result; P = P & 0x1C; if did_8_bit_subtraction_overflow($left, $right, $binary_result); P = P | 0x40; endif; if ($binary_result & 0x0100) == 0; P = P | 0x01; endif; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; endif;

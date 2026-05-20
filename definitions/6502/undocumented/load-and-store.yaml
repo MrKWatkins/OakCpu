@@ -1,0 +1,138 @@
+sequences:
+  - name: lax_finish
+    next_opcode: custom
+    steps:
+      - A = Data; X = Data; P = P & 0x5D; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; instruction_complete(true);
+
+instructions:
+  - group: Undocumented
+    mnemonic: "LAX #n"
+    opcodes:
+      - opcode: 0xAB
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - $value = Data & (A | 0xEE); A = $value; X = $value; flags();
+    flags:
+      Z: is_zero(A)
+      N: is_negative(A)
+
+  - group: Undocumented
+    mnemonic: LAX zp
+    opcodes:
+      - opcode: 0xA7
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = Data; request(action.memory_read);
+      - A = Data; X = Data; flags();
+    flags:
+      Z: is_zero(A)
+      N: is_negative(A)
+
+  - group: Undocumented
+    mnemonic: LAX zp,Y
+    opcodes:
+      - opcode: 0xB7
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + Y) & 0x00FF; request(action.memory_read);
+      - A = Data; X = Data; flags();
+    flags:
+      Z: is_zero(A)
+      N: is_negative(A)
+
+  - group: Undocumented
+    mnemonic: LAX abs
+    opcodes:
+      - opcode: 0xAF
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; request(action.memory_read);
+      - A = Data; X = Data; flags();
+    flags:
+      Z: is_zero(A)
+      N: is_negative(A)
+
+  - group: Undocumented
+    mnemonic: LAX abs,Y
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xBF
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + Y) & 0x00FF); if !did_indexed_address_page_cross(AD, Y); move_to_sequence(sequence.lax_finish); endif; request(action.memory_read);
+      - Address = AD + Y; move_to_sequence(sequence.lax_finish); request(action.memory_read);
+
+  - group: Undocumented
+    mnemonic: "LAX (zp,X)"
+    opcodes:
+      - opcode: 0xA3
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - AD = (AD + X) & 0x00FF; Address = AD; request(action.memory_read);
+      - Address = (AD + 1) & 0x00FF; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; request(action.memory_read);
+      - A = Data; X = Data; flags();
+    flags:
+      Z: is_zero(A)
+      N: is_negative(A)
+
+  - group: Undocumented
+    mnemonic: "LAX (zp),Y"
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xB3
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + 1) & 0x00FF; AD = Data; request(action.memory_read);
+      - AD = AD | (Data << 8); Address = (AD & 0xFF00) | ((AD + Y) & 0x00FF); if !did_indexed_address_page_cross(AD, Y); move_to_sequence(sequence.lax_finish); endif; request(action.memory_read);
+      - Address = AD + Y; move_to_sequence(sequence.lax_finish); request(action.memory_read);
+
+  - group: Undocumented
+    mnemonic: SAX zp
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x87
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = Data; Data = A & X; request(action.memory_write);
+      -
+
+  - group: Undocumented
+    mnemonic: SAX zp,Y
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x97
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + Y) & 0x00FF; Data = A & X; request(action.memory_write);
+      -
+
+  - group: Undocumented
+    mnemonic: SAX abs
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x8F
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; Data = A & X; request(action.memory_write);
+      -
+
+  - group: Undocumented
+    mnemonic: "SAX (zp,X)"
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x83
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - AD = (AD + X) & 0x00FF; Address = AD; request(action.memory_read);
+      - Address = (AD + 1) & 0x00FF; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; Data = A & X; request(action.memory_write);
+      -
