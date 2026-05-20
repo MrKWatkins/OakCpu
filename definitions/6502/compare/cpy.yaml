@@ -1,0 +1,39 @@
+instructions:
+  - group: Compare
+    mnemonic: "CPY #n"
+    opcodes:
+      - opcode: 0xC0
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - $result = Y - Data; flags();
+    flags:
+      C: Y >= Data
+      Z: is_zero($result)
+      N: is_negative($result)
+
+  - group: Compare
+    mnemonic: CPY zp
+    opcodes:
+      - opcode: 0xC4
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = Data; request(action.memory_read);
+      - $result = Y - Data; flags();
+    flags:
+      C: Y >= Data
+      Z: is_zero($result)
+      N: is_negative($result)
+
+  - group: Compare
+    mnemonic: CPY abs
+    opcodes:
+      - opcode: 0xCC
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; request(action.memory_read);
+      - $result = Y - Data; flags();
+    flags:
+      C: Y >= Data
+      Z: is_zero($result)
+      N: is_negative($result)

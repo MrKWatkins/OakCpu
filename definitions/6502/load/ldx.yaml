@@ -1,0 +1,66 @@
+sequences:
+  - name: ldx_finish
+    next_opcode: custom
+    steps:
+      - X = Data; P = P & 0x5D; if is_zero(X); P = P | 0x02; endif; if is_negative(X); P = P | 0x80; endif; instruction_complete(true);
+
+instructions:
+  - group: Load
+    mnemonic: "LDX #n"
+    opcodes:
+      - opcode: 0xA2
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - X = Data; flags();
+    flags:
+      Z: is_zero(X)
+      N: is_negative(X)
+
+  - group: Load
+    mnemonic: LDX zp
+    opcodes:
+      - opcode: 0xA6
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = Data; request(action.memory_read);
+      - X = Data; flags();
+    flags:
+      Z: is_zero(X)
+      N: is_negative(X)
+
+  - group: Load
+    mnemonic: LDX zp,Y
+    opcodes:
+      - opcode: 0xB6
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + Y) & 0x00FF; request(action.memory_read);
+      - X = Data; flags();
+    flags:
+      Z: is_zero(X)
+      N: is_negative(X)
+
+  - group: Load
+    mnemonic: LDX abs
+    opcodes:
+      - opcode: 0xAE
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; request(action.memory_read);
+      - X = Data; flags();
+    flags:
+      Z: is_zero(X)
+      N: is_negative(X)
+
+  - group: Load
+    mnemonic: LDX abs,Y
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xBE
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + Y) & 0x00FF); if !did_indexed_address_page_cross(AD, Y); move_to_sequence(sequence.ldx_finish); endif; request(action.memory_read);
+      - Address = AD + Y; move_to_sequence(sequence.ldx_finish); request(action.memory_read);

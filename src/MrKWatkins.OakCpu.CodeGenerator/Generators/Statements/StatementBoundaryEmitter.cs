@@ -2,6 +2,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
+using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
@@ -40,9 +41,13 @@ internal static class StatementBoundaryEmitter
 
     [Pure]
     internal static IEnumerable<StatementSyntax> GenerateInstructionComplete(StatementGeneratorContext context) =>
+        GenerateInstructionComplete(context, new Call(PreDefinedFunction.InstructionComplete, []));
+
+    [Pure]
+    internal static IEnumerable<StatementSyntax> GenerateInstructionComplete(StatementGeneratorContext context, Call call) =>
         context.Mode switch
         {
-            StatementGenerationMode.InstructionStepMode => GenerateCompleteInstructionAndReturn(context),
+            StatementGenerationMode.InstructionStepMode => GenerateCompleteInstructionAndReturn(context, call),
             StatementGenerationMode.InstructionEmulatorMode => throw new InvalidOperationException("instruction_complete is only supported when generating instruction-emulator steps."),
             _ => GenerateStepInstructionComplete(context)
         };
@@ -78,7 +83,11 @@ internal static class StatementBoundaryEmitter
         };
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateCompleteInstructionAndReturn(StatementGeneratorContext context)
+    private static IEnumerable<StatementSyntax> GenerateCompleteInstructionAndReturn(StatementGeneratorContext context) =>
+        GenerateCompleteInstructionAndReturn(context, new Call(PreDefinedFunction.InstructionComplete, []));
+
+    [Pure]
+    private static IEnumerable<StatementSyntax> GenerateCompleteInstructionAndReturn(StatementGeneratorContext context, Call call)
     {
         var instructionStep = context.RequiredInstructionStep;
 
@@ -99,16 +108,28 @@ internal static class StatementBoundaryEmitter
                 .WithArgumentList(
                     ArgumentList(
                     [
-                        Argument(GenerateInstructionUpdatesFlagsLiteralExpression(context)),
+                        Argument(GenerateInstructionUpdatesFlagsExpression(context, call)),
                         Argument(GenerateNumericLiteralExpression(instructionStep.TStatesBeforeStep + 1))
                     ])));
     }
 
     [Pure]
-    private static LiteralExpressionSyntax GenerateInstructionUpdatesFlagsLiteralExpression(StatementGeneratorContext context) =>
-        context.Step is { } step && context.GeneratorContext.GetStepLayout(step).Sequence is Instruction instruction
+    private static ExpressionSyntax GenerateInstructionUpdatesFlagsExpression(StatementGeneratorContext context, Call call)
+    {
+        if (call.Arguments.Count > 1)
+        {
+            throw new InvalidOperationException("instruction_complete accepts at most one argument.");
+        }
+
+        if (call.Arguments.Count == 1)
+        {
+            return ExpressionGenerator.GenerateExpressionSyntax(context.WithBooleanContext(), call.Arguments[0]);
+        }
+
+        return context.Step is { } step && context.GeneratorContext.GetStepLayout(step).Sequence is Instruction instruction
             ? LiteralExpression(instruction.UpdatesFlags ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression)
-            : throw new InvalidOperationException("Instruction completion can only be generated inside an instruction.");
+            : throw new InvalidOperationException("instruction_complete without an argument can only be generated inside an instruction.");
+    }
 
     [Pure]
     private static StatementSyntax CreateHandleInterruptsStatement() =>

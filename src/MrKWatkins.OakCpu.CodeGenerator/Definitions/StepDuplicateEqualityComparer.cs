@@ -57,6 +57,11 @@ internal sealed class StepDuplicateEqualityComparer(IReadOnlyDictionary<Step, St
             return false;
         }
 
+        if (StepLayout.GetQueuesOverlapStep(x, xSequence) && !Equals(xSequence.Steps[^1], ySequence.Steps[^1]))
+        {
+            return false;
+        }
+
         if (xSequence.OverlappedSequenceName != ySequence.OverlappedSequenceName)
         {
             return false;
@@ -107,6 +112,10 @@ internal sealed class StepDuplicateEqualityComparer(IReadOnlyDictionary<Step, St
         hashCode.Add(StepLayout.GetRequiresPrefixReset(obj, sequence));
         hashCode.Add(StepLayout.GetExecutesStoredOverlapOnStart(obj, sequence));
         hashCode.Add(StepLayout.GetQueuesOverlapStep(obj, sequence));
+        if (StepLayout.GetQueuesOverlapStep(obj, sequence))
+        {
+            hashCode.Add(GetHashCode(sequence.Steps[^1]));
+        }
         hashCode.Add(sequence.OverlappedSequenceName);
         hashCode.Add(sequence is Instruction);
 

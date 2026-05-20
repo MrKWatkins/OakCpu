@@ -155,6 +155,7 @@ public sealed class GeneratorContext
     private InstructionEmulatorDispatchInfo CreateInstructionEmulatorDispatchInfo()
     {
         var sequences = new[] { OpcodeRead }
+            .Concat(Sequences.Values)
             .Concat(PrefixJumps.Values)
             .Concat(Instructions)
             .Concat(SequenceGroups.Values.SelectMany(group => group.Members.Values))

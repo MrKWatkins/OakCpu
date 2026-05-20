@@ -1,0 +1,20 @@
+functions:
+  - name: is_negative
+    type: bool
+    parameters: [value]
+    expression: (value & 0x80) != 0
+
+  - name: did_8_bit_addition_overflow
+    type: bool
+    parameters: [left, right, sum]
+    expression: ((sum ^ left) & (sum ^ right) & 0x80) != 0
+
+  - name: did_8_bit_subtraction_overflow
+    type: bool
+    parameters: [left, right, difference]
+    expression: ((left ^ right) & (difference ^ left) & 0x80) != 0
+
+  - name: did_indexed_address_page_cross
+    type: bool
+    parameters: [address, index]
+    expression: ((address & 0xFF) + index) > 0xFF

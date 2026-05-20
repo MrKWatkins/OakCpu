@@ -1,0 +1,109 @@
+sequences:
+  - name: cmp_finish
+    next_opcode: custom
+    steps:
+      - P = P & 0x5C; if A >= Data; P = P | 0x01; endif; $result = A - Data; if is_zero($result); P = P | 0x02; endif; if is_negative($result); P = P | 0x80; endif; instruction_complete(true);
+
+instructions:
+  - group: Compare
+    mnemonic: "CMP #n"
+    opcodes:
+      - opcode: 0xC9
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - $result = A - Data; flags();
+    flags:
+      C: A >= Data
+      Z: is_zero($result)
+      N: is_negative($result)
+
+  - group: Compare
+    mnemonic: CMP zp
+    opcodes:
+      - opcode: 0xC5
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = Data; request(action.memory_read);
+      - $result = A - Data; flags();
+    flags:
+      C: A >= Data
+      Z: is_zero($result)
+      N: is_negative($result)
+
+  - group: Compare
+    mnemonic: CMP zp,X
+    opcodes:
+      - opcode: 0xD5
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + X) & 0x00FF; request(action.memory_read);
+      - $result = A - Data; flags();
+    flags:
+      C: A >= Data
+      Z: is_zero($result)
+      N: is_negative($result)
+
+  - group: Compare
+    mnemonic: CMP abs
+    opcodes:
+      - opcode: 0xCD
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; request(action.memory_read);
+      - $result = A - Data; flags();
+    flags:
+      C: A >= Data
+      Z: is_zero($result)
+      N: is_negative($result)
+
+  - group: Compare
+    mnemonic: CMP abs,X
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xDD
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + X) & 0x00FF); if !did_indexed_address_page_cross(AD, X); move_to_sequence(sequence.cmp_finish); endif; request(action.memory_read);
+      - Address = AD + X; move_to_sequence(sequence.cmp_finish); request(action.memory_read);
+
+  - group: Compare
+    mnemonic: CMP abs,Y
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xD9
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + Y) & 0x00FF); if !did_indexed_address_page_cross(AD, Y); move_to_sequence(sequence.cmp_finish); endif; request(action.memory_read);
+      - Address = AD + Y; move_to_sequence(sequence.cmp_finish); request(action.memory_read);
+
+  - group: Compare
+    mnemonic: "CMP (zp,X)"
+    opcodes:
+      - opcode: 0xC1
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - AD = (AD + X) & 0x00FF; Address = AD; request(action.memory_read);
+      - Address = (AD + 1) & 0x00FF; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; request(action.memory_read);
+      - $result = A - Data; flags();
+    flags:
+      C: A >= Data
+      Z: is_zero($result)
+      N: is_negative($result)
+
+  - group: Compare
+    mnemonic: "CMP (zp),Y"
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xD1
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + 1) & 0x00FF; AD = Data; request(action.memory_read);
+      - AD = AD | (Data << 8); Address = (AD & 0xFF00) | ((AD + Y) & 0x00FF); if !did_indexed_address_page_cross(AD, Y); move_to_sequence(sequence.cmp_finish); endif; request(action.memory_read);
+      - Address = AD + Y; move_to_sequence(sequence.cmp_finish); request(action.memory_read);

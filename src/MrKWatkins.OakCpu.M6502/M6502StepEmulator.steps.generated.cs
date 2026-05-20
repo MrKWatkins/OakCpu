@@ -67,8 +67,294 @@ public sealed unsafe partial class M6502StepEmulator
         }
     }
 
-    // Halt cycle [1]
+    // ora finish [0]
     private static void Step2(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.A |= emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.A == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // and finish [0]
+    private static void Step3(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.A &= emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.A == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // eor finish [0]
+    private static void Step4(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.A ^= emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.A == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // ldx finish [0]
+    private static void Step5(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.X = emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.X == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.X & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // lda finish [0]
+    private static void Step6(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.A = emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.A == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // ldy finish [0]
+    private static void Step7(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.Y = emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.Y == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.Y & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // cmp finish [0]
+    private static void Step8(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.P &= 0x5C;
+        if (emulator.A >= emulator.data)
+        {
+            emulator.P |= 0x01;
+        }
+
+        var result = emulator.A - emulator.data;
+        if (result == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((result & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // adc finish [0]
+    private static void Step9(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        var carry = emulator.P & 0b00000001;
+        var left = emulator.A;
+        var right = emulator.data;
+        var binary_result = left + right + carry;
+        if (((emulator.P & 0b00001000) == 0b00001000 /* flag.D */))
+        {
+            var low = (left & 0b00001111) + (right & 0b00001111) + carry;
+            var high = (left & 0b11110000) + (right & 0b11110000);
+            emulator.P &= 0x1C;
+            if ((binary_result & 0b11111111) == 0x00)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (low > 0x09)
+            {
+                high += 0x10;
+                low += 0x06;
+            }
+
+            if (((high & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+
+            if ((((high ^ left) & (high ^ right) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if (high > 0x90)
+            {
+                high += 0x60;
+            }
+
+            if (high > 0xFF)
+            {
+                emulator.P |= 0x01;
+            }
+
+            emulator.A = (byte)(low & 0b00001111 | high & 0b11110000);
+        }
+        else
+        {
+            emulator.A = (byte)binary_result;
+            emulator.P &= 0x1C;
+            if ((((binary_result ^ left) & (binary_result ^ right) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) != 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if (emulator.A == 0)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((emulator.A & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+        }
+
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // sbc finish [0]
+    private static void Step10(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        var borrow = 0x01 - (emulator.P & 0b00000001);
+        var left = emulator.A;
+        var right = emulator.data;
+        var binary_result = left - right - borrow;
+        if (((emulator.P & 0b00001000) == 0b00001000 /* flag.D */))
+        {
+            var low = (left & 0b00001111) - (right & 0b00001111) - borrow;
+            var high = (left & 0b11110000) - (right & 0b11110000);
+            emulator.P &= 0x1C;
+            if ((low & 0b00010000) != 0x00)
+            {
+                low -= 0x06;
+                high -= 0x10;
+            }
+
+            if ((((left ^ right) & (binary_result ^ left) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) == 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if ((binary_result & 0b11111111) == 0x00)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((binary_result & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+
+            if ((high & 0x0100) != 0x00)
+            {
+                high -= 0x60;
+            }
+
+            emulator.A = (byte)(low & 0b00001111 | high & 0b11110000);
+        }
+        else
+        {
+            emulator.A = (byte)binary_result;
+            emulator.P &= 0x1C;
+            if ((((left ^ right) & (binary_result ^ left) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) == 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if (emulator.A == 0)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((emulator.A & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+        }
+
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // Halt cycle [1]
+    private static void Step11(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.currentStep = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(emulator.opcodeStepTable), emulator.data);
         var selectedStep = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(Steps), emulator.currentStep);
@@ -85,76 +371,1006 @@ public sealed unsafe partial class M6502StepEmulator
         }
     }
 
+    // 0x01: ORA (zp,X) [0]
+    // 0x05: ORA zp [0]
+    // 0x0D: ORA abs [0]
+    // 0x15: ORA zp,X [0]
+    // 0x21: AND (zp,X) [0]
+    // 0x24: BIT zp [0]
+    // 0x25: AND zp [0]
+    // 0x2C: BIT abs [0]
+    // 0x2D: AND abs [0]
+    // 0x35: AND zp,X [0]
+    // 0x41: EOR (zp,X) [0]
+    // 0x45: EOR zp [0]
+    // 0x4D: EOR abs [0]
+    // 0x55: EOR zp,X [0]
+    // 0xA1: LDA (zp,X) [0]
+    // 0xA4: LDY zp [0]
+    // 0xA5: LDA zp [0]
+    // 0xA6: LDX zp [0]
+    // 0xAC: LDY abs [0]
+    // 0xAD: LDA abs [0]
+    // 0xAE: LDX abs [0]
+    // 0xB4: LDY zp,X [0]
+    // 0xB5: LDA zp,X [0]
+    // 0xB6: LDX zp,Y [0]
+    // 0xC1: CMP (zp,X) [0]
+    // 0xC4: CPY zp [0]
+    // 0xC5: CMP zp [0]
+    // 0xCC: CPY abs [0]
+    // 0xCD: CMP abs [0]
+    // 0xD5: CMP zp,X [0]
+    // 0xE4: CPX zp [0]
+    // 0xEC: CPX abs [0]
+    private static void Step12(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+    }
+
+    // 0x01: ORA (zp,X) [1]
+    // 0x15: ORA zp,X [1]
+    // 0x21: AND (zp,X) [1]
+    // 0x35: AND zp,X [1]
+    // 0x41: EOR (zp,X) [1]
+    // 0x55: EOR zp,X [1]
+    // 0xA1: LDA (zp,X) [1]
+    // 0xB4: LDY zp,X [1]
+    // 0xB5: LDA zp,X [1]
+    // 0xB6: LDX zp,Y [1]
+    // 0xC1: CMP (zp,X) [1]
+    // 0xD5: CMP zp,X [1]
+    private static void Step13(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+    }
+
+    // 0x01: ORA (zp,X) [2]
+    // 0x21: AND (zp,X) [2]
+    // 0x41: EOR (zp,X) [2]
+    // 0xA1: LDA (zp,X) [2]
+    // 0xC1: CMP (zp,X) [2]
+    private static void Step14(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        emulator.address = emulator.ad;
+    }
+
+    // 0x01: ORA (zp,X) [3]
+    // 0x21: AND (zp,X) [3]
+    // 0x41: EOR (zp,X) [3]
+    // 0xA1: LDA (zp,X) [3]
+    // 0xC1: CMP (zp,X) [3]
+    private static void Step15(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+    }
+
+    // 0x01: ORA (zp,X) [4]
+    // 0x0D: ORA abs [2]
+    private static void Step16(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap0;
+    }
+
+    // 0x05: ORA zp [1]
+    private static void Step18(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)emulator.data;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap0;
+    }
+
     // 0x08: PHP [0]
     // 0x28: PLP [0]
     // 0x48: PHA [0]
-    private static void Step3(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    private static void Step19(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.PC;
     }
 
     // 0x08: PHP [1]
-    private static void Step4(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    private static void Step20(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(0x0100 | emulator.S);
         emulator.data = (byte)(emulator.P | 0b00110000);
         emulator.S -= 0x01;
         // Queue overlap step.
+        emulator.overlapPipeline = &Overlap1;
+    }
+
+    // 0x09: ORA #n [0]
+    private static void Step22(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        // Queue overlap step.
         emulator.overlapPipeline = &Overlap0;
     }
 
+    // 0x0D: ORA abs [1]
+    // 0x2C: BIT abs [1]
+    // 0x2D: AND abs [1]
+    // 0x4D: EOR abs [1]
+    // 0xAC: LDY abs [1]
+    // 0xAD: LDA abs [1]
+    // 0xAE: LDX abs [1]
+    // 0xCC: CPY abs [1]
+    // 0xCD: CMP abs [1]
+    // 0xEC: CPX abs [1]
+    private static void Step23(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+    }
+
+    // 0x11: ORA (zp),Y [0]
+    // 0x19: ORA abs,Y [0]
+    // 0x1D: ORA abs,X [0]
+    // 0x31: AND (zp),Y [0]
+    // 0x39: AND abs,Y [0]
+    // 0x3D: AND abs,X [0]
+    // 0x51: EOR (zp),Y [0]
+    // 0x59: EOR abs,Y [0]
+    // 0x5D: EOR abs,X [0]
+    // 0x61: ADC (zp,X) [0]
+    // 0x65: ADC zp [0]
+    // 0x6D: ADC abs [0]
+    // 0x71: ADC (zp),Y [0]
+    // 0x75: ADC zp,X [0]
+    // 0x79: ADC abs,Y [0]
+    // 0x7D: ADC abs,X [0]
+    // 0xB1: LDA (zp),Y [0]
+    // 0xB9: LDA abs,Y [0]
+    // 0xBC: LDY abs,X [0]
+    // 0xBD: LDA abs,X [0]
+    // 0xBE: LDX abs,Y [0]
+    // 0xD1: CMP (zp),Y [0]
+    // 0xD9: CMP abs,Y [0]
+    // 0xDD: CMP abs,X [0]
+    // 0xE1: SBC (zp,X) [0]
+    // 0xE5: SBC zp [0]
+    // 0xED: SBC abs [0]
+    // 0xF1: SBC (zp),Y [0]
+    // 0xF5: SBC zp,X [0]
+    // 0xF9: SBC abs,Y [0]
+    // 0xFD: SBC abs,X [0]
+    private static void Step24(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+    }
+
+    // 0x11: ORA (zp),Y [1]
+    // 0x31: AND (zp),Y [1]
+    // 0x51: EOR (zp),Y [1]
+    // 0x61: ADC (zp,X) [1]
+    // 0x71: ADC (zp),Y [1]
+    // 0x75: ADC zp,X [1]
+    // 0xB1: LDA (zp),Y [1]
+    // 0xD1: CMP (zp),Y [1]
+    // 0xE1: SBC (zp,X) [1]
+    // 0xF1: SBC (zp),Y [1]
+    // 0xF5: SBC zp,X [1]
+    private static void Step25(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+    }
+
+    // 0x11: ORA (zp),Y [2]
+    // 0x31: AND (zp),Y [2]
+    // 0x51: EOR (zp),Y [2]
+    // 0x61: ADC (zp,X) [3]
+    // 0x71: ADC (zp),Y [2]
+    // 0xB1: LDA (zp),Y [2]
+    // 0xD1: CMP (zp),Y [2]
+    // 0xE1: SBC (zp,X) [3]
+    // 0xF1: SBC (zp),Y [2]
+    private static void Step26(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+    }
+
+    // 0x11: ORA (zp),Y [3]
+    private static void Step27(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            emulator.currentStep = 2;
+        }
+    }
+
+    // 0x11: ORA (zp),Y [4]
+    // 0x19: ORA abs,Y [3]
+    private static void Step28(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        emulator.currentStep = 2;
+    }
+
+    // 0x15: ORA zp,X [2]
+    private static void Step29(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap0;
+    }
+
+    // 0x19: ORA abs,Y [1]
+    // 0x1D: ORA abs,X [1]
+    // 0x39: AND abs,Y [1]
+    // 0x3D: AND abs,X [1]
+    // 0x59: EOR abs,Y [1]
+    // 0x5D: EOR abs,X [1]
+    // 0x6D: ADC abs [1]
+    // 0x79: ADC abs,Y [1]
+    // 0x7D: ADC abs,X [1]
+    // 0xB9: LDA abs,Y [1]
+    // 0xBC: LDY abs,X [1]
+    // 0xBD: LDA abs,X [1]
+    // 0xBE: LDX abs,Y [1]
+    // 0xD9: CMP abs,Y [1]
+    // 0xDD: CMP abs,X [1]
+    // 0xED: SBC abs [1]
+    // 0xF9: SBC abs,Y [1]
+    // 0xFD: SBC abs,X [1]
+    private static void Step31(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+    }
+
+    // 0x19: ORA abs,Y [2]
+    private static void Step32(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            emulator.currentStep = 2;
+        }
+    }
+
+    // 0x1D: ORA abs,X [2]
+    private static void Step33(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            emulator.currentStep = 2;
+        }
+    }
+
+    // 0x1D: ORA abs,X [3]
+    private static void Step34(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        emulator.currentStep = 2;
+    }
+
+    // 0x21: AND (zp,X) [4]
+    // 0x2D: AND abs [2]
+    private static void Step35(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap3;
+    }
+
+    // 0x24: BIT zp [1]
+    private static void Step37(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)emulator.data;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap4;
+    }
+
+    // 0x25: AND zp [1]
+    private static void Step39(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)emulator.data;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap3;
+    }
+
     // 0x28: PLP [1]
-    private static void Step7(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    private static void Step40(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(0x0100 | emulator.S);
     }
 
     // 0x28: PLP [2]
-    private static void Step8(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    private static void Step41(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.S += 0x01;
         emulator.address = (ushort)(0x0100 | emulator.S);
         // Queue overlap step.
-        emulator.overlapPipeline = &Overlap2;
+        emulator.overlapPipeline = &Overlap5;
+    }
+
+    // 0x29: AND #n [0]
+    private static void Step43(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap3;
+    }
+
+    // 0x2C: BIT abs [2]
+    private static void Step44(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap4;
+    }
+
+    // 0x31: AND (zp),Y [3]
+    private static void Step45(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            emulator.currentStep = 3;
+        }
+    }
+
+    // 0x31: AND (zp),Y [4]
+    // 0x39: AND abs,Y [3]
+    private static void Step46(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        emulator.currentStep = 3;
+    }
+
+    // 0x35: AND zp,X [2]
+    private static void Step47(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap3;
+    }
+
+    // 0x39: AND abs,Y [2]
+    private static void Step49(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            emulator.currentStep = 3;
+        }
+    }
+
+    // 0x3D: AND abs,X [2]
+    private static void Step50(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            emulator.currentStep = 3;
+        }
+    }
+
+    // 0x3D: AND abs,X [3]
+    private static void Step51(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        emulator.currentStep = 3;
+    }
+
+    // 0x41: EOR (zp,X) [4]
+    // 0x4D: EOR abs [2]
+    private static void Step52(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap7;
+    }
+
+    // 0x45: EOR zp [1]
+    private static void Step54(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)emulator.data;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap7;
     }
 
     // 0x48: PHA [1]
-    private static void Step11(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    private static void Step55(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(0x0100 | emulator.S);
         emulator.data = emulator.A;
         emulator.S -= 0x01;
         // Queue overlap step.
-        emulator.overlapPipeline = &Overlap0;
+        emulator.overlapPipeline = &Overlap1;
+    }
+
+    // 0x49: EOR #n [0]
+    private static void Step56(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap7;
+    }
+
+    // 0x51: EOR (zp),Y [3]
+    private static void Step57(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            emulator.currentStep = 4;
+        }
+    }
+
+    // 0x51: EOR (zp),Y [4]
+    // 0x59: EOR abs,Y [3]
+    private static void Step58(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        emulator.currentStep = 4;
+    }
+
+    // 0x55: EOR zp,X [2]
+    private static void Step59(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap7;
+    }
+
+    // 0x59: EOR abs,Y [2]
+    private static void Step61(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            emulator.currentStep = 4;
+        }
+    }
+
+    // 0x5D: EOR abs,X [2]
+    private static void Step62(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            emulator.currentStep = 4;
+        }
+    }
+
+    // 0x5D: EOR abs,X [3]
+    private static void Step63(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        emulator.currentStep = 4;
+    }
+
+    // 0x61: ADC (zp,X) [2]
+    // 0xE1: SBC (zp,X) [2]
+    private static void Step64(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        emulator.address = emulator.ad;
+    }
+
+    // 0x61: ADC (zp,X) [4]
+    // 0x6D: ADC abs [2]
+    private static void Step65(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap9;
+    }
+
+    // 0x65: ADC zp [1]
+    private static void Step67(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)emulator.data;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap9;
     }
 
     // 0x68: PLA [0]
-    private static void Step13(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    private static void Step68(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.PC;
     }
 
     // 0x68: PLA [1]
-    private static void Step14(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    private static void Step69(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(0x0100 | emulator.S);
     }
 
     // 0x68: PLA [2]
-    private static void Step15(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    private static void Step70(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.S += 0x01;
         emulator.address = (ushort)(0x0100 | emulator.S);
         // Queue overlap step.
-        emulator.overlapPipeline = &Overlap5;
+        emulator.overlapPipeline = &Overlap10;
     }
 
-    // 0xA9: LDA #n [0]
-    private static void Step23(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    // 0x69: ADC #n [0]
+    private static void Step72(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         // Queue overlap step.
-        emulator.overlapPipeline = &Overlap5;
+        emulator.overlapPipeline = &Overlap9;
+    }
+
+    // 0x71: ADC (zp),Y [3]
+    private static void Step73(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            emulator.currentStep = 9;
+        }
+    }
+
+    // 0x71: ADC (zp),Y [4]
+    // 0x79: ADC abs,Y [3]
+    private static void Step74(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        emulator.currentStep = 9;
+    }
+
+    // 0x75: ADC zp,X [2]
+    private static void Step75(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap9;
+    }
+
+    // 0x79: ADC abs,Y [2]
+    private static void Step77(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            emulator.currentStep = 9;
+        }
+    }
+
+    // 0x7D: ADC abs,X [2]
+    private static void Step78(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            emulator.currentStep = 9;
+        }
+    }
+
+    // 0x7D: ADC abs,X [3]
+    private static void Step79(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        emulator.currentStep = 9;
+    }
+
+    // 0xA0: LDY #n [0]
+    private static void Step84(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap16;
+    }
+
+    // 0xA1: LDA (zp,X) [4]
+    // 0xAD: LDA abs [2]
+    private static void Step86(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap10;
+    }
+
+    // 0xA2: LDX #n [0]
+    private static void Step87(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap17;
+    }
+
+    // 0xA4: LDY zp [1]
+    private static void Step89(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)emulator.data;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap16;
+    }
+
+    // 0xA5: LDA zp [1]
+    private static void Step90(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)emulator.data;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap10;
+    }
+
+    // 0xA6: LDX zp [1]
+    private static void Step91(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)emulator.data;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap17;
+    }
+
+    // 0xA9: LDA #n [0]
+    private static void Step93(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap10;
+    }
+
+    // 0xAC: LDY abs [2]
+    private static void Step95(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap16;
+    }
+
+    // 0xAE: LDX abs [2]
+    private static void Step96(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap17;
+    }
+
+    // 0xB1: LDA (zp),Y [3]
+    private static void Step97(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            emulator.currentStep = 6;
+        }
+    }
+
+    // 0xB1: LDA (zp),Y [4]
+    // 0xB9: LDA abs,Y [3]
+    private static void Step98(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        emulator.currentStep = 6;
+    }
+
+    // 0xB4: LDY zp,X [2]
+    private static void Step99(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap16;
+    }
+
+    // 0xB5: LDA zp,X [2]
+    private static void Step100(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap10;
+    }
+
+    // 0xB6: LDX zp,Y [2]
+    private static void Step101(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.Y & 0b11111111);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap17;
+    }
+
+    // 0xB9: LDA abs,Y [2]
+    private static void Step103(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            emulator.currentStep = 6;
+        }
+    }
+
+    // 0xBC: LDY abs,X [2]
+    private static void Step105(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            emulator.currentStep = 7;
+        }
+    }
+
+    // 0xBC: LDY abs,X [3]
+    private static void Step106(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        emulator.currentStep = 7;
+    }
+
+    // 0xBD: LDA abs,X [2]
+    private static void Step107(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            emulator.currentStep = 6;
+        }
+    }
+
+    // 0xBD: LDA abs,X [3]
+    private static void Step108(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        emulator.currentStep = 6;
+    }
+
+    // 0xBE: LDX abs,Y [2]
+    private static void Step109(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            emulator.currentStep = 5;
+        }
+    }
+
+    // 0xBE: LDX abs,Y [3]
+    private static void Step110(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        emulator.currentStep = 5;
+    }
+
+    // 0xC0: CPY #n [0]
+    private static void Step111(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap22;
+    }
+
+    // 0xC1: CMP (zp,X) [4]
+    // 0xCD: CMP abs [2]
+    private static void Step113(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap23;
+    }
+
+    // 0xC4: CPY zp [1]
+    private static void Step115(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)emulator.data;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap22;
+    }
+
+    // 0xC5: CMP zp [1]
+    private static void Step116(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)emulator.data;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap23;
+    }
+
+    // 0xC9: CMP #n [0]
+    private static void Step118(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap23;
+    }
+
+    // 0xCC: CPY abs [2]
+    private static void Step120(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap22;
+    }
+
+    // 0xD1: CMP (zp),Y [3]
+    private static void Step121(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            emulator.currentStep = 8;
+        }
+    }
+
+    // 0xD1: CMP (zp),Y [4]
+    // 0xD9: CMP abs,Y [3]
+    private static void Step122(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        emulator.currentStep = 8;
+    }
+
+    // 0xD5: CMP zp,X [2]
+    private static void Step123(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap23;
+    }
+
+    // 0xD9: CMP abs,Y [2]
+    private static void Step125(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            emulator.currentStep = 8;
+        }
+    }
+
+    // 0xDD: CMP abs,X [2]
+    private static void Step126(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            emulator.currentStep = 8;
+        }
+    }
+
+    // 0xDD: CMP abs,X [3]
+    private static void Step127(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        emulator.currentStep = 8;
+    }
+
+    // 0xE0: CPX #n [0]
+    private static void Step128(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap27;
+    }
+
+    // 0xE1: SBC (zp,X) [4]
+    // 0xED: SBC abs [2]
+    private static void Step130(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap28;
+    }
+
+    // 0xE4: CPX zp [1]
+    private static void Step132(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)emulator.data;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap27;
+    }
+
+    // 0xE5: SBC zp [1]
+    private static void Step133(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)emulator.data;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap28;
+    }
+
+    // 0xE9: SBC #n [0]
+    private static void Step135(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap28;
+    }
+
+    // 0xEC: CPX abs [2]
+    private static void Step136(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap27;
+    }
+
+    // 0xF1: SBC (zp),Y [3]
+    private static void Step137(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            emulator.currentStep = 10;
+        }
+    }
+
+    // 0xF1: SBC (zp),Y [4]
+    // 0xF9: SBC abs,Y [3]
+    private static void Step138(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        emulator.currentStep = 10;
+    }
+
+    // 0xF5: SBC zp,X [2]
+    private static void Step139(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        // Queue overlap step.
+        emulator.overlapPipeline = &Overlap28;
+    }
+
+    // 0xF9: SBC abs,Y [2]
+    private static void Step141(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            emulator.currentStep = 10;
+        }
+    }
+
+    // 0xFD: SBC abs,X [2]
+    private static void Step142(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            emulator.currentStep = 10;
+        }
+    }
+
+    // 0xFD: SBC abs,X [3]
+    private static void Step143(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        emulator.currentStep = 10;
     }
 }

@@ -17,6 +17,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     public void Reset()
     {
         opcodeStepTable = OpcodeStepTableNoPrefix;
+        ad = 0;
         address = 0;
         data = 0;
         nextSequenceStep = NoNextSequenceStep;

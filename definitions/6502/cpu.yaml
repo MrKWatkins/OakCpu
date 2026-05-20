@@ -12,6 +12,11 @@ cpu:
     - name: memory_write
       documentation: The host must write a byte to memory.
 
+  fields:
+    - name: AD
+      type: u16
+      documentation: Internal address scratch register.
+
 sequences:
   - name: opcode_read
     execute_overlap_on_start: true

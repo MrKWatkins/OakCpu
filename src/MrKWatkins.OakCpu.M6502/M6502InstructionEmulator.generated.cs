@@ -89,6 +89,9 @@ public sealed unsafe partial class M6502InstructionEmulator
     private ushort[] opcodeStepTable;
 
     [FieldOffset(40)]
+    private ushort ad;
+
+    [FieldOffset(42)]
     private ushort address;
 
     /// <summary>
@@ -100,7 +103,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         get => address;
     }
 
-    [FieldOffset(42)]
+    [FieldOffset(44)]
     private byte data;
 
     /// <summary>
@@ -114,7 +117,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         set => data = value;
     }
 
-    [FieldOffset(44)]
+    [FieldOffset(46)]
     internal ushort nextSequenceStep;
 
     /// <summary>

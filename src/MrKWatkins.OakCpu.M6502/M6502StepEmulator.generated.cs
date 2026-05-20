@@ -89,6 +89,9 @@ public sealed unsafe partial class M6502StepEmulator
     private delegate*<M6502StepEmulator, void> overlapPipeline;
 
     [FieldOffset(48)]
+    private ushort ad;
+
+    [FieldOffset(50)]
     private ushort address;
 
     /// <summary>
@@ -100,10 +103,10 @@ public sealed unsafe partial class M6502StepEmulator
         get => address;
     }
 
-    [FieldOffset(50)]
+    [FieldOffset(52)]
     private ushort currentStep;
 
-    [FieldOffset(52)]
+    [FieldOffset(54)]
     private byte data;
 
     /// <summary>

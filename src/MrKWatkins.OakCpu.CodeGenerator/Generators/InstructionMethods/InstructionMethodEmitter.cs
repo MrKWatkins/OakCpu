@@ -71,6 +71,12 @@ internal static class InstructionMethodEmitter
 
             if (stepPlan.StepStatements.Count != 0)
             {
+                var emitActionBeforeStatements = stepPlan.Action != Action.None && stepPlan.StepStatements[^1] is ReturnStatementSyntax;
+                if (emitActionBeforeStatements)
+                {
+                    statements.Add(CreateActionCallbackStatement(stepPlan.Action));
+                }
+
                 if (stepPlan.RequiresBlock)
                 {
                     statements.Add(Block(stepPlan.StepStatements));
@@ -88,9 +94,15 @@ internal static class InstructionMethodEmitter
                 break;
             }
 
-            if (stepPlan.Action != Action.None)
+            if (stepPlan.Action != Action.None && stepPlan.StepStatements.LastOrDefault() is not ReturnStatementSyntax)
             {
                 statements.Add(CreateActionCallbackStatement(stepPlan.Action));
+            }
+
+            if (stepPlan.StepStatements.LastOrDefault() is ReturnStatementSyntax)
+            {
+                terminated = true;
+                break;
             }
 
             if (stepPlan.NextInstructionVariableName != null)

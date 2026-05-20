@@ -38,20 +38,297 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 2;
     }
 
+    // ora finish
+    private static int ora_finish(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.A |= emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.A == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        return emulator.CompleteInstruction(true, 1);
+    }
+
+    // and finish
+    private static int and_finish(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.A &= emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.A == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        return emulator.CompleteInstruction(true, 1);
+    }
+
+    // eor finish
+    private static int eor_finish(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.A ^= emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.A == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        return emulator.CompleteInstruction(true, 1);
+    }
+
+    // ldx finish
+    private static int ldx_finish(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.X = emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.X == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.X & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        return emulator.CompleteInstruction(true, 1);
+    }
+
+    // lda finish
+    private static int lda_finish(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.A = emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.A == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        return emulator.CompleteInstruction(true, 1);
+    }
+
+    // ldy finish
+    private static int ldy_finish(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.Y = emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.Y == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.Y & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        return emulator.CompleteInstruction(true, 1);
+    }
+
+    // cmp finish
+    private static int cmp_finish(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.P &= 0x5C;
+        if (emulator.A >= emulator.data)
+        {
+            emulator.P |= 0x01;
+        }
+
+        var result = emulator.A - emulator.data;
+        if (result == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((result & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        return emulator.CompleteInstruction(true, 1);
+    }
+
+    // adc finish
+    private static int adc_finish(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        var carry = emulator.P & 0b00000001;
+        var left = emulator.A;
+        var right = emulator.data;
+        var binary_result = left + right + carry;
+        if (((emulator.P & 0b00001000) == 0b00001000 /* flag.D */))
+        {
+            var low = (left & 0b00001111) + (right & 0b00001111) + carry;
+            var high = (left & 0b11110000) + (right & 0b11110000);
+            emulator.P &= 0x1C;
+            if ((binary_result & 0b11111111) == 0x00)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (low > 0x09)
+            {
+                high += 0x10;
+                low += 0x06;
+            }
+
+            if (((high & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+
+            if ((((high ^ left) & (high ^ right) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if (high > 0x90)
+            {
+                high += 0x60;
+            }
+
+            if (high > 0xFF)
+            {
+                emulator.P |= 0x01;
+            }
+
+            emulator.A = (byte)(low & 0b00001111 | high & 0b11110000);
+        }
+        else
+        {
+            emulator.A = (byte)binary_result;
+            emulator.P &= 0x1C;
+            if ((((binary_result ^ left) & (binary_result ^ right) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) != 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if (emulator.A == 0)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((emulator.A & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+        }
+
+        return emulator.CompleteInstruction(true, 1);
+    }
+
+    // sbc finish
+    private static int sbc_finish(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        var borrow = 0x01 - (emulator.P & 0b00000001);
+        var left = emulator.A;
+        var right = emulator.data;
+        var binary_result = left - right - borrow;
+        if (((emulator.P & 0b00001000) == 0b00001000 /* flag.D */))
+        {
+            var low = (left & 0b00001111) - (right & 0b00001111) - borrow;
+            var high = (left & 0b11110000) - (right & 0b11110000);
+            emulator.P &= 0x1C;
+            if ((low & 0b00010000) != 0x00)
+            {
+                low -= 0x06;
+                high -= 0x10;
+            }
+
+            if ((((left ^ right) & (binary_result ^ left) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) == 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if ((binary_result & 0b11111111) == 0x00)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((binary_result & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+
+            if ((high & 0x0100) != 0x00)
+            {
+                high -= 0x60;
+            }
+
+            emulator.A = (byte)(low & 0b00001111 | high & 0b11110000);
+        }
+        else
+        {
+            emulator.A = (byte)binary_result;
+            emulator.P &= 0x1C;
+            if ((((left ^ right) & (binary_result ^ left) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) == 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if (emulator.A == 0)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((emulator.A & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+        }
+
+        return emulator.CompleteInstruction(true, 1);
+    }
+
     // Halt cycle
     private static int Halt_cycle(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         onActionRequired(ActionRequired.OpcodeRead, emulator.address, emulator.data);
-        ushort nextInstruction3 = 65535;
-        nextInstruction3 = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(emulator.opcodeStepTable), emulator.data);
-        if (nextInstruction3 != 65535)
+        ushort nextInstruction12 = 65535;
+        nextInstruction12 = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(emulator.opcodeStepTable), emulator.data);
+        if (nextInstruction12 != 65535)
         {
-            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction3, onActionRequired);
+            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction12, onActionRequired);
         }
 
-        emulator.nextSequenceStep = 1;
+        emulator.nextSequenceStep = 10;
         return 2;
     }
 
@@ -59,6 +336,51 @@ public sealed unsafe partial class M6502InstructionEmulator
     private static int Interrupt_Mode_0(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
         return 1;
+    }
+
+    // ORA (zp,X)
+    private static int ORA_zp_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A |= emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 5;
+    }
+
+    // ORA zp
+    private static int ORA_zp(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A |= emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 2;
     }
 
     // PHP
@@ -73,11 +395,244 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 2;
     }
 
+    // ORA #n
+    private static int ORA_n(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A |= emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 1;
+    }
+
+    // ORA abs
+    private static int ORA_abs(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A |= emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 3;
+    }
+
+    // ORA (zp),Y
+    private static int ORA_zp_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction35 = 65535;
+        emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            nextInstruction35 = 1;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction35 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction35, onActionRequired);
+        }
+
+        ushort nextInstruction36 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        nextInstruction36 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction36 != 65535)
+        {
+            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction36, onActionRequired);
+        }
+
+        return 5;
+    }
+
+    // ORA zp,X
+    private static int ORA_zp_X_15(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A |= emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 3;
+    }
+
     // CLC
     private static int CLC(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
         emulator.P &= 0xFE;
         return 0;
+    }
+
+    // ORA abs,Y
+    private static int ORA_abs_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction44 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            nextInstruction44 = 1;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction44 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction44, onActionRequired);
+        }
+
+        ushort nextInstruction45 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        nextInstruction45 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction45 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction45, onActionRequired);
+        }
+
+        return 4;
+    }
+
+    // ORA abs,X
+    private static int ORA_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction48 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            nextInstruction48 = 1;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction48 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction48, onActionRequired);
+        }
+
+        ushort nextInstruction49 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        nextInstruction49 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction49 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction49, onActionRequired);
+        }
+
+        return 4;
+    }
+
+    // AND (zp,X)
+    private static int AND_zp_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A &= emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 5;
+    }
+
+    // BIT zp
+    private static int BIT_zp(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var result = emulator.A & emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b00011101; // Copy flag.C, flag.I, flag.D and B from P.
+        flags |= (Unsafe.BitCast<bool, byte>(result == 0)) << 1; // Set Z if is_zero(result) is true.
+        flags |= (Unsafe.BitCast<bool, byte>((emulator.data & 0b01000000) != 0x00)) << 6; // Set V if (data & 0x40) != 0x00 is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.data & 0b10000000) != 0x00))) << 7; // Set N if is_negative(data) is true.
+        emulator.P = (byte)flags;
+        return 2;
+    }
+
+    // AND zp
+    private static int AND_zp(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A &= emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 2;
     }
 
     // PLP
@@ -94,11 +649,248 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 3;
     }
 
+    // AND #n
+    private static int AND_n(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A &= emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 1;
+    }
+
+    // BIT abs
+    private static int BIT_abs(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var result = emulator.A & emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b00011101; // Copy flag.C, flag.I, flag.D and B from P.
+        flags |= (Unsafe.BitCast<bool, byte>(result == 0)) << 1; // Set Z if is_zero(result) is true.
+        flags |= (Unsafe.BitCast<bool, byte>((emulator.data & 0b01000000) != 0x00)) << 6; // Set V if (data & 0x40) != 0x00 is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.data & 0b10000000) != 0x00))) << 7; // Set N if is_negative(data) is true.
+        emulator.P = (byte)flags;
+        return 3;
+    }
+
+    // AND abs
+    private static int AND_abs(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A &= emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 3;
+    }
+
+    // AND (zp),Y
+    private static int AND_zp_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction79 = 65535;
+        emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            nextInstruction79 = 2;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction79 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction79, onActionRequired);
+        }
+
+        ushort nextInstruction80 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        nextInstruction80 = 2;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction80 != 65535)
+        {
+            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction80, onActionRequired);
+        }
+
+        return 5;
+    }
+
+    // AND zp,X
+    private static int AND_zp_X_35(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A &= emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 3;
+    }
+
     // SEC
     private static int SEC(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
         emulator.P |= 0x01;
         return 0;
+    }
+
+    // AND abs,Y
+    private static int AND_abs_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction88 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            nextInstruction88 = 2;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction88 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction88, onActionRequired);
+        }
+
+        ushort nextInstruction89 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        nextInstruction89 = 2;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction89 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction89, onActionRequired);
+        }
+
+        return 4;
+    }
+
+    // AND abs,X
+    private static int AND_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction92 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            nextInstruction92 = 2;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction92 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction92, onActionRequired);
+        }
+
+        ushort nextInstruction93 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        nextInstruction93 = 2;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction93 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction93, onActionRequired);
+        }
+
+        return 4;
+    }
+
+    // EOR (zp,X)
+    private static int EOR_zp_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A ^= emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 5;
+    }
+
+    // EOR zp
+    private static int EOR_zp(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A ^= emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 2;
     }
 
     // PHA
@@ -113,11 +905,345 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 2;
     }
 
+    // EOR #n
+    private static int EOR_n(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A ^= emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 1;
+    }
+
+    // EOR abs
+    private static int EOR_abs(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A ^= emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 3;
+    }
+
+    // EOR (zp),Y
+    private static int EOR_zp_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction115 = 65535;
+        emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            nextInstruction115 = 3;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction115 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction115, onActionRequired);
+        }
+
+        ushort nextInstruction116 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        nextInstruction116 = 3;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction116 != 65535)
+        {
+            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction116, onActionRequired);
+        }
+
+        return 5;
+    }
+
+    // EOR zp,X
+    private static int EOR_zp_X_55(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A ^= emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 3;
+    }
+
     // CLI
     private static int CLI(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
         emulator.P &= 0xFB;
         return 0;
+    }
+
+    // EOR abs,Y
+    private static int EOR_abs_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction124 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            nextInstruction124 = 3;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction124 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction124, onActionRequired);
+        }
+
+        ushort nextInstruction125 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        nextInstruction125 = 3;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction125 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction125, onActionRequired);
+        }
+
+        return 4;
+    }
+
+    // EOR abs,X
+    private static int EOR_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction128 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            nextInstruction128 = 3;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction128 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction128, onActionRequired);
+        }
+
+        ushort nextInstruction129 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        nextInstruction129 = 3;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction129 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction129, onActionRequired);
+        }
+
+        return 4;
+    }
+
+    // ADC (zp,X)
+    private static int ADC_zp_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var carry = emulator.P & 0b00000001;
+        var left = emulator.A;
+        var right = emulator.data;
+        var binary_result = left + right + carry;
+        if (((emulator.P & 0b00001000) == 0b00001000 /* flag.D */))
+        {
+            var low = (left & 0b00001111) + (right & 0b00001111) + carry;
+            var high = (left & 0b11110000) + (right & 0b11110000);
+            emulator.P &= 0x1C;
+            if ((binary_result & 0b11111111) == 0x00)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (low > 0x09)
+            {
+                high += 0x10;
+                low += 0x06;
+            }
+
+            if (((high & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+
+            if ((((high ^ left) & (high ^ right) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if (high > 0x90)
+            {
+                high += 0x60;
+            }
+
+            if (high > 0xFF)
+            {
+                emulator.P |= 0x01;
+            }
+
+            emulator.A = (byte)(low & 0b00001111 | high & 0b11110000);
+        }
+        else
+        {
+            emulator.A = (byte)binary_result;
+            emulator.P &= 0x1C;
+            if ((((binary_result ^ left) & (binary_result ^ right) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) != 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if (emulator.A == 0)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((emulator.A & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+        }
+
+        return 5;
+    }
+
+    // ADC zp
+    private static int ADC_zp(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var carry = emulator.P & 0b00000001;
+        var left = emulator.A;
+        var right = emulator.data;
+        var binary_result = left + right + carry;
+        if (((emulator.P & 0b00001000) == 0b00001000 /* flag.D */))
+        {
+            var low = (left & 0b00001111) + (right & 0b00001111) + carry;
+            var high = (left & 0b11110000) + (right & 0b11110000);
+            emulator.P &= 0x1C;
+            if ((binary_result & 0b11111111) == 0x00)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (low > 0x09)
+            {
+                high += 0x10;
+                low += 0x06;
+            }
+
+            if (((high & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+
+            if ((((high ^ left) & (high ^ right) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if (high > 0x90)
+            {
+                high += 0x60;
+            }
+
+            if (high > 0xFF)
+            {
+                emulator.P |= 0x01;
+            }
+
+            emulator.A = (byte)(low & 0b00001111 | high & 0b11110000);
+        }
+        else
+        {
+            emulator.A = (byte)binary_result;
+            emulator.P &= 0x1C;
+            if ((((binary_result ^ left) & (binary_result ^ right) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) != 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if (emulator.A == 0)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((emulator.A & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+        }
+
+        return 2;
     }
 
     // PLA
@@ -135,8 +1261,285 @@ public sealed unsafe partial class M6502InstructionEmulator
         // Update flags.
         int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
-        flags |= emulator.A & 0b10000000; // Set N if is_negative(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
         emulator.P = (byte)flags;
+        return 3;
+    }
+
+    // ADC #n
+    private static int ADC_n(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var carry = emulator.P & 0b00000001;
+        var left = emulator.A;
+        var right = emulator.data;
+        var binary_result = left + right + carry;
+        if (((emulator.P & 0b00001000) == 0b00001000 /* flag.D */))
+        {
+            var low = (left & 0b00001111) + (right & 0b00001111) + carry;
+            var high = (left & 0b11110000) + (right & 0b11110000);
+            emulator.P &= 0x1C;
+            if ((binary_result & 0b11111111) == 0x00)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (low > 0x09)
+            {
+                high += 0x10;
+                low += 0x06;
+            }
+
+            if (((high & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+
+            if ((((high ^ left) & (high ^ right) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if (high > 0x90)
+            {
+                high += 0x60;
+            }
+
+            if (high > 0xFF)
+            {
+                emulator.P |= 0x01;
+            }
+
+            emulator.A = (byte)(low & 0b00001111 | high & 0b11110000);
+        }
+        else
+        {
+            emulator.A = (byte)binary_result;
+            emulator.P &= 0x1C;
+            if ((((binary_result ^ left) & (binary_result ^ right) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) != 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if (emulator.A == 0)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((emulator.A & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+        }
+
+        return 1;
+    }
+
+    // ADC abs
+    private static int ADC_abs(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var carry = emulator.P & 0b00000001;
+        var left = emulator.A;
+        var right = emulator.data;
+        var binary_result = left + right + carry;
+        if (((emulator.P & 0b00001000) == 0b00001000 /* flag.D */))
+        {
+            var low = (left & 0b00001111) + (right & 0b00001111) + carry;
+            var high = (left & 0b11110000) + (right & 0b11110000);
+            emulator.P &= 0x1C;
+            if ((binary_result & 0b11111111) == 0x00)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (low > 0x09)
+            {
+                high += 0x10;
+                low += 0x06;
+            }
+
+            if (((high & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+
+            if ((((high ^ left) & (high ^ right) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if (high > 0x90)
+            {
+                high += 0x60;
+            }
+
+            if (high > 0xFF)
+            {
+                emulator.P |= 0x01;
+            }
+
+            emulator.A = (byte)(low & 0b00001111 | high & 0b11110000);
+        }
+        else
+        {
+            emulator.A = (byte)binary_result;
+            emulator.P &= 0x1C;
+            if ((((binary_result ^ left) & (binary_result ^ right) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) != 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if (emulator.A == 0)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((emulator.A & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+        }
+
+        return 3;
+    }
+
+    // ADC (zp),Y
+    private static int ADC_zp_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction152 = 65535;
+        emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            nextInstruction152 = 8;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction152 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction152, onActionRequired);
+        }
+
+        ushort nextInstruction153 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        nextInstruction153 = 8;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction153 != 65535)
+        {
+            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction153, onActionRequired);
+        }
+
+        return 5;
+    }
+
+    // ADC zp,X
+    private static int ADC_zp_X_75(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var carry = emulator.P & 0b00000001;
+        var left = emulator.A;
+        var right = emulator.data;
+        var binary_result = left + right + carry;
+        if (((emulator.P & 0b00001000) == 0b00001000 /* flag.D */))
+        {
+            var low = (left & 0b00001111) + (right & 0b00001111) + carry;
+            var high = (left & 0b11110000) + (right & 0b11110000);
+            emulator.P &= 0x1C;
+            if ((binary_result & 0b11111111) == 0x00)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (low > 0x09)
+            {
+                high += 0x10;
+                low += 0x06;
+            }
+
+            if (((high & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+
+            if ((((high ^ left) & (high ^ right) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if (high > 0x90)
+            {
+                high += 0x60;
+            }
+
+            if (high > 0xFF)
+            {
+                emulator.P |= 0x01;
+            }
+
+            emulator.A = (byte)(low & 0b00001111 | high & 0b11110000);
+        }
+        else
+        {
+            emulator.A = (byte)binary_result;
+            emulator.P &= 0x1C;
+            if ((((binary_result ^ left) & (binary_result ^ right) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) != 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if (emulator.A == 0)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((emulator.A & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+        }
+
         return 3;
     }
 
@@ -147,6 +1550,78 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 0;
     }
 
+    // ADC abs,Y
+    private static int ADC_abs_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction161 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            nextInstruction161 = 8;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction161 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction161, onActionRequired);
+        }
+
+        ushort nextInstruction162 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        nextInstruction162 = 8;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction162 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction162, onActionRequired);
+        }
+
+        return 4;
+    }
+
+    // ADC abs,X
+    private static int ADC_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction165 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            nextInstruction165 = 8;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction165 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction165, onActionRequired);
+        }
+
+        ushort nextInstruction166 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        nextInstruction166 = 8;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction166 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction166, onActionRequired);
+        }
+
+        return 4;
+    }
+
     // DEY
     private static int DEY(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -155,7 +1630,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         // Update flags.
         int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.Y == 0)) << 1; // Set Z if is_zero(Y) is true.
-        flags |= emulator.Y & 0b10000000; // Set N if is_negative(Y) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.Y & 0b10000000) != 0x00))) << 7; // Set N if is_negative(Y) is true.
         emulator.P = (byte)flags;
         return 0;
     }
@@ -168,7 +1643,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         // Update flags.
         int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
-        flags |= emulator.A & 0b10000000; // Set N if is_negative(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
         emulator.P = (byte)flags;
         return 0;
     }
@@ -181,7 +1656,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         // Update flags.
         int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
-        flags |= emulator.A & 0b10000000; // Set N if is_negative(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
         emulator.P = (byte)flags;
         return 0;
     }
@@ -193,6 +1668,119 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 0;
     }
 
+    // LDY #n
+    private static int LDY_n(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.Y = emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.Y == 0)) << 1; // Set Z if is_zero(Y) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.Y & 0b10000000) != 0x00))) << 7; // Set N if is_negative(Y) is true.
+        emulator.P = (byte)flags;
+        return 1;
+    }
+
+    // LDA (zp,X)
+    private static int LDA_zp_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A = emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 5;
+    }
+
+    // LDX #n
+    private static int LDX_n(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.X = emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.X == 0)) << 1; // Set Z if is_zero(X) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.X & 0b10000000) != 0x00))) << 7; // Set N if is_negative(X) is true.
+        emulator.P = (byte)flags;
+        return 1;
+    }
+
+    // LDY zp
+    private static int LDY_zp(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.Y = emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.Y == 0)) << 1; // Set Z if is_zero(Y) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.Y & 0b10000000) != 0x00))) << 7; // Set N if is_negative(Y) is true.
+        emulator.P = (byte)flags;
+        return 2;
+    }
+
+    // LDA zp
+    private static int LDA_zp(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A = emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 2;
+    }
+
+    // LDX zp
+    private static int LDX_zp(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.X = emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.X == 0)) << 1; // Set Z if is_zero(X) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.X & 0b10000000) != 0x00))) << 7; // Set N if is_negative(X) is true.
+        emulator.P = (byte)flags;
+        return 2;
+    }
+
     // TAY
     private static int TAY(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -201,7 +1789,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         // Update flags.
         int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.Y == 0)) << 1; // Set Z if is_zero(Y) is true.
-        flags |= emulator.Y & 0b10000000; // Set N if is_negative(Y) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.Y & 0b10000000) != 0x00))) << 7; // Set N if is_negative(Y) is true.
         emulator.P = (byte)flags;
         return 0;
     }
@@ -217,7 +1805,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         // Update flags.
         int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
-        flags |= emulator.A & 0b10000000; // Set N if is_negative(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
         emulator.P = (byte)flags;
         return 1;
     }
@@ -230,9 +1818,176 @@ public sealed unsafe partial class M6502InstructionEmulator
         // Update flags.
         int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.X == 0)) << 1; // Set Z if is_zero(X) is true.
-        flags |= emulator.X & 0b10000000; // Set N if is_negative(X) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.X & 0b10000000) != 0x00))) << 7; // Set N if is_negative(X) is true.
         emulator.P = (byte)flags;
         return 0;
+    }
+
+    // LDY abs
+    private static int LDY_abs(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.Y = emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.Y == 0)) << 1; // Set Z if is_zero(Y) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.Y & 0b10000000) != 0x00))) << 7; // Set N if is_negative(Y) is true.
+        emulator.P = (byte)flags;
+        return 3;
+    }
+
+    // LDA abs
+    private static int LDA_abs(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A = emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 3;
+    }
+
+    // LDX abs
+    private static int LDX_abs(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.X = emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.X == 0)) << 1; // Set Z if is_zero(X) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.X & 0b10000000) != 0x00))) << 7; // Set N if is_negative(X) is true.
+        emulator.P = (byte)flags;
+        return 3;
+    }
+
+    // LDA (zp),Y
+    private static int LDA_zp_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction209 = 65535;
+        emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            nextInstruction209 = 5;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction209 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction209, onActionRequired);
+        }
+
+        ushort nextInstruction210 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        nextInstruction210 = 5;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction210 != 65535)
+        {
+            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction210, onActionRequired);
+        }
+
+        return 5;
+    }
+
+    // LDY zp,X
+    private static int LDY_zp_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.Y = emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.Y == 0)) << 1; // Set Z if is_zero(Y) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.Y & 0b10000000) != 0x00))) << 7; // Set N if is_negative(Y) is true.
+        emulator.P = (byte)flags;
+        return 3;
+    }
+
+    // LDA zp,X
+    private static int LDA_zp_X_B5(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A = emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 3;
+    }
+
+    // LDX zp,Y
+    private static int LDX_zp_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + emulator.Y & 0b11111111);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.X = emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.X == 0)) << 1; // Set Z if is_zero(X) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.X & 0b10000000) != 0x00))) << 7; // Set N if is_negative(X) is true.
+        emulator.P = (byte)flags;
+        return 3;
     }
 
     // CLV
@@ -240,6 +1995,42 @@ public sealed unsafe partial class M6502InstructionEmulator
     {
         emulator.P &= 0xBF;
         return 0;
+    }
+
+    // LDA abs,Y
+    private static int LDA_abs_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction226 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            nextInstruction226 = 5;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction226 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction226, onActionRequired);
+        }
+
+        ushort nextInstruction227 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        nextInstruction227 = 5;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction227 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction227, onActionRequired);
+        }
+
+        return 4;
     }
 
     // TSX
@@ -250,9 +2041,200 @@ public sealed unsafe partial class M6502InstructionEmulator
         // Update flags.
         int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.X == 0)) << 1; // Set Z if is_zero(X) is true.
-        flags |= emulator.X & 0b10000000; // Set N if is_negative(X) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.X & 0b10000000) != 0x00))) << 7; // Set N if is_negative(X) is true.
         emulator.P = (byte)flags;
         return 0;
+    }
+
+    // LDY abs,X
+    private static int LDY_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction231 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            nextInstruction231 = 6;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction231 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction231, onActionRequired);
+        }
+
+        ushort nextInstruction232 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        nextInstruction232 = 6;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction232 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction232, onActionRequired);
+        }
+
+        return 4;
+    }
+
+    // LDA abs,X
+    private static int LDA_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction235 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            nextInstruction235 = 5;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction235 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction235, onActionRequired);
+        }
+
+        ushort nextInstruction236 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        nextInstruction236 = 5;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction236 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction236, onActionRequired);
+        }
+
+        return 4;
+    }
+
+    // LDX abs,Y
+    private static int LDX_abs_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction239 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            nextInstruction239 = 4;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction239 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction239, onActionRequired);
+        }
+
+        ushort nextInstruction240 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        nextInstruction240 = 4;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction240 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction240, onActionRequired);
+        }
+
+        return 4;
+    }
+
+    // CPY #n
+    private static int CPY_n(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var result = emulator.Y - emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011100; // Copy flag.I, flag.D, flag.B and V from P.
+        flags |= Unsafe.BitCast<bool, byte>(emulator.Y >= emulator.data); // Set C if Y >= data is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result == 0)) << 1; // Set Z if is_zero(result) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((result & 0b10000000) != 0x00))) << 7; // Set N if is_negative(result) is true.
+        emulator.P = (byte)flags;
+        return 1;
+    }
+
+    // CMP (zp,X)
+    private static int CMP_zp_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var result = emulator.A - emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011100; // Copy flag.I, flag.D, flag.B and V from P.
+        flags |= Unsafe.BitCast<bool, byte>(emulator.A >= emulator.data); // Set C if A >= data is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result == 0)) << 1; // Set Z if is_zero(result) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((result & 0b10000000) != 0x00))) << 7; // Set N if is_negative(result) is true.
+        emulator.P = (byte)flags;
+        return 5;
+    }
+
+    // CPY zp
+    private static int CPY_zp(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var result = emulator.Y - emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011100; // Copy flag.I, flag.D, flag.B and V from P.
+        flags |= Unsafe.BitCast<bool, byte>(emulator.Y >= emulator.data); // Set C if Y >= data is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result == 0)) << 1; // Set Z if is_zero(result) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((result & 0b10000000) != 0x00))) << 7; // Set N if is_negative(result) is true.
+        emulator.P = (byte)flags;
+        return 2;
+    }
+
+    // CMP zp
+    private static int CMP_zp(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var result = emulator.A - emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011100; // Copy flag.I, flag.D, flag.B and V from P.
+        flags |= Unsafe.BitCast<bool, byte>(emulator.A >= emulator.data); // Set C if A >= data is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result == 0)) << 1; // Set Z if is_zero(result) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((result & 0b10000000) != 0x00))) << 7; // Set N if is_negative(result) is true.
+        emulator.P = (byte)flags;
+        return 2;
     }
 
     // INY
@@ -263,9 +2245,26 @@ public sealed unsafe partial class M6502InstructionEmulator
         // Update flags.
         int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.Y == 0)) << 1; // Set Z if is_zero(Y) is true.
-        flags |= emulator.Y & 0b10000000; // Set N if is_negative(Y) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.Y & 0b10000000) != 0x00))) << 7; // Set N if is_negative(Y) is true.
         emulator.P = (byte)flags;
         return 0;
+    }
+
+    // CMP #n
+    private static int CMP_n(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var result = emulator.A - emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011100; // Copy flag.I, flag.D, flag.B and V from P.
+        flags |= Unsafe.BitCast<bool, byte>(emulator.A >= emulator.data); // Set C if A >= data is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result == 0)) << 1; // Set Z if is_zero(result) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((result & 0b10000000) != 0x00))) << 7; // Set N if is_negative(result) is true.
+        emulator.P = (byte)flags;
+        return 1;
     }
 
     // DEX
@@ -276,9 +2275,115 @@ public sealed unsafe partial class M6502InstructionEmulator
         // Update flags.
         int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.X == 0)) << 1; // Set Z if is_zero(X) is true.
-        flags |= emulator.X & 0b10000000; // Set N if is_negative(X) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.X & 0b10000000) != 0x00))) << 7; // Set N if is_negative(X) is true.
         emulator.P = (byte)flags;
         return 0;
+    }
+
+    // CPY abs
+    private static int CPY_abs(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var result = emulator.Y - emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011100; // Copy flag.I, flag.D, flag.B and V from P.
+        flags |= Unsafe.BitCast<bool, byte>(emulator.Y >= emulator.data); // Set C if Y >= data is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result == 0)) << 1; // Set Z if is_zero(result) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((result & 0b10000000) != 0x00))) << 7; // Set N if is_negative(result) is true.
+        emulator.P = (byte)flags;
+        return 3;
+    }
+
+    // CMP abs
+    private static int CMP_abs(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var result = emulator.A - emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011100; // Copy flag.I, flag.D, flag.B and V from P.
+        flags |= Unsafe.BitCast<bool, byte>(emulator.A >= emulator.data); // Set C if A >= data is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result == 0)) << 1; // Set Z if is_zero(result) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((result & 0b10000000) != 0x00))) << 7; // Set N if is_negative(result) is true.
+        emulator.P = (byte)flags;
+        return 3;
+    }
+
+    // CMP (zp),Y
+    private static int CMP_zp_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction270 = 65535;
+        emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            nextInstruction270 = 7;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction270 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction270, onActionRequired);
+        }
+
+        ushort nextInstruction271 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        nextInstruction271 = 7;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction271 != 65535)
+        {
+            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction271, onActionRequired);
+        }
+
+        return 5;
+    }
+
+    // CMP zp,X
+    private static int CMP_zp_X_D5(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var result = emulator.A - emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011100; // Copy flag.I, flag.D, flag.B and V from P.
+        flags |= Unsafe.BitCast<bool, byte>(emulator.A >= emulator.data); // Set C if A >= data is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result == 0)) << 1; // Set Z if is_zero(result) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((result & 0b10000000) != 0x00))) << 7; // Set N if is_negative(result) is true.
+        emulator.P = (byte)flags;
+        return 3;
     }
 
     // CLD
@@ -286,6 +2391,279 @@ public sealed unsafe partial class M6502InstructionEmulator
     {
         emulator.P &= 0xF7;
         return 0;
+    }
+
+    // CMP abs,Y
+    private static int CMP_abs_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction279 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            nextInstruction279 = 7;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction279 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction279, onActionRequired);
+        }
+
+        ushort nextInstruction280 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        nextInstruction280 = 7;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction280 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction280, onActionRequired);
+        }
+
+        return 4;
+    }
+
+    // CMP abs,X
+    private static int CMP_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction283 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            nextInstruction283 = 7;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction283 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction283, onActionRequired);
+        }
+
+        ushort nextInstruction284 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        nextInstruction284 = 7;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction284 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction284, onActionRequired);
+        }
+
+        return 4;
+    }
+
+    // CPX #n
+    private static int CPX_n(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var result = emulator.X - emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011100; // Copy flag.I, flag.D, flag.B and V from P.
+        flags |= Unsafe.BitCast<bool, byte>(emulator.X >= emulator.data); // Set C if X >= data is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result == 0)) << 1; // Set Z if is_zero(result) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((result & 0b10000000) != 0x00))) << 7; // Set N if is_negative(result) is true.
+        emulator.P = (byte)flags;
+        return 1;
+    }
+
+    // SBC (zp,X)
+    private static int SBC_zp_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var borrow = 0x01 - (emulator.P & 0b00000001);
+        var left = emulator.A;
+        var right = emulator.data;
+        var binary_result = left - right - borrow;
+        if (((emulator.P & 0b00001000) == 0b00001000 /* flag.D */))
+        {
+            var low = (left & 0b00001111) - (right & 0b00001111) - borrow;
+            var high = (left & 0b11110000) - (right & 0b11110000);
+            emulator.P &= 0x1C;
+            if ((low & 0b00010000) != 0x00)
+            {
+                low -= 0x06;
+                high -= 0x10;
+            }
+
+            if ((((left ^ right) & (binary_result ^ left) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) == 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if ((binary_result & 0b11111111) == 0x00)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((binary_result & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+
+            if ((high & 0x0100) != 0x00)
+            {
+                high -= 0x60;
+            }
+
+            emulator.A = (byte)(low & 0b00001111 | high & 0b11110000);
+        }
+        else
+        {
+            emulator.A = (byte)binary_result;
+            emulator.P &= 0x1C;
+            if ((((left ^ right) & (binary_result ^ left) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) == 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if (emulator.A == 0)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((emulator.A & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+        }
+
+        return 5;
+    }
+
+    // CPX zp
+    private static int CPX_zp(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var result = emulator.X - emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011100; // Copy flag.I, flag.D, flag.B and V from P.
+        flags |= Unsafe.BitCast<bool, byte>(emulator.X >= emulator.data); // Set C if X >= data is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result == 0)) << 1; // Set Z if is_zero(result) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((result & 0b10000000) != 0x00))) << 7; // Set N if is_negative(result) is true.
+        emulator.P = (byte)flags;
+        return 2;
+    }
+
+    // SBC zp
+    private static int SBC_zp(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var borrow = 0x01 - (emulator.P & 0b00000001);
+        var left = emulator.A;
+        var right = emulator.data;
+        var binary_result = left - right - borrow;
+        if (((emulator.P & 0b00001000) == 0b00001000 /* flag.D */))
+        {
+            var low = (left & 0b00001111) - (right & 0b00001111) - borrow;
+            var high = (left & 0b11110000) - (right & 0b11110000);
+            emulator.P &= 0x1C;
+            if ((low & 0b00010000) != 0x00)
+            {
+                low -= 0x06;
+                high -= 0x10;
+            }
+
+            if ((((left ^ right) & (binary_result ^ left) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) == 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if ((binary_result & 0b11111111) == 0x00)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((binary_result & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+
+            if ((high & 0x0100) != 0x00)
+            {
+                high -= 0x60;
+            }
+
+            emulator.A = (byte)(low & 0b00001111 | high & 0b11110000);
+        }
+        else
+        {
+            emulator.A = (byte)binary_result;
+            emulator.P &= 0x1C;
+            if ((((left ^ right) & (binary_result ^ left) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) == 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if (emulator.A == 0)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((emulator.A & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+        }
+
+        return 2;
     }
 
     // INX
@@ -296,9 +2674,85 @@ public sealed unsafe partial class M6502InstructionEmulator
         // Update flags.
         int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
         flags |= (Unsafe.BitCast<bool, byte>(emulator.X == 0)) << 1; // Set Z if is_zero(X) is true.
-        flags |= emulator.X & 0b10000000; // Set N if is_negative(X) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.X & 0b10000000) != 0x00))) << 7; // Set N if is_negative(X) is true.
         emulator.P = (byte)flags;
         return 0;
+    }
+
+    // SBC #n
+    private static int SBC_n(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var borrow = 0x01 - (emulator.P & 0b00000001);
+        var left = emulator.A;
+        var right = emulator.data;
+        var binary_result = left - right - borrow;
+        if (((emulator.P & 0b00001000) == 0b00001000 /* flag.D */))
+        {
+            var low = (left & 0b00001111) - (right & 0b00001111) - borrow;
+            var high = (left & 0b11110000) - (right & 0b11110000);
+            emulator.P &= 0x1C;
+            if ((low & 0b00010000) != 0x00)
+            {
+                low -= 0x06;
+                high -= 0x10;
+            }
+
+            if ((((left ^ right) & (binary_result ^ left) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) == 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if ((binary_result & 0b11111111) == 0x00)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((binary_result & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+
+            if ((high & 0x0100) != 0x00)
+            {
+                high -= 0x60;
+            }
+
+            emulator.A = (byte)(low & 0b00001111 | high & 0b11110000);
+        }
+        else
+        {
+            emulator.A = (byte)binary_result;
+            emulator.P &= 0x1C;
+            if ((((left ^ right) & (binary_result ^ left) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) == 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if (emulator.A == 0)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((emulator.A & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+        }
+
+        return 1;
     }
 
     // NOP
@@ -307,10 +2761,306 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 0;
     }
 
+    // CPX abs
+    private static int CPX_abs(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var result = emulator.X - emulator.data;
+
+        // Update flags.
+        int flags = emulator.P & 0b01011100; // Copy flag.I, flag.D, flag.B and V from P.
+        flags |= Unsafe.BitCast<bool, byte>(emulator.X >= emulator.data); // Set C if X >= data is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result == 0)) << 1; // Set Z if is_zero(result) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((result & 0b10000000) != 0x00))) << 7; // Set N if is_negative(result) is true.
+        emulator.P = (byte)flags;
+        return 3;
+    }
+
+    // SBC abs
+    private static int SBC_abs(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var borrow = 0x01 - (emulator.P & 0b00000001);
+        var left = emulator.A;
+        var right = emulator.data;
+        var binary_result = left - right - borrow;
+        if (((emulator.P & 0b00001000) == 0b00001000 /* flag.D */))
+        {
+            var low = (left & 0b00001111) - (right & 0b00001111) - borrow;
+            var high = (left & 0b11110000) - (right & 0b11110000);
+            emulator.P &= 0x1C;
+            if ((low & 0b00010000) != 0x00)
+            {
+                low -= 0x06;
+                high -= 0x10;
+            }
+
+            if ((((left ^ right) & (binary_result ^ left) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) == 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if ((binary_result & 0b11111111) == 0x00)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((binary_result & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+
+            if ((high & 0x0100) != 0x00)
+            {
+                high -= 0x60;
+            }
+
+            emulator.A = (byte)(low & 0b00001111 | high & 0b11110000);
+        }
+        else
+        {
+            emulator.A = (byte)binary_result;
+            emulator.P &= 0x1C;
+            if ((((left ^ right) & (binary_result ^ left) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) == 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if (emulator.A == 0)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((emulator.A & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+        }
+
+        return 3;
+    }
+
+    // SBC (zp),Y
+    private static int SBC_zp_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction314 = 65535;
+        emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            nextInstruction314 = 9;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction314 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction314, onActionRequired);
+        }
+
+        ushort nextInstruction315 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        nextInstruction315 = 9;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction315 != 65535)
+        {
+            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction315, onActionRequired);
+        }
+
+        return 5;
+    }
+
+    // SBC zp,X
+    private static int SBC_zp_X_F5(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var borrow = 0x01 - (emulator.P & 0b00000001);
+        var left = emulator.A;
+        var right = emulator.data;
+        var binary_result = left - right - borrow;
+        if (((emulator.P & 0b00001000) == 0b00001000 /* flag.D */))
+        {
+            var low = (left & 0b00001111) - (right & 0b00001111) - borrow;
+            var high = (left & 0b11110000) - (right & 0b11110000);
+            emulator.P &= 0x1C;
+            if ((low & 0b00010000) != 0x00)
+            {
+                low -= 0x06;
+                high -= 0x10;
+            }
+
+            if ((((left ^ right) & (binary_result ^ left) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) == 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if ((binary_result & 0b11111111) == 0x00)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((binary_result & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+
+            if ((high & 0x0100) != 0x00)
+            {
+                high -= 0x60;
+            }
+
+            emulator.A = (byte)(low & 0b00001111 | high & 0b11110000);
+        }
+        else
+        {
+            emulator.A = (byte)binary_result;
+            emulator.P &= 0x1C;
+            if ((((left ^ right) & (binary_result ^ left) & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x40;
+            }
+
+            if ((binary_result & 0x0100) == 0x00)
+            {
+                emulator.P |= 0x01;
+            }
+
+            if (emulator.A == 0)
+            {
+                emulator.P |= 0x02;
+            }
+
+            if (((emulator.A & 0b10000000) != 0x00))
+            {
+                emulator.P |= 0x80;
+            }
+        }
+
+        return 3;
+    }
+
     // SED
     private static int SED(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
         emulator.P |= 0x08;
         return 0;
+    }
+
+    // SBC abs,Y
+    private static int SBC_abs_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction323 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            nextInstruction323 = 9;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction323 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction323, onActionRequired);
+        }
+
+        ushort nextInstruction324 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        nextInstruction324 = 9;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction324 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction324, onActionRequired);
+        }
+
+        return 4;
+    }
+
+    // SBC abs,X
+    private static int SBC_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction327 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            nextInstruction327 = 9;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction327 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction327, onActionRequired);
+        }
+
+        ushort nextInstruction328 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        nextInstruction328 = 9;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction328 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction328, onActionRequired);
+        }
+
+        return 4;
     }
 }

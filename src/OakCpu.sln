@@ -180,23 +180,23 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrKWatkins.OakCpu.M6502.Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrKWatkins.OakCpu.M6502.Tests", "MrKWatkins.OakCpu.M6502.Tests\MrKWatkins.OakCpu.M6502.Tests.csproj", "{5CCAC36F-8359-47F3-9C1F-C006C3230FEE}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "m6502", "m6502", "{277688C0-EDE7-4A03-8578-A624567ED5B3}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6502", "6502", "{277688C0-EDE7-4A03-8578-A624567ED5B3}"
 	ProjectSection(SolutionItems) = preProject
-		..\definitions\m6502\cpu.yaml = ..\definitions\m6502\cpu.yaml
-		..\definitions\m6502\flags.yaml = ..\definitions\m6502\flags.yaml
-		..\definitions\m6502\functions.yaml = ..\definitions\m6502\functions.yaml
-		..\definitions\m6502\interrupts.yaml = ..\definitions\m6502\interrupts.yaml
-		..\definitions\m6502\registers.yaml = ..\definitions\m6502\registers.yaml
+		..\definitions\6502\cpu.yaml = ..\definitions\6502\cpu.yaml
+		..\definitions\6502\flags.yaml = ..\definitions\6502\flags.yaml
+		..\definitions\6502\functions.yaml = ..\definitions\6502\functions.yaml
+		..\definitions\6502\interrupts.yaml = ..\definitions\6502\interrupts.yaml
+		..\definitions\6502\registers.yaml = ..\definitions\6502\registers.yaml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "general-purpose", "general-purpose", "{DE1E9C2A-B29E-4A03-B8A6-5FB51511E1AD}"
 	ProjectSection(SolutionItems) = preProject
-		..\definitions\m6502\general-purpose\nop.yaml = ..\definitions\m6502\general-purpose\nop.yaml
+		..\definitions\6502\general-purpose\nop.yaml = ..\definitions\6502\general-purpose\nop.yaml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "load", "load", "{8BF7ED2D-0AAC-42EB-A5CA-65AFDAA74EF5}"
 	ProjectSection(SolutionItems) = preProject
-		..\definitions\m6502\load\lda.yaml = ..\definitions\m6502\load\lda.yaml
+		..\definitions\6502\load\lda.yaml = ..\definitions\6502\load\lda.yaml
 	EndProjectSection
 EndProject
 Global

@@ -28,6 +28,7 @@ public sealed unsafe partial class M6502InstructionEmulator
             writer.Write((byte)0);
         }
 
+        writer.Write(ad);
         writer.Write(address);
         writer.Write(data);
         writer.Write(nextSequenceStep);
@@ -70,6 +71,7 @@ public sealed unsafe partial class M6502InstructionEmulator
             0 => OpcodeStepTableNoPrefix,
             _ => throw new InvalidOperationException("Unknown opcode step table.")
         };
+        ad = reader.ReadUInt16();
         address = reader.ReadUInt16();
         data = reader.ReadByte();
         nextSequenceStep = reader.ReadUInt16();

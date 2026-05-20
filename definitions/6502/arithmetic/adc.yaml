@@ -1,0 +1,89 @@
+sequences:
+  - name: adc_finish
+    next_opcode: custom
+    steps:
+      - $carry = P & 0x01; $left = A; $right = Data; $binary_result = $left + $right + $carry; if flag.D; $low = ($left & 0x0F) + ($right & 0x0F) + $carry; $high = ($left & 0xF0) + ($right & 0xF0); P = P & 0x1C; if ($binary_result & 0xFF) == 0; P = P | 0x02; endif; if $low > 0x09; $high = $high + 0x10; $low = $low + 0x06; endif; if is_negative($high); P = P | 0x80; endif; if did_8_bit_addition_overflow($left, $right, $high); P = P | 0x40; endif; if $high > 0x90; $high = $high + 0x60; endif; if $high > 0xFF; P = P | 0x01; endif; A = ($low & 0x0F) | ($high & 0xF0); else; A = $binary_result; P = P & 0x1C; if did_8_bit_addition_overflow($left, $right, $binary_result); P = P | 0x40; endif; if ($binary_result & 0x0100) != 0; P = P | 0x01; endif; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; endif; instruction_complete(true);
+
+instructions:
+  - group: Arithmetic
+    mnemonic: "ADC #n"
+    opcodes:
+      - opcode: 0x69
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - $carry = P & 0x01; $left = A; $right = Data; $binary_result = $left + $right + $carry; if flag.D; $low = ($left & 0x0F) + ($right & 0x0F) + $carry; $high = ($left & 0xF0) + ($right & 0xF0); P = P & 0x1C; if ($binary_result & 0xFF) == 0; P = P | 0x02; endif; if $low > 0x09; $high = $high + 0x10; $low = $low + 0x06; endif; if is_negative($high); P = P | 0x80; endif; if did_8_bit_addition_overflow($left, $right, $high); P = P | 0x40; endif; if $high > 0x90; $high = $high + 0x60; endif; if $high > 0xFF; P = P | 0x01; endif; A = ($low & 0x0F) | ($high & 0xF0); else; A = $binary_result; P = P & 0x1C; if did_8_bit_addition_overflow($left, $right, $binary_result); P = P | 0x40; endif; if ($binary_result & 0x0100) != 0; P = P | 0x01; endif; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; endif;
+
+  - group: Arithmetic
+    mnemonic: ADC zp
+    opcodes:
+      - opcode: 0x65
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = Data; request(action.memory_read);
+      - $carry = P & 0x01; $left = A; $right = Data; $binary_result = $left + $right + $carry; if flag.D; $low = ($left & 0x0F) + ($right & 0x0F) + $carry; $high = ($left & 0xF0) + ($right & 0xF0); P = P & 0x1C; if ($binary_result & 0xFF) == 0; P = P | 0x02; endif; if $low > 0x09; $high = $high + 0x10; $low = $low + 0x06; endif; if is_negative($high); P = P | 0x80; endif; if did_8_bit_addition_overflow($left, $right, $high); P = P | 0x40; endif; if $high > 0x90; $high = $high + 0x60; endif; if $high > 0xFF; P = P | 0x01; endif; A = ($low & 0x0F) | ($high & 0xF0); else; A = $binary_result; P = P & 0x1C; if did_8_bit_addition_overflow($left, $right, $binary_result); P = P | 0x40; endif; if ($binary_result & 0x0100) != 0; P = P | 0x01; endif; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; endif;
+
+  - group: Arithmetic
+    mnemonic: ADC zp,X
+    opcodes:
+      - opcode: 0x75
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + X) & 0x00FF; request(action.memory_read);
+      - $carry = P & 0x01; $left = A; $right = Data; $binary_result = $left + $right + $carry; if flag.D; $low = ($left & 0x0F) + ($right & 0x0F) + $carry; $high = ($left & 0xF0) + ($right & 0xF0); P = P & 0x1C; if ($binary_result & 0xFF) == 0; P = P | 0x02; endif; if $low > 0x09; $high = $high + 0x10; $low = $low + 0x06; endif; if is_negative($high); P = P | 0x80; endif; if did_8_bit_addition_overflow($left, $right, $high); P = P | 0x40; endif; if $high > 0x90; $high = $high + 0x60; endif; if $high > 0xFF; P = P | 0x01; endif; A = ($low & 0x0F) | ($high & 0xF0); else; A = $binary_result; P = P & 0x1C; if did_8_bit_addition_overflow($left, $right, $binary_result); P = P | 0x40; endif; if ($binary_result & 0x0100) != 0; P = P | 0x01; endif; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; endif;
+
+  - group: Arithmetic
+    mnemonic: ADC abs
+    opcodes:
+      - opcode: 0x6D
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; request(action.memory_read);
+      - $carry = P & 0x01; $left = A; $right = Data; $binary_result = $left + $right + $carry; if flag.D; $low = ($left & 0x0F) + ($right & 0x0F) + $carry; $high = ($left & 0xF0) + ($right & 0xF0); P = P & 0x1C; if ($binary_result & 0xFF) == 0; P = P | 0x02; endif; if $low > 0x09; $high = $high + 0x10; $low = $low + 0x06; endif; if is_negative($high); P = P | 0x80; endif; if did_8_bit_addition_overflow($left, $right, $high); P = P | 0x40; endif; if $high > 0x90; $high = $high + 0x60; endif; if $high > 0xFF; P = P | 0x01; endif; A = ($low & 0x0F) | ($high & 0xF0); else; A = $binary_result; P = P & 0x1C; if did_8_bit_addition_overflow($left, $right, $binary_result); P = P | 0x40; endif; if ($binary_result & 0x0100) != 0; P = P | 0x01; endif; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; endif;
+
+  - group: Arithmetic
+    mnemonic: ADC abs,X
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x7D
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + X) & 0x00FF); if !did_indexed_address_page_cross(AD, X); move_to_sequence(sequence.adc_finish); endif; request(action.memory_read);
+      - Address = AD + X; move_to_sequence(sequence.adc_finish); request(action.memory_read);
+
+  - group: Arithmetic
+    mnemonic: ADC abs,Y
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x79
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + Y) & 0x00FF); if !did_indexed_address_page_cross(AD, Y); move_to_sequence(sequence.adc_finish); endif; request(action.memory_read);
+      - Address = AD + Y; move_to_sequence(sequence.adc_finish); request(action.memory_read);
+
+  - group: Arithmetic
+    mnemonic: "ADC (zp,X)"
+    opcodes:
+      - opcode: 0x61
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - AD = (AD + X) & 0x00FF; Address = AD; request(action.memory_read);
+      - Address = (AD + 1) & 0x00FF; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; request(action.memory_read);
+      - $carry = P & 0x01; $left = A; $right = Data; $binary_result = $left + $right + $carry; if flag.D; $low = ($left & 0x0F) + ($right & 0x0F) + $carry; $high = ($left & 0xF0) + ($right & 0xF0); P = P & 0x1C; if ($binary_result & 0xFF) == 0; P = P | 0x02; endif; if $low > 0x09; $high = $high + 0x10; $low = $low + 0x06; endif; if is_negative($high); P = P | 0x80; endif; if did_8_bit_addition_overflow($left, $right, $high); P = P | 0x40; endif; if $high > 0x90; $high = $high + 0x60; endif; if $high > 0xFF; P = P | 0x01; endif; A = ($low & 0x0F) | ($high & 0xF0); else; A = $binary_result; P = P & 0x1C; if did_8_bit_addition_overflow($left, $right, $binary_result); P = P | 0x40; endif; if ($binary_result & 0x0100) != 0; P = P | 0x01; endif; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; endif;
+
+  - group: Arithmetic
+    mnemonic: "ADC (zp),Y"
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x71
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + 1) & 0x00FF; AD = Data; request(action.memory_read);
+      - AD = AD | (Data << 8); Address = (AD & 0xFF00) | ((AD + Y) & 0x00FF); if !did_indexed_address_page_cross(AD, Y); move_to_sequence(sequence.adc_finish); endif; request(action.memory_read);
+      - Address = AD + Y; move_to_sequence(sequence.adc_finish); request(action.memory_read);

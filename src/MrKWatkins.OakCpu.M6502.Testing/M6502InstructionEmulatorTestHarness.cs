@@ -7,7 +7,6 @@ public sealed class M6502InstructionEmulatorTestHarness : M6502TestHarness
 {
     private readonly M6502InstructionEmulator emulator;
     private readonly byte[] memory = new byte[65536];
-    private readonly Action<ActionRequired, ushort, byte> performActionRequiredCallback;
 
     public M6502InstructionEmulatorTestHarness()
         : this(new M6502InstructionEmulator())
@@ -16,7 +15,6 @@ public sealed class M6502InstructionEmulatorTestHarness : M6502TestHarness
     private M6502InstructionEmulatorTestHarness(M6502InstructionEmulator emulator)
     {
         this.emulator = emulator;
-        performActionRequiredCallback = PerformActionRequired;
     }
 
     public override byte RegisterA
@@ -71,7 +69,7 @@ public sealed class M6502InstructionEmulatorTestHarness : M6502TestHarness
     public override void ExecuteInstruction()
     {
         var initialTStates = TStates;
-        var executedTStates = emulator.ExecuteInstruction(performActionRequiredCallback);
+        var executedTStates = emulator.ExecuteInstruction(PerformActionRequired);
         if (executedTStates == 2 && TStates == initialTStates + 1)
         {
             // The instruction emulator does not expose the implied instruction prefetch read, but the single-step suite expects it.

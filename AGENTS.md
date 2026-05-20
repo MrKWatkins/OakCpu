@@ -59,6 +59,7 @@ Only manually change `.generated.cs` files when experimenting with the desired g
 - Prefer lambdas over explicit method blocks where possible.
 - Put nested types at the end of their parent type rather than the start.
 - Mark side-effect-free methods with `[Pure]`. If a method mutates passed-in state but the caller should still use the returned value, use `[MustUseReturnValue]` instead of `[Pure]`.
+- Use `6502` for the definitions folder and for human-facing comments/documentation; keep `M6502` only where a C# identifier requires it, such as project names, namespaces, and types.
 - End comments with a period.
 - Never leave unnecessary `using` statements.
 - Never add `<Reference>` elements to project files; use `<ProjectReference>` or `<PackageReference>`.

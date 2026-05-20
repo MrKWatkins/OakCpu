@@ -14,7 +14,7 @@ internal static class StatementCallEmitter
         new Dictionary<PreDefinedFunction, Func<StatementGeneratorContext, Call, IEnumerable<StatementSyntax>>>
         {
             { PreDefinedFunction.Flags, static (context, _) => FlagsGenerator.GenerateFlagsStatements(context) },
-            { PreDefinedFunction.InstructionComplete, static (context, _) => StatementBoundaryEmitter.GenerateInstructionComplete(context) },
+            { PreDefinedFunction.InstructionComplete, static (context, call) => StatementBoundaryEmitter.GenerateInstructionComplete(context, call) },
             { PreDefinedFunction.Handled, static (context, _) => StatementBoundaryEmitter.GenerateHandled(context) },
             { PreDefinedFunction.HandleInterrupts, static (context, _) => StatementBoundaryEmitter.GenerateHandleInterrupts(context) },
             { PreDefinedFunction.MoveToInterruptMode, static (context, call) => StatementTransitionEmitter.GenerateMoveToInterruptMode(context, call) },

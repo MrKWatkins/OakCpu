@@ -15,9 +15,9 @@ public sealed unsafe partial class M6502StepEmulator
 {
     private const ushort OpcodeReadStep0 = 0;
 
-    private const ushort HaltedStep0 = 2;
+    private const ushort HaltedStep0 = 11;
 
-    private const ushort IM0Step0 = 4;
+    private const ushort IM0Step0 = 13;
 
     private static readonly Step[] Steps;
 
@@ -38,14 +38,72 @@ public sealed unsafe partial class M6502StepEmulator
 
         Steps = 
         [
-            new(&Step0, 1, ActionRequired.OpcodeRead, default), new(&Step1, 39, ActionRequired.None, default), new(&Step0, 3, ActionRequired.OpcodeRead, default), new(&Step2, 2, ActionRequired.None, default), new(default, 0, ActionRequired.None, default), 
-            new(&Step3, 6, ActionRequired.MemoryRead, default), new(&Step4, 0, ActionRequired.MemoryWrite, default), new(default, 0, ActionRequired.None, &Overlap0), new(default, 0, ActionRequired.None, &Overlap1), new(&Step3, 10, ActionRequired.MemoryRead, default), 
-            new(&Step7, 11, ActionRequired.MemoryRead, default), new(&Step8, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap2), new(default, 0, ActionRequired.None, &Overlap3), new(&Step3, 15, ActionRequired.MemoryRead, default), 
-            new(&Step11, 0, ActionRequired.MemoryWrite, default), new(default, 0, ActionRequired.None, &Overlap0), new(default, 0, ActionRequired.None, &Overlap4), new(&Step13, 19, ActionRequired.MemoryRead, default), new(&Step14, 20, ActionRequired.MemoryRead, default), 
-            new(&Step15, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap5), new(default, 0, ActionRequired.None, &Overlap6), new(default, 0, ActionRequired.None, &Overlap7), new(default, 0, ActionRequired.None, &Overlap8), 
-            new(default, 0, ActionRequired.None, &Overlap9), new(default, 0, ActionRequired.None, &Overlap10), new(default, 0, ActionRequired.None, &Overlap11), new(&Step23, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap5), 
-            new(default, 0, ActionRequired.None, &Overlap12), new(default, 0, ActionRequired.None, &Overlap13), new(default, 0, ActionRequired.None, &Overlap14), new(default, 0, ActionRequired.None, &Overlap15), new(default, 0, ActionRequired.None, &Overlap16), 
-            new(default, 0, ActionRequired.None, &Overlap17), new(default, 0, ActionRequired.None, &Overlap18), new(default, 0, ActionRequired.None, &Overlap0), new(default, 0, ActionRequired.None, &Overlap19), new(&Error, 0, ActionRequired.None, default)
+            new(&Step0, 1, ActionRequired.OpcodeRead, default), new(&Step1, 329, ActionRequired.None, default), new(&Step2, 329, ActionRequired.None, default), new(&Step3, 329, ActionRequired.None, default), new(&Step4, 329, ActionRequired.None, default), 
+            new(&Step5, 329, ActionRequired.None, default), new(&Step6, 329, ActionRequired.None, default), new(&Step7, 329, ActionRequired.None, default), new(&Step8, 329, ActionRequired.None, default), new(&Step9, 329, ActionRequired.None, default), 
+            new(&Step10, 329, ActionRequired.None, default), new(&Step0, 12, ActionRequired.OpcodeRead, default), new(&Step11, 11, ActionRequired.None, default), new(default, 0, ActionRequired.None, default), new(&Step12, 15, ActionRequired.MemoryRead, default), 
+            new(&Step13, 16, ActionRequired.MemoryRead, default), new(&Step14, 17, ActionRequired.MemoryRead, default), new(&Step15, 18, ActionRequired.MemoryRead, default), new(&Step16, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap0), 
+            new(&Step12, 21, ActionRequired.MemoryRead, default), new(&Step18, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap0), new(&Step19, 24, ActionRequired.MemoryRead, default), new(&Step20, 0, ActionRequired.MemoryWrite, default), 
+            new(default, 0, ActionRequired.None, &Overlap1), new(&Step22, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap0), new(&Step12, 29, ActionRequired.MemoryRead, default), new(&Step23, 30, ActionRequired.MemoryRead, default), 
+            new(&Step16, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap0), new(&Step24, 33, ActionRequired.MemoryRead, default), new(&Step25, 34, ActionRequired.MemoryRead, default), new(&Step26, 35, ActionRequired.MemoryRead, default), 
+            new(&Step27, 36, ActionRequired.MemoryRead, default), new(&Step28, 329, ActionRequired.MemoryRead, default), new(&Step12, 38, ActionRequired.MemoryRead, default), new(&Step13, 39, ActionRequired.MemoryRead, default), new(&Step29, 0, ActionRequired.MemoryRead, default), 
+            new(default, 0, ActionRequired.None, &Overlap0), new(default, 0, ActionRequired.None, &Overlap2), new(&Step24, 43, ActionRequired.MemoryRead, default), new(&Step31, 44, ActionRequired.MemoryRead, default), new(&Step32, 45, ActionRequired.MemoryRead, default), 
+            new(&Step28, 329, ActionRequired.MemoryRead, default), new(&Step24, 47, ActionRequired.MemoryRead, default), new(&Step31, 48, ActionRequired.MemoryRead, default), new(&Step33, 49, ActionRequired.MemoryRead, default), new(&Step34, 329, ActionRequired.MemoryRead, default), 
+            new(&Step12, 51, ActionRequired.MemoryRead, default), new(&Step13, 52, ActionRequired.MemoryRead, default), new(&Step14, 53, ActionRequired.MemoryRead, default), new(&Step15, 54, ActionRequired.MemoryRead, default), new(&Step35, 0, ActionRequired.MemoryRead, default), 
+            new(default, 0, ActionRequired.None, &Overlap3), new(&Step12, 57, ActionRequired.MemoryRead, default), new(&Step37, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap4), new(&Step12, 60, ActionRequired.MemoryRead, default), 
+            new(&Step39, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap3), new(&Step19, 63, ActionRequired.MemoryRead, default), new(&Step40, 64, ActionRequired.MemoryRead, default), new(&Step41, 0, ActionRequired.MemoryRead, default), 
+            new(default, 0, ActionRequired.None, &Overlap5), new(&Step43, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap3), new(&Step12, 69, ActionRequired.MemoryRead, default), new(&Step23, 70, ActionRequired.MemoryRead, default), 
+            new(&Step44, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap4), new(&Step12, 73, ActionRequired.MemoryRead, default), new(&Step23, 74, ActionRequired.MemoryRead, default), new(&Step35, 0, ActionRequired.MemoryRead, default), 
+            new(default, 0, ActionRequired.None, &Overlap3), new(&Step24, 77, ActionRequired.MemoryRead, default), new(&Step25, 78, ActionRequired.MemoryRead, default), new(&Step26, 79, ActionRequired.MemoryRead, default), new(&Step45, 80, ActionRequired.MemoryRead, default), 
+            new(&Step46, 329, ActionRequired.MemoryRead, default), new(&Step12, 82, ActionRequired.MemoryRead, default), new(&Step13, 83, ActionRequired.MemoryRead, default), new(&Step47, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap3), 
+            new(default, 0, ActionRequired.None, &Overlap6), new(&Step24, 87, ActionRequired.MemoryRead, default), new(&Step31, 88, ActionRequired.MemoryRead, default), new(&Step49, 89, ActionRequired.MemoryRead, default), new(&Step46, 329, ActionRequired.MemoryRead, default), 
+            new(&Step24, 91, ActionRequired.MemoryRead, default), new(&Step31, 92, ActionRequired.MemoryRead, default), new(&Step50, 93, ActionRequired.MemoryRead, default), new(&Step51, 329, ActionRequired.MemoryRead, default), new(&Step12, 95, ActionRequired.MemoryRead, default), 
+            new(&Step13, 96, ActionRequired.MemoryRead, default), new(&Step14, 97, ActionRequired.MemoryRead, default), new(&Step15, 98, ActionRequired.MemoryRead, default), new(&Step52, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap7), 
+            new(&Step12, 101, ActionRequired.MemoryRead, default), new(&Step54, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap7), new(&Step19, 104, ActionRequired.MemoryRead, default), new(&Step55, 0, ActionRequired.MemoryWrite, default), 
+            new(default, 0, ActionRequired.None, &Overlap1), new(&Step56, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap7), new(&Step12, 109, ActionRequired.MemoryRead, default), new(&Step23, 110, ActionRequired.MemoryRead, default), 
+            new(&Step52, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap7), new(&Step24, 113, ActionRequired.MemoryRead, default), new(&Step25, 114, ActionRequired.MemoryRead, default), new(&Step26, 115, ActionRequired.MemoryRead, default), 
+            new(&Step57, 116, ActionRequired.MemoryRead, default), new(&Step58, 329, ActionRequired.MemoryRead, default), new(&Step12, 118, ActionRequired.MemoryRead, default), new(&Step13, 119, ActionRequired.MemoryRead, default), new(&Step59, 0, ActionRequired.MemoryRead, default), 
+            new(default, 0, ActionRequired.None, &Overlap7), new(default, 0, ActionRequired.None, &Overlap8), new(&Step24, 123, ActionRequired.MemoryRead, default), new(&Step31, 124, ActionRequired.MemoryRead, default), new(&Step61, 125, ActionRequired.MemoryRead, default), 
+            new(&Step58, 329, ActionRequired.MemoryRead, default), new(&Step24, 127, ActionRequired.MemoryRead, default), new(&Step31, 128, ActionRequired.MemoryRead, default), new(&Step62, 129, ActionRequired.MemoryRead, default), new(&Step63, 329, ActionRequired.MemoryRead, default), 
+            new(&Step24, 131, ActionRequired.MemoryRead, default), new(&Step25, 132, ActionRequired.MemoryRead, default), new(&Step64, 133, ActionRequired.MemoryRead, default), new(&Step26, 134, ActionRequired.MemoryRead, default), new(&Step65, 0, ActionRequired.MemoryRead, default), 
+            new(default, 0, ActionRequired.None, &Overlap9), new(&Step24, 137, ActionRequired.MemoryRead, default), new(&Step67, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap9), new(&Step68, 140, ActionRequired.MemoryRead, default), 
+            new(&Step69, 141, ActionRequired.MemoryRead, default), new(&Step70, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap10), new(&Step72, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap9), 
+            new(&Step24, 146, ActionRequired.MemoryRead, default), new(&Step31, 147, ActionRequired.MemoryRead, default), new(&Step65, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap9), new(&Step24, 150, ActionRequired.MemoryRead, default), 
+            new(&Step25, 151, ActionRequired.MemoryRead, default), new(&Step26, 152, ActionRequired.MemoryRead, default), new(&Step73, 153, ActionRequired.MemoryRead, default), new(&Step74, 329, ActionRequired.MemoryRead, default), new(&Step24, 155, ActionRequired.MemoryRead, default), 
+            new(&Step25, 156, ActionRequired.MemoryRead, default), new(&Step75, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap9), new(default, 0, ActionRequired.None, &Overlap11), new(&Step24, 160, ActionRequired.MemoryRead, default), 
+            new(&Step31, 161, ActionRequired.MemoryRead, default), new(&Step77, 162, ActionRequired.MemoryRead, default), new(&Step74, 329, ActionRequired.MemoryRead, default), new(&Step24, 164, ActionRequired.MemoryRead, default), new(&Step31, 165, ActionRequired.MemoryRead, default), 
+            new(&Step78, 166, ActionRequired.MemoryRead, default), new(&Step79, 329, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap12), new(default, 0, ActionRequired.None, &Overlap13), new(default, 0, ActionRequired.None, &Overlap14), 
+            new(default, 0, ActionRequired.None, &Overlap15), new(&Step84, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap16), new(&Step12, 174, ActionRequired.MemoryRead, default), new(&Step13, 175, ActionRequired.MemoryRead, default), 
+            new(&Step14, 176, ActionRequired.MemoryRead, default), new(&Step15, 177, ActionRequired.MemoryRead, default), new(&Step86, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap10), new(&Step87, 0, ActionRequired.MemoryRead, default), 
+            new(default, 0, ActionRequired.None, &Overlap17), new(&Step12, 182, ActionRequired.MemoryRead, default), new(&Step89, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap16), new(&Step12, 185, ActionRequired.MemoryRead, default), 
+            new(&Step90, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap10), new(&Step12, 188, ActionRequired.MemoryRead, default), new(&Step91, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap17), 
+            new(default, 0, ActionRequired.None, &Overlap18), new(&Step93, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap10), new(default, 0, ActionRequired.None, &Overlap19), new(&Step12, 195, ActionRequired.MemoryRead, default), 
+            new(&Step23, 196, ActionRequired.MemoryRead, default), new(&Step95, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap16), new(&Step12, 199, ActionRequired.MemoryRead, default), new(&Step23, 200, ActionRequired.MemoryRead, default), 
+            new(&Step86, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap10), new(&Step12, 203, ActionRequired.MemoryRead, default), new(&Step23, 204, ActionRequired.MemoryRead, default), new(&Step96, 0, ActionRequired.MemoryRead, default), 
+            new(default, 0, ActionRequired.None, &Overlap17), new(&Step24, 207, ActionRequired.MemoryRead, default), new(&Step25, 208, ActionRequired.MemoryRead, default), new(&Step26, 209, ActionRequired.MemoryRead, default), new(&Step97, 210, ActionRequired.MemoryRead, default), 
+            new(&Step98, 329, ActionRequired.MemoryRead, default), new(&Step12, 212, ActionRequired.MemoryRead, default), new(&Step13, 213, ActionRequired.MemoryRead, default), new(&Step99, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap16), 
+            new(&Step12, 216, ActionRequired.MemoryRead, default), new(&Step13, 217, ActionRequired.MemoryRead, default), new(&Step100, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap10), new(&Step12, 220, ActionRequired.MemoryRead, default), 
+            new(&Step13, 221, ActionRequired.MemoryRead, default), new(&Step101, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap17), new(default, 0, ActionRequired.None, &Overlap20), new(&Step24, 225, ActionRequired.MemoryRead, default), 
+            new(&Step31, 226, ActionRequired.MemoryRead, default), new(&Step103, 227, ActionRequired.MemoryRead, default), new(&Step98, 329, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap21), new(&Step24, 230, ActionRequired.MemoryRead, default), 
+            new(&Step31, 231, ActionRequired.MemoryRead, default), new(&Step105, 232, ActionRequired.MemoryRead, default), new(&Step106, 329, ActionRequired.MemoryRead, default), new(&Step24, 234, ActionRequired.MemoryRead, default), new(&Step31, 235, ActionRequired.MemoryRead, default), 
+            new(&Step107, 236, ActionRequired.MemoryRead, default), new(&Step108, 329, ActionRequired.MemoryRead, default), new(&Step24, 238, ActionRequired.MemoryRead, default), new(&Step31, 239, ActionRequired.MemoryRead, default), new(&Step109, 240, ActionRequired.MemoryRead, default), 
+            new(&Step110, 329, ActionRequired.MemoryRead, default), new(&Step111, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap22), new(&Step12, 244, ActionRequired.MemoryRead, default), new(&Step13, 245, ActionRequired.MemoryRead, default), 
+            new(&Step14, 246, ActionRequired.MemoryRead, default), new(&Step15, 247, ActionRequired.MemoryRead, default), new(&Step113, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap23), new(&Step12, 250, ActionRequired.MemoryRead, default), 
+            new(&Step115, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap22), new(&Step12, 253, ActionRequired.MemoryRead, default), new(&Step116, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap23), 
+            new(default, 0, ActionRequired.None, &Overlap24), new(&Step118, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap23), new(default, 0, ActionRequired.None, &Overlap25), new(&Step12, 260, ActionRequired.MemoryRead, default), 
+            new(&Step23, 261, ActionRequired.MemoryRead, default), new(&Step120, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap22), new(&Step12, 264, ActionRequired.MemoryRead, default), new(&Step23, 265, ActionRequired.MemoryRead, default), 
+            new(&Step113, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap23), new(&Step24, 268, ActionRequired.MemoryRead, default), new(&Step25, 269, ActionRequired.MemoryRead, default), new(&Step26, 270, ActionRequired.MemoryRead, default), 
+            new(&Step121, 271, ActionRequired.MemoryRead, default), new(&Step122, 329, ActionRequired.MemoryRead, default), new(&Step12, 273, ActionRequired.MemoryRead, default), new(&Step13, 274, ActionRequired.MemoryRead, default), new(&Step123, 0, ActionRequired.MemoryRead, default), 
+            new(default, 0, ActionRequired.None, &Overlap23), new(default, 0, ActionRequired.None, &Overlap26), new(&Step24, 278, ActionRequired.MemoryRead, default), new(&Step31, 279, ActionRequired.MemoryRead, default), new(&Step125, 280, ActionRequired.MemoryRead, default), 
+            new(&Step122, 329, ActionRequired.MemoryRead, default), new(&Step24, 282, ActionRequired.MemoryRead, default), new(&Step31, 283, ActionRequired.MemoryRead, default), new(&Step126, 284, ActionRequired.MemoryRead, default), new(&Step127, 329, ActionRequired.MemoryRead, default), 
+            new(&Step128, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap27), new(&Step24, 288, ActionRequired.MemoryRead, default), new(&Step25, 289, ActionRequired.MemoryRead, default), new(&Step64, 290, ActionRequired.MemoryRead, default), 
+            new(&Step26, 291, ActionRequired.MemoryRead, default), new(&Step130, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap28), new(&Step12, 294, ActionRequired.MemoryRead, default), new(&Step132, 0, ActionRequired.MemoryRead, default), 
+            new(default, 0, ActionRequired.None, &Overlap27), new(&Step24, 297, ActionRequired.MemoryRead, default), new(&Step133, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap28), new(default, 0, ActionRequired.None, &Overlap29), 
+            new(&Step135, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap28), new(default, 0, ActionRequired.None, &Overlap1), new(&Step12, 304, ActionRequired.MemoryRead, default), new(&Step23, 305, ActionRequired.MemoryRead, default), 
+            new(&Step136, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap27), new(&Step24, 308, ActionRequired.MemoryRead, default), new(&Step31, 309, ActionRequired.MemoryRead, default), new(&Step130, 0, ActionRequired.MemoryRead, default), 
+            new(default, 0, ActionRequired.None, &Overlap28), new(&Step24, 312, ActionRequired.MemoryRead, default), new(&Step25, 313, ActionRequired.MemoryRead, default), new(&Step26, 314, ActionRequired.MemoryRead, default), new(&Step137, 315, ActionRequired.MemoryRead, default), 
+            new(&Step138, 329, ActionRequired.MemoryRead, default), new(&Step24, 317, ActionRequired.MemoryRead, default), new(&Step25, 318, ActionRequired.MemoryRead, default), new(&Step139, 0, ActionRequired.MemoryRead, default), new(default, 0, ActionRequired.None, &Overlap28), 
+            new(default, 0, ActionRequired.None, &Overlap30), new(&Step24, 322, ActionRequired.MemoryRead, default), new(&Step31, 323, ActionRequired.MemoryRead, default), new(&Step141, 324, ActionRequired.MemoryRead, default), new(&Step138, 329, ActionRequired.MemoryRead, default), 
+            new(&Step24, 326, ActionRequired.MemoryRead, default), new(&Step31, 327, ActionRequired.MemoryRead, default), new(&Step142, 328, ActionRequired.MemoryRead, default), new(&Step143, 329, ActionRequired.MemoryRead, default), new(&Error, 0, ActionRequired.None, default)
         ];
         Overlaps = 
         [
@@ -53,37 +111,39 @@ public sealed unsafe partial class M6502StepEmulator
             &Overlap4, &Overlap5, &Overlap6, &Overlap7, &Overlap8, 
             &Overlap9, &Overlap10, &Overlap11, &Overlap12, &Overlap13, 
             &Overlap14, &Overlap15, &Overlap16, &Overlap17, &Overlap18, 
-            &Overlap19
+            &Overlap19, &Overlap20, &Overlap21, &Overlap22, &Overlap23, 
+            &Overlap24, &Overlap25, &Overlap26, &Overlap27, &Overlap28, 
+            &Overlap29, &Overlap30
         ];
         OpcodeStepTableNoPrefix = 
         [
-            39, 39, 39, 39, 39, 39, 39, 39, 5, 39, 
-            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
-            39, 39, 39, 39, 8, 39, 39, 39, 39, 39, 
-            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
-            9, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
-            39, 39, 39, 39, 39, 39, 13, 39, 39, 39, 
-            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
-            39, 39, 14, 39, 39, 39, 39, 39, 39, 39, 
-            39, 39, 39, 39, 39, 39, 39, 39, 17, 39, 
-            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
-            39, 39, 39, 39, 18, 39, 39, 39, 39, 39, 
-            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
-            22, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
-            39, 39, 39, 39, 39, 39, 23, 39, 24, 39, 
-            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
-            39, 39, 25, 39, 26, 39, 39, 39, 39, 39, 
-            39, 39, 39, 39, 39, 39, 39, 39, 27, 28, 
-            30, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
-            39, 39, 39, 39, 31, 39, 32, 39, 39, 39, 
-            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
-            33, 39, 34, 39, 39, 39, 39, 39, 39, 39, 
-            39, 39, 39, 39, 39, 39, 35, 39, 39, 39, 
-            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 
-            39, 39, 36, 39, 37, 39, 39, 39, 39, 39, 
-            39, 39, 39, 39, 39, 39, 39, 39, 38, 39, 
-            39, 39, 39, 39, 39, 39
+            329, 14, 329, 329, 329, 20, 329, 329, 23, 26, 
+            329, 329, 329, 28, 329, 329, 329, 32, 329, 329, 
+            329, 37, 329, 329, 41, 42, 329, 329, 329, 46, 
+            329, 329, 329, 50, 329, 329, 56, 59, 329, 329, 
+            62, 66, 329, 329, 68, 72, 329, 329, 329, 76, 
+            329, 329, 329, 81, 329, 329, 85, 86, 329, 329, 
+            329, 90, 329, 329, 329, 94, 329, 329, 329, 100, 
+            329, 329, 103, 106, 329, 329, 329, 108, 329, 329, 
+            329, 112, 329, 329, 329, 117, 329, 329, 121, 122, 
+            329, 329, 329, 126, 329, 329, 329, 130, 329, 329, 
+            329, 136, 329, 329, 139, 143, 329, 329, 329, 145, 
+            329, 329, 329, 149, 329, 329, 329, 154, 329, 329, 
+            158, 159, 329, 329, 329, 163, 329, 329, 329, 329, 
+            329, 329, 329, 329, 329, 329, 167, 329, 168, 329, 
+            329, 329, 329, 329, 329, 329, 329, 329, 329, 329, 
+            329, 329, 169, 329, 170, 329, 329, 329, 329, 329, 
+            171, 173, 179, 329, 181, 184, 187, 329, 190, 191, 
+            193, 329, 194, 198, 202, 329, 329, 206, 329, 329, 
+            211, 215, 219, 329, 223, 224, 228, 329, 229, 233, 
+            237, 329, 241, 243, 329, 329, 249, 252, 329, 329, 
+            255, 256, 258, 329, 259, 263, 329, 329, 329, 267, 
+            329, 329, 329, 272, 329, 329, 276, 277, 329, 329, 
+            329, 281, 329, 329, 285, 287, 329, 329, 293, 296, 
+            329, 329, 299, 300, 302, 329, 303, 307, 329, 329, 
+            329, 311, 329, 329, 329, 316, 329, 329, 320, 321, 
+            329, 329, 329, 325, 329, 329
         ];
-        InterruptModeStepTable = [4];
+        InterruptModeStepTable = [13];
     }
 }

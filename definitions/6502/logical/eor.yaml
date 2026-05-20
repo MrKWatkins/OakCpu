@@ -1,0 +1,104 @@
+sequences:
+  - name: eor_finish
+    next_opcode: custom
+    steps:
+      - A = A ^ Data; P = P & 0x5D; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; instruction_complete(true);
+
+instructions:
+  - group: Logical
+    mnemonic: "EOR #n"
+    opcodes:
+      - opcode: 0x49
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - A = A ^ Data; flags();
+    flags:
+      Z: is_zero(A)
+      N: is_negative(A)
+
+  - group: Logical
+    mnemonic: EOR zp
+    opcodes:
+      - opcode: 0x45
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = Data; request(action.memory_read);
+      - A = A ^ Data; flags();
+    flags:
+      Z: is_zero(A)
+      N: is_negative(A)
+
+  - group: Logical
+    mnemonic: EOR zp,X
+    opcodes:
+      - opcode: 0x55
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + X) & 0x00FF; request(action.memory_read);
+      - A = A ^ Data; flags();
+    flags:
+      Z: is_zero(A)
+      N: is_negative(A)
+
+  - group: Logical
+    mnemonic: EOR abs
+    opcodes:
+      - opcode: 0x4D
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; request(action.memory_read);
+      - A = A ^ Data; flags();
+    flags:
+      Z: is_zero(A)
+      N: is_negative(A)
+
+  - group: Logical
+    mnemonic: EOR abs,X
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x5D
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + X) & 0x00FF); if !did_indexed_address_page_cross(AD, X); move_to_sequence(sequence.eor_finish); endif; request(action.memory_read);
+      - Address = AD + X; move_to_sequence(sequence.eor_finish); request(action.memory_read);
+
+  - group: Logical
+    mnemonic: EOR abs,Y
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x59
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + Y) & 0x00FF); if !did_indexed_address_page_cross(AD, Y); move_to_sequence(sequence.eor_finish); endif; request(action.memory_read);
+      - Address = AD + Y; move_to_sequence(sequence.eor_finish); request(action.memory_read);
+
+  - group: Logical
+    mnemonic: "EOR (zp,X)"
+    opcodes:
+      - opcode: 0x41
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - AD = (AD + X) & 0x00FF; Address = AD; request(action.memory_read);
+      - Address = (AD + 1) & 0x00FF; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; request(action.memory_read);
+      - A = A ^ Data; flags();
+    flags:
+      Z: is_zero(A)
+      N: is_negative(A)
+
+  - group: Logical
+    mnemonic: "EOR (zp),Y"
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x51
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + 1) & 0x00FF; AD = Data; request(action.memory_read);
+      - AD = AD | (Data << 8); Address = (AD & 0xFF00) | ((AD + Y) & 0x00FF); if !did_indexed_address_page_cross(AD, Y); move_to_sequence(sequence.eor_finish); endif; request(action.memory_read);
+      - Address = AD + Y; move_to_sequence(sequence.eor_finish); request(action.memory_read);

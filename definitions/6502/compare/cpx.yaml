@@ -1,0 +1,39 @@
+instructions:
+  - group: Compare
+    mnemonic: "CPX #n"
+    opcodes:
+      - opcode: 0xE0
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - $result = X - Data; flags();
+    flags:
+      C: X >= Data
+      Z: is_zero($result)
+      N: is_negative($result)
+
+  - group: Compare
+    mnemonic: CPX zp
+    opcodes:
+      - opcode: 0xE4
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = Data; request(action.memory_read);
+      - $result = X - Data; flags();
+    flags:
+      C: X >= Data
+      Z: is_zero($result)
+      N: is_negative($result)
+
+  - group: Compare
+    mnemonic: CPX abs
+    opcodes:
+      - opcode: 0xEC
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; request(action.memory_read);
+      - $result = X - Data; flags();
+    flags:
+      C: X >= Data
+      Z: is_zero($result)
+      N: is_negative($result)
