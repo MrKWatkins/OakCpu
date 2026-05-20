@@ -1,0 +1,60 @@
+instructions:
+  - group: Shift
+    mnemonic: ROR A
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x6A
+    steps:
+      - $carry = P & 0x01; $value = A; A = (($value >> 1) | ($carry << 7)) & 0xFF; P = P & 0x7C; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; if ($value & 0x01) != 0; P = P | 0x01; endif;
+
+  - group: Shift
+    mnemonic: ROR zp
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x66
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = Data; request(action.memory_read);
+      - Data = Data; request(action.memory_write);
+      - $carry = P & 0x01; $value = Data; Data = (($value >> 1) | ($carry << 7)) & 0xFF; P = P & 0x7C; if is_zero(Data); P = P | 0x02; endif; if is_negative(Data); P = P | 0x80; endif; if ($value & 0x01) != 0; P = P | 0x01; endif; request(action.memory_write);
+      -
+
+  - group: Shift
+    mnemonic: ROR zp,X
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x76
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + X) & 0x00FF; request(action.memory_read);
+      - Data = Data; request(action.memory_write);
+      - $carry = P & 0x01; $value = Data; Data = (($value >> 1) | ($carry << 7)) & 0xFF; P = P & 0x7C; if is_zero(Data); P = P | 0x02; endif; if is_negative(Data); P = P | 0x80; endif; if ($value & 0x01) != 0; P = P | 0x01; endif; request(action.memory_write);
+      -
+
+  - group: Shift
+    mnemonic: ROR abs
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x6E
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; request(action.memory_read);
+      - Data = Data; request(action.memory_write);
+      - $carry = P & 0x01; $value = Data; Data = (($value >> 1) | ($carry << 7)) & 0xFF; P = P & 0x7C; if is_zero(Data); P = P | 0x02; endif; if is_negative(Data); P = P | 0x80; endif; if ($value & 0x01) != 0; P = P | 0x01; endif; request(action.memory_write);
+      -
+
+  - group: Shift
+    mnemonic: ROR abs,X
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x7E
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + X) & 0x00FF); request(action.memory_read);
+      - Address = AD + X; request(action.memory_read);
+      - Data = Data; request(action.memory_write);
+      - $carry = P & 0x01; $value = Data; Data = (($value >> 1) | ($carry << 7)) & 0xFF; P = P & 0x7C; if is_zero(Data); P = P | 0x02; endif; if is_negative(Data); P = P | 0x80; endif; if ($value & 0x01) != 0; P = P | 0x01; endif; request(action.memory_write);
+      -

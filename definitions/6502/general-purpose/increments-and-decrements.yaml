@@ -1,6 +1,59 @@
 instructions:
   - group: Increment/Decrement
+    mnemonic: INC zp
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0xE6
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = Data; request(action.memory_read);
+      - Data = Data; request(action.memory_write);
+      - Data = (Data + 1) & 0xFF; P = P & 0x7D; if is_zero(Data); P = P | 0x02; endif; if is_negative(Data); P = P | 0x80; endif; request(action.memory_write);
+      -
+
+  - group: Increment/Decrement
+    mnemonic: INC zp,X
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0xF6
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + X) & 0x00FF; request(action.memory_read);
+      - Data = Data; request(action.memory_write);
+      - Data = (Data + 1) & 0xFF; P = P & 0x7D; if is_zero(Data); P = P | 0x02; endif; if is_negative(Data); P = P | 0x80; endif; request(action.memory_write);
+      -
+
+  - group: Increment/Decrement
+    mnemonic: INC abs
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0xEE
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; request(action.memory_read);
+      - Data = Data; request(action.memory_write);
+      - Data = (Data + 1) & 0xFF; P = P & 0x7D; if is_zero(Data); P = P | 0x02; endif; if is_negative(Data); P = P | 0x80; endif; request(action.memory_write);
+      -
+
+  - group: Increment/Decrement
+    mnemonic: INC abs,X
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0xFE
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + X) & 0x00FF); request(action.memory_read);
+      - Address = AD + X; request(action.memory_read);
+      - Data = Data; request(action.memory_write);
+      - Data = (Data + 1) & 0xFF; P = P & 0x7D; if is_zero(Data); P = P | 0x02; endif; if is_negative(Data); P = P | 0x80; endif; request(action.memory_write);
+      -
+
+  - group: Increment/Decrement
     mnemonic: INX
+    next_opcode: overlapped
     opcodes:
       - opcode: 0xE8
     steps:
@@ -11,6 +64,7 @@ instructions:
 
   - group: Increment/Decrement
     mnemonic: DEX
+    next_opcode: overlapped
     opcodes:
       - opcode: 0xCA
     steps:
@@ -21,6 +75,7 @@ instructions:
 
   - group: Increment/Decrement
     mnemonic: INY
+    next_opcode: overlapped
     opcodes:
       - opcode: 0xC8
     steps:
@@ -30,7 +85,60 @@ instructions:
       N: is_negative(Y)
 
   - group: Increment/Decrement
+    mnemonic: DEC zp
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0xC6
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = Data; request(action.memory_read);
+      - Data = Data; request(action.memory_write);
+      - Data = (Data - 1) & 0xFF; P = P & 0x7D; if is_zero(Data); P = P | 0x02; endif; if is_negative(Data); P = P | 0x80; endif; request(action.memory_write);
+      -
+
+  - group: Increment/Decrement
+    mnemonic: DEC zp,X
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0xD6
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + X) & 0x00FF; request(action.memory_read);
+      - Data = Data; request(action.memory_write);
+      - Data = (Data - 1) & 0xFF; P = P & 0x7D; if is_zero(Data); P = P | 0x02; endif; if is_negative(Data); P = P | 0x80; endif; request(action.memory_write);
+      -
+
+  - group: Increment/Decrement
+    mnemonic: DEC abs
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0xCE
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; request(action.memory_read);
+      - Data = Data; request(action.memory_write);
+      - Data = (Data - 1) & 0xFF; P = P & 0x7D; if is_zero(Data); P = P | 0x02; endif; if is_negative(Data); P = P | 0x80; endif; request(action.memory_write);
+      -
+
+  - group: Increment/Decrement
+    mnemonic: DEC abs,X
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0xDE
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + X) & 0x00FF); request(action.memory_read);
+      - Address = AD + X; request(action.memory_read);
+      - Data = Data; request(action.memory_write);
+      - Data = (Data - 1) & 0xFF; P = P & 0x7D; if is_zero(Data); P = P | 0x02; endif; if is_negative(Data); P = P | 0x80; endif; request(action.memory_write);
+      -
+
+  - group: Increment/Decrement
     mnemonic: DEY
+    next_opcode: overlapped
     opcodes:
       - opcode: 0x88
     steps:

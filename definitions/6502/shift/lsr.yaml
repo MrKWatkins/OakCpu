@@ -1,0 +1,60 @@
+instructions:
+  - group: Shift
+    mnemonic: LSR A
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x4A
+    steps:
+      - $value = A; A = $value >> 1; P = P & 0x7C; if is_zero(A); P = P | 0x02; endif; if ($value & 0x01) != 0; P = P | 0x01; endif;
+
+  - group: Shift
+    mnemonic: LSR zp
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x46
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = Data; request(action.memory_read);
+      - Data = Data; request(action.memory_write);
+      - $value = Data; Data = $value >> 1; P = P & 0x7C; if is_zero(Data); P = P | 0x02; endif; if ($value & 0x01) != 0; P = P | 0x01; endif; request(action.memory_write);
+      -
+
+  - group: Shift
+    mnemonic: LSR zp,X
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x56
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + X) & 0x00FF; request(action.memory_read);
+      - Data = Data; request(action.memory_write);
+      - $value = Data; Data = $value >> 1; P = P & 0x7C; if is_zero(Data); P = P | 0x02; endif; if ($value & 0x01) != 0; P = P | 0x01; endif; request(action.memory_write);
+      -
+
+  - group: Shift
+    mnemonic: LSR abs
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x4E
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; request(action.memory_read);
+      - Data = Data; request(action.memory_write);
+      - $value = Data; Data = $value >> 1; P = P & 0x7C; if is_zero(Data); P = P | 0x02; endif; if ($value & 0x01) != 0; P = P | 0x01; endif; request(action.memory_write);
+      -
+
+  - group: Shift
+    mnemonic: LSR abs,X
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x5E
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + X) & 0x00FF); request(action.memory_read);
+      - Address = AD + X; request(action.memory_read);
+      - Data = Data; request(action.memory_write);
+      - $value = Data; Data = $value >> 1; P = P & 0x7C; if is_zero(Data); P = P | 0x02; endif; if ($value & 0x01) != 0; P = P | 0x01; endif; request(action.memory_write);
+      -
