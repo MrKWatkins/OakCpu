@@ -1,0 +1,88 @@
+sequences:
+  - name: branch_not_taken_finish
+    next_opcode: custom
+    steps:
+      - instruction_complete(false);
+
+  - name: branch_taken_finish
+    next_opcode: custom
+    steps:
+      - PC = AD; instruction_complete(false);
+
+  - name: branch_page_cross
+    next_opcode: custom
+    steps:
+      - Address = (PC & 0xFF00) | (AD & 0x00FF); move_to_sequence(sequence.branch_taken_finish); request(action.memory_read);
+
+instructions:
+  - group: Branch
+    mnemonic: BPL
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x10
+    steps:
+      - Address = PC; PC = PC + 1; if flag.N; move_to_sequence(sequence.branch_not_taken_finish); endif; request(action.memory_read);
+      - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
+
+  - group: Branch
+    mnemonic: BMI
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x30
+    steps:
+      - Address = PC; PC = PC + 1; if !flag.N; move_to_sequence(sequence.branch_not_taken_finish); endif; request(action.memory_read);
+      - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
+
+  - group: Branch
+    mnemonic: BVC
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x50
+    steps:
+      - Address = PC; PC = PC + 1; if flag.V; move_to_sequence(sequence.branch_not_taken_finish); endif; request(action.memory_read);
+      - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
+
+  - group: Branch
+    mnemonic: BVS
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x70
+    steps:
+      - Address = PC; PC = PC + 1; if !flag.V; move_to_sequence(sequence.branch_not_taken_finish); endif; request(action.memory_read);
+      - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
+
+  - group: Branch
+    mnemonic: BCC
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x90
+    steps:
+      - Address = PC; PC = PC + 1; if flag.C; move_to_sequence(sequence.branch_not_taken_finish); endif; request(action.memory_read);
+      - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
+
+  - group: Branch
+    mnemonic: BCS
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xB0
+    steps:
+      - Address = PC; PC = PC + 1; if !flag.C; move_to_sequence(sequence.branch_not_taken_finish); endif; request(action.memory_read);
+      - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
+
+  - group: Branch
+    mnemonic: BNE
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xD0
+    steps:
+      - Address = PC; PC = PC + 1; if flag.Z; move_to_sequence(sequence.branch_not_taken_finish); endif; request(action.memory_read);
+      - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
+
+  - group: Branch
+    mnemonic: BEQ
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xF0
+    steps:
+      - Address = PC; PC = PC + 1; if !flag.Z; move_to_sequence(sequence.branch_not_taken_finish); endif; request(action.memory_read);
+      - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);

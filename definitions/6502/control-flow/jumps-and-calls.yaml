@@ -1,0 +1,44 @@
+instructions:
+  - group: Jump
+    mnemonic: JMP abs
+    opcodes:
+      - opcode: 0x4C
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - PC = (Data << 8) | AD;
+
+  - group: Jump
+    mnemonic: "JMP (abs)"
+    opcodes:
+      - opcode: 0x6C
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = AD | (Data << 8); Address = AD; request(action.memory_read);
+      - Address = (AD & 0xFF00) | ((AD + 1) & 0x00FF); AD = Data; request(action.memory_read);
+      - PC = (Data << 8) | AD;
+
+  - group: Call and Return
+    mnemonic: JSR abs
+    opcodes:
+      - opcode: 0x20
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = 0x0100 | S; request(action.memory_read);
+      - Address = 0x0100 | S; Data = PC >> 8; S = S - 1; request(action.memory_write);
+      - Address = 0x0100 | S; Data = PC & 0xFF; S = S - 1; request(action.memory_write);
+      - Address = PC; request(action.memory_read);
+      - PC = (Data << 8) | AD;
+
+  - group: Call and Return
+    mnemonic: RTS
+    opcodes:
+      - opcode: 0x60
+    steps:
+      - Address = PC; request(action.memory_read);
+      - Address = 0x0100 | S; request(action.memory_read);
+      - S = S + 1; Address = 0x0100 | S; request(action.memory_read);
+      - S = S + 1; AD = Data; Address = 0x0100 | S; request(action.memory_read);
+      - Address = (Data << 8) | AD; AD = Address; request(action.memory_read);
+      - PC = AD + 1;

@@ -54,12 +54,22 @@ public sealed unsafe partial class M6502StepEmulator
         overlapPipeline = Overlaps[overlapIndex];
     }
 
+    // Overlap 0x00: BRK [6]
+    // Overlap 0x20: JSR abs [5]
+    // Overlap 0x40: RTI [5]
+    // Overlap 0x4C: JMP abs [2]
+    // Overlap 0x6C: JMP (abs) [4]
+    private static void Overlap0(M6502StepEmulator emulator)
+    {
+        emulator.PC = (ushort)(emulator.data << 0x08 | emulator.ad);
+    }
+
     // Overlap 0x01: ORA (zp,X) [5]
     // Overlap 0x05: ORA zp [2]
     // Overlap 0x09: ORA #n [1]
     // Overlap 0x0D: ORA abs [3]
     // Overlap 0x15: ORA zp,X [3]
-    private static void Overlap0(M6502StepEmulator emulator)
+    private static void Overlap1(M6502StepEmulator emulator)
     {
         emulator.A |= emulator.data;
 
@@ -110,12 +120,12 @@ public sealed unsafe partial class M6502StepEmulator
     // Overlap 0xEE: INC abs [5]
     // Overlap 0xF6: INC zp,X [5]
     // Overlap 0xFE: INC abs,X [6]
-    private static void Overlap1(M6502StepEmulator emulator)
+    private static void Overlap2(M6502StepEmulator emulator)
     {
     }
 
     // Overlap 0x0A: ASL A [0]
-    private static void Overlap2(M6502StepEmulator emulator)
+    private static void Overlap3(M6502StepEmulator emulator)
     {
         var value = emulator.A;
         emulator.A = (byte)(value << 0x01 & 0b11111111);
@@ -137,7 +147,7 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0x18: CLC [0]
-    private static void Overlap3(M6502StepEmulator emulator)
+    private static void Overlap4(M6502StepEmulator emulator)
     {
         emulator.P &= 0xFE;
     }
@@ -147,7 +157,7 @@ public sealed unsafe partial class M6502StepEmulator
     // Overlap 0x29: AND #n [1]
     // Overlap 0x2D: AND abs [3]
     // Overlap 0x35: AND zp,X [3]
-    private static void Overlap4(M6502StepEmulator emulator)
+    private static void Overlap5(M6502StepEmulator emulator)
     {
         emulator.A &= emulator.data;
 
@@ -160,7 +170,7 @@ public sealed unsafe partial class M6502StepEmulator
 
     // Overlap 0x24: BIT zp [2]
     // Overlap 0x2C: BIT abs [3]
-    private static void Overlap5(M6502StepEmulator emulator)
+    private static void Overlap6(M6502StepEmulator emulator)
     {
         var result = emulator.A & emulator.data;
 
@@ -173,13 +183,13 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0x28: PLP [3]
-    private static void Overlap6(M6502StepEmulator emulator)
+    private static void Overlap7(M6502StepEmulator emulator)
     {
         emulator.P = (byte)(emulator.data & 0b11101111 | 0b00100000);
     }
 
     // Overlap 0x2A: ROL A [0]
-    private static void Overlap7(M6502StepEmulator emulator)
+    private static void Overlap8(M6502StepEmulator emulator)
     {
         var carry = emulator.P & 0b00000001;
         var value = emulator.A;
@@ -202,7 +212,7 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0x38: SEC [0]
-    private static void Overlap8(M6502StepEmulator emulator)
+    private static void Overlap9(M6502StepEmulator emulator)
     {
         emulator.P |= 0x01;
     }
@@ -212,7 +222,7 @@ public sealed unsafe partial class M6502StepEmulator
     // Overlap 0x49: EOR #n [1]
     // Overlap 0x4D: EOR abs [3]
     // Overlap 0x55: EOR zp,X [3]
-    private static void Overlap9(M6502StepEmulator emulator)
+    private static void Overlap10(M6502StepEmulator emulator)
     {
         emulator.A ^= emulator.data;
 
@@ -224,7 +234,7 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0x4A: LSR A [0]
-    private static void Overlap10(M6502StepEmulator emulator)
+    private static void Overlap11(M6502StepEmulator emulator)
     {
         var value = emulator.A;
         emulator.A = (byte)(value >> 0x01);
@@ -241,9 +251,15 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0x58: CLI [0]
-    private static void Overlap11(M6502StepEmulator emulator)
+    private static void Overlap12(M6502StepEmulator emulator)
     {
         emulator.P &= 0xFB;
+    }
+
+    // Overlap 0x60: RTS [5]
+    private static void Overlap13(M6502StepEmulator emulator)
+    {
+        emulator.PC = (ushort)(emulator.ad + 0x01);
     }
 
     // Overlap 0x61: ADC (zp,X) [5]
@@ -251,7 +267,7 @@ public sealed unsafe partial class M6502StepEmulator
     // Overlap 0x69: ADC #n [1]
     // Overlap 0x6D: ADC abs [3]
     // Overlap 0x75: ADC zp,X [3]
-    private static void Overlap12(M6502StepEmulator emulator)
+    private static void Overlap14(M6502StepEmulator emulator)
     {
         var carry = emulator.P & 0b00000001;
         var left = emulator.A;
@@ -327,7 +343,7 @@ public sealed unsafe partial class M6502StepEmulator
     // Overlap 0xA9: LDA #n [1]
     // Overlap 0xAD: LDA abs [3]
     // Overlap 0xB5: LDA zp,X [3]
-    private static void Overlap13(M6502StepEmulator emulator)
+    private static void Overlap15(M6502StepEmulator emulator)
     {
         emulator.A = emulator.data;
 
@@ -339,7 +355,7 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0x6A: ROR A [0]
-    private static void Overlap14(M6502StepEmulator emulator)
+    private static void Overlap16(M6502StepEmulator emulator)
     {
         var carry = emulator.P & 0b00000001;
         var value = emulator.A;
@@ -362,13 +378,13 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0x78: SEI [0]
-    private static void Overlap15(M6502StepEmulator emulator)
+    private static void Overlap17(M6502StepEmulator emulator)
     {
         emulator.P |= 0x04;
     }
 
     // Overlap 0x88: DEY [0]
-    private static void Overlap16(M6502StepEmulator emulator)
+    private static void Overlap18(M6502StepEmulator emulator)
     {
         emulator.Y -= 0x01;
 
@@ -380,7 +396,7 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0x8A: TXA [0]
-    private static void Overlap17(M6502StepEmulator emulator)
+    private static void Overlap19(M6502StepEmulator emulator)
     {
         emulator.A = emulator.X;
 
@@ -392,7 +408,7 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0x98: TYA [0]
-    private static void Overlap18(M6502StepEmulator emulator)
+    private static void Overlap20(M6502StepEmulator emulator)
     {
         emulator.A = emulator.Y;
 
@@ -404,7 +420,7 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0x9A: TXS [0]
-    private static void Overlap19(M6502StepEmulator emulator)
+    private static void Overlap21(M6502StepEmulator emulator)
     {
         emulator.S = emulator.X;
     }
@@ -413,7 +429,7 @@ public sealed unsafe partial class M6502StepEmulator
     // Overlap 0xA4: LDY zp [2]
     // Overlap 0xAC: LDY abs [3]
     // Overlap 0xB4: LDY zp,X [3]
-    private static void Overlap20(M6502StepEmulator emulator)
+    private static void Overlap22(M6502StepEmulator emulator)
     {
         emulator.Y = emulator.data;
 
@@ -428,7 +444,7 @@ public sealed unsafe partial class M6502StepEmulator
     // Overlap 0xA6: LDX zp [2]
     // Overlap 0xAE: LDX abs [3]
     // Overlap 0xB6: LDX zp,Y [3]
-    private static void Overlap21(M6502StepEmulator emulator)
+    private static void Overlap23(M6502StepEmulator emulator)
     {
         emulator.X = emulator.data;
 
@@ -440,7 +456,7 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0xA8: TAY [0]
-    private static void Overlap22(M6502StepEmulator emulator)
+    private static void Overlap24(M6502StepEmulator emulator)
     {
         emulator.Y = emulator.A;
 
@@ -452,7 +468,7 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0xAA: TAX [0]
-    private static void Overlap23(M6502StepEmulator emulator)
+    private static void Overlap25(M6502StepEmulator emulator)
     {
         emulator.X = emulator.A;
 
@@ -464,13 +480,13 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0xB8: CLV [0]
-    private static void Overlap24(M6502StepEmulator emulator)
+    private static void Overlap26(M6502StepEmulator emulator)
     {
         emulator.P &= 0xBF;
     }
 
     // Overlap 0xBA: TSX [0]
-    private static void Overlap25(M6502StepEmulator emulator)
+    private static void Overlap27(M6502StepEmulator emulator)
     {
         emulator.X = emulator.S;
 
@@ -484,7 +500,7 @@ public sealed unsafe partial class M6502StepEmulator
     // Overlap 0xC0: CPY #n [1]
     // Overlap 0xC4: CPY zp [2]
     // Overlap 0xCC: CPY abs [3]
-    private static void Overlap26(M6502StepEmulator emulator)
+    private static void Overlap28(M6502StepEmulator emulator)
     {
         var result = emulator.Y - emulator.data;
 
@@ -501,7 +517,7 @@ public sealed unsafe partial class M6502StepEmulator
     // Overlap 0xC9: CMP #n [1]
     // Overlap 0xCD: CMP abs [3]
     // Overlap 0xD5: CMP zp,X [3]
-    private static void Overlap27(M6502StepEmulator emulator)
+    private static void Overlap29(M6502StepEmulator emulator)
     {
         var result = emulator.A - emulator.data;
 
@@ -514,7 +530,7 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0xC8: INY [0]
-    private static void Overlap28(M6502StepEmulator emulator)
+    private static void Overlap30(M6502StepEmulator emulator)
     {
         emulator.Y += 0x01;
 
@@ -526,7 +542,7 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0xCA: DEX [0]
-    private static void Overlap29(M6502StepEmulator emulator)
+    private static void Overlap31(M6502StepEmulator emulator)
     {
         emulator.X -= 0x01;
 
@@ -538,7 +554,7 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0xD8: CLD [0]
-    private static void Overlap30(M6502StepEmulator emulator)
+    private static void Overlap32(M6502StepEmulator emulator)
     {
         emulator.P &= 0xF7;
     }
@@ -546,7 +562,7 @@ public sealed unsafe partial class M6502StepEmulator
     // Overlap 0xE0: CPX #n [1]
     // Overlap 0xE4: CPX zp [2]
     // Overlap 0xEC: CPX abs [3]
-    private static void Overlap31(M6502StepEmulator emulator)
+    private static void Overlap33(M6502StepEmulator emulator)
     {
         var result = emulator.X - emulator.data;
 
@@ -563,7 +579,7 @@ public sealed unsafe partial class M6502StepEmulator
     // Overlap 0xE9: SBC #n [1]
     // Overlap 0xED: SBC abs [3]
     // Overlap 0xF5: SBC zp,X [3]
-    private static void Overlap32(M6502StepEmulator emulator)
+    private static void Overlap34(M6502StepEmulator emulator)
     {
         var borrow = 0x01 - (emulator.P & 0b00000001);
         var left = emulator.A;
@@ -634,7 +650,7 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0xE8: INX [0]
-    private static void Overlap33(M6502StepEmulator emulator)
+    private static void Overlap35(M6502StepEmulator emulator)
     {
         emulator.X += 0x01;
 
@@ -646,7 +662,7 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // Overlap 0xF8: SED [0]
-    private static void Overlap34(M6502StepEmulator emulator)
+    private static void Overlap36(M6502StepEmulator emulator)
     {
         emulator.P |= 0x08;
     }
