@@ -18,3 +18,8 @@ functions:
     type: bool
     parameters: [address, index]
     expression: ((address & 0xFF) + index) > 0xFF
+
+  - name: high_byte_plus_one
+    type: u16
+    parameters: [address]
+    expression: ((address >> 8) + 1) & 0xFF

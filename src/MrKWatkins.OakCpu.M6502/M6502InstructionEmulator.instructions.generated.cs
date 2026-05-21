@@ -38,6 +38,18 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 2;
     }
 
+    // nop finish
+    private static int nop_finish(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        return emulator.CompleteInstruction(false, 1);
+    }
+
+    // nop read finish
+    private static int nop_read_finish(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        return emulator.CompleteInstruction(true, 1);
+    }
+
     // branch not taken finish
     private static int branch_not_taken_finish(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -54,13 +66,13 @@ public sealed unsafe partial class M6502InstructionEmulator
     // branch page cross
     private static int branch_page_cross(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
-        ushort nextInstruction4 = 65535;
+        ushort nextInstruction6 = 65535;
         emulator.address = (ushort)(emulator.PC & 0xFF00 | emulator.ad & 0b11111111);
-        nextInstruction4 = 2;
+        nextInstruction6 = 4;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction4 != 65535)
+        if (nextInstruction6 != 65535)
         {
-            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction4, onActionRequired);
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction6, onActionRequired);
         }
 
         return 1;
@@ -362,20 +374,181 @@ public sealed unsafe partial class M6502InstructionEmulator
         return emulator.CompleteInstruction(true, 1);
     }
 
+    // jam read ffff
+    private static int jam_read_ffff(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction17 = 65535;
+        emulator.address = 0xFFFF;
+        nextInstruction17 = 17;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction17 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction17, onActionRequired);
+        }
+
+        return 1;
+    }
+
+    // jam read fffe
+    private static int jam_read_fffe(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction18 = 65535;
+        emulator.address = 0xFFFE;
+        nextInstruction18 = 18;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction18 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction18, onActionRequired);
+        }
+
+        return 1;
+    }
+
+    // jam read fffe again
+    private static int jam_read_fffe_again(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction19 = 65535;
+        emulator.address = 0xFFFE;
+        nextInstruction19 = 19;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction19 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction19, onActionRequired);
+        }
+
+        return 1;
+    }
+
+    // jam spin 1
+    private static int jam_spin_1(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction20 = 65535;
+        emulator.address = 0xFFFF;
+        nextInstruction20 = 20;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction20 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction20, onActionRequired);
+        }
+
+        return 1;
+    }
+
+    // jam spin 2
+    private static int jam_spin_2(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction21 = 65535;
+        emulator.address = 0xFFFF;
+        nextInstruction21 = 21;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction21 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction21, onActionRequired);
+        }
+
+        return 1;
+    }
+
+    // jam spin 3
+    private static int jam_spin_3(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction22 = 65535;
+        emulator.address = 0xFFFF;
+        nextInstruction22 = 22;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction22 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction22, onActionRequired);
+        }
+
+        return 1;
+    }
+
+    // jam spin 4
+    private static int jam_spin_4(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction23 = 65535;
+        emulator.address = 0xFFFF;
+        nextInstruction23 = 23;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction23 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction23, onActionRequired);
+        }
+
+        return 1;
+    }
+
+    // jam spin 5
+    private static int jam_spin_5(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction24 = 65535;
+        emulator.address = 0xFFFF;
+        nextInstruction24 = 24;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction24 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction24, onActionRequired);
+        }
+
+        return 1;
+    }
+
+    // jam spin 6
+    private static int jam_spin_6(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction25 = 65535;
+        emulator.address = 0xFFFF;
+        nextInstruction25 = 25;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction25 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction25, onActionRequired);
+        }
+
+        return 1;
+    }
+
+    // jam finish
+    private static int jam_finish(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        return emulator.CompleteInstruction(false, 1);
+    }
+
+    // las finish
+    private static int las_finish(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.A = (byte)(emulator.data & emulator.S);
+        emulator.X = emulator.A;
+        emulator.S = emulator.A;
+        emulator.P &= 0x5D;
+        if (emulator.A == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        return emulator.CompleteInstruction(true, 1);
+    }
+
     // Halt cycle
     private static int Halt_cycle(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         onActionRequired(ActionRequired.OpcodeRead, emulator.address, emulator.data);
-        ushort nextInstruction16 = 65535;
-        nextInstruction16 = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(emulator.opcodeStepTable), emulator.data);
-        if (nextInstruction16 != 65535)
+        ushort nextInstruction29 = 65535;
+        nextInstruction29 = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(emulator.opcodeStepTable), emulator.data);
+        if (nextInstruction29 != 65535)
         {
-            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction16, onActionRequired);
+            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction29, onActionRequired);
         }
 
-        emulator.nextSequenceStep = 14;
+        emulator.nextSequenceStep = 27;
         return 2;
     }
 
@@ -440,6 +613,21 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 5;
     }
 
+    // JAM
+    private static int JAM(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction44 = 65535;
+        emulator.address = emulator.PC;
+        nextInstruction44 = 16;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction44 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction44, onActionRequired);
+        }
+
+        return 1;
+    }
+
     // SLO (zp,X)
     private static int SLO_zp_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -479,6 +667,24 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return 7;
+    }
+
+    // NOP zp
+    private static int NOP_zp(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction54 = 65535;
+        emulator.address = (ushort)emulator.data;
+        nextInstruction54 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction54 != 65535)
+        {
+            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction54, onActionRequired);
+        }
+
+        return 2;
     }
 
     // ORA zp
@@ -635,6 +841,28 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 1;
     }
 
+    // NOP abs
+    private static int NOP_abs(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction78 = 65535;
+        emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
+        nextInstruction78 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction78 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction78, onActionRequired);
+        }
+
+        return 3;
+    }
+
     // ORA abs
     private static int ORA_abs(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -731,36 +959,36 @@ public sealed unsafe partial class M6502InstructionEmulator
     // BPL
     private static int BPL(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
-        ushort nextInstruction76 = 65535;
+        ushort nextInstruction95 = 65535;
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         if (((emulator.P & 0b10000000) == 0b10000000 /* flag.N */))
         {
-            nextInstruction76 = 1;
+            nextInstruction95 = 3;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction76 != 65535)
+        if (nextInstruction95 != 65535)
         {
-            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction76, onActionRequired);
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction95, onActionRequired);
         }
 
-        ushort nextInstruction77 = 65535;
+        ushort nextInstruction96 = 65535;
         emulator.ad = (ushort)(emulator.PC + (sbyte)emulator.data);
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            nextInstruction77 = 3;
+            nextInstruction96 = 5;
         }
         else
         {
-            nextInstruction77 = 2;
+            nextInstruction96 = 4;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction77 != 65535)
+        if (nextInstruction96 != 65535)
         {
-            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction77, onActionRequired);
+            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction96, onActionRequired);
         }
 
         return 2;
@@ -778,30 +1006,45 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction81 = 65535;
+        ushort nextInstruction100 = 65535;
         emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction81 = 4;
+            nextInstruction100 = 6;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction81 != 65535)
+        if (nextInstruction100 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction81, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction100, onActionRequired);
         }
 
-        ushort nextInstruction82 = 65535;
+        ushort nextInstruction101 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction82 = 4;
+        nextInstruction101 = 6;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction82 != 65535)
+        if (nextInstruction101 != 65535)
         {
-            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction82, onActionRequired);
+            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction101, onActionRequired);
         }
 
         return 5;
+    }
+
+    // JAM
+    private static int JAM_12(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction102 = 65535;
+        emulator.address = emulator.PC;
+        nextInstruction102 = 16;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction102 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction102, onActionRequired);
+        }
+
+        return 1;
     }
 
     // SLO (zp),Y
@@ -843,6 +1086,27 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return 7;
+    }
+
+    // NOP zp,X
+    private static int NOP_zp_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction113 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        nextInstruction113 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction113 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction113, onActionRequired);
+        }
+
+        return 3;
     }
 
     // ORA zp,X
@@ -952,30 +1216,36 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction110 = 65535;
+        ushort nextInstruction133 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction110 = 4;
+            nextInstruction133 = 6;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction110 != 65535)
+        if (nextInstruction133 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction110, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction133, onActionRequired);
         }
 
-        ushort nextInstruction111 = 65535;
+        ushort nextInstruction134 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction111 = 4;
+        nextInstruction134 = 6;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction111 != 65535)
+        if (nextInstruction134 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction111, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction134, onActionRequired);
         }
 
         return 4;
+    }
+
+    // NOP
+    private static int NOP(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        return 0;
     }
 
     // SLO abs,Y
@@ -1017,6 +1287,42 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 6;
     }
 
+    // NOP abs,X
+    private static int NOP_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction145 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            nextInstruction145 = 2;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction145 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction145, onActionRequired);
+        }
+
+        ushort nextInstruction146 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        nextInstruction146 = 2;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction146 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction146, onActionRequired);
+        }
+
+        return 4;
+    }
+
     // ORA abs,X
     private static int ORA_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -1027,27 +1333,27 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction121 = 65535;
+        ushort nextInstruction149 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction121 = 4;
+            nextInstruction149 = 6;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction121 != 65535)
+        if (nextInstruction149 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction121, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction149, onActionRequired);
         }
 
-        ushort nextInstruction122 = 65535;
+        ushort nextInstruction150 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction122 = 4;
+        nextInstruction150 = 6;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction122 != 65535)
+        if (nextInstruction150 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction122, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction150, onActionRequired);
         }
 
         return 4;
@@ -1178,6 +1484,21 @@ public sealed unsafe partial class M6502InstructionEmulator
         flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
         emulator.P = (byte)flags;
         return 5;
+    }
+
+    // JAM
+    private static int JAM_22(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction177 = 65535;
+        emulator.address = emulator.PC;
+        nextInstruction177 = 16;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction177 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction177, onActionRequired);
+        }
+
+        return 1;
     }
 
     // RLA (zp,X)
@@ -1521,36 +1842,36 @@ public sealed unsafe partial class M6502InstructionEmulator
     // BMI
     private static int BMI(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
-        ushort nextInstruction202 = 65535;
+        ushort nextInstruction231 = 65535;
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         if (!((emulator.P & 0b10000000) == 0b10000000 /* flag.N */))
         {
-            nextInstruction202 = 1;
+            nextInstruction231 = 3;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction202 != 65535)
+        if (nextInstruction231 != 65535)
         {
-            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction202, onActionRequired);
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction231, onActionRequired);
         }
 
-        ushort nextInstruction203 = 65535;
+        ushort nextInstruction232 = 65535;
         emulator.ad = (ushort)(emulator.PC + (sbyte)emulator.data);
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            nextInstruction203 = 3;
+            nextInstruction232 = 5;
         }
         else
         {
-            nextInstruction203 = 2;
+            nextInstruction232 = 4;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction203 != 65535)
+        if (nextInstruction232 != 65535)
         {
-            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction203, onActionRequired);
+            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction232, onActionRequired);
         }
 
         return 2;
@@ -1568,30 +1889,45 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction207 = 65535;
+        ushort nextInstruction236 = 65535;
         emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction207 = 5;
+            nextInstruction236 = 7;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction207 != 65535)
+        if (nextInstruction236 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction207, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction236, onActionRequired);
         }
 
-        ushort nextInstruction208 = 65535;
+        ushort nextInstruction237 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction208 = 5;
+        nextInstruction237 = 7;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction208 != 65535)
+        if (nextInstruction237 != 65535)
         {
-            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction208, onActionRequired);
+            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction237, onActionRequired);
         }
 
         return 5;
+    }
+
+    // JAM
+    private static int JAM_32(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction238 = 65535;
+        emulator.address = emulator.PC;
+        nextInstruction238 = 16;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction238 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction238, onActionRequired);
+        }
+
+        return 1;
     }
 
     // RLA (zp),Y
@@ -1634,6 +1970,27 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return 7;
+    }
+
+    // NOP zp,X
+    private static int NOP_zp_X_34(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction249 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        nextInstruction249 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction249 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction249, onActionRequired);
+        }
+
+        return 3;
     }
 
     // AND zp,X
@@ -1745,30 +2102,36 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction236 = 65535;
+        ushort nextInstruction269 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction236 = 5;
+            nextInstruction269 = 7;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction236 != 65535)
+        if (nextInstruction269 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction236, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction269, onActionRequired);
         }
 
-        ushort nextInstruction237 = 65535;
+        ushort nextInstruction270 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction237 = 5;
+        nextInstruction270 = 7;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction237 != 65535)
+        if (nextInstruction270 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction237, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction270, onActionRequired);
         }
 
         return 4;
+    }
+
+    // NOP
+    private static int NOP_3A(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        return 0;
     }
 
     // RLA abs,Y
@@ -1811,6 +2174,42 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 6;
     }
 
+    // NOP abs,X
+    private static int NOP_abs_X_3C(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction281 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            nextInstruction281 = 2;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction281 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction281, onActionRequired);
+        }
+
+        ushort nextInstruction282 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        nextInstruction282 = 2;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction282 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction282, onActionRequired);
+        }
+
+        return 4;
+    }
+
     // AND abs,X
     private static int AND_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -1821,27 +2220,27 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction247 = 65535;
+        ushort nextInstruction285 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction247 = 5;
+            nextInstruction285 = 7;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction247 != 65535)
+        if (nextInstruction285 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction247, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction285, onActionRequired);
         }
 
-        ushort nextInstruction248 = 65535;
+        ushort nextInstruction286 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction248 = 5;
+        nextInstruction286 = 7;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction248 != 65535)
+        if (nextInstruction286 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction248, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction286, onActionRequired);
         }
 
         return 4;
@@ -1975,6 +2374,21 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 5;
     }
 
+    // JAM
+    private static int JAM_42(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction313 = 65535;
+        emulator.address = emulator.PC;
+        nextInstruction313 = 16;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction313 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction313, onActionRequired);
+        }
+
+        return 1;
+    }
+
     // SRE (zp,X)
     private static int SRE_zp_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -2014,6 +2428,24 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return 7;
+    }
+
+    // NOP zp
+    private static int NOP_zp_44(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction323 = 65535;
+        emulator.address = (ushort)emulator.data;
+        nextInstruction323 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction323 != 65535)
+        {
+            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction323, onActionRequired);
+        }
+
+        return 2;
     }
 
     // EOR zp
@@ -2266,36 +2698,36 @@ public sealed unsafe partial class M6502InstructionEmulator
     // BVC
     private static int BVC(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
-        ushort nextInstruction323 = 65535;
+        ushort nextInstruction364 = 65535;
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         if (((emulator.P & 0b01000000) == 0b01000000 /* flag.V */))
         {
-            nextInstruction323 = 1;
+            nextInstruction364 = 3;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction323 != 65535)
+        if (nextInstruction364 != 65535)
         {
-            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction323, onActionRequired);
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction364, onActionRequired);
         }
 
-        ushort nextInstruction324 = 65535;
+        ushort nextInstruction365 = 65535;
         emulator.ad = (ushort)(emulator.PC + (sbyte)emulator.data);
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            nextInstruction324 = 3;
+            nextInstruction365 = 5;
         }
         else
         {
-            nextInstruction324 = 2;
+            nextInstruction365 = 4;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction324 != 65535)
+        if (nextInstruction365 != 65535)
         {
-            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction324, onActionRequired);
+            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction365, onActionRequired);
         }
 
         return 2;
@@ -2313,30 +2745,45 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction328 = 65535;
+        ushort nextInstruction369 = 65535;
         emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction328 = 6;
+            nextInstruction369 = 8;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction328 != 65535)
+        if (nextInstruction369 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction328, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction369, onActionRequired);
         }
 
-        ushort nextInstruction329 = 65535;
+        ushort nextInstruction370 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction329 = 6;
+        nextInstruction370 = 8;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction329 != 65535)
+        if (nextInstruction370 != 65535)
         {
-            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction329, onActionRequired);
+            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction370, onActionRequired);
         }
 
         return 5;
+    }
+
+    // JAM
+    private static int JAM_52(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction371 = 65535;
+        emulator.address = emulator.PC;
+        nextInstruction371 = 16;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction371 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction371, onActionRequired);
+        }
+
+        return 1;
     }
 
     // SRE (zp),Y
@@ -2378,6 +2825,27 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return 7;
+    }
+
+    // NOP zp,X
+    private static int NOP_zp_X_54(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction382 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        nextInstruction382 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction382 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction382, onActionRequired);
+        }
+
+        return 3;
     }
 
     // EOR zp,X
@@ -2482,30 +2950,36 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction357 = 65535;
+        ushort nextInstruction402 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction357 = 6;
+            nextInstruction402 = 8;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction357 != 65535)
+        if (nextInstruction402 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction357, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction402, onActionRequired);
         }
 
-        ushort nextInstruction358 = 65535;
+        ushort nextInstruction403 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction358 = 6;
+        nextInstruction403 = 8;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction358 != 65535)
+        if (nextInstruction403 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction358, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction403, onActionRequired);
         }
 
         return 4;
+    }
+
+    // NOP
+    private static int NOP_5A(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        return 0;
     }
 
     // SRE abs,Y
@@ -2547,6 +3021,42 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 6;
     }
 
+    // NOP abs,X
+    private static int NOP_abs_X_5C(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction414 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            nextInstruction414 = 2;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction414 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction414, onActionRequired);
+        }
+
+        ushort nextInstruction415 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        nextInstruction415 = 2;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction415 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction415, onActionRequired);
+        }
+
+        return 4;
+    }
+
     // EOR abs,X
     private static int EOR_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -2557,27 +3067,27 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction368 = 65535;
+        ushort nextInstruction418 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction368 = 6;
+            nextInstruction418 = 8;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction368 != 65535)
+        if (nextInstruction418 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction368, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction418, onActionRequired);
         }
 
-        ushort nextInstruction369 = 65535;
+        ushort nextInstruction419 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction369 = 6;
+        nextInstruction419 = 8;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction369 != 65535)
+        if (nextInstruction419 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction369, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction419, onActionRequired);
         }
 
         return 4;
@@ -2763,6 +3273,21 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 5;
     }
 
+    // JAM
+    private static int JAM_62(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction446 = 65535;
+        emulator.address = emulator.PC;
+        nextInstruction446 = 16;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction446 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction446, onActionRequired);
+        }
+
+        return 1;
+    }
+
     // RRA (zp,X)
     private static int RRA_zp_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -2853,6 +3378,24 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return 7;
+    }
+
+    // NOP zp
+    private static int NOP_zp_64(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction456 = 65535;
+        emulator.address = (ushort)emulator.data;
+        nextInstruction456 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction456 != 65535)
+        {
+            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction456, onActionRequired);
+        }
+
+        return 2;
     }
 
     // ADC zp
@@ -3445,36 +3988,36 @@ public sealed unsafe partial class M6502InstructionEmulator
     // BVS
     private static int BVS(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
-        ushort nextInstruction447 = 65535;
+        ushort nextInstruction500 = 65535;
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         if (!((emulator.P & 0b01000000) == 0b01000000 /* flag.V */))
         {
-            nextInstruction447 = 1;
+            nextInstruction500 = 3;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction447 != 65535)
+        if (nextInstruction500 != 65535)
         {
-            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction447, onActionRequired);
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction500, onActionRequired);
         }
 
-        ushort nextInstruction448 = 65535;
+        ushort nextInstruction501 = 65535;
         emulator.ad = (ushort)(emulator.PC + (sbyte)emulator.data);
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            nextInstruction448 = 3;
+            nextInstruction501 = 5;
         }
         else
         {
-            nextInstruction448 = 2;
+            nextInstruction501 = 4;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction448 != 65535)
+        if (nextInstruction501 != 65535)
         {
-            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction448, onActionRequired);
+            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction501, onActionRequired);
         }
 
         return 2;
@@ -3492,30 +4035,45 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction452 = 65535;
+        ushort nextInstruction505 = 65535;
         emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction452 = 11;
+            nextInstruction505 = 13;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction452 != 65535)
+        if (nextInstruction505 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction452, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction505, onActionRequired);
         }
 
-        ushort nextInstruction453 = 65535;
+        ushort nextInstruction506 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction453 = 11;
+        nextInstruction506 = 13;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction453 != 65535)
+        if (nextInstruction506 != 65535)
         {
-            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction453, onActionRequired);
+            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction506, onActionRequired);
         }
 
         return 5;
+    }
+
+    // JAM
+    private static int JAM_72(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction507 = 65535;
+        emulator.address = emulator.PC;
+        nextInstruction507 = 16;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction507 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction507, onActionRequired);
+        }
+
+        return 1;
     }
 
     // RRA (zp),Y
@@ -3608,6 +4166,27 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return 7;
+    }
+
+    // NOP zp,X
+    private static int NOP_zp_X_74(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction518 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        nextInstruction518 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction518 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction518, onActionRequired);
+        }
+
+        return 3;
     }
 
     // ADC zp,X
@@ -3829,30 +4408,36 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction481 = 65535;
+        ushort nextInstruction538 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction481 = 11;
+            nextInstruction538 = 13;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction481 != 65535)
+        if (nextInstruction538 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction481, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction538, onActionRequired);
         }
 
-        ushort nextInstruction482 = 65535;
+        ushort nextInstruction539 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction482 = 11;
+        nextInstruction539 = 13;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction482 != 65535)
+        if (nextInstruction539 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction482, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction539, onActionRequired);
         }
 
         return 4;
+    }
+
+    // NOP
+    private static int NOP_7A(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        return 0;
     }
 
     // RRA abs,Y
@@ -3945,6 +4530,42 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 6;
     }
 
+    // NOP abs,X
+    private static int NOP_abs_X_7C(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction550 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            nextInstruction550 = 2;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction550 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction550, onActionRequired);
+        }
+
+        ushort nextInstruction551 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        nextInstruction551 = 2;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction551 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction551, onActionRequired);
+        }
+
+        return 4;
+    }
+
     // ADC abs,X
     private static int ADC_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -3955,27 +4576,27 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction492 = 65535;
+        ushort nextInstruction554 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction492 = 11;
+            nextInstruction554 = 13;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction492 != 65535)
+        if (nextInstruction554 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction492, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction554, onActionRequired);
         }
 
-        ushort nextInstruction493 = 65535;
+        ushort nextInstruction555 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction493 = 11;
+        nextInstruction555 = 13;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction493 != 65535)
+        if (nextInstruction555 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction493, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction555, onActionRequired);
         }
 
         return 4;
@@ -4110,6 +4731,22 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 6;
     }
 
+    // NOP #n
+    private static int NOP_n(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction570 = 65535;
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        nextInstruction570 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction570 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction570, onActionRequired);
+        }
+
+        return 1;
+    }
+
     // STA (zp,X)
     private static int STA_zp_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -4129,6 +4766,22 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.data = emulator.A;
         onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return 5;
+    }
+
+    // NOP #n
+    private static int NOP_n_82(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction577 = 65535;
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        nextInstruction577 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction577 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction577, onActionRequired);
+        }
+
+        return 1;
     }
 
     // SAX (zp,X)
@@ -4213,6 +4866,22 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 0;
     }
 
+    // NOP #n
+    private static int NOP_n_89(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction597 = 65535;
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        nextInstruction597 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction597 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction597, onActionRequired);
+        }
+
+        return 1;
+    }
+
     // TXA
     private static int TXA(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -4224,6 +4893,22 @@ public sealed unsafe partial class M6502InstructionEmulator
         flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
         emulator.P = (byte)flags;
         return 0;
+    }
+
+    // XAA #n
+    private static int XAA_n(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.A = (byte)(emulator.X & emulator.data & (emulator.A | 0b11101110));
+
+        // Update flags.
+        int flags = emulator.P & 0b01011101; // Copy flag.C, flag.I, flag.D, flag.B and V from P.
+        flags |= (Unsafe.BitCast<bool, byte>(emulator.A == 0)) << 1; // Set Z if is_zero(A) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(((emulator.A & 0b10000000) != 0x00))) << 7; // Set N if is_negative(A) is true.
+        emulator.P = (byte)flags;
+        return 1;
     }
 
     // STY abs
@@ -4293,36 +4978,36 @@ public sealed unsafe partial class M6502InstructionEmulator
     // BCC
     private static int BCC(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
-        ushort nextInstruction550 = 65535;
+        ushort nextInstruction617 = 65535;
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         if (((emulator.P & 0b00000001) == 0b00000001 /* flag.C */))
         {
-            nextInstruction550 = 1;
+            nextInstruction617 = 3;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction550 != 65535)
+        if (nextInstruction617 != 65535)
         {
-            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction550, onActionRequired);
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction617, onActionRequired);
         }
 
-        ushort nextInstruction551 = 65535;
+        ushort nextInstruction618 = 65535;
         emulator.ad = (ushort)(emulator.PC + (sbyte)emulator.data);
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            nextInstruction551 = 3;
+            nextInstruction618 = 5;
         }
         else
         {
-            nextInstruction551 = 2;
+            nextInstruction618 = 4;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction551 != 65535)
+        if (nextInstruction618 != 65535)
         {
-            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction551, onActionRequired);
+            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction618, onActionRequired);
         }
 
         return 2;
@@ -4345,6 +5030,49 @@ public sealed unsafe partial class M6502InstructionEmulator
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.address = (ushort)(emulator.ad + emulator.Y);
         emulator.data = emulator.A;
+        onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
+        return 5;
+    }
+
+    // JAM
+    private static int JAM_92(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction625 = 65535;
+        emulator.address = emulator.PC;
+        nextInstruction625 = 16;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction625 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction625, onActionRequired);
+        }
+
+        return 1;
+    }
+
+    // AHX (zp),Y
+    private static int AHX_zp_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var value = emulator.A & emulator.X & ((emulator.ad >> 0x08) + 0x01 & 0b11111111);
+        var target = emulator.ad + emulator.Y;
+        if (((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            target = value << 0x08 | target & 0b11111111;
+        }
+
+        emulator.address = (ushort)target;
+        emulator.data = (byte)value;
         onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return 5;
     }
@@ -4448,6 +5176,59 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 0;
     }
 
+    // TAS abs,Y
+    private static int TAS_abs_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.S = (byte)(emulator.A & emulator.X);
+        var value = emulator.S & ((emulator.ad >> 0x08) + 0x01 & 0b11111111);
+        var target = emulator.ad + emulator.Y;
+        if (((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            target = value << 0x08 | target & 0b11111111;
+        }
+
+        emulator.address = (ushort)target;
+        emulator.data = (byte)value;
+        onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
+        return 4;
+    }
+
+    // SHY abs,X
+    private static int SHY_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var value = emulator.Y & ((emulator.ad >> 0x08) + 0x01 & 0b11111111);
+        var target = emulator.ad + emulator.X;
+        if (((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            target = value << 0x08 | target & 0b11111111;
+        }
+
+        emulator.address = (ushort)target;
+        emulator.data = (byte)value;
+        onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
+        return 4;
+    }
+
     // STA abs,X
     private static int STA_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -4463,6 +5244,58 @@ public sealed unsafe partial class M6502InstructionEmulator
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.address = (ushort)(emulator.ad + emulator.X);
         emulator.data = emulator.A;
+        onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
+        return 4;
+    }
+
+    // SHX abs,Y
+    private static int SHX_abs_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var value = emulator.X & ((emulator.ad >> 0x08) + 0x01 & 0b11111111);
+        var target = emulator.ad + emulator.Y;
+        if (((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            target = value << 0x08 | target & 0b11111111;
+        }
+
+        emulator.address = (ushort)target;
+        emulator.data = (byte)value;
+        onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
+        return 4;
+    }
+
+    // AHX abs,Y
+    private static int AHX_abs_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        var value = emulator.A & emulator.X & ((emulator.ad >> 0x08) + 0x01 & 0b11111111);
+        var target = emulator.ad + emulator.Y;
+        if (((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            target = value << 0x08 | target & 0b11111111;
+        }
+
+        emulator.address = (ushort)target;
+        emulator.data = (byte)value;
         onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return 4;
     }
@@ -4779,36 +5612,36 @@ public sealed unsafe partial class M6502InstructionEmulator
     // BCS
     private static int BCS(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
-        ushort nextInstruction636 = 65535;
+        ushort nextInstruction730 = 65535;
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         if (!((emulator.P & 0b00000001) == 0b00000001 /* flag.C */))
         {
-            nextInstruction636 = 1;
+            nextInstruction730 = 3;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction636 != 65535)
+        if (nextInstruction730 != 65535)
         {
-            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction636, onActionRequired);
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction730, onActionRequired);
         }
 
-        ushort nextInstruction637 = 65535;
+        ushort nextInstruction731 = 65535;
         emulator.ad = (ushort)(emulator.PC + (sbyte)emulator.data);
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            nextInstruction637 = 3;
+            nextInstruction731 = 5;
         }
         else
         {
-            nextInstruction637 = 2;
+            nextInstruction731 = 4;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction637 != 65535)
+        if (nextInstruction731 != 65535)
         {
-            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction637, onActionRequired);
+            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction731, onActionRequired);
         }
 
         return 2;
@@ -4826,30 +5659,45 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction641 = 65535;
+        ushort nextInstruction735 = 65535;
         emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction641 = 8;
+            nextInstruction735 = 10;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction641 != 65535)
+        if (nextInstruction735 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction641, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction735, onActionRequired);
         }
 
-        ushort nextInstruction642 = 65535;
+        ushort nextInstruction736 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction642 = 8;
+        nextInstruction736 = 10;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction642 != 65535)
+        if (nextInstruction736 != 65535)
         {
-            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction642, onActionRequired);
+            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction736, onActionRequired);
         }
 
         return 5;
+    }
+
+    // JAM
+    private static int JAM_B2(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction737 = 65535;
+        emulator.address = emulator.PC;
+        nextInstruction737 = 16;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction737 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction737, onActionRequired);
+        }
+
+        return 1;
     }
 
     // LAX (zp),Y
@@ -4864,27 +5712,27 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction646 = 65535;
+        ushort nextInstruction741 = 65535;
         emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction646 = 13;
+            nextInstruction741 = 15;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction646 != 65535)
+        if (nextInstruction741 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction646, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction741, onActionRequired);
         }
 
-        ushort nextInstruction647 = 65535;
+        ushort nextInstruction742 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction647 = 13;
+        nextInstruction742 = 15;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction647 != 65535)
+        if (nextInstruction742 != 65535)
         {
-            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction647, onActionRequired);
+            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction742, onActionRequired);
         }
 
         return 5;
@@ -4992,27 +5840,27 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction667 = 65535;
+        ushort nextInstruction762 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction667 = 8;
+            nextInstruction762 = 10;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction667 != 65535)
+        if (nextInstruction762 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction667, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction762, onActionRequired);
         }
 
-        ushort nextInstruction668 = 65535;
+        ushort nextInstruction763 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction668 = 8;
+        nextInstruction763 = 10;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction668 != 65535)
+        if (nextInstruction763 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction668, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction763, onActionRequired);
         }
 
         return 4;
@@ -5031,6 +5879,42 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 0;
     }
 
+    // LAS abs,Y
+    private static int LAS_abs_Y(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction767 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
+        {
+            nextInstruction767 = 26;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction767 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction767, onActionRequired);
+        }
+
+        ushort nextInstruction768 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.Y);
+        nextInstruction768 = 26;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction768 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction768, onActionRequired);
+        }
+
+        return 4;
+    }
+
     // LDY abs,X
     private static int LDY_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -5041,27 +5925,27 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction672 = 65535;
+        ushort nextInstruction771 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction672 = 9;
+            nextInstruction771 = 11;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction672 != 65535)
+        if (nextInstruction771 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction672, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction771, onActionRequired);
         }
 
-        ushort nextInstruction673 = 65535;
+        ushort nextInstruction772 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction673 = 9;
+        nextInstruction772 = 11;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction673 != 65535)
+        if (nextInstruction772 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction673, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction772, onActionRequired);
         }
 
         return 4;
@@ -5077,27 +5961,27 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction676 = 65535;
+        ushort nextInstruction775 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction676 = 8;
+            nextInstruction775 = 10;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction676 != 65535)
+        if (nextInstruction775 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction676, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction775, onActionRequired);
         }
 
-        ushort nextInstruction677 = 65535;
+        ushort nextInstruction776 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction677 = 8;
+        nextInstruction776 = 10;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction677 != 65535)
+        if (nextInstruction776 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction677, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction776, onActionRequired);
         }
 
         return 4;
@@ -5113,27 +5997,27 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction680 = 65535;
+        ushort nextInstruction779 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction680 = 7;
+            nextInstruction779 = 9;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction680 != 65535)
+        if (nextInstruction779 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction680, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction779, onActionRequired);
         }
 
-        ushort nextInstruction681 = 65535;
+        ushort nextInstruction780 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction681 = 7;
+        nextInstruction780 = 9;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction681 != 65535)
+        if (nextInstruction780 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction681, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction780, onActionRequired);
         }
 
         return 4;
@@ -5149,27 +6033,27 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction684 = 65535;
+        ushort nextInstruction783 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction684 = 13;
+            nextInstruction783 = 15;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction684 != 65535)
+        if (nextInstruction783 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction684, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction783, onActionRequired);
         }
 
-        ushort nextInstruction685 = 65535;
+        ushort nextInstruction784 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction685 = 13;
+        nextInstruction784 = 15;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction685 != 65535)
+        if (nextInstruction784 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction685, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction784, onActionRequired);
         }
 
         return 4;
@@ -5218,6 +6102,22 @@ public sealed unsafe partial class M6502InstructionEmulator
         flags |= (Unsafe.BitCast<bool, byte>(((result & 0b10000000) != 0x00))) << 7; // Set N if is_negative(result) is true.
         emulator.P = (byte)flags;
         return 5;
+    }
+
+    // NOP #n
+    private static int NOP_n_C2(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction793 = 65535;
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        nextInstruction793 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction793 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction793, onActionRequired);
+        }
+
+        return 1;
     }
 
     // DCP (zp,X)
@@ -5537,36 +6437,36 @@ public sealed unsafe partial class M6502InstructionEmulator
     // BNE
     private static int BNE(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
-        ushort nextInstruction744 = 65535;
+        ushort nextInstruction844 = 65535;
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         if (((emulator.P & 0b00000010) == 0b00000010 /* flag.Z */))
         {
-            nextInstruction744 = 1;
+            nextInstruction844 = 3;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction744 != 65535)
+        if (nextInstruction844 != 65535)
         {
-            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction744, onActionRequired);
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction844, onActionRequired);
         }
 
-        ushort nextInstruction745 = 65535;
+        ushort nextInstruction845 = 65535;
         emulator.ad = (ushort)(emulator.PC + (sbyte)emulator.data);
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            nextInstruction745 = 3;
+            nextInstruction845 = 5;
         }
         else
         {
-            nextInstruction745 = 2;
+            nextInstruction845 = 4;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction745 != 65535)
+        if (nextInstruction845 != 65535)
         {
-            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction745, onActionRequired);
+            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction845, onActionRequired);
         }
 
         return 2;
@@ -5584,30 +6484,45 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction749 = 65535;
+        ushort nextInstruction849 = 65535;
         emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction749 = 10;
+            nextInstruction849 = 12;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction749 != 65535)
+        if (nextInstruction849 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction749, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction849, onActionRequired);
         }
 
-        ushort nextInstruction750 = 65535;
+        ushort nextInstruction850 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction750 = 10;
+        nextInstruction850 = 12;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction750 != 65535)
+        if (nextInstruction850 != 65535)
         {
-            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction750, onActionRequired);
+            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction850, onActionRequired);
         }
 
         return 5;
+    }
+
+    // JAM
+    private static int JAM_D2(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction851 = 65535;
+        emulator.address = emulator.PC;
+        nextInstruction851 = 16;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction851 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction851, onActionRequired);
+        }
+
+        return 1;
     }
 
     // DCP (zp),Y
@@ -5648,6 +6563,27 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return 7;
+    }
+
+    // NOP zp,X
+    private static int NOP_zp_X_D4(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction862 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        nextInstruction862 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction862 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction862, onActionRequired);
+        }
+
+        return 3;
     }
 
     // CMP zp,X
@@ -5751,30 +6687,36 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction778 = 65535;
+        ushort nextInstruction882 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction778 = 10;
+            nextInstruction882 = 12;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction778 != 65535)
+        if (nextInstruction882 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction778, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction882, onActionRequired);
         }
 
-        ushort nextInstruction779 = 65535;
+        ushort nextInstruction883 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction779 = 10;
+        nextInstruction883 = 12;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction779 != 65535)
+        if (nextInstruction883 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction779, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction883, onActionRequired);
         }
 
         return 4;
+    }
+
+    // NOP
+    private static int NOP_DA(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        return 0;
     }
 
     // DCP abs,Y
@@ -5815,6 +6757,42 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 6;
     }
 
+    // NOP abs,X
+    private static int NOP_abs_X_DC(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction894 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            nextInstruction894 = 2;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction894 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction894, onActionRequired);
+        }
+
+        ushort nextInstruction895 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        nextInstruction895 = 2;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction895 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction895, onActionRequired);
+        }
+
+        return 4;
+    }
+
     // CMP abs,X
     private static int CMP_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -5825,27 +6803,27 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction789 = 65535;
+        ushort nextInstruction898 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction789 = 10;
+            nextInstruction898 = 12;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction789 != 65535)
+        if (nextInstruction898 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction789, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction898, onActionRequired);
         }
 
-        ushort nextInstruction790 = 65535;
+        ushort nextInstruction899 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction790 = 10;
+        nextInstruction899 = 12;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction790 != 65535)
+        if (nextInstruction899 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction790, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction899, onActionRequired);
         }
 
         return 4;
@@ -6023,6 +7001,22 @@ public sealed unsafe partial class M6502InstructionEmulator
         }
 
         return 5;
+    }
+
+    // NOP #n
+    private static int NOP_n_E2(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction922 = 65535;
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        nextInstruction922 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction922 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction922, onActionRequired);
+        }
+
+        return 1;
     }
 
     // ISC (zp,X)
@@ -6408,7 +7402,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     }
 
     // NOP
-    private static int NOP(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    private static int NOP_EA(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
         return 0;
     }
@@ -6711,36 +7705,36 @@ public sealed unsafe partial class M6502InstructionEmulator
     // BEQ
     private static int BEQ(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
-        ushort nextInstruction863 = 65535;
+        ushort nextInstruction973 = 65535;
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         if (!((emulator.P & 0b00000010) == 0b00000010 /* flag.Z */))
         {
-            nextInstruction863 = 1;
+            nextInstruction973 = 3;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction863 != 65535)
+        if (nextInstruction973 != 65535)
         {
-            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction863, onActionRequired);
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction973, onActionRequired);
         }
 
-        ushort nextInstruction864 = 65535;
+        ushort nextInstruction974 = 65535;
         emulator.ad = (ushort)(emulator.PC + (sbyte)emulator.data);
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            nextInstruction864 = 3;
+            nextInstruction974 = 5;
         }
         else
         {
-            nextInstruction864 = 2;
+            nextInstruction974 = 4;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction864 != 65535)
+        if (nextInstruction974 != 65535)
         {
-            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction864, onActionRequired);
+            return 2 + emulator.ExecuteDecodedInstruction(nextInstruction974, onActionRequired);
         }
 
         return 2;
@@ -6758,30 +7752,45 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad + 0x01 & 0b11111111);
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction868 = 65535;
+        ushort nextInstruction978 = 65535;
         emulator.ad = (ushort)(emulator.ad | emulator.data << 0x08);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction868 = 12;
+            nextInstruction978 = 14;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction868 != 65535)
+        if (nextInstruction978 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction868, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction978, onActionRequired);
         }
 
-        ushort nextInstruction869 = 65535;
+        ushort nextInstruction979 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction869 = 12;
+        nextInstruction979 = 14;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction869 != 65535)
+        if (nextInstruction979 != 65535)
         {
-            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction869, onActionRequired);
+            return 5 + emulator.ExecuteDecodedInstruction(nextInstruction979, onActionRequired);
         }
 
         return 5;
+    }
+
+    // JAM
+    private static int JAM_F2(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        ushort nextInstruction980 = 65535;
+        emulator.address = emulator.PC;
+        nextInstruction980 = 16;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction980 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction980, onActionRequired);
+        }
+
+        return 1;
     }
 
     // ISC (zp),Y
@@ -6872,6 +7881,27 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         onActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return 7;
+    }
+
+    // NOP zp,X
+    private static int NOP_zp_X_F4(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.ad = (ushort)emulator.data;
+        emulator.address = emulator.ad;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction991 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
+        nextInstruction991 = 1;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction991 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction991, onActionRequired);
+        }
+
+        return 3;
     }
 
     // SBC zp,X
@@ -7084,30 +8114,36 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction897 = 65535;
+        ushort nextInstruction1011 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction897 = 12;
+            nextInstruction1011 = 14;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction897 != 65535)
+        if (nextInstruction1011 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction897, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction1011, onActionRequired);
         }
 
-        ushort nextInstruction898 = 65535;
+        ushort nextInstruction1012 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction898 = 12;
+        nextInstruction1012 = 14;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction898 != 65535)
+        if (nextInstruction1012 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction898, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction1012, onActionRequired);
         }
 
         return 4;
+    }
+
+    // NOP
+    private static int NOP_FA(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        return 0;
     }
 
     // ISC abs,Y
@@ -7198,6 +8234,42 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 6;
     }
 
+    // NOP abs,X
+    private static int NOP_abs_X_FC(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
+    {
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        emulator.address = emulator.PC;
+        emulator.PC += 0x01;
+        emulator.ad = (ushort)emulator.data;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        ushort nextInstruction1023 = 65535;
+        emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
+        emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
+        if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
+        {
+            nextInstruction1023 = 2;
+        }
+
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction1023 != 65535)
+        {
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction1023, onActionRequired);
+        }
+
+        ushort nextInstruction1024 = 65535;
+        emulator.address = (ushort)(emulator.ad + emulator.X);
+        nextInstruction1024 = 2;
+        onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction1024 != 65535)
+        {
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction1024, onActionRequired);
+        }
+
+        return 4;
+    }
+
     // SBC abs,X
     private static int SBC_abs_X(M6502InstructionEmulator emulator, Action<ActionRequired, ushort, byte> onActionRequired)
     {
@@ -7208,27 +8280,27 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         emulator.ad = (ushort)emulator.data;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        ushort nextInstruction908 = 65535;
+        ushort nextInstruction1027 = 65535;
         emulator.ad = (ushort)(emulator.data << 0x08 | emulator.ad);
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction908 = 12;
+            nextInstruction1027 = 14;
         }
 
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction908 != 65535)
+        if (nextInstruction1027 != 65535)
         {
-            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction908, onActionRequired);
+            return 3 + emulator.ExecuteDecodedInstruction(nextInstruction1027, onActionRequired);
         }
 
-        ushort nextInstruction909 = 65535;
+        ushort nextInstruction1028 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction909 = 12;
+        nextInstruction1028 = 14;
         onActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction909 != 65535)
+        if (nextInstruction1028 != 65535)
         {
-            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction909, onActionRequired);
+            return 4 + emulator.ExecuteDecodedInstruction(nextInstruction1028, onActionRequired);
         }
 
         return 4;

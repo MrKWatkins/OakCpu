@@ -191,12 +191,70 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6502", "6502", "{277688C0-E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "general-purpose", "general-purpose", "{DE1E9C2A-B29E-4A03-B8A6-5FB51511E1AD}"
 	ProjectSection(SolutionItems) = preProject
+		..\definitions\6502\general-purpose\increments-and-decrements.yaml = ..\definitions\6502\general-purpose\increments-and-decrements.yaml
 		..\definitions\6502\general-purpose\nop.yaml = ..\definitions\6502\general-purpose\nop.yaml
+		..\definitions\6502\general-purpose\stack.yaml = ..\definitions\6502\general-purpose\stack.yaml
+		..\definitions\6502\general-purpose\status.yaml = ..\definitions\6502\general-purpose\status.yaml
+		..\definitions\6502\general-purpose\transfers.yaml = ..\definitions\6502\general-purpose\transfers.yaml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "load", "load", "{8BF7ED2D-0AAC-42EB-A5CA-65AFDAA74EF5}"
 	ProjectSection(SolutionItems) = preProject
 		..\definitions\6502\load\lda.yaml = ..\definitions\6502\load\lda.yaml
+		..\definitions\6502\load\ldx.yaml = ..\definitions\6502\load\ldx.yaml
+		..\definitions\6502\load\ldy.yaml = ..\definitions\6502\load\ldy.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "arithmetic", "arithmetic", "{3056DB47-D384-4775-83FB-AB07E956B46B}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\6502\arithmetic\adc.yaml = ..\definitions\6502\arithmetic\adc.yaml
+		..\definitions\6502\arithmetic\sbc.yaml = ..\definitions\6502\arithmetic\sbc.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "compare", "compare", "{EC7E2F3D-C193-40DD-A42B-8296C2400277}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\6502\compare\cmp.yaml = ..\definitions\6502\compare\cmp.yaml
+		..\definitions\6502\compare\cpx.yaml = ..\definitions\6502\compare\cpx.yaml
+		..\definitions\6502\compare\cpy.yaml = ..\definitions\6502\compare\cpy.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "control-flow", "control-flow", "{99D25443-6412-4186-8530-4DA917E1BB4B}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\6502\control-flow\branches.yaml = ..\definitions\6502\control-flow\branches.yaml
+		..\definitions\6502\control-flow\jumps-and-calls.yaml = ..\definitions\6502\control-flow\jumps-and-calls.yaml
+		..\definitions\6502\control-flow\system.yaml = ..\definitions\6502\control-flow\system.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "logical", "logical", "{A053615A-E314-4888-976F-EE09760C994E}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\6502\logical\and.yaml = ..\definitions\6502\logical\and.yaml
+		..\definitions\6502\logical\bit.yaml = ..\definitions\6502\logical\bit.yaml
+		..\definitions\6502\logical\eor.yaml = ..\definitions\6502\logical\eor.yaml
+		..\definitions\6502\logical\ora.yaml = ..\definitions\6502\logical\ora.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shift", "shift", "{D65C5FD2-923D-44AE-98C3-FDCDBCA52C0F}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\6502\shift\asl.yaml = ..\definitions\6502\shift\asl.yaml
+		..\definitions\6502\shift\lsr.yaml = ..\definitions\6502\shift\lsr.yaml
+		..\definitions\6502\shift\rol.yaml = ..\definitions\6502\shift\rol.yaml
+		..\definitions\6502\shift\ror.yaml = ..\definitions\6502\shift\ror.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "store", "store", "{206543F6-BD77-47B2-A76B-22D3B36C16C8}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\6502\store\sta.yaml = ..\definitions\6502\store\sta.yaml
+		..\definitions\6502\store\stx.yaml = ..\definitions\6502\store\stx.yaml
+		..\definitions\6502\store\sty.yaml = ..\definitions\6502\store\sty.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "undocumented", "undocumented", "{9FA405C7-8147-40E2-A9D9-E349BF0A0A70}"
+	ProjectSection(SolutionItems) = preProject
+		..\definitions\6502\undocumented\bus-sensitive.yaml = ..\definitions\6502\undocumented\bus-sensitive.yaml
+		..\definitions\6502\undocumented\composite-arithmetic-and-compare.yaml = ..\definitions\6502\undocumented\composite-arithmetic-and-compare.yaml
+		..\definitions\6502\undocumented\composite-shift-and-logical.yaml = ..\definitions\6502\undocumented\composite-shift-and-logical.yaml
+		..\definitions\6502\undocumented\immediate.yaml = ..\definitions\6502\undocumented\immediate.yaml
+		..\definitions\6502\undocumented\load-and-store.yaml = ..\definitions\6502\undocumented\load-and-store.yaml
 	EndProjectSection
 EndProject
 Global
@@ -264,5 +322,12 @@ Global
 		{277688C0-EDE7-4A03-8578-A624567ED5B3} = {C18D2C0D-B892-41EF-AA43-20F981CA5A56}
 		{DE1E9C2A-B29E-4A03-B8A6-5FB51511E1AD} = {277688C0-EDE7-4A03-8578-A624567ED5B3}
 		{8BF7ED2D-0AAC-42EB-A5CA-65AFDAA74EF5} = {277688C0-EDE7-4A03-8578-A624567ED5B3}
+		{3056DB47-D384-4775-83FB-AB07E956B46B} = {277688C0-EDE7-4A03-8578-A624567ED5B3}
+		{EC7E2F3D-C193-40DD-A42B-8296C2400277} = {277688C0-EDE7-4A03-8578-A624567ED5B3}
+		{99D25443-6412-4186-8530-4DA917E1BB4B} = {277688C0-EDE7-4A03-8578-A624567ED5B3}
+		{A053615A-E314-4888-976F-EE09760C994E} = {277688C0-EDE7-4A03-8578-A624567ED5B3}
+		{D65C5FD2-923D-44AE-98C3-FDCDBCA52C0F} = {277688C0-EDE7-4A03-8578-A624567ED5B3}
+		{206543F6-BD77-47B2-A76B-22D3B36C16C8} = {277688C0-EDE7-4A03-8578-A624567ED5B3}
+		{9FA405C7-8147-40E2-A9D9-E349BF0A0A70} = {277688C0-EDE7-4A03-8578-A624567ED5B3}
 	EndGlobalSection
 EndGlobal

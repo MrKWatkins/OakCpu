@@ -1,3 +1,14 @@
+sequences:
+  - name: nop_finish
+    next_opcode: custom
+    steps:
+      - instruction_complete(false);
+
+  - name: nop_read_finish
+    next_opcode: custom
+    steps:
+      - instruction_complete(true);
+
 instructions:
   - group: General Purpose
     mnemonic: NOP
@@ -5,3 +16,248 @@ instructions:
       - opcode: 0xEA
     steps:
       -
+
+  - group: General Purpose
+    mnemonic: NOP
+    opcodes:
+      - opcode: 0x1A
+    steps:
+      -
+
+  - group: General Purpose
+    mnemonic: NOP
+    opcodes:
+      - opcode: 0x3A
+    steps:
+      -
+
+  - group: General Purpose
+    mnemonic: NOP
+    opcodes:
+      - opcode: 0x5A
+    steps:
+      -
+
+  - group: General Purpose
+    mnemonic: NOP
+    opcodes:
+      - opcode: 0x7A
+    steps:
+      -
+
+  - group: General Purpose
+    mnemonic: NOP
+    opcodes:
+      - opcode: 0xDA
+    steps:
+      -
+
+  - group: General Purpose
+    mnemonic: NOP
+    opcodes:
+      - opcode: 0xFA
+    steps:
+      -
+
+  - group: General Purpose
+    mnemonic: "NOP #n"
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x80
+    steps:
+      - Address = PC; PC = PC + 1; move_to_sequence(sequence.nop_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: "NOP #n"
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x82
+    steps:
+      - Address = PC; PC = PC + 1; move_to_sequence(sequence.nop_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: "NOP #n"
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x89
+    steps:
+      - Address = PC; PC = PC + 1; move_to_sequence(sequence.nop_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: "NOP #n"
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xC2
+    steps:
+      - Address = PC; PC = PC + 1; move_to_sequence(sequence.nop_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: "NOP #n"
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xE2
+    steps:
+      - Address = PC; PC = PC + 1; move_to_sequence(sequence.nop_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: NOP zp
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x04
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = Data; move_to_sequence(sequence.nop_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: NOP zp
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x44
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = Data; move_to_sequence(sequence.nop_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: NOP zp
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x64
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = Data; move_to_sequence(sequence.nop_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: NOP zp,X
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x14
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: NOP zp,X
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x34
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: NOP zp,X
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x54
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: NOP zp,X
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x74
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: NOP zp,X
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xD4
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: NOP zp,X
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xF4
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: NOP abs
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x0C
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - Address = (Data << 8) | AD; move_to_sequence(sequence.nop_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: NOP abs,X
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x1C
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + X) & 0x00FF); if !did_indexed_address_page_cross(AD, X); move_to_sequence(sequence.nop_read_finish); endif; request(action.memory_read);
+      - Address = AD + X; move_to_sequence(sequence.nop_read_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: NOP abs,X
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x3C
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + X) & 0x00FF); if !did_indexed_address_page_cross(AD, X); move_to_sequence(sequence.nop_read_finish); endif; request(action.memory_read);
+      - Address = AD + X; move_to_sequence(sequence.nop_read_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: NOP abs,X
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x5C
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + X) & 0x00FF); if !did_indexed_address_page_cross(AD, X); move_to_sequence(sequence.nop_read_finish); endif; request(action.memory_read);
+      - Address = AD + X; move_to_sequence(sequence.nop_read_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: NOP abs,X
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x7C
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + X) & 0x00FF); if !did_indexed_address_page_cross(AD, X); move_to_sequence(sequence.nop_read_finish); endif; request(action.memory_read);
+      - Address = AD + X; move_to_sequence(sequence.nop_read_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: NOP abs,X
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xDC
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + X) & 0x00FF); if !did_indexed_address_page_cross(AD, X); move_to_sequence(sequence.nop_read_finish); endif; request(action.memory_read);
+      - Address = AD + X; move_to_sequence(sequence.nop_read_finish); request(action.memory_read);
+
+  - group: General Purpose
+    mnemonic: NOP abs,X
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xFC
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + X) & 0x00FF); if !did_indexed_address_page_cross(AD, X); move_to_sequence(sequence.nop_read_finish); endif; request(action.memory_read);
+      - Address = AD + X; move_to_sequence(sequence.nop_read_finish); request(action.memory_read);

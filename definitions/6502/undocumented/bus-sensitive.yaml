@@ -1,0 +1,235 @@
+sequences:
+  - name: jam_read_ffff
+    next_opcode: custom
+    steps:
+      - Address = 0xFFFF; move_to_sequence(sequence.jam_read_fffe); request(action.memory_read);
+
+  - name: jam_read_fffe
+    next_opcode: custom
+    steps:
+      - Address = 0xFFFE; move_to_sequence(sequence.jam_read_fffe_again); request(action.memory_read);
+
+  - name: jam_read_fffe_again
+    next_opcode: custom
+    steps:
+      - Address = 0xFFFE; move_to_sequence(sequence.jam_spin_1); request(action.memory_read);
+
+  - name: jam_spin_1
+    next_opcode: custom
+    steps:
+      - Address = 0xFFFF; move_to_sequence(sequence.jam_spin_2); request(action.memory_read);
+
+  - name: jam_spin_2
+    next_opcode: custom
+    steps:
+      - Address = 0xFFFF; move_to_sequence(sequence.jam_spin_3); request(action.memory_read);
+
+  - name: jam_spin_3
+    next_opcode: custom
+    steps:
+      - Address = 0xFFFF; move_to_sequence(sequence.jam_spin_4); request(action.memory_read);
+
+  - name: jam_spin_4
+    next_opcode: custom
+    steps:
+      - Address = 0xFFFF; move_to_sequence(sequence.jam_spin_5); request(action.memory_read);
+
+  - name: jam_spin_5
+    next_opcode: custom
+    steps:
+      - Address = 0xFFFF; move_to_sequence(sequence.jam_spin_6); request(action.memory_read);
+
+  - name: jam_spin_6
+    next_opcode: custom
+    steps:
+      - Address = 0xFFFF; move_to_sequence(sequence.jam_finish); request(action.memory_read);
+
+  - name: jam_finish
+    next_opcode: custom
+    steps:
+      - instruction_complete(false);
+
+  - name: las_finish
+    next_opcode: custom
+    steps:
+      - A = Data & S; X = A; S = A; P = P & 0x5D; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; instruction_complete(true);
+
+instructions:
+  - group: Undocumented
+    mnemonic: JAM
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x02
+    steps:
+      - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
+
+  - group: Undocumented
+    mnemonic: JAM
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x12
+    steps:
+      - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
+
+  - group: Undocumented
+    mnemonic: JAM
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x22
+    steps:
+      - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
+
+  - group: Undocumented
+    mnemonic: JAM
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x32
+    steps:
+      - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
+
+  - group: Undocumented
+    mnemonic: JAM
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x42
+    steps:
+      - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
+
+  - group: Undocumented
+    mnemonic: JAM
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x52
+    steps:
+      - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
+
+  - group: Undocumented
+    mnemonic: JAM
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x62
+    steps:
+      - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
+
+  - group: Undocumented
+    mnemonic: JAM
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x72
+    steps:
+      - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
+
+  - group: Undocumented
+    mnemonic: JAM
+    next_opcode: custom
+    opcodes:
+      - opcode: 0x92
+    steps:
+      - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
+
+  - group: Undocumented
+    mnemonic: JAM
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xB2
+    steps:
+      - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
+
+  - group: Undocumented
+    mnemonic: JAM
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xD2
+    steps:
+      - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
+
+  - group: Undocumented
+    mnemonic: JAM
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xF2
+    steps:
+      - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
+
+  - group: Undocumented
+    mnemonic: "XAA #n"
+    opcodes:
+      - opcode: 0x8B
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - A = X & Data & (A | 0xEE); flags();
+    flags:
+      Z: is_zero(A)
+      N: is_negative(A)
+
+  - group: Undocumented
+    mnemonic: LAS abs,Y
+    next_opcode: custom
+    opcodes:
+      - opcode: 0xBB
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + Y) & 0x00FF); if !did_indexed_address_page_cross(AD, Y); move_to_sequence(sequence.las_finish); endif; request(action.memory_read);
+      - Address = AD + Y; move_to_sequence(sequence.las_finish); request(action.memory_read);
+
+  - group: Undocumented
+    mnemonic: "AHX (zp),Y"
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x93
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - AD = Data; Address = AD; request(action.memory_read);
+      - Address = (AD + 1) & 0x00FF; AD = Data; request(action.memory_read);
+      - AD = AD | (Data << 8); Address = (AD & 0xFF00) | ((AD + Y) & 0x00FF); request(action.memory_read);
+      - $value = A & X & high_byte_plus_one(AD); $target = AD + Y; if did_indexed_address_page_cross(AD, Y); $target = ($value << 8) | ($target & 0x00FF); endif; Address = $target; Data = $value; request(action.memory_write);
+      -
+
+  - group: Undocumented
+    mnemonic: TAS abs,Y
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x9B
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + Y) & 0x00FF); request(action.memory_read);
+      - S = A & X; $value = S & high_byte_plus_one(AD); $target = AD + Y; if did_indexed_address_page_cross(AD, Y); $target = ($value << 8) | ($target & 0x00FF); endif; Address = $target; Data = $value; request(action.memory_write);
+      -
+
+  - group: Undocumented
+    mnemonic: SHY abs,X
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x9C
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + X) & 0x00FF); request(action.memory_read);
+      - $value = Y & high_byte_plus_one(AD); $target = AD + X; if did_indexed_address_page_cross(AD, X); $target = ($value << 8) | ($target & 0x00FF); endif; Address = $target; Data = $value; request(action.memory_write);
+      -
+
+  - group: Undocumented
+    mnemonic: SHX abs,Y
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x9E
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + Y) & 0x00FF); request(action.memory_read);
+      - $value = X & high_byte_plus_one(AD); $target = AD + Y; if did_indexed_address_page_cross(AD, Y); $target = ($value << 8) | ($target & 0x00FF); endif; Address = $target; Data = $value; request(action.memory_write);
+      -
+
+  - group: Undocumented
+    mnemonic: AHX abs,Y
+    next_opcode: overlapped
+    opcodes:
+      - opcode: 0x9F
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Address = PC; PC = PC + 1; AD = Data; request(action.memory_read);
+      - AD = (Data << 8) | AD; Address = (AD & 0xFF00) | ((AD + Y) & 0x00FF); request(action.memory_read);
+      - $value = A & X & high_byte_plus_one(AD); $target = AD + Y; if did_indexed_address_page_cross(AD, Y); $target = ($value << 8) | ($target & 0x00FF); endif; Address = $target; Data = $value; request(action.memory_write);
+      -
