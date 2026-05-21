@@ -13,7 +13,7 @@
     <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.7.0" />
     <PackageVersion Include="Microsoft.Testing.Extensions.TrxReport" Version="2.0.0" />
     <PackageVersion Include="MrKWatkins.Assertions" Version="1.4.0" />
-    <PackageVersion Include="MrKWatkins.EmulatorTestSuites.M6502" Version="0.9.0" />
+    <PackageVersion Include="MrKWatkins.EmulatorTestSuites.M6502" Version="0.9.1" />
     <PackageVersion Include="MrKWatkins.EmulatorTestSuites.Z80" Version="0.8.0" />
     <PackageVersion Include="MrKWatkins.OakEmu.Cpus.Z80" Version="0.2.0" />
     <PackageVersion Include="MrKWatkins.OakAsm.Disassembly.Z80" Version="0.8.2" />

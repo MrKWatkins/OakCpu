@@ -2,6 +2,8 @@
     <ItemGroup>
         <ProjectReference Include="..\MrKWatkins.OakCpu.M6502.Testing\MrKWatkins.OakCpu.M6502.Testing.csproj" />
         <ProjectReference Include="..\MrKWatkins.OakCpu.M6502\MrKWatkins.OakCpu.M6502.csproj" />
+    </ItemGroup>
+    <ItemGroup>
         <PackageReference Include="MrKWatkins.EmulatorTestSuites.M6502" />
     </ItemGroup>
 </Project>

@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace MrKWatkins.OakCpu.M6502.Testing;
 
-public sealed class M6502StepEmulatorTestHarness(M6502StepEmulator emulator) : M6502TestHarness
+public sealed class M6502StepEmulatorTestHarness(M6502StepEmulator emulator) : M6502SteppableTestHarness
 {
     private readonly byte[] memory = new byte[65536];
 
@@ -61,6 +61,13 @@ public sealed class M6502StepEmulatorTestHarness(M6502StepEmulator emulator) : M
     public override void AssertFail(string message) => Assert.Fail(message + Environment.NewLine);
 
     public override void ExecuteInstruction() => emulator.ExecuteInstruction(PerformActionRequired);
+
+    public override bool Step()
+    {
+        var actionRequired = emulator.Step();
+        PerformActionRequired(actionRequired);
+        return actionRequired == ActionRequired.OpcodeRead;
+    }
 
     private void PerformActionRequired(ActionRequired actionRequired)
     {

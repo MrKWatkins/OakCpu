@@ -45,7 +45,7 @@ jobs:
         run: mkdir -p doc/docs/API
 
       - name: Generate API Docs
-        run: ./.tools/sesharp src/MrKWatkins.OakCpu.Z80/bin/Release/net10.0/MrKWatkins.OakCpu.Z80.dll --output doc/docs/API --repository https://github.com/MrKWatkins/OakCpu
+        run: ./.tools/sesharp src/MrKWatkins.OakCpu.M6502/bin/Release/net10.0/MrKWatkins.OakCpu.M6502.dll src/MrKWatkins.OakCpu.Z80/bin/Release/net10.0/MrKWatkins.OakCpu.Z80.dll --output doc/docs/API --repository https://github.com/MrKWatkins/OakCpu
 
       - name: Deploy docs
         uses: mhausenblas/mkdocs-deploy-gh-pages@master
