@@ -23,10 +23,6 @@ public sealed class InterruptsYamlTests : TestFixture
                        next_opcode: read
                      - number: 1
                        next_opcode: overlapped
-                   halted_cycle:
-                     - step_one
-                     - step_two
-                     - null
                    """;
 
         var interrupts = YamlSerializer.Deserialize<InterruptsYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
@@ -40,10 +36,6 @@ public sealed class InterruptsYamlTests : TestFixture
         interrupts.Modes.Should().HaveCount(2);
         interrupts.Modes[0].Number.Should().Equal(0);
         interrupts.Modes[1].Number.Should().Equal(1);
-        interrupts.HaltedCycle.Should().HaveCount(3);
-        interrupts.HaltedCycle[0].Should().Equal("step_one");
-        interrupts.HaltedCycle[1].Should().Equal("step_two");
-        interrupts.HaltedCycle[2].Should().BeNull();
     }
 
     [Test]
@@ -58,7 +50,6 @@ public sealed class InterruptsYamlTests : TestFixture
         interrupts.Handle.Should().BeNull();
         interrupts.Properties.Should().BeEmpty();
         interrupts.Modes.Should().BeEmpty();
-        interrupts.HaltedCycle.Should().BeEmpty();
     }
 
     [Test]
@@ -68,7 +59,6 @@ public sealed class InterruptsYamlTests : TestFixture
                    handle: empty_handler
                    properties: []
                    modes: []
-                   halted_cycle: []
                    """;
 
         var interrupts = YamlSerializer.Deserialize<InterruptsYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
@@ -76,7 +66,6 @@ public sealed class InterruptsYamlTests : TestFixture
         interrupts.Handle.Should().Equal("empty_handler");
         interrupts.Properties.Should().BeEmpty();
         interrupts.Modes.Should().BeEmpty();
-        interrupts.HaltedCycle.Should().BeEmpty();
     }
 
     [Test]
@@ -90,8 +79,6 @@ public sealed class InterruptsYamlTests : TestFixture
                    modes:
                      - number: 42
                        next_opcode: custom
-                   halted_cycle:
-                     - single_step
                    """;
 
         var interrupts = YamlSerializer.Deserialize<InterruptsYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
@@ -103,8 +90,6 @@ public sealed class InterruptsYamlTests : TestFixture
         interrupts.Modes.Should().HaveCount(1);
         interrupts.Modes[0].Number.Should().Equal(42);
         interrupts.Modes[0].NextOpcode.Should().Equal(NextOpcodeMode.Custom);
-        interrupts.HaltedCycle.Should().HaveCount(1);
-        interrupts.HaltedCycle[0].Should().Equal("single_step");
     }
 
     [Test]
@@ -114,7 +99,6 @@ public sealed class InterruptsYamlTests : TestFixture
                    handle: null
                    properties: []
                    modes: []
-                   halted_cycle: []
                    """;
 
         var interrupts = YamlSerializer.Deserialize<InterruptsYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
@@ -122,7 +106,6 @@ public sealed class InterruptsYamlTests : TestFixture
         interrupts.Handle.Should().BeNull();
         interrupts.Properties.Should().BeEmpty();
         interrupts.Modes.Should().BeEmpty();
-        interrupts.HaltedCycle.Should().BeEmpty();
     }
 
     [Test]
@@ -208,14 +191,4 @@ public sealed class InterruptsYamlTests : TestFixture
             .Should().Throw<Exception>();
     }
 
-    [Test]
-    public void Deserialize_InvalidHaltedCycle_NotArray_ShouldThrow()
-    {
-        var yaml = """
-                   halted_cycle: not_an_array
-                   """;
-
-        AssertThat.Invoking(() => YamlSerializer.Deserialize<InterruptsYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance))
-            .Should().Throw<Exception>();
-    }
 }

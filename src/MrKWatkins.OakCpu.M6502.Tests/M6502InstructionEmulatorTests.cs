@@ -53,6 +53,21 @@ public sealed class M6502InstructionEmulatorTests
     }
 
     [Test]
+    public void Interrupts()
+    {
+        var emulator = new M6502InstructionEmulator();
+
+        emulator.Interrupts.IRQ.Should().BeFalse();
+        emulator.Interrupts.NMI.Should().BeFalse();
+
+        emulator.Interrupts.IRQ = true;
+        emulator.Interrupts.NMI = true;
+
+        emulator.Interrupts.IRQ.Should().BeTrue();
+        emulator.Interrupts.NMI.Should().BeTrue();
+    }
+
+    [Test]
     public void ExecuteInstruction_Nop()
     {
         var m6502 = new M6502InstructionEmulatorTestHarness { RecordCycles = true };

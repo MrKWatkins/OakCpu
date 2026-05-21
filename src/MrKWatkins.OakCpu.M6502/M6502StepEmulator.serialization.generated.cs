@@ -32,7 +32,13 @@ public sealed unsafe partial class M6502StepEmulator
         writer.Write(address);
         writer.Write(currentStep);
         writer.Write(data);
+        writer.Write(interruptvector);
+        writer.Write(irq);
+        writer.Write(nmi);
         writer.Write(SerializeOverlapPipeline());
+        writer.Write(pendingnmi);
+        writer.Write(previousnmi);
+        writer.Write(sampledirq);
         writer.Write(PCL);
         writer.Write(PCH);
         writer.Write(A);
@@ -76,7 +82,13 @@ public sealed unsafe partial class M6502StepEmulator
         address = reader.ReadUInt16();
         currentStep = reader.ReadUInt16();
         data = reader.ReadByte();
+        interruptvector = reader.ReadUInt16();
+        irq = reader.ReadBoolean();
+        nmi = reader.ReadBoolean();
         RestoreOverlapPipeline(reader.ReadUInt16());
+        pendingnmi = reader.ReadBoolean();
+        previousnmi = reader.ReadBoolean();
+        sampledirq = reader.ReadBoolean();
         PCL = reader.ReadByte();
         PCH = reader.ReadByte();
         A = reader.ReadByte();

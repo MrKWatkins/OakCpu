@@ -75,6 +75,19 @@ public sealed class InterruptsClassGenerator : TypeGenerator
             return CreateInstructionEmulatorHaltedProperty(context, property, memberAccessExpression);
         }
 
+        if (instructionEmulator && string.Equals(context.GeneratorContext.Cpu.Name, "M6502", StringComparison.Ordinal))
+        {
+            if (string.Equals(property.PropertyName, "IRQ", StringComparison.Ordinal))
+            {
+                return CreateInterruptPropertyWithCustomSetter(context, property, memberAccessExpression, "SetIRQ");
+            }
+
+            if (string.Equals(property.PropertyName, "NMI", StringComparison.Ordinal))
+            {
+                return CreateInterruptPropertyWithCustomSetter(context, property, memberAccessExpression, "SetNMI");
+            }
+        }
+
         return CreateOverrideGetSetProperty(
             context,
             property.TypeSyntax,
@@ -87,8 +100,27 @@ public sealed class InterruptsClassGenerator : TypeGenerator
     }
 
     [MustUseReturnValue]
+    private static PropertyDeclarationSyntax CreateInterruptPropertyWithCustomSetter(FileGeneratorContext context, UserDefinedDataMember property, ExpressionSyntax memberAccessExpression, string setterMethodName) =>
+        CreateOverrideGetSetProperty(
+            context,
+            property.TypeSyntax,
+            property.PropertyName,
+            memberAccessExpression,
+            InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName(EmulatorFieldName),
+                        IdentifierName(setterMethodName)))
+                .WithArgumentList(
+                    ArgumentList(
+                    [
+                        Argument(IdentifierName("value"))
+                    ])));
+
+    [MustUseReturnValue]
     private static PropertyDeclarationSyntax CreateInstructionEmulatorHaltedProperty(FileGeneratorContext context, UserDefinedDataMember property, ExpressionSyntax memberAccessExpression)
     {
+        var haltedSequence = context.GeneratorContext.Interrupts.Halted ?? throw new InvalidOperationException("A halted sequence is required when generating a halted interrupt property.");
         var nextSequenceStepExpression = MemberAccessExpression(
             SyntaxKind.SimpleMemberAccessExpression,
             IdentifierName(EmulatorFieldName),
@@ -97,7 +129,7 @@ public sealed class InterruptsClassGenerator : TypeGenerator
             UShortType,
             LiteralExpression(
                 SyntaxKind.NumericLiteralExpression,
-                Literal(context.GeneratorContext.GetInstructionEmulatorSequenceIndex(context.GeneratorContext.Interrupts.Halted))));
+                Literal(context.GeneratorContext.GetInstructionEmulatorSequenceIndex(haltedSequence))));
         var noNextSequenceStep = MemberAccessExpression(
             SyntaxKind.SimpleMemberAccessExpression,
             IdentifierName(Class.Name.InstructionEmulator(context)),

@@ -20,7 +20,7 @@ public sealed class InstructionEmulatorEquivalenceTests
             setup => setup.WriteByteToMemory(0x0000, 0x04));
 
     [Test]
-    public void ExecuteInstruction_HaltAndHaltedCycle() =>
+    public void ExecuteInstruction_HaltAndHaltCycle() =>
         AssertEquivalentAfterInstructions(
             setup => setup.WriteByteToMemory(0x0000, 0x76),
             instructionCount: 2);

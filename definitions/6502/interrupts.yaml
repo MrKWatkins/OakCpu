@@ -1,12 +1,38 @@
 interrupts:
+  properties:
+    - name: IRQ
+      type: bool
+      documentation: Gets or sets whether the external IRQ line is asserted.
+
+    - name: NMI
+      type: bool
+      documentation: Gets or sets whether the external NMI line is asserted.
+
   handle:
+    if PendingNMI;
+      PendingNMI = false;
+      InterruptVector = 0xFFFA;
+      move_to_sequence_group(sequence_group.interrupt_mode, 0);
+      handled();
+    endif;
+
+    if SampledIRQ & !flag.I;
+      InterruptVector = 0xFFFE;
+      move_to_sequence_group(sequence_group.interrupt_mode, 0);
+      handled();
+    endif;
 
   modes:
     - number: 0
+      group:
+        name: interrupt_mode
+        number: 0
       next_opcode: read
       steps:
-        -
-
-  halted_cycle:
-    - Address = PC; PC = PC + 1; request(action.opcode_read);
-    - move_to_opcode();
+        - Address = PC; request(action.memory_read);
+        - Address = 0x0100 | S; Data = PC >> 8; S = S - 1; request(action.memory_write);
+        - Address = 0x0100 | S; Data = PC & 0xFF; S = S - 1; request(action.memory_write);
+        - Address = 0x0100 | S; Data = (P & 0xEF) | 0x20; P = P | 0x04; S = S - 1; request(action.memory_write);
+        - Address = InterruptVector; request(action.memory_read);
+        - Address = InterruptVector + 1; AD = Data; request(action.memory_read);
+        - PC = (Data << 8) | AD;

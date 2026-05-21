@@ -21,7 +21,13 @@ public sealed unsafe partial class M6502StepEmulator
         address = 0;
         currentStep = 0;
         data = 0;
+        interruptvector = 0;
+        irq = false;
+        nmi = false;
         overlapPipeline = default(delegate*<M6502StepEmulator, void>);
+        pendingnmi = false;
+        previousnmi = false;
+        sampledirq = false;
         PC = 0;
         A = 0;
         P = 0;

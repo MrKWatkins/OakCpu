@@ -7,12 +7,34 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 #nullable enable
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
 namespace MrKWatkins.OakCpu.M6502;
 
 public sealed unsafe partial class M6502StepEmulator
 {
     private static bool HandleInterrupts(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
+        if (emulator.pendingnmi)
+        {
+            emulator.pendingnmi = false;
+            emulator.interruptvector = 0xFFFA;
+            // Move to interrupt mode.
+            emulator.currentStep = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(InterruptModeStepTable), 0x00);
+            actionRequired = ActionRequired.None;
+            return true;
+        }
+
+        if (emulator.sampledirq & !((emulator.P & 0b00000100) == 0b00000100 /* flag.I */))
+        {
+            emulator.interruptvector = 0xFFFE;
+            // Move to interrupt mode.
+            emulator.currentStep = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(InterruptModeStepTable), 0x00);
+            actionRequired = ActionRequired.None;
+            return true;
+        }
+
         return false;
     }
 }

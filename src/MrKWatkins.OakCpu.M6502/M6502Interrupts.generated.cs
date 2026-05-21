@@ -13,4 +13,13 @@ namespace MrKWatkins.OakCpu.M6502;
 /// </summary>
 public abstract class M6502Interrupts
 {
+    /// <summary>
+    /// Gets or sets whether the external IRQ line is asserted.
+    /// </summary>
+    public abstract bool IRQ { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the external NMI line is asserted.
+    /// </summary>
+    public abstract bool NMI { get; set; }
 }

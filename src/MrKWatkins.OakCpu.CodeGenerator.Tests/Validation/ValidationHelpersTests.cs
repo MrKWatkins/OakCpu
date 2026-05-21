@@ -41,14 +41,13 @@ public sealed class ValidationHelpersTests
             """
             cpu:
               name: TestCpu
-            interrupts:
-              halted_cycle:
-                - halt
             opcode_read:
               - fetch
             sequences:
               - name: main
                 next_opcode: read
+              - name: halted
+                next_opcode: loop
             """);
 
         var names = ValidationHelpers.GetAvailableSequenceNames(yaml);

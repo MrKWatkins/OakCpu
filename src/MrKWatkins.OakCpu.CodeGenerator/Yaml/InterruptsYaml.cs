@@ -7,7 +7,6 @@ public sealed partial class InterruptsYaml
 {
     private IReadOnlyList<FieldYaml>? properties;
     private IReadOnlyList<InterruptModeYaml>? modes;
-    private IReadOnlyList<string?>? haltedCycle;
 
     private InterruptsYaml()
     {
@@ -25,11 +24,5 @@ public sealed partial class InterruptsYaml
     {
         get => modes ?? [];
         private set => modes = value;
-    }
-
-    public IReadOnlyList<string?> HaltedCycle
-    {
-        get => haltedCycle ?? [];
-        private set => haltedCycle = value;
     }
 }

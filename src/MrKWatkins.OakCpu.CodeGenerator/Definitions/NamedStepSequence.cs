@@ -29,7 +29,6 @@ public sealed class NamedStepSequence : StepSequence
         {
             "opcode_read" => "Opcode read",
             "halted" => "Halt cycle",
-            "halted_cycle" => "Halt cycle",
             _ when name.StartsWith("interrupt_mode_", StringComparison.Ordinal) &&
                    byte.TryParse(name["interrupt_mode_".Length..], out var mode)
                 => $"Interrupt Mode {mode}",

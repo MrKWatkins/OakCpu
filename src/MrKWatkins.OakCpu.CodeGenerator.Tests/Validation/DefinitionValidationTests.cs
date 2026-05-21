@@ -11,9 +11,7 @@ public sealed class DefinitionValidationTests
             """
             cpu:
               name: TestCpu
-            interrupts:
-              halted_cycle:
-                - halt
+            interrupts: {}
             opcode_read:
               - fetch
             """);
@@ -32,8 +30,6 @@ public sealed class DefinitionValidationTests
                 - name: shared
                   type: u8
             interrupts:
-              halted_cycle:
-                - halt
               properties:
                 - name: shared
                   type: u8

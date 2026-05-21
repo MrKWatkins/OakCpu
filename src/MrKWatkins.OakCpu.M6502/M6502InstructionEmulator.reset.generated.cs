@@ -20,6 +20,12 @@ public sealed unsafe partial class M6502InstructionEmulator
         ad = 0;
         address = 0;
         data = 0;
+        interruptvector = 0;
+        irq = false;
+        nmi = false;
+        pendingnmi = false;
+        previousnmi = false;
+        sampledirq = false;
         nextSequenceStep = NoNextSequenceStep;
         PC = 0;
         A = 0;

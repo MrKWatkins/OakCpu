@@ -92,6 +92,9 @@ public sealed unsafe partial class M6502InstructionEmulator
     private ushort ad;
 
     [FieldOffset(42)]
+    private ushort interruptvector;
+
+    [FieldOffset(44)]
     private ushort address;
 
     /// <summary>
@@ -103,7 +106,22 @@ public sealed unsafe partial class M6502InstructionEmulator
         get => address;
     }
 
-    [FieldOffset(44)]
+    [FieldOffset(46)]
+    private bool pendingnmi;
+
+    [FieldOffset(47)]
+    private bool previousnmi;
+
+    [FieldOffset(48)]
+    private bool sampledirq;
+
+    [FieldOffset(49)]
+    internal bool irq;
+
+    [FieldOffset(50)]
+    internal bool nmi;
+
+    [FieldOffset(51)]
     private byte data;
 
     /// <summary>
@@ -117,7 +135,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         set => data = value;
     }
 
-    [FieldOffset(46)]
+    [FieldOffset(52)]
     internal ushort nextSequenceStep;
 
     /// <summary>

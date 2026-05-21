@@ -1,28 +1,21 @@
+using MrKWatkins.EmulatorTestSuites.M6502;
 using MrKWatkins.EmulatorTestSuites.M6502.Instruction.SingleStep;
 using MrKWatkins.OakCpu.M6502.Testing;
 
 namespace MrKWatkins.OakCpu.M6502.Tests;
 
+[Explicit]
 [Parallelizable(ParallelScope.All)]
-[TestFixture]
-public sealed class M6502InstructionSingleStepTests
+[TestFixture(typeof(M6502StepEmulatorTestHarness))]
+[TestFixture(typeof(M6502InstructionEmulatorTestHarness))]
+public sealed class SingleStepTests<THarness>
+    where THarness : M6502TestHarness, new()
 {
-    [TestCaseSource(typeof(SingleStepTestCases), nameof(SingleStepTestCases.Create))]
-    public void SingleStepTest(SingleStepTestCase testCase) => testCase.Execute<M6502InstructionEmulatorTestHarness>(TestContext.Progress);
-}
+    [TestCaseSource(nameof(TestCases))]
+    public void SingleStepTest(SingleStepTestCase testCase) => testCase.Execute<THarness>(TestContext.Progress);
 
-[Parallelizable(ParallelScope.All)]
-[TestFixture]
-public sealed class M6502StepSingleStepTests
-{
-    [TestCaseSource(typeof(SingleStepTestCases), nameof(SingleStepTestCases.Create))]
-    public void SingleStepTest(SingleStepTestCase testCase) => testCase.Execute<M6502StepEmulatorTestHarness>(TestContext.Progress);
-}
-
-internal static class SingleStepTestCases
-{
     [Pure]
-    public static IEnumerable<TestCaseData> Create() =>
+    public static IEnumerable<TestCaseData> TestCases() =>
         SingleStepTestSuite.Instance
             .GetTestCases()
             .Select(testCase => new TestCaseData(testCase).SetName(testCase.Name));

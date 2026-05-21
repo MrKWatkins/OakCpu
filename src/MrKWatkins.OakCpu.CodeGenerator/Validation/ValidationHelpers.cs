@@ -47,10 +47,6 @@ internal static class ValidationHelpers
         {
             names.Add("opcode_read");
         }
-        if (yaml.Interrupts.HaltedCycle.Any())
-        {
-            names.Add("halted");
-        }
 
         return names;
     }

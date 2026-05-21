@@ -7,6 +7,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 #nullable enable
+using System.Runtime.CompilerServices;
+
 namespace MrKWatkins.OakCpu.M6502;
 
 internal sealed class M6502InstructionInterrupts : M6502Interrupts
@@ -16,5 +18,21 @@ internal sealed class M6502InstructionInterrupts : M6502Interrupts
     internal M6502InstructionInterrupts(M6502InstructionEmulator emulator)
     {
         this.emulator = emulator;
+    }
+
+    public override bool IRQ
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => emulator.irq; 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => emulator.SetIRQ(value);
+    }
+
+    public override bool NMI
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => emulator.nmi; 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => emulator.SetNMI(value);
     }
 }

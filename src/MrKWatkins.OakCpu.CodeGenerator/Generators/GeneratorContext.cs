@@ -42,6 +42,8 @@ public sealed class GeneratorContext
 
     public IReadOnlyList<Statement> OnInstructionComplete => model.OnInstructionComplete;
 
+    public IReadOnlyList<Statement> OnStepComplete => model.OnStepComplete;
+
     public IReadOnlyList<Instruction> Instructions => model.Instructions;
 
     public IReadOnlyDictionary<byte, PrefixJump> PrefixJumps => model.PrefixJumps;
@@ -187,7 +189,7 @@ public sealed class GeneratorContext
         var allSteps = CreateAllSteps(opcodeRead, prefixJumps, sequences, instructions);
         var stepLayouts = StepFinalizer.Finalize(allSteps, CreateStepSequences(opcodeRead, prefixJumps, sequences, instructions));
 
-        return new ModelState(configuration, cpu, interrupts, sequences, sequenceGroups, opcodeRead, parserContext.OnInstructionStepsComplete, ParseStatements(configuration, yaml.OnInstructionComplete), instructions, prefixJumps, allSteps, stepLayouts.Layouts, stepLayouts.FunctionSteps);
+        return new ModelState(configuration, cpu, interrupts, sequences, sequenceGroups, opcodeRead, parserContext.OnInstructionStepsComplete, ParseStatements(configuration, yaml.OnInstructionComplete), ParseStatements(configuration, yaml.OnStepComplete), instructions, prefixJumps, allSteps, stepLayouts.Layouts, stepLayouts.FunctionSteps);
     }
 
     [Pure]
@@ -367,6 +369,7 @@ public sealed class GeneratorContext
         StepSequence OpcodeRead,
         IReadOnlyList<Statement> OnInstructionStepsComplete,
         IReadOnlyList<Statement> OnInstructionComplete,
+        IReadOnlyList<Statement> OnStepComplete,
         IReadOnlyList<Instruction> Instructions,
         IReadOnlyDictionary<byte, PrefixJump> PrefixJumps,
         IReadOnlyList<Step> AllSteps,

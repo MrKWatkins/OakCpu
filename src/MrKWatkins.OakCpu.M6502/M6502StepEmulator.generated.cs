@@ -92,6 +92,9 @@ public sealed unsafe partial class M6502StepEmulator
     private ushort ad;
 
     [FieldOffset(50)]
+    private ushort interruptvector;
+
+    [FieldOffset(52)]
     private ushort address;
 
     /// <summary>
@@ -103,10 +106,25 @@ public sealed unsafe partial class M6502StepEmulator
         get => address;
     }
 
-    [FieldOffset(52)]
+    [FieldOffset(54)]
     private ushort currentStep;
 
-    [FieldOffset(54)]
+    [FieldOffset(56)]
+    private bool pendingnmi;
+
+    [FieldOffset(57)]
+    private bool previousnmi;
+
+    [FieldOffset(58)]
+    private bool sampledirq;
+
+    [FieldOffset(59)]
+    internal bool irq;
+
+    [FieldOffset(60)]
+    internal bool nmi;
+
+    [FieldOffset(61)]
     private byte data;
 
     /// <summary>

@@ -24,9 +24,12 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
         var generatorContext = context.GeneratorContext;
         var members = new List<MemberDeclarationSyntax>
         {
-            CreateSequenceStartConstant(generatorContext, "OpcodeRead", generatorContext.OpcodeRead),
-            CreateSequenceStartConstant(generatorContext, "Halted", generatorContext.Interrupts.Halted)
+            CreateSequenceStartConstant(generatorContext, "OpcodeRead", generatorContext.OpcodeRead)
         };
+        if (generatorContext.Interrupts.Halted is not null)
+        {
+            members.Add(CreateSequenceStartConstant(generatorContext, "Halted", generatorContext.Interrupts.Halted));
+        }
         members.AddRange(generatorContext.GetSequenceGroup(InterruptMode.SequenceGroupName).Members
             .OrderBy(mode => mode.Key)
             .Select(mode => CreateSequenceStartConstant(generatorContext, $"IM{mode.Key}", mode.Value)));

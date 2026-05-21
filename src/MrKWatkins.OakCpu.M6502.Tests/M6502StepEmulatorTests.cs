@@ -52,6 +52,21 @@ public sealed class M6502StepEmulatorTests
     }
 
     [Test]
+    public void Interrupts()
+    {
+        var emulator = new M6502StepEmulator();
+
+        emulator.Interrupts.IRQ.Should().BeFalse();
+        emulator.Interrupts.NMI.Should().BeFalse();
+
+        emulator.Interrupts.IRQ = true;
+        emulator.Interrupts.NMI = true;
+
+        emulator.irq.Should().BeTrue();
+        emulator.nmi.Should().BeTrue();
+    }
+
+    [Test]
     public void ExecuteInstruction_Nop()
     {
         var m6502 = new M6502StepEmulatorTestHarness { RecordCycles = true };

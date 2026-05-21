@@ -74,60 +74,77 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     private static MethodDeclarationSyntax CreateStepMethod(FileGeneratorContext context)
     {
         const string stepVariableName = "step";
+        var onStepCompleteStatements = StatementGenerator.GenerateStatements(context, context.GeneratorContext.OnStepComplete).ToArray();
+
+        var stepMethodStatements = new List<StatementSyntax>
+        {
+            // var node = Nodes[currentStep];
+            LocalDeclarationStatement(
+                VariableDeclaration(IdentifierName("var"))
+                    .WithVariables([
+                        VariableDeclarator(stepVariableName)
+                            .WithInitializer(
+                                EqualsValueClause(CreateArrayGetWithoutBoundsCheck(context.RequiredUsings, IdentifierName(StepsFieldName), IdentifierName(PreDefinedDataMember.CurrentStep.FieldName))))
+                    ])),
+
+            // currentStep = node.NextStep;
+            ExpressionStatement(
+                AssignmentExpression(
+                    SyntaxKind.SimpleAssignmentExpression,
+                    IdentifierName(PreDefinedDataMember.CurrentStep.FieldName),
+                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(Field.Name.NextStep)))),
+
+            // var actionRequired = node.ActionRequired;
+            LocalDeclarationStatement(
+                VariableDeclaration(IdentifierName("var"))
+                    .WithVariables([
+                        VariableDeclarator(Parameter.Name.ActionRequired)
+                            .WithInitializer(
+                                EqualsValueClause(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(TypeName.ActionRequiredEnum))))
+                    ])),
+
+            // if (step.Handler != default)
+            // {
+            //     step.Handler(this, ref actionRequired);
+            // }
+            IfStatement(
+                BinaryExpression(
+                    SyntaxKind.NotEqualsExpression,
+                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(Field.Name.Handler)),
+                    LiteralExpression(SyntaxKind.DefaultLiteralExpression)
+                ),
+                Block(
+                    ExpressionStatement(
+                        InvocationExpression(
+                                MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(Field.Name.Handler)))
+                            .WithArgumentList(ArgumentList(
+                                [
+                                    Argument(ThisExpression()),
+                                    Argument(RefExpression(IdentifierName(Parameter.Name.ActionRequired)))
+                                ]))))),
+        };
+
+        if (onStepCompleteStatements.Length != 0)
+        {
+            stepMethodStatements.Add(
+                LocalDeclarationStatement(
+                    VariableDeclaration(IdentifierName("var"))
+                        .WithVariables([
+                            VariableDeclarator("emulator")
+                                .WithInitializer(EqualsValueClause(ThisExpression()))
+                        ])));
+
+            stepMethodStatements.AddRange(onStepCompleteStatements);
+        }
+
+        stepMethodStatements.Add(ReturnStatement(IdentifierName(Parameter.Name.ActionRequired)));
 
         return WithXmlDocumentation(
             MethodDeclaration(
                     IdentifierName(TypeName.ActionRequiredEnum),
                     Identifier(StepMethodName))
                 .AddModifiers(Public)
-                .WithBody(Block(
-                // var node = Nodes[currentStep];
-                LocalDeclarationStatement(
-                    VariableDeclaration(IdentifierName("var"))
-                        .WithVariables([
-                            VariableDeclarator(stepVariableName)
-                                .WithInitializer(
-                                    EqualsValueClause(CreateArrayGetWithoutBoundsCheck(context.RequiredUsings, IdentifierName(StepsFieldName), IdentifierName(PreDefinedDataMember.CurrentStep.FieldName))))
-                        ])),
-
-                // currentStep = node.NextStep;
-                ExpressionStatement(
-                    AssignmentExpression(
-                        SyntaxKind.SimpleAssignmentExpression,
-                        IdentifierName(PreDefinedDataMember.CurrentStep.FieldName),
-                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(Field.Name.NextStep)))),
-
-                // var actionRequired = node.ActionRequired;
-                LocalDeclarationStatement(
-                    VariableDeclaration(IdentifierName("var"))
-                        .WithVariables([
-                            VariableDeclarator(Parameter.Name.ActionRequired)
-                                .WithInitializer(
-                                    EqualsValueClause(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(TypeName.ActionRequiredEnum))))
-                        ])),
-
-                // if (step.Handler != default)
-                // {
-                //     step.Handler(this, ref actionRequired);
-                // }
-                IfStatement(
-                    BinaryExpression(
-                        SyntaxKind.NotEqualsExpression,
-                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(Field.Name.Handler)),
-                        LiteralExpression(SyntaxKind.DefaultLiteralExpression)
-                    ),
-                    Block(
-                        ExpressionStatement(
-                            InvocationExpression(
-                                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(Field.Name.Handler)))
-                                .WithArgumentList(ArgumentList(
-                                    [
-                                        Argument(ThisExpression()),
-                                        Argument(RefExpression(IdentifierName(Parameter.Name.ActionRequired)))
-                                    ]))))),
-
-                    // return node.ActionRequired;
-                    ReturnStatement(IdentifierName(Parameter.Name.ActionRequired)))),
+                .WithBody(Block(stepMethodStatements)),
             $"Executes one {context.GeneratorContext.Cpu.Name} T-state.",
             returns: "The external action that the host must perform for the completed T-state.");
     }

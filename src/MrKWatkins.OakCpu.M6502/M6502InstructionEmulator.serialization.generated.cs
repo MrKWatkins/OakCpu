@@ -31,6 +31,12 @@ public sealed unsafe partial class M6502InstructionEmulator
         writer.Write(ad);
         writer.Write(address);
         writer.Write(data);
+        writer.Write(interruptvector);
+        writer.Write(irq);
+        writer.Write(nmi);
+        writer.Write(pendingnmi);
+        writer.Write(previousnmi);
+        writer.Write(sampledirq);
         writer.Write(nextSequenceStep);
         writer.Write(PCL);
         writer.Write(PCH);
@@ -74,6 +80,12 @@ public sealed unsafe partial class M6502InstructionEmulator
         ad = reader.ReadUInt16();
         address = reader.ReadUInt16();
         data = reader.ReadByte();
+        interruptvector = reader.ReadUInt16();
+        irq = reader.ReadBoolean();
+        nmi = reader.ReadBoolean();
+        pendingnmi = reader.ReadBoolean();
+        previousnmi = reader.ReadBoolean();
+        sampledirq = reader.ReadBoolean();
         nextSequenceStep = reader.ReadUInt16();
         PCL = reader.ReadByte();
         PCH = reader.ReadByte();

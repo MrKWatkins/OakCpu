@@ -6,7 +6,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Interrupts
 {
-    private Interrupts(IReadOnlyDictionary<string, UserDefinedDataMember> properties, IReadOnlyList<Statement> handle, StepSequence halted, IReadOnlyList<InterruptMode> modes)
+    private Interrupts(IReadOnlyDictionary<string, UserDefinedDataMember> properties, IReadOnlyList<Statement> handle, StepSequence? halted, IReadOnlyList<InterruptMode> modes)
     {
         Properties = properties;
         Handle = handle;
@@ -18,11 +18,13 @@ public sealed class Interrupts
 
     public IReadOnlyList<Statement> Handle { get; }
 
-    public StepSequence Halted { get; }
+    public StepSequence? Halted { get; }
 
     public IReadOnlyList<InterruptMode> Modes { get; }
 
-    public IEnumerable<StepSequence> AllSequences => Enumerable.Repeat(Halted, 1).Concat(Modes.Select(m => m.Sequence)).Distinct();
+    public IEnumerable<StepSequence> AllSequences => Halted is null
+        ? Modes.Select(m => m.Sequence).Distinct()
+        : Enumerable.Repeat(Halted, 1).Concat(Modes.Select(m => m.Sequence)).Distinct();
 
     public IEnumerable<Step> AllSteps => AllSequences.SelectMany(sequence => sequence.Steps);
 
@@ -33,13 +35,7 @@ public sealed class Interrupts
 
         var handle = Parser.ParseStatements(context, yaml.Handle);
 
-        var halted = yaml.HaltedCycle.Any()
-            ? NamedStepSequence.Create(context, "halted", yaml.HaltedCycle, NextOpcodeMode.Loop, true)
-            : availableSequences.TryGetValue("halted", out var sequence)
-                ? sequence
-                : availableSequences.TryGetValue("halted_cycle", out var legacySequence)
-                    ? legacySequence
-                    : throw new InvalidOperationException("No sequence named halted exists for the halted cycle.");
+        var halted = availableSequences.TryGetValue("halted", out var sequence) ? sequence : null;
 
         var modes = yaml.Modes.Select(mode => InterruptMode.Create(context, mode, availableSequences)).ToList();
 

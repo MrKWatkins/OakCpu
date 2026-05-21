@@ -31,9 +31,10 @@ internal static class SequenceValidation
     [Pure]
     private static IEnumerable<ValidationError> ValidateHaltedSequence(YamlFile yaml, HashSet<string> availableSequenceNames)
     {
-        if (!yaml.Interrupts.HaltedCycle.Any() && !availableSequenceNames.Contains("halted") && !availableSequenceNames.Contains("halted_cycle"))
+        if (yaml.Interrupts.Properties.Any(property => string.Equals(property.Name, "halted", StringComparison.OrdinalIgnoreCase))
+            && !availableSequenceNames.Contains("halted"))
         {
-            yield return new ValidationError("No sequence named halted exists for the halted cycle.");
+            yield return new ValidationError("No sequence named halted exists for the halted state.");
         }
     }
 

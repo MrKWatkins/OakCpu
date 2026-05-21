@@ -152,7 +152,6 @@ public sealed class GeneratorContextTests : TestFixture
 
         Assert.That(exception!.Message, Does.Contain("Definition validation failed:"));
         Assert.That(exception.Message, Does.Contain("No opcode_read sequence has been defined."));
-        Assert.That(exception.Message, Does.Contain("No sequence named halted exists for the halted cycle."));
         Assert.That(exception.Message, Does.Contain("interrupts.modes[0].sequence: No sequence named missing_interrupt_sequence exists for interrupt mode 0."));
         Assert.That(exception.Message, Does.Contain("instructions[1].next_opcode: Instruction SECOND specifies an overlapped sequence but does not use next_opcode: overlapped."));
         Assert.That(exception.Message, Does.Contain("instructions[1].overlapped_sequence: Instruction SECOND references unknown overlapped sequence missing_overlap_sequence."));

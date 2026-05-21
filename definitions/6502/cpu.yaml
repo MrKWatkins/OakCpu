@@ -17,6 +17,29 @@ cpu:
       type: u16
       documentation: Internal address scratch register.
 
+    - name: InterruptVector
+      type: u16
+      documentation: Internal scratch address for the active interrupt vector.
+
+    - name: PendingNMI
+      type: bool
+      documentation: Tracks whether an NMI edge has been latched for servicing.
+
+    - name: PreviousNMI
+      type: bool
+      documentation: Tracks the previous NMI line state for edge detection.
+
+    - name: SampledIRQ
+      type: bool
+      documentation: Tracks the IRQ line state sampled on the previous T-state.
+
+on_step_complete: |
+  SampledIRQ = IRQ;
+  if NMI & !PreviousNMI;
+    PendingNMI = true;
+  endif;
+  PreviousNMI = NMI;
+
 sequences:
   - name: opcode_read
     execute_overlap_on_start: true

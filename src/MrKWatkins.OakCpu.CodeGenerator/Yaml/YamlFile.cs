@@ -60,6 +60,8 @@ public sealed partial class YamlFile
 
     public string? OnInstructionComplete { get; private set; }
 
+    public string? OnStepComplete { get; private set; }
+
     [Pure]
     public static YamlFile Combine(params IEnumerable<YamlFile> files)
     {
@@ -68,6 +70,7 @@ public sealed partial class YamlFile
         InterruptsYaml? interrupts = null;
         string? onInstructionStepsComplete = null;
         string? onInstructionComplete = null;
+        string? onStepComplete = null;
         var registers = new List<RegisterYaml>();
         var opcodeRead = new List<string?>();
         var sequences = new List<StepSequenceYaml>();
@@ -80,6 +83,7 @@ public sealed partial class YamlFile
             interrupts ??= file.Interrupts;
             onInstructionStepsComplete ??= file.OnInstructionStepsComplete;
             onInstructionComplete ??= file.OnInstructionComplete;
+            onStepComplete ??= file.OnStepComplete;
             if (file.opcodeRead != null)
             {
                 opcodeRead.AddRange(file.opcodeRead);
@@ -96,6 +100,7 @@ public sealed partial class YamlFile
             Interrupts = interrupts ?? throw new InvalidOperationException("No interrupts definition found."),
             OnInstructionStepsComplete = onInstructionStepsComplete,
             OnInstructionComplete = onInstructionComplete,
+            OnStepComplete = onStepComplete,
             OpcodeRead = opcodeRead,
             Sequences = sequences,
             Registers = registers,

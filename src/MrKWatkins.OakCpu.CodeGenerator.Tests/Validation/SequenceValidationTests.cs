@@ -11,9 +11,7 @@ public sealed class SequenceValidationTests
             """
             cpu:
               name: TestCpu
-            interrupts:
-              halted_cycle:
-                - halt
+            interrupts: {}
             opcode_read:
               - fetch
             sequences:
@@ -34,8 +32,6 @@ public sealed class SequenceValidationTests
             cpu:
               name: TestCpu
             interrupts:
-              halted_cycle:
-                - halt
               modes:
                 - number: 2
                   next_opcode: read
@@ -51,6 +47,8 @@ public sealed class SequenceValidationTests
                 next_opcode: read
               - name: duplicate
                 next_opcode: custom
+              - name: halted
+                next_opcode: loop
               - name: grouped_one
                 next_opcode: read
                 group:
@@ -72,8 +70,8 @@ public sealed class SequenceValidationTests
         errors[0].Paths[1].Should().Equal("sequences[1].name");
 
         errors[1].Message.Should().Equal("The sequence group grouped contains multiple sequences for number 1: grouped_one, grouped_two.");
-        errors[1].Paths[0].Should().Equal("sequences[2].group.number");
-        errors[1].Paths[1].Should().Equal("sequences[3].group.number");
+        errors[1].Paths[0].Should().Equal("sequences[3].group.number");
+        errors[1].Paths[1].Should().Equal("sequences[4].group.number");
 
         errors[2].Message.Should().Equal("Interrupt mode 2 is defined multiple times.");
         errors[2].Paths[0].Should().Equal("interrupts.modes[0].number");
@@ -81,5 +79,26 @@ public sealed class SequenceValidationTests
 
         errors[3].Message.Should().Equal("No sequence named missing exists for interrupt mode 3.");
         errors[3].Paths[0].Should().Equal("interrupts.modes[2].sequence");
+    }
+
+    [Test]
+    public void Validate_ReturnsErrorWhenHaltedPropertyHasNoHaltedSequence()
+    {
+        var yaml = ValidationTestHelper.DeserializeYamlFile(
+            """
+            cpu:
+              name: TestCpu
+            interrupts:
+              properties:
+                - name: halted
+                  type: bool
+            opcode_read:
+              - fetch
+            """);
+
+        var errors = SequenceValidation.Validate(yaml).ToArray();
+
+        errors.Should().HaveCount(1);
+        errors[0].Message.Should().Equal("No sequence named halted exists for the halted state.");
     }
 }
