@@ -13,60 +13,144 @@ public abstract class SerializationGenerator : TypeGenerator
     protected const string DeserializeMethodName = "Deserialize";
     protected const string RestoreMethodName = "Restore";
     protected const string StreamParameterName = "stream";
-    protected const string ReaderParameterName = "reader";
-    protected const string WriterParameterName = "writer";
+
+    private const string DestinationParameterName = "destination";
+    private const string SourceParameterName = "source";
+    private const string SerializedSizeFieldName = "SerializedSize";
 
     private protected SerializationGenerator()
     {
     }
 
     [Pure]
-    protected sealed override BaseTypeDeclarationSyntax CreateType(FileGeneratorContext context) =>
-        CreateClassDeclaration(context).AddMembers(GenerateSerialize(context), GenerateDeserialize(context), GenerateRestore(context));
+    protected sealed override BaseTypeDeclarationSyntax CreateType(FileGeneratorContext context)
+    {
+        var layout = CreateLayout(context.GeneratorContext);
+
+        return CreateClassDeclaration(context.GeneratorContext).AddMembers(
+            GenerateSerializedSize(layout),
+            GenerateSerializeSpan(context, layout),
+            GenerateSerializeStream(context),
+            GenerateDeserializeSpan(context),
+            GenerateDeserializeStream(context),
+            GenerateRestoreSpan(context, layout),
+            GenerateRestoreStream(context));
+    }
 
     [Pure]
     protected abstract string GetSerializedTypeName(GeneratorContext context);
+
+    [Pure]
+    protected virtual bool SerializesOverlapPipeline => false;
 
     [Pure]
     protected virtual ClassDeclarationSyntax CreateClassDeclaration(GeneratorContext context) =>
         ClassDeclaration(GetSerializedTypeName(context)).AddModifiers(Public, Sealed, Unsafe, Partial);
 
     [Pure]
-    protected virtual IEnumerable<DataMember> GetSerializedDataMembers(GeneratorContext context) =>
+    protected virtual IEnumerable<DataMember> GetSerializedDataFields(GeneratorContext context) =>
         context.Configuration.AllDataMembers.Values
             .Where(member => member != PreDefinedDataMember.OpcodeStepTable)
-            .OrderBy(member => member.Name);
+            .OrderByDescending(member => member.Size);
 
     [Pure]
-    protected virtual StatementSyntax GenerateSerializeDataMember(GeneratorContext context, DataMember member) => GenerateWrite(IdentifierName(member.FieldName));
+    protected virtual IEnumerable<SerializedField> GetAdditionalSerializedFields(GeneratorContext context, int nextFieldOffset) => [];
 
     [Pure]
-    protected virtual StatementSyntax GenerateRestoreDataMember(GeneratorContext context, DataMember member) => GenerateRead(member.FieldName, member.Type);
+    private SerializationLayout CreateLayout(GeneratorContext context)
+    {
+        var rawBlocks = CreateRawBlocks(GetSerializedRawFields(context)).ToArray();
+        var serializedSize = 1 + (SerializesOverlapPipeline ? 2 : 0) + rawBlocks.Sum(block => block.Size);
+        return new SerializationLayout(rawBlocks, serializedSize);
+    }
 
     [Pure]
-    protected virtual IEnumerable<StatementSyntax> GenerateAdditionalSerializeStatements(GeneratorContext context) => [];
+    private IEnumerable<SerializedField> GetSerializedRawFields(GeneratorContext context)
+    {
+        foreach (var register in context.Configuration.Registers.Values.Where(register => register.Type == DataType.U8).OrderBy(register => register.FieldOffset))
+        {
+            yield return new SerializedField(register.FieldName, register.Type, register.FieldOffset, register.Type.Size());
+        }
+
+        var fieldOffset = ExplicitLayoutBuilder.GetRegistersEndOffset(context);
+
+        foreach (var member in GetSerializedDataFields(context))
+        {
+            yield return new SerializedField(member.FieldName, member.Type, fieldOffset, member.Size);
+            fieldOffset += member.Size;
+        }
+
+        foreach (var field in GetAdditionalSerializedFields(context, fieldOffset))
+        {
+            yield return field;
+        }
+    }
 
     [Pure]
-    protected virtual IEnumerable<StatementSyntax> GenerateAdditionalRestoreStatements(GeneratorContext context) => [];
+    private static IReadOnlyList<SerializedBlock> CreateRawBlocks(IEnumerable<SerializedField> fields)
+    {
+        var blocks = new List<SerializedBlock>();
+
+        SerializedField? firstField = null;
+        var nextFieldOffset = 0;
+        var size = 0;
+        foreach (var field in fields.OrderBy(field => field.FieldOffset))
+        {
+            if (firstField == null)
+            {
+                firstField = field;
+                nextFieldOffset = field.FieldOffset + field.Size;
+                size = field.Size;
+                continue;
+            }
+
+            if (field.FieldOffset == nextFieldOffset)
+            {
+                nextFieldOffset += field.Size;
+                size += field.Size;
+                continue;
+            }
+
+            blocks.Add(new SerializedBlock(firstField.FieldName, firstField.Type, size));
+            firstField = field;
+            nextFieldOffset = field.FieldOffset + field.Size;
+            size = field.Size;
+        }
+
+        if (firstField != null)
+        {
+            blocks.Add(new SerializedBlock(firstField.FieldName, firstField.Type, size));
+        }
+
+        return blocks;
+    }
 
     [Pure]
-    private MemberDeclarationSyntax GenerateDeserialize(GeneratorContext context)
+    private static MemberDeclarationSyntax GenerateSerializedSize(SerializationLayout layout) =>
+        WithXmlDocumentation(
+            FieldDeclaration(
+                    VariableDeclaration(IntType)
+                        .WithVariables(
+                        [
+                            VariableDeclarator(Identifier(SerializedSizeFieldName))
+                                .WithInitializer(EqualsValueClause(GenerateNumericLiteralExpression(layout.SerializedSize)))
+                        ]))
+                .WithModifiers(TokenList(Public, Token(SyntaxKind.ConstKeyword))),
+            "The number of bytes required to serialize the emulator state.");
+
+    [Pure]
+    private MemberDeclarationSyntax GenerateDeserializeSpan(GeneratorContext context)
     {
         const string deserializedVariableName = "deserialized";
 
-        var createEmulator = LocalDeclarationStatement(
-            VariableDeclaration(IdentifierName("var"))
-                .WithVariables(
-                [
-                    VariableDeclarator(Identifier(deserializedVariableName))
-                        .WithInitializer(EqualsValueClause(
-                            ObjectCreationExpression(IdentifierName(GetSerializedTypeName(context))).WithArgumentList(ArgumentList())))
-                ]));
+        var createEmulator = InitializeVariableStatement(
+            deserializedVariableName,
+            ObjectCreationExpression(IdentifierName(GetSerializedTypeName(context))).WithArgumentList(ArgumentList()));
 
         var restore = ExpressionStatement(
             InvocationExpression(
                     MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(deserializedVariableName), IdentifierName(RestoreMethodName)))
-                .WithArgumentList(ArgumentList([Argument(IdentifierName(StreamParameterName))])));
+                .WithArgumentList(ArgumentList([Argument(IdentifierName(SourceParameterName))])));
 
         var returnEmulator = ReturnStatement(IdentifierName(deserializedVariableName));
 
@@ -75,27 +159,89 @@ public abstract class SerializationGenerator : TypeGenerator
                 .WithModifiers([Public, Static])
                 .WithParameterList(ParameterList(
                 [
-                    Parameter(Identifier(StreamParameterName)).WithType(IdentifierName(nameof(Stream)))
+                    Parameter(Identifier(SourceParameterName))
+                        .WithType(GenericName(Identifier("ReadOnlySpan")).WithTypeArgumentList(TypeArgumentList([ByteType])))
                 ]))
                 .WithBody(Block(createEmulator, restore, returnEmulator)),
             $"Deserializes a {context.Cpu.Name} CPU state.",
             parameters: new Dictionary<string, string>
             {
-                [StreamParameterName] = "The stream to read the CPU state from."
+                [SourceParameterName] = "The serialized CPU state to read from."
             },
             returns: $"The deserialized {context.Cpu.Name} emulator.");
     }
 
     [MustUseReturnValue]
-    private MemberDeclarationSyntax GenerateRestore(FileGeneratorContext context)
+    private MemberDeclarationSyntax GenerateDeserializeStream(FileGeneratorContext context)
     {
         context.RequiredUsings.Add(typeof(Stream));
 
-        var statements = GenerateUsingBinaryReaderOrWriter<BinaryReader>(context, ReaderParameterName)
-            .Concat(GenerateRestoreOpcodeStepTable(context))
-            .Concat(GenerateRestoreDataMembers(context))
-            .Concat(GenerateAdditionalRestoreStatements(context))
-            .Concat(GenerateRestoreRegisters(context));
+        var buffer = ParseStatement($"Span<byte> buffer = stackalloc byte[{SerializedSizeFieldName}];");
+        var read = ParseStatement($"{StreamParameterName}.ReadExactly(buffer);");
+        var returnEmulator = ParseStatement($"return {DeserializeMethodName}(buffer);");
+
+        return WithXmlDocumentation(
+            MethodDeclaration(IdentifierName(GetSerializedTypeName(context.GeneratorContext)), Identifier(DeserializeMethodName))
+                .WithModifiers([Public, Static])
+                .WithParameterList(ParameterList(
+                [
+                    Parameter(Identifier(StreamParameterName)).WithType(IdentifierName(nameof(Stream)))
+                ]))
+                .WithBody(Block(buffer, read, returnEmulator)),
+            $"Deserializes a {context.GeneratorContext.Cpu.Name} CPU state.",
+            parameters: new Dictionary<string, string>
+            {
+                [StreamParameterName] = "The stream to read the CPU state from."
+            },
+            returns: $"The deserialized {context.GeneratorContext.Cpu.Name} emulator.");
+    }
+
+    [MustUseReturnValue]
+    private MemberDeclarationSyntax GenerateRestoreSpan(FileGeneratorContext context, SerializationLayout layout)
+    {
+        var statements = new List<StatementSyntax>
+        {
+            GenerateSpanLengthGuard(SourceParameterName, "source"),
+            GenerateRestoreOpcodeStepTable(context.GeneratorContext)
+        };
+
+        var serializedOffset = 1;
+        if (SerializesOverlapPipeline)
+        {
+            statements.Add(ParseStatement($"RestoreOverlapPipeline((ushort)({SourceParameterName}[1] | {SourceParameterName}[2] << 8));"));
+            serializedOffset += 2;
+        }
+
+        foreach (var (block, index) in layout.RawBlocks.Select((block, index) => (block, index)))
+        {
+            statements.Add(GenerateRestoreRawBlock(block, index, serializedOffset));
+            serializedOffset += block.Size;
+        }
+
+        return WithXmlDocumentation(
+            MethodDeclaration(VoidType, Identifier(RestoreMethodName))
+                .WithModifiers([Public])
+                .WithParameterList(ParameterList(
+                [
+                    Parameter(Identifier(SourceParameterName))
+                        .WithType(GenericName(Identifier("ReadOnlySpan")).WithTypeArgumentList(TypeArgumentList([ByteType])))
+                ]))
+                .WithBody(Block(statements)),
+            $"Restores this emulator from a serialized {context.GeneratorContext.Cpu.Name} CPU state.",
+            parameters: new Dictionary<string, string>
+            {
+                [SourceParameterName] = "The serialized CPU state to read from."
+            });
+    }
+
+    [MustUseReturnValue]
+    private MemberDeclarationSyntax GenerateRestoreStream(FileGeneratorContext context)
+    {
+        context.RequiredUsings.Add(typeof(Stream));
+
+        var buffer = ParseStatement($"Span<byte> buffer = stackalloc byte[{SerializedSizeFieldName}];");
+        var read = ParseStatement($"{StreamParameterName}.ReadExactly(buffer);");
+        var restore = ParseStatement($"{RestoreMethodName}(buffer);");
 
         return WithXmlDocumentation(
             MethodDeclaration(VoidType, Identifier(RestoreMethodName))
@@ -104,7 +250,7 @@ public abstract class SerializationGenerator : TypeGenerator
                 [
                     Parameter(Identifier(StreamParameterName)).WithType(IdentifierName(nameof(Stream)))
                 ]))
-                .WithBody(Block(statements)),
+                .WithBody(Block(buffer, read, restore)),
             $"Restores this emulator from a serialized {context.GeneratorContext.Cpu.Name} CPU state.",
             parameters: new Dictionary<string, string>
             {
@@ -112,46 +258,57 @@ public abstract class SerializationGenerator : TypeGenerator
             });
     }
 
-    [Pure]
-    private static IEnumerable<StatementSyntax> GenerateRestoreOpcodeStepTable(GeneratorContext context)
+    [MustUseReturnValue]
+    private MemberDeclarationSyntax GenerateSerializeSpan(FileGeneratorContext context, SerializationLayout layout)
     {
-        var arms = context.Configuration.OpcodeStepTables
-            .Select((opcodeStepTables, index) => SwitchExpressionArm(
-                ConstantPattern(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(index))),
-                IdentifierName(opcodeStepTables.FieldName)))
-            .Append(SwitchExpressionArm(
-                DiscardPattern(),
-                ThrowExpression(ObjectCreationExpression(IdentifierName(nameof(InvalidOperationException)))
-                    .WithArgumentList(
-                        ArgumentList([Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Unknown opcode step table.")))])))));
+        var statements = new List<StatementSyntax>
+        {
+            GenerateSpanLengthGuard(DestinationParameterName, "destination"),
+            GenerateSerializeOpcodeStepTable(context.GeneratorContext)
+        };
 
-        var switchExpression = SwitchExpression(GenerateReadExpression(DataType.U8)).WithArms(SeparatedList(arms));
+        var serializedOffset = 1;
+        if (SerializesOverlapPipeline)
+        {
+            statements.AddRange(
+            [
+                ParseStatement("ushort overlapIndex = SerializeOverlapPipeline();"),
+                ParseStatement($"{DestinationParameterName}[1] = (byte)overlapIndex;"),
+                ParseStatement($"{DestinationParameterName}[2] = (byte)(overlapIndex >> 8);")
+            ]);
+            serializedOffset += 2;
+        }
 
-        yield return ExpressionStatement(
-            AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName(PreDefinedDataMember.OpcodeStepTable.FieldName), switchExpression));
+        foreach (var (block, index) in layout.RawBlocks.Select((block, index) => (block, index)))
+        {
+            statements.Add(GenerateSerializeRawBlock(block, index, serializedOffset));
+            serializedOffset += block.Size;
+        }
+
+        return WithXmlDocumentation(
+            MethodDeclaration(VoidType, Identifier(SerializeMethodName))
+                .WithModifiers([Public])
+                .WithParameterList(ParameterList(
+                [
+                    Parameter(Identifier(DestinationParameterName))
+                        .WithType(GenericName(Identifier("Span")).WithTypeArgumentList(TypeArgumentList([ByteType])))
+                ]))
+                .WithBody(Block(statements)),
+            $"Serializes this emulator's {context.GeneratorContext.Cpu.Name} CPU state.",
+            parameters: new Dictionary<string, string>
+            {
+                [DestinationParameterName] = "The destination span to write the CPU state to."
+            });
     }
 
-    [Pure]
-    private IEnumerable<StatementSyntax> GenerateRestoreDataMembers(GeneratorContext context) =>
-        GetSerializedDataMembers(context).Select(member => GenerateRestoreDataMember(context, member));
-
-    [Pure]
-    private static IEnumerable<StatementSyntax> GenerateRestoreRegisters(GeneratorContext context) =>
-        context.Configuration.Registers.Values
-            .Where(register => register.Type == DataType.U8)
-            .OrderBy(register => register.FieldOffset)
-            .Select(register => GenerateRead(register.FieldName, DataType.U8));
-
     [MustUseReturnValue]
-    private MemberDeclarationSyntax GenerateSerialize(FileGeneratorContext context)
+    private MemberDeclarationSyntax GenerateSerializeStream(FileGeneratorContext context)
     {
         context.RequiredUsings.Add(typeof(Stream));
 
-        var statements = GenerateUsingBinaryReaderOrWriter<BinaryWriter>(context, WriterParameterName)
-            .Concat(GenerateSerializeOpcodeStepTable(context))
-            .Concat(GenerateSerializeDataMembers(context))
-            .Concat(GenerateAdditionalSerializeStatements(context))
-            .Concat(GenerateSerializeRegisters(context));
+        var buffer = ParseStatement($"Span<byte> buffer = stackalloc byte[{SerializedSizeFieldName}];");
+        var serialize = ParseStatement($"{SerializeMethodName}(buffer);");
+        var write = ParseStatement($"{StreamParameterName}.Write(buffer);");
 
         return WithXmlDocumentation(
             MethodDeclaration(VoidType, Identifier(SerializeMethodName))
@@ -160,7 +317,7 @@ public abstract class SerializationGenerator : TypeGenerator
                 [
                     Parameter(Identifier(StreamParameterName)).WithType(IdentifierName(nameof(Stream)))
                 ]))
-                .WithBody(Block(statements)),
+                .WithBody(Block(buffer, serialize, write)),
             $"Serializes this emulator's {context.GeneratorContext.Cpu.Name} CPU state.",
             parameters: new Dictionary<string, string>
             {
@@ -169,78 +326,76 @@ public abstract class SerializationGenerator : TypeGenerator
     }
 
     [Pure]
-    private IEnumerable<StatementSyntax> GenerateSerializeDataMembers(GeneratorContext context) =>
-        GetSerializedDataMembers(context).Select(member => GenerateSerializeDataMember(context, member));
+    private static StatementSyntax GenerateSpanLengthGuard(string parameterName, string parameterDescription) =>
+        ParseStatement(
+            $$"""
+            if ({{parameterName}}.Length < {{SerializedSizeFieldName}})
+            {
+                throw new ArgumentException("The {{parameterDescription}} span is too small.", nameof({{parameterName}}));
+            }
+            """);
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateSerializeRegisters(GeneratorContext context) =>
-        context.Configuration.Registers.Values
-            .Where(register => register.Type == DataType.U8)
-            .OrderBy(register => register.FieldOffset)
-            .Select(register => GenerateWrite(IdentifierName(register.FieldName)));
+    private static StatementSyntax GenerateSerializeRawBlock(SerializedBlock block, int index, int serializedOffset) =>
+        ParseStatement(
+            $$"""
+            fixed ({{block.Type.TypeSyntax()}}* block{{index}} = &{{block.FieldName}})
+            {
+                new ReadOnlySpan<byte>((byte*)block{{index}}, {{block.Size}}).CopyTo({{DestinationParameterName}}.Slice({{serializedOffset}}, {{block.Size}}));
+            }
+            """);
 
     [Pure]
-    private static IEnumerable<StatementSyntax> GenerateSerializeOpcodeStepTable(GeneratorContext context)
+    private static StatementSyntax GenerateRestoreRawBlock(SerializedBlock block, int index, int serializedOffset) =>
+        ParseStatement(
+            $$"""
+            fixed ({{block.Type.TypeSyntax()}}* block{{index}} = &{{block.FieldName}})
+            {
+                {{SourceParameterName}}.Slice({{serializedOffset}}, {{block.Size}}).CopyTo(new Span<byte>((byte*)block{{index}}, {{block.Size}}));
+            }
+            """);
+
+    [Pure]
+    private static StatementSyntax GenerateRestoreOpcodeStepTable(GeneratorContext context)
     {
-        var opcodeStepTables = context.Configuration.OpcodeStepTables.Reverse().ToArray();
+        var arms = context.Configuration.OpcodeStepTables
+            .Select((opcodeStepTables, index) => $"{index} => {opcodeStepTables.FieldName},")
+            .Append("_ => throw new InvalidOperationException(\"Unknown opcode step table.\")");
 
-        StatementSyntax? ifStatement = null;
-        var index = opcodeStepTables.Length;
-        foreach (var opcodeStepTable in opcodeStepTables)
+        return ParseStatement(
+            $$"""
+            opcodeStepTable = {{SourceParameterName}}[0] switch
+            {
+                {{string.Join(Environment.NewLine + "    ", arms)}}
+            };
+            """);
+    }
+
+    [Pure]
+    private static StatementSyntax GenerateSerializeOpcodeStepTable(GeneratorContext context)
+    {
+        var builder = new StringBuilder();
+        var opcodeStepTables = context.Configuration.OpcodeStepTables.ToArray();
+        for (var index = 0; index < opcodeStepTables.Length; index++)
         {
-            var condition = BinaryExpression(SyntaxKind.EqualsExpression, IdentifierName(PreDefinedDataMember.OpcodeStepTable.FieldName), IdentifierName(opcodeStepTable.FieldName));
-
-            var statement = GenerateWrite(CastExpression(ByteType, GenerateNumericLiteralExpression(--index)));
-
-            ifStatement = ifStatement == null
-                ? IfStatement(condition, Block(statement))
-                : IfStatement(condition, Block(statement), ElseClause(ifStatement));
+            var keyword = index == 0 ? "if" : "else if";
+            builder.AppendLine($"{keyword} (opcodeStepTable == {opcodeStepTables[index].FieldName})");
+            builder.AppendLine("{");
+            builder.AppendLine($"    {DestinationParameterName}[0] = (byte){index};");
+            builder.AppendLine("}");
         }
 
-        yield return ifStatement!;
+        builder.AppendLine("else");
+        builder.AppendLine("{");
+        builder.AppendLine("    throw new InvalidOperationException(\"Unknown opcode step table.\");");
+        builder.AppendLine("}");
+
+        return ParseStatement(builder.ToString());
     }
 
-    [Pure]
-    protected static StatementSyntax GenerateWrite(ExpressionSyntax value) =>
-        ExpressionStatement(
-            InvocationExpression(
-                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(WriterParameterName), IdentifierName(nameof(BinaryWriter.Write))))
-                .WithArgumentList(ArgumentList([Argument(value)])));
+    protected sealed record SerializedField(string FieldName, DataType Type, int FieldOffset, int Size);
 
-    [Pure]
-    protected static StatementSyntax GenerateRead(string fieldName, DataType type) =>
-        ExpressionStatement(
-            AssignmentExpression(
-                SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName(fieldName),
-                InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(ReaderParameterName), IdentifierName(type.BinaryReaderMethodName())))));
+    private sealed record SerializedBlock(string FieldName, DataType Type, int Size);
 
-    [Pure]
-    protected static ExpressionSyntax GenerateReadExpression(DataType type) =>
-        InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(ReaderParameterName), IdentifierName(type.BinaryReaderMethodName())));
-
-    [MustUseReturnValue]
-    private static IEnumerable<StatementSyntax> GenerateUsingBinaryReaderOrWriter<T>(FileGeneratorContext context, string parameterName)
-    {
-        context.RequiredUsings.Add(typeof(T));
-        context.RequiredUsings.Add(typeof(Encoding));
-
-        yield return LocalDeclarationStatement(
-                VariableDeclaration(IdentifierName("var"))
-                    .WithVariables(
-                    [
-                        VariableDeclarator(Identifier(parameterName))
-                            .WithInitializer(
-                                EqualsValueClause(
-                                    ObjectCreationExpression(IdentifierName(typeof(T).Name))
-                                        .WithArgumentList(
-                                            ArgumentList(
-                                            [
-                                                Argument(IdentifierName(StreamParameterName)),
-                                                Argument(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(nameof(Encoding)), IdentifierName(nameof(Encoding.UTF8)))),
-                                                Argument(LiteralExpression(SyntaxKind.TrueLiteralExpression))
-                                            ]))))
-                    ]))
-            .WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
-    }
+    private sealed record SerializationLayout(IReadOnlyList<SerializedBlock> RawBlocks, int SerializedSize);
 }

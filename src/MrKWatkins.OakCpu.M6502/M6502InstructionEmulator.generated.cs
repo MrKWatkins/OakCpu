@@ -55,46 +55,13 @@ public sealed unsafe partial class M6502InstructionEmulator
         Interrupts = new M6502InstructionInterrupts(this);
     }
 
-    /// <summary>
-    /// Gets the M6502 registers.
-    /// </summary>
-    [field: FieldOffset(8)]
-    public M6502Registers Registers
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-    }
-
-    /// <summary>
-    /// Gets the M6502 flags.
-    /// </summary>
-    [field: FieldOffset(16)]
-    public M6502Flags Flags
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-    }
-
-    /// <summary>
-    /// Gets the M6502 interrupt state.
-    /// </summary>
-    [field: FieldOffset(24)]
-    public M6502Interrupts Interrupts
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-    }
-
-    [FieldOffset(32)]
-    private ushort[] opcodeStepTable;
-
-    [FieldOffset(40)]
+    [FieldOffset(7)]
     private ushort ad;
 
-    [FieldOffset(42)]
+    [FieldOffset(9)]
     private ushort interruptvector;
 
-    [FieldOffset(44)]
+    [FieldOffset(11)]
     private ushort address;
 
     /// <summary>
@@ -106,22 +73,22 @@ public sealed unsafe partial class M6502InstructionEmulator
         get => address;
     }
 
-    [FieldOffset(46)]
+    [FieldOffset(13)]
     private bool pendingnmi;
 
-    [FieldOffset(47)]
+    [FieldOffset(14)]
     private bool previousnmi;
 
-    [FieldOffset(48)]
+    [FieldOffset(15)]
     private bool sampledirq;
 
-    [FieldOffset(49)]
+    [FieldOffset(16)]
     internal bool irq;
 
-    [FieldOffset(50)]
+    [FieldOffset(17)]
     internal bool nmi;
 
-    [FieldOffset(51)]
+    [FieldOffset(18)]
     private byte data;
 
     /// <summary>
@@ -135,8 +102,41 @@ public sealed unsafe partial class M6502InstructionEmulator
         set => data = value;
     }
 
-    [FieldOffset(52)]
+    [FieldOffset(19)]
     internal ushort nextSequenceStep;
+
+    /// <summary>
+    /// Gets the M6502 registers.
+    /// </summary>
+    [field: FieldOffset(24)]
+    public M6502Registers Registers
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
+
+    /// <summary>
+    /// Gets the M6502 flags.
+    /// </summary>
+    [field: FieldOffset(32)]
+    public M6502Flags Flags
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
+
+    /// <summary>
+    /// Gets the M6502 interrupt state.
+    /// </summary>
+    [field: FieldOffset(40)]
+    public M6502Interrupts Interrupts
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
+
+    [FieldOffset(48)]
+    private ushort[] opcodeStepTable;
 
     /// <summary>
     /// Executes one complete instruction or scheduled sequence.

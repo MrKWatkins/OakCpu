@@ -52,49 +52,13 @@ public sealed unsafe partial class M6502StepEmulator
         Interrupts = new M6502StepInterrupts(this);
     }
 
-    /// <summary>
-    /// Gets the M6502 registers.
-    /// </summary>
-    [field: FieldOffset(8)]
-    public M6502Registers Registers
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-    }
-
-    /// <summary>
-    /// Gets the M6502 flags.
-    /// </summary>
-    [field: FieldOffset(16)]
-    public M6502Flags Flags
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-    }
-
-    /// <summary>
-    /// Gets the M6502 interrupt state.
-    /// </summary>
-    [field: FieldOffset(24)]
-    public M6502Interrupts Interrupts
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-    }
-
-    [FieldOffset(32)]
-    private ushort[] opcodeStepTable;
-
-    [FieldOffset(40)]
-    private delegate*<M6502StepEmulator, void> overlapPipeline;
-
-    [FieldOffset(48)]
+    [FieldOffset(7)]
     private ushort ad;
 
-    [FieldOffset(50)]
+    [FieldOffset(9)]
     private ushort interruptvector;
 
-    [FieldOffset(52)]
+    [FieldOffset(11)]
     private ushort address;
 
     /// <summary>
@@ -106,25 +70,25 @@ public sealed unsafe partial class M6502StepEmulator
         get => address;
     }
 
-    [FieldOffset(54)]
+    [FieldOffset(13)]
     private ushort currentStep;
 
-    [FieldOffset(56)]
+    [FieldOffset(15)]
     private bool pendingnmi;
 
-    [FieldOffset(57)]
+    [FieldOffset(16)]
     private bool previousnmi;
 
-    [FieldOffset(58)]
+    [FieldOffset(17)]
     private bool sampledirq;
 
-    [FieldOffset(59)]
+    [FieldOffset(18)]
     internal bool irq;
 
-    [FieldOffset(60)]
+    [FieldOffset(19)]
     internal bool nmi;
 
-    [FieldOffset(61)]
+    [FieldOffset(20)]
     private byte data;
 
     /// <summary>
@@ -137,4 +101,40 @@ public sealed unsafe partial class M6502StepEmulator
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         set => data = value;
     }
+
+    /// <summary>
+    /// Gets the M6502 registers.
+    /// </summary>
+    [field: FieldOffset(24)]
+    public M6502Registers Registers
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
+
+    /// <summary>
+    /// Gets the M6502 flags.
+    /// </summary>
+    [field: FieldOffset(32)]
+    public M6502Flags Flags
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
+
+    /// <summary>
+    /// Gets the M6502 interrupt state.
+    /// </summary>
+    [field: FieldOffset(40)]
+    public M6502Interrupts Interrupts
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
+
+    [FieldOffset(48)]
+    private ushort[] opcodeStepTable;
+
+    [FieldOffset(56)]
+    private delegate*<M6502StepEmulator, void> overlapPipeline;
 }

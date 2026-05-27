@@ -30,7 +30,16 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
 
         members.Add(CreateConstructor(context));
 
-        var fieldOffset = ExplicitLayoutBuilder.GetObjectPropertiesFieldOffset(context);
+        var fieldOffset = ExplicitLayoutBuilder.GetRegistersEndOffset(context);
+
+        // Keep the serializable primitive state contiguous after the register block.
+        foreach (var dataMember in generatorContext.Configuration.AllDataMembers.Values.Where(member => member != PreDefinedDataMember.OpcodeStepTable).OrderByDescending(member => member.Size))
+        {
+            members.AddRange(CreateDataMember(context, dataMember, fieldOffset));
+            fieldOffset += dataMember.Size;
+        }
+
+        fieldOffset = ExplicitLayoutBuilder.AlignReferenceFieldOffset(fieldOffset);
         members.Add(CreateObjectProperty(context, Class.Name.Registers(context), Property.Name.Registers, fieldOffset));
         fieldOffset += 8;
 
@@ -40,20 +49,10 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         members.Add(CreateObjectProperty(context, Class.Name.Interrupts(context), Property.Name.Interrupts, fieldOffset));
         fieldOffset += 8;
 
-        // Order by size descending so each field ends up aligned to its own width.
-        foreach (var dataMember in generatorContext.Configuration.AllDataMembers.Values.Concat<DataMember>([PreDefinedDataMember.OverlapPipeline]).OrderByDescending(m => m == PreDefinedDataMember.OverlapPipeline ? 8 : m.Size))
-        {
-            if (dataMember == PreDefinedDataMember.OverlapPipeline)
-            {
-                members.Add(CreateOverlapPipelineField(context, fieldOffset));
-                fieldOffset += 8;
-            }
-            else
-            {
-                members.AddRange(CreateDataMember(context, dataMember, fieldOffset));
-                fieldOffset += dataMember.Size;
-            }
-        }
+        members.AddRange(CreateDataMember(context, PreDefinedDataMember.OpcodeStepTable, fieldOffset));
+        fieldOffset += PreDefinedDataMember.OpcodeStepTable.Size;
+
+        members.Add(CreateOverlapPipelineField(context, fieldOffset));
 
         return classDeclaration
             .AddAttributeLists(AttributeList(SingletonSeparatedList(ExplicitLayoutBuilder.CreateStructLayoutAttribute(context))))

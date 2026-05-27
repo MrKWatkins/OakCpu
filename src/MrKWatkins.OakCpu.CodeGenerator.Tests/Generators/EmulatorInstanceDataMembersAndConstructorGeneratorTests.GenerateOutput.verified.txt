@@ -157,43 +157,7 @@ public sealed unsafe partial class Z80StepEmulator
         Interrupts = new Z80StepInterrupts(this);
     }
 
-    /// <summary>
-    /// Gets the Z80 registers.
-    /// </summary>
-    [field: FieldOffset(32)]
-    public Z80Registers Registers
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-    }
-
-    /// <summary>
-    /// Gets the Z80 flags.
-    /// </summary>
-    [field: FieldOffset(40)]
-    public Z80Flags Flags
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-    }
-
-    /// <summary>
-    /// Gets the Z80 interrupt state.
-    /// </summary>
-    [field: FieldOffset(48)]
-    public Z80Interrupts Interrupts
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-    }
-
-    [FieldOffset(56)]
-    private ushort[] opcodeStepTable;
-
-    [FieldOffset(64)]
-    private delegate*<Z80StepEmulator, void> overlapPipeline;
-
-    [FieldOffset(72)]
+    [FieldOffset(29)]
     private ushort address;
 
     /// <summary>
@@ -205,28 +169,28 @@ public sealed unsafe partial class Z80StepEmulator
         get => address;
     }
 
-    [FieldOffset(74)]
+    [FieldOffset(31)]
     private ushort currentStep;
 
-    [FieldOffset(76)]
+    [FieldOffset(33)]
     private byte latch;
 
-    [FieldOffset(77)]
+    [FieldOffset(34)]
     internal byte im;
 
-    [FieldOffset(78)]
+    [FieldOffset(35)]
     internal bool iff1;
 
-    [FieldOffset(79)]
+    [FieldOffset(36)]
     internal bool iff2;
 
-    [FieldOffset(80)]
+    [FieldOffset(37)]
     internal bool halted;
 
-    [FieldOffset(81)]
+    [FieldOffset(38)]
     internal bool interrupt;
 
-    [FieldOffset(82)]
+    [FieldOffset(39)]
     private byte data;
 
     /// <summary>
@@ -239,4 +203,40 @@ public sealed unsafe partial class Z80StepEmulator
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         set => data = value;
     }
+
+    /// <summary>
+    /// Gets the Z80 registers.
+    /// </summary>
+    [field: FieldOffset(40)]
+    public Z80Registers Registers
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
+
+    /// <summary>
+    /// Gets the Z80 flags.
+    /// </summary>
+    [field: FieldOffset(48)]
+    public Z80Flags Flags
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
+
+    /// <summary>
+    /// Gets the Z80 interrupt state.
+    /// </summary>
+    [field: FieldOffset(56)]
+    public Z80Interrupts Interrupts
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
+
+    [FieldOffset(64)]
+    private ushort[] opcodeStepTable;
+
+    [FieldOffset(72)]
+    private delegate*<Z80StepEmulator, void> overlapPipeline;
 }

@@ -160,40 +160,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         Interrupts = new Z80InstructionInterrupts(this);
     }
 
-    /// <summary>
-    /// Gets the Z80 registers.
-    /// </summary>
-    [field: FieldOffset(32)]
-    public Z80Registers Registers
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-    }
-
-    /// <summary>
-    /// Gets the Z80 flags.
-    /// </summary>
-    [field: FieldOffset(40)]
-    public Z80Flags Flags
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-    }
-
-    /// <summary>
-    /// Gets the Z80 interrupt state.
-    /// </summary>
-    [field: FieldOffset(48)]
-    public Z80Interrupts Interrupts
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-    }
-
-    [FieldOffset(56)]
-    private ushort[] opcodeStepTable;
-
-    [FieldOffset(64)]
+    [FieldOffset(29)]
     private ushort address;
 
     /// <summary>
@@ -205,25 +172,25 @@ public sealed unsafe partial class Z80InstructionEmulator
         get => address;
     }
 
-    [FieldOffset(66)]
+    [FieldOffset(31)]
     private byte latch;
 
-    [FieldOffset(67)]
+    [FieldOffset(32)]
     internal byte im;
 
-    [FieldOffset(68)]
+    [FieldOffset(33)]
     internal bool iff1;
 
-    [FieldOffset(69)]
+    [FieldOffset(34)]
     internal bool iff2;
 
-    [FieldOffset(70)]
+    [FieldOffset(35)]
     internal bool halted;
 
-    [FieldOffset(71)]
+    [FieldOffset(36)]
     internal bool interrupt;
 
-    [FieldOffset(72)]
+    [FieldOffset(37)]
     private byte data;
 
     /// <summary>
@@ -237,8 +204,41 @@ public sealed unsafe partial class Z80InstructionEmulator
         set => data = value;
     }
 
-    [FieldOffset(74)]
+    [FieldOffset(38)]
     internal ushort nextSequenceStep;
+
+    /// <summary>
+    /// Gets the Z80 registers.
+    /// </summary>
+    [field: FieldOffset(40)]
+    public Z80Registers Registers
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
+
+    /// <summary>
+    /// Gets the Z80 flags.
+    /// </summary>
+    [field: FieldOffset(48)]
+    public Z80Flags Flags
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
+
+    /// <summary>
+    /// Gets the Z80 interrupt state.
+    /// </summary>
+    [field: FieldOffset(56)]
+    public Z80Interrupts Interrupts
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get;
+    }
+
+    [FieldOffset(64)]
+    private ushort[] opcodeStepTable;
 
     /// <summary>
     /// Executes one complete instruction or scheduled sequence.

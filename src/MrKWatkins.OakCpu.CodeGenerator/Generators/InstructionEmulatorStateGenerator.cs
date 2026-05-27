@@ -32,7 +32,19 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         members.Add(CreateNoNextSequenceStepField());
         members.Add(CreateConstructor(context));
 
-        var fieldOffset = ExplicitLayoutBuilder.GetObjectPropertiesFieldOffset(context);
+        var fieldOffset = ExplicitLayoutBuilder.GetRegistersEndOffset(context);
+
+        // Keep the serializable primitive state contiguous after the register block.
+        foreach (var dataMember in generatorContext.Configuration.AllDataMembers.Values.Where(m => m != PreDefinedDataMember.CurrentStep && m != PreDefinedDataMember.OpcodeStepTable).OrderByDescending(m => m.Size))
+        {
+            members.AddRange(CreateDataMember(context, dataMember, fieldOffset));
+            fieldOffset += dataMember.Size;
+        }
+
+        members.Add(CreateNextSequenceStepField(context, fieldOffset));
+        fieldOffset += DataType.U16.Size();
+
+        fieldOffset = ExplicitLayoutBuilder.AlignReferenceFieldOffset(fieldOffset);
         members.Add(CreateObjectProperty(context, Class.Name.Registers(context), Property.Name.Registers, fieldOffset));
         fieldOffset += 8;
 
@@ -42,18 +54,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         members.Add(CreateObjectProperty(context, Class.Name.Interrupts(context), Property.Name.Interrupts, fieldOffset));
         fieldOffset += 8;
 
-        foreach (var dataMember in generatorContext.Configuration.AllDataMembers.Values.Where(m => m != PreDefinedDataMember.CurrentStep).OrderByDescending(m => m.Size))
-        {
-            members.AddRange(CreateDataMember(context, dataMember, fieldOffset));
-            fieldOffset += dataMember.Size;
-        }
-
-        if (fieldOffset % 2 != 0)
-        {
-            fieldOffset += 1;
-        }
-
-        members.Add(CreateNextSequenceStepField(context, fieldOffset));
+        members.AddRange(CreateDataMember(context, PreDefinedDataMember.OpcodeStepTable, fieldOffset));
         members.Add(CreateExecuteInstructionMethod());
         members.Add(CreateExecuteDecodedInstructionMethod(context));
         members.Add(CreateCompleteInstructionMethod(context));

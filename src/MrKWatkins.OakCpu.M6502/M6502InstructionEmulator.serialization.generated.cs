@@ -8,12 +8,44 @@
 //------------------------------------------------------------------------------
 #nullable enable
 using System.IO;
-using System.Text;
 
 namespace MrKWatkins.OakCpu.M6502;
 
 public sealed unsafe partial class M6502InstructionEmulator
 {
+    /// <summary>
+    /// The number of bytes required to serialize the emulator state.
+    /// </summary>
+    public const int SerializedSize = 22;
+
+    /// <summary>
+    /// Serializes this emulator's M6502 CPU state.
+    /// </summary>
+    /// <param name="destination">
+    /// The destination span to write the CPU state to.
+    /// </param>
+    public void Serialize(Span<byte> destination)
+    {
+        if (destination.Length < SerializedSize)
+        {
+            throw new ArgumentException("The destination span is too small.", nameof(destination));
+        }
+
+        if (opcodeStepTable == OpcodeStepTableNoPrefix)
+        {
+            destination[0] = (byte)0;
+        }
+        else
+        {
+            throw new InvalidOperationException("Unknown opcode step table.");
+        }
+
+        fixed (byte* block0 = &PCL)
+        {
+            new ReadOnlySpan<byte>((byte*)block0, 21).CopyTo(destination.Slice(1, 21));
+        }
+    }
+
     /// <summary>
     /// Serializes this emulator's M6502 CPU state.
     /// </summary>
@@ -22,29 +54,25 @@ public sealed unsafe partial class M6502InstructionEmulator
     /// </param>
     public void Serialize(Stream stream)
     {
-        using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
-        if (opcodeStepTable == OpcodeStepTableNoPrefix)
-        {
-            writer.Write((byte)0);
-        }
+        Span<byte> buffer = stackalloc byte[SerializedSize];
+        Serialize(buffer);
+        stream.Write(buffer);
+    }
 
-        writer.Write(ad);
-        writer.Write(address);
-        writer.Write(data);
-        writer.Write(interruptvector);
-        writer.Write(irq);
-        writer.Write(nmi);
-        writer.Write(pendingnmi);
-        writer.Write(previousnmi);
-        writer.Write(sampledirq);
-        writer.Write(nextSequenceStep);
-        writer.Write(PCL);
-        writer.Write(PCH);
-        writer.Write(A);
-        writer.Write(P);
-        writer.Write(S);
-        writer.Write(X);
-        writer.Write(Y);
+    /// <summary>
+    /// Deserializes a M6502 CPU state.
+    /// </summary>
+    /// <param name="source">
+    /// The serialized CPU state to read from.
+    /// </param>
+    /// <returns>
+    /// The deserialized M6502 emulator.
+    /// </returns>
+    public static M6502InstructionEmulator Deserialize(ReadOnlySpan<byte> source)
+    {
+        var deserialized = new M6502InstructionEmulator();
+        deserialized.Restore(source);
+        return deserialized;
     }
 
     /// <summary>
@@ -58,9 +86,33 @@ public sealed unsafe partial class M6502InstructionEmulator
     /// </returns>
     public static M6502InstructionEmulator Deserialize(Stream stream)
     {
-        var deserialized = new M6502InstructionEmulator();
-        deserialized.Restore(stream);
-        return deserialized;
+        Span<byte> buffer = stackalloc byte[SerializedSize];
+        stream.ReadExactly(buffer);
+        return Deserialize(buffer);
+    }
+
+    /// <summary>
+    /// Restores this emulator from a serialized M6502 CPU state.
+    /// </summary>
+    /// <param name="source">
+    /// The serialized CPU state to read from.
+    /// </param>
+    public void Restore(ReadOnlySpan<byte> source)
+    {
+        if (source.Length < SerializedSize)
+        {
+            throw new ArgumentException("The source span is too small.", nameof(source));
+        }
+
+        opcodeStepTable = source[0] switch
+        {
+            0 => OpcodeStepTableNoPrefix,
+            _ => throw new InvalidOperationException("Unknown opcode step table.")
+        };
+        fixed (byte* block0 = &PCL)
+        {
+            source.Slice(1, 21).CopyTo(new Span<byte>((byte*)block0, 21));
+        }
     }
 
     /// <summary>
@@ -71,28 +123,8 @@ public sealed unsafe partial class M6502InstructionEmulator
     /// </param>
     public void Restore(Stream stream)
     {
-        using var reader = new BinaryReader(stream, Encoding.UTF8, true);
-        opcodeStepTable = reader.ReadByte() switch
-        {
-            0 => OpcodeStepTableNoPrefix,
-            _ => throw new InvalidOperationException("Unknown opcode step table.")
-        };
-        ad = reader.ReadUInt16();
-        address = reader.ReadUInt16();
-        data = reader.ReadByte();
-        interruptvector = reader.ReadUInt16();
-        irq = reader.ReadBoolean();
-        nmi = reader.ReadBoolean();
-        pendingnmi = reader.ReadBoolean();
-        previousnmi = reader.ReadBoolean();
-        sampledirq = reader.ReadBoolean();
-        nextSequenceStep = reader.ReadUInt16();
-        PCL = reader.ReadByte();
-        PCH = reader.ReadByte();
-        A = reader.ReadByte();
-        P = reader.ReadByte();
-        S = reader.ReadByte();
-        X = reader.ReadByte();
-        Y = reader.ReadByte();
+        Span<byte> buffer = stackalloc byte[SerializedSize];
+        stream.ReadExactly(buffer);
+        Restore(buffer);
     }
 }

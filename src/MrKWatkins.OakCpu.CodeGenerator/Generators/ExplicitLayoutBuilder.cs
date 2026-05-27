@@ -164,16 +164,20 @@ internal static class ExplicitLayoutBuilder
     }
 
     /// <summary>
-    /// Calculates the first aligned offset after the register block where object-backed properties can be placed.
+    /// Calculates the first offset after the register block.
     /// </summary>
     [Pure]
-    internal static int GetObjectPropertiesFieldOffset(GeneratorContext context)
+    internal static int GetRegistersEndOffset(GeneratorContext context)
     {
         var lastRegister = context.Configuration.Registers.Values.OrderByDescending(r => r.FieldOffset).First();
-        var nextFieldOffset = lastRegister.FieldOffset + lastRegister.Type.Size();
-
-        return (nextFieldOffset + 7) & ~7;
+        return lastRegister.FieldOffset + lastRegister.Type.Size();
     }
+
+    /// <summary>
+    /// Aligns a field offset for reference-typed and pointer fields.
+    /// </summary>
+    [Pure]
+    internal static int AlignReferenceFieldOffset(int fieldOffset) => (fieldOffset + 7) & ~7;
 
     /// <summary>
     /// Gets the XML documentation summary for one of the generated object-backed facade properties.

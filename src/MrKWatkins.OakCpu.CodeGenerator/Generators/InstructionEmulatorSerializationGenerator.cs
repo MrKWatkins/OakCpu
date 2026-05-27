@@ -1,6 +1,4 @@
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
@@ -19,20 +17,14 @@ public sealed class InstructionEmulatorSerializationGenerator : SerializationGen
     protected override string GetSerializedTypeName(GeneratorContext context) => Class.Name.InstructionEmulator(context);
 
     [Pure]
-    protected override IEnumerable<DataMember> GetSerializedDataMembers(GeneratorContext context) =>
+    protected override IEnumerable<DataMember> GetSerializedDataFields(GeneratorContext context) =>
         context.Configuration.AllDataMembers.Values
             .Where(member => member != PreDefinedDataMember.CurrentStep && member != PreDefinedDataMember.OpcodeStepTable)
-            .OrderBy(member => member.Name);
+            .OrderByDescending(member => member.Size);
 
     [Pure]
-    protected override IEnumerable<StatementSyntax> GenerateAdditionalSerializeStatements(GeneratorContext context)
+    protected override IEnumerable<SerializedField> GetAdditionalSerializedFields(GeneratorContext context, int nextFieldOffset)
     {
-        yield return GenerateWrite(IdentifierName(Field.Name.NextSequenceStep));
-    }
-
-    [Pure]
-    protected override IEnumerable<StatementSyntax> GenerateAdditionalRestoreStatements(GeneratorContext context)
-    {
-        yield return GenerateRead(Field.Name.NextSequenceStep, DataType.U16);
+        yield return new SerializedField(Field.Name.NextSequenceStep, DataType.U16, nextFieldOffset, DataType.U16.Size());
     }
 }
