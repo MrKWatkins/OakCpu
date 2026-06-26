@@ -1,8 +1,6 @@
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -33,6 +31,12 @@ internal static class Identifiers
             /// </summary>
             [Pure]
             public static string InstructionEmulator(GeneratorContext context) => $"{context.Cpu.Name}InstructionEmulator";
+
+            /// <summary>
+            /// Gets the generated instruction-emulator bus-handler interface name.
+            /// </summary>
+            [Pure]
+            public static string InstructionBusHandler(GeneratorContext context) => $"I{context.Cpu.Name}BusHandler";
 
             /// <summary>
             /// Gets the generated registers facade class name.
@@ -230,11 +234,6 @@ internal static class Identifiers
         internal static class Name
         {
             /// <summary>
-            /// The callback parameter that reports required external actions.
-            /// </summary>
-            public const string InstructionActionCallback = "onActionRequired";
-
-            /// <summary>
             /// The emulator parameter name.
             /// </summary>
             public const string Emulator = "emulator";
@@ -263,25 +262,6 @@ internal static class Identifiers
             [Pure]
             public static ParameterSyntax InstructionEmulator(GeneratorContext context) =>
                 Parameter(Identifier(Name.Emulator)).WithType(Class.Identifier.InstructionEmulator(context));
-
-            /// <summary>
-            /// Creates the callback parameter used by generated instruction handlers to request external bus actions.
-            /// </summary>
-            [Pure]
-            public static ParameterSyntax InstructionActionCallback() =>
-                Parameter(Identifier(Name.InstructionActionCallback))
-                    .WithType(
-                        GenericName(Identifier("Action"))
-                            .WithTypeArgumentList(
-                                TypeArgumentList(
-                                    SeparatedList<TypeSyntax>(
-                                    [
-                                        IdentifierName(TypeName.ActionRequiredEnum),
-                                        Token(SyntaxKind.CommaToken),
-                                        UShortType,
-                                        Token(SyntaxKind.CommaToken),
-                                        ByteType
-                                    ]))));
         }
     }
 

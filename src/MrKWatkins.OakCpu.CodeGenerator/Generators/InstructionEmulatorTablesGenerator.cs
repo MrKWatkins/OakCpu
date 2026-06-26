@@ -21,7 +21,7 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
     protected override BaseTypeDeclarationSyntax CreateType(FileGeneratorContext context)
     {
         var members = TableGeneration.CreateStepTableFields(context, Field.Name.SequenceGroupStepTable)
-            .Prepend(CreateInstructionsField(context))
+            .Prepend(CreateDispatchHolder(context))
             .Append(CreateStaticConstructor(context))
             .ToArray();
 
@@ -31,21 +31,36 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
     }
 
     [Pure]
-    private static MemberDeclarationSyntax CreateInstructionsField(FileGeneratorContext context) =>
-        FieldDeclaration(
-                VariableDeclaration(
-                        ArrayType(CreateInstructionHandlerType(context))
-                            .WithRankSpecifiers([ArrayRankSpecifier([OmittedArraySizeExpression()])]))
-                    .WithVariables([VariableDeclarator(Identifier(Field.Name.Instructions))]))
-            .AddModifiers(Private, Static, ReadOnly);
+    private static MemberDeclarationSyntax CreateDispatchHolder(FileGeneratorContext context)
+    {
+        // The dispatch table holds function pointers to the generic instruction methods, so it must live inside a generic
+        // holder class. Each closed THandler gets its own monomorphised table and instruction methods, letting the JIT
+        // inline the handler's OnActionRequired call into every bus access.
+        var instructionsField =
+            FieldDeclaration(
+                    VariableDeclaration(
+                            ArrayType(InstructionHandlerSyntax.InstructionHandlerType(context.GeneratorContext))
+                                .WithRankSpecifiers([ArrayRankSpecifier([OmittedArraySizeExpression()])]))
+                        .WithVariables(
+                        [
+                            VariableDeclarator(Identifier(Field.Name.Instructions))
+                                .WithInitializer(EqualsValueClause(CreateInstructionsCollectionExpression(context)))
+                        ]))
+                .AddModifiers(Public, Static, ReadOnly);
+
+        return ClassDeclaration(InstructionHandlerSyntax.DispatchHolderName)
+            .AddModifiers(Private, Static, Unsafe)
+            .WithTypeParameterList(InstructionHandlerSyntax.TypeParameters)
+            .WithConstraintClauses(InstructionHandlerSyntax.ConstraintClauses(context.GeneratorContext))
+            .AddMembers(instructionsField);
+    }
 
     [Pure]
     private static ConstructorDeclarationSyntax CreateStaticConstructor(FileGeneratorContext context)
     {
         var statements = new List<StatementSyntax>
         {
-            TableGeneration.CreateLittleEndianStatement(context),
-            CreateInstructionsInitializationStatement(context)
+            TableGeneration.CreateLittleEndianStatement(context)
         };
 
         statements.AddRange(TableGeneration.CreateTableInitializationStatements(context, CreateOpcodeStepTableInitializationStatement, CreateSequenceGroupStepTableInitializationStatement));
@@ -56,22 +71,18 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
     }
 
     [Pure]
-    private static StatementSyntax CreateInstructionsInitializationStatement(FileGeneratorContext context)
+    private static ExpressionSyntax CreateInstructionsCollectionExpression(FileGeneratorContext context)
     {
         var dispatchableSequences = InstructionEmulatorGenerator.GetDispatchableSequences(context).ToList();
-        var handlers = Enumerable.Repeat<ExpressionSyntax>(PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(Method.Name.Error)), context.GeneratorContext.InstructionEmulatorDispatchCount).ToArray();
+        var handlers = Enumerable.Repeat(InstructionHandlerSyntax.AddressOfInstructionMethod(Method.Name.Error), context.GeneratorContext.InstructionEmulatorDispatchCount).ToArray();
 
         foreach (var sequence in dispatchableSequences)
         {
             handlers[context.GeneratorContext.GetInstructionEmulatorSequenceIndex(sequence)] =
-                PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(InstructionEmulatorGenerator.GetInstructionMethodName(context, sequence)));
+                InstructionHandlerSyntax.AddressOfInstructionMethod(InstructionEmulatorGenerator.GetInstructionMethodName(context, sequence));
         }
 
-        return ExpressionStatement(
-            AssignmentExpression(
-                SyntaxKind.SimpleAssignmentExpression,
-                IdentifierName(Field.Name.Instructions),
-                CollectionExpression(SeparatedList<CollectionElementSyntax>(handlers.Select(ExpressionElement)))));
+        return CollectionExpression(SeparatedList<CollectionElementSyntax>(handlers.Select(ExpressionElement)));
     }
 
     [Pure]

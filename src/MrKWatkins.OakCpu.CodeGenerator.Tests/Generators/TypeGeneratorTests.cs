@@ -23,11 +23,11 @@ public sealed class TypeGeneratorTests : TestFixture
     }
 
     [Test]
-    public void InstructionActionCallback()
+    public void InstructionHandlerMethodParameter()
     {
-        var result = Identifiers.Parameter.Syntax.InstructionActionCallback();
+        var result = InstructionHandlerSyntax.MethodParameter;
 
-        result.ToNormalizedString().Should().Equal("Action<ActionRequired, ushort, byte> onActionRequired");
+        result.ToNormalizedString().Should().Equal("ref THandler handler");
     }
 
     [Test]

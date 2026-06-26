@@ -7,7 +7,6 @@ public sealed class Z80InstructionEmulatorTestHarness : Z80TestHarness
 {
     private readonly Z80InstructionEmulator emulator;
     private readonly byte[] memory = new byte[65536];
-    private readonly Action<ActionRequired, ushort, byte> performActionRequiredCallback;
 
     public Z80InstructionEmulatorTestHarness()
         : this(new Z80InstructionEmulator())
@@ -17,7 +16,6 @@ public sealed class Z80InstructionEmulatorTestHarness : Z80TestHarness
     private Z80InstructionEmulatorTestHarness(Z80InstructionEmulator emulator)
     {
         this.emulator = emulator;
-        performActionRequiredCallback = PerformActionRequired;
     }
 
     public override ushort RegisterAF
@@ -163,7 +161,8 @@ public sealed class Z80InstructionEmulatorTestHarness : Z80TestHarness
     public override void ExecuteInstruction()
     {
         var instructionStartTStates = TStates;
-        LastInstructionTStates = emulator.ExecuteInstruction(performActionRequiredCallback);
+        var handler = new BusHandler(this);
+        LastInstructionTStates = emulator.ExecuteInstruction(ref handler);
         TStates = instructionStartTStates + (ulong)LastInstructionTStates;
     }
 
@@ -220,5 +219,10 @@ public sealed class Z80InstructionEmulatorTestHarness : Z80TestHarness
         }
 
         throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");
+    }
+
+    private readonly struct BusHandler(Z80InstructionEmulatorTestHarness harness) : IZ80BusHandler
+    {
+        public void OnActionRequired(ActionRequired actionRequired, ushort address, byte data) => harness.PerformActionRequired(actionRequired, address, data);
     }
 }

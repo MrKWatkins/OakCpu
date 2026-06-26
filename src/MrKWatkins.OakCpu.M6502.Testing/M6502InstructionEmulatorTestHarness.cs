@@ -69,7 +69,8 @@ public sealed class M6502InstructionEmulatorTestHarness : M6502TestHarness
     public override void ExecuteInstruction()
     {
         var initialTStates = TStates;
-        var executedTStates = emulator.ExecuteInstruction(PerformActionRequired);
+        var handler = new BusHandler(this);
+        var executedTStates = emulator.ExecuteInstruction(ref handler);
         if (executedTStates == 2 && TStates == initialTStates + 1)
         {
             // The instruction emulator does not expose the implied instruction prefetch read, but the single-step suite expects it.
@@ -99,5 +100,10 @@ public sealed class M6502InstructionEmulatorTestHarness : M6502TestHarness
         }
 
         throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");
+    }
+
+    private readonly struct BusHandler(M6502InstructionEmulatorTestHarness harness) : IM6502BusHandler
+    {
+        public void OnActionRequired(ActionRequired actionRequired, ushort address, byte data) => harness.PerformActionRequired(actionRequired, address, data);
     }
 }

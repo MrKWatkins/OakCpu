@@ -18,6 +18,7 @@ public abstract class TypeGenerator
 
     public static readonly IReadOnlyList<TypeGenerator> AllGenerators = [
         ActionRequiredGenerator.Instance,
+        InstructionEmulatorBusHandlerGenerator.Instance,
         EmulatorInstanceDataMembersAndConstructorGenerator.Instance,
         EmulatorInterruptsGenerator.Instance,
         InstructionEmulatorStateGenerator.Instance,
@@ -260,28 +261,6 @@ public abstract class TypeGenerator
             ? constructor
             : constructor.WithInitializer(initializer);
     }
-
-    [Pure]
-    protected static FunctionPointerTypeSyntax CreateInstructionHandlerType(FileGeneratorContext context) =>
-        FunctionPointerType(
-            null,
-            FunctionPointerParameterList(
-            [
-                FunctionPointerParameter(IdentifierName(Class.Name.InstructionEmulator(context))),
-                FunctionPointerParameter(
-                    GenericName(Identifier("Action"))
-                        .WithTypeArgumentList(
-                            TypeArgumentList(
-                                SeparatedList<TypeSyntax>(
-                                [
-                                    IdentifierName(TypeName.ActionRequiredEnum),
-                                    Token(SyntaxKind.CommaToken),
-                                    UShortType,
-                                    Token(SyntaxKind.CommaToken),
-                                    ByteType
-                                ])))),
-                FunctionPointerParameter(IntType)
-            ]));
 
     [Pure]
     protected static FunctionPointerTypeSyntax CreateOverlapHandlerType(FileGeneratorContext context) =>

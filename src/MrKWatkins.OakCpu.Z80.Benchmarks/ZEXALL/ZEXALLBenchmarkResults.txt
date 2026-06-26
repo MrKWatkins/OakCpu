@@ -57,3 +57,10 @@ Switched to aluop a,nn to match OakEmu, now that the test passes.
 | Z80StepEmulator        | aluop a,nn | 1,938.7 ms | 37.63 ms | 48.93 ms |  1.18 |    0.03 |   x81.84 |   64.25 KB |        0.03 |
 
 
+2026-06-26 - Use a generic struct for the instruction emulator to allow the JIT to use monomorphism and optimize the code.
+
+| Method                 | Test       | Mean       | Error    | StdDev   | Ratio | RatioSD | ZX Speed | Allocated  | Alloc Ratio |
+|----------------------- |----------- |-----------:|---------:|---------:|------:|--------:|---------:|-----------:|------------:|
+| OakEmu                 | aluop a,nn | 1,643.6 ms | 16.70 ms | 19.88 ms |  1.00 |    0.02 |   x96.53 | 2435.25 KB |        1.00 |
+| Z80InstructionEmulator | aluop a,nn |   468.5 ms |  5.16 ms |  7.40 ms |  0.29 |    0.01 |  x338.63 |   64.24 KB |        0.03 |
+| Z80StepEmulator        | aluop a,nn | 1,922.3 ms | 37.07 ms | 46.88 ms |  1.17 |    0.03 |   x82.54 |   64.25 KB |        0.03 |

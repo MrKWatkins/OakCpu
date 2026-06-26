@@ -141,30 +141,31 @@ public sealed unsafe partial class M6502InstructionEmulator
     /// <summary>
     /// Executes one complete instruction or scheduled sequence.
     /// </summary>
-    /// <param name="onActionRequired">
-    /// Called whenever the emulator requires an external bus action.
+    /// <param name="handler">
+    /// Handles the external bus actions required to execute the instruction.
     /// </param>
     /// <returns>
     /// The number of T-states executed.
     /// </returns>
-    public int ExecuteInstruction(Action<ActionRequired, ushort, byte> onActionRequired)
+    public int ExecuteInstruction<THandler>(ref THandler handler)
+        where THandler : IM6502BusHandler, allows ref struct
     {
-        ArgumentNullException.ThrowIfNull(onActionRequired);
         ushort scheduledSequenceStep = nextSequenceStep;
         if (scheduledSequenceStep != NoNextSequenceStep)
         {
             nextSequenceStep = NoNextSequenceStep;
-            return ExecuteDecodedInstruction(scheduledSequenceStep, onActionRequired);
+            return ExecuteDecodedInstruction(scheduledSequenceStep, ref handler);
         }
 
-        return ExecuteDecodedInstruction(OpcodeReadStep0, onActionRequired);
+        return ExecuteDecodedInstruction(OpcodeReadStep0, ref handler);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int ExecuteDecodedInstruction(ushort decodedStep, Action<ActionRequired, ushort, byte> onActionRequired)
+    private int ExecuteDecodedInstruction<THandler>(ushort decodedStep, ref THandler handler)
+        where THandler : IM6502BusHandler, allows ref struct
     {
-        var instruction = Instructions[decodedStep];
-        return instruction(this, onActionRequired);
+        var instruction = Dispatch<THandler>.Instructions[decodedStep];
+        return instruction(this, ref handler);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

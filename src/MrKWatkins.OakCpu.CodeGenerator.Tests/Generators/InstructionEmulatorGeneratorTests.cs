@@ -12,10 +12,10 @@ public sealed class InstructionEmulatorGeneratorTests : TestFixture
     {
         var result = InstructionEmulatorGenerator.Instance.Generate(Z80GeneratorContext);
 
-        result.Contains("private static int NOP(", StringComparison.Ordinal).Should().BeTrue();
-        result.Contains("private static int NOP_DD_00(", StringComparison.Ordinal).Should().BeTrue();
-        result.Contains("private static int Prefix_CB(", StringComparison.Ordinal).Should().BeTrue();
-        result.Contains("private static int Error(", StringComparison.Ordinal).Should().BeTrue();
+        result.Contains("private static int NOP<THandler>(", StringComparison.Ordinal).Should().BeTrue();
+        result.Contains("private static int NOP_DD_00<THandler>(", StringComparison.Ordinal).Should().BeTrue();
+        result.Contains("private static int Prefix_CB<THandler>(", StringComparison.Ordinal).Should().BeTrue();
+        result.Contains("private static int Error<THandler>(", StringComparison.Ordinal).Should().BeTrue();
     }
 
     [Test]

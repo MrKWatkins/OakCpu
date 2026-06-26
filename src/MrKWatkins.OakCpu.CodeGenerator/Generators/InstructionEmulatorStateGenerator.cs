@@ -55,7 +55,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         fieldOffset += 8;
 
         members.AddRange(CreateDataMember(context, PreDefinedDataMember.OpcodeStepTable, fieldOffset));
-        members.Add(CreateExecuteInstructionMethod());
+        members.Add(CreateExecuteInstructionMethod(context));
         members.Add(CreateExecuteDecodedInstructionMethod(context));
         members.Add(CreateCompleteInstructionMethod(context));
 
@@ -122,30 +122,20 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         ExplicitLayoutBuilder.CreateOffsetField(context, UShortType, Field.Name.NextSequenceStep, fieldOffset, Internal);
 
     [Pure]
-    private static MethodDeclarationSyntax CreateExecuteInstructionMethod()
+    private static MethodDeclarationSyntax CreateExecuteInstructionMethod(FileGeneratorContext context)
     {
         const string scheduledSequenceStepVariableName = "scheduledSequenceStep";
 
         return WithXmlDocumentation(
             MethodDeclaration(IntType, Identifier("ExecuteInstruction"))
                 .WithModifiers(TokenList(Public))
-                .WithParameterList(ParameterList([Parameter.Syntax.InstructionActionCallback()]))
+                .WithTypeParameterList(InstructionHandlerSyntax.TypeParameters)
+                .WithParameterList(ParameterList([InstructionHandlerSyntax.MethodParameter]))
+                .WithConstraintClauses(InstructionHandlerSyntax.ConstraintClauses(context.GeneratorContext))
                 .WithBody(
                     Block(
                         List<StatementSyntax>(
                         [
-                            ExpressionStatement(
-                                InvocationExpression(
-                                        MemberAccessExpression(
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            IdentifierName(nameof(ArgumentNullException)),
-                                            IdentifierName(nameof(ArgumentNullException.ThrowIfNull))))
-                                    .WithArgumentList(
-                                        ArgumentList(
-                                        [
-                                            Argument(IdentifierName(Parameter.Name.InstructionActionCallback))
-                                        ]))),
-
                             InitializeVariableStatement(scheduledSequenceStepVariableName, IdentifierName(Field.Name.NextSequenceStep), UShortType),
                             IfStatement(
                                 BinaryExpression(
@@ -166,7 +156,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
                                                     ArgumentList(
                                                     [
                                                         Argument(IdentifierName(scheduledSequenceStepVariableName)),
-                                                        Argument(IdentifierName(Parameter.Name.InstructionActionCallback))
+                                                        InstructionHandlerSyntax.Argument
                                                     ])))
                                     ]))),
 
@@ -176,13 +166,13 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
                                         ArgumentList(
                                         [
                                             Argument(IdentifierName(InstructionEmulatorGenerator.OpcodeReadStep0FieldName)),
-                                            Argument(IdentifierName(Parameter.Name.InstructionActionCallback))
+                                            InstructionHandlerSyntax.Argument
                                         ])))
                         ]))),
             "Executes one complete instruction or scheduled sequence.",
             parameters: new Dictionary<string, string>
             {
-                [Parameter.Name.InstructionActionCallback] = "Called whenever the emulator requires an external bus action."
+                [InstructionHandlerSyntax.ParameterName] = "Handles the external bus actions required to execute the instruction."
             },
             returns: "The number of T-states executed.");
     }
@@ -196,19 +186,25 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         return MethodDeclaration(IntType, Identifier(InstructionEmulatorGenerator.ExecuteDecodedInstructionMethodName))
             .AddAttributeLists(CreateAggressiveInliningAttributeList(context.RequiredUsings))
             .WithModifiers(TokenList(Private))
+            .WithTypeParameterList(InstructionHandlerSyntax.TypeParameters)
             .WithParameterList(
                 ParameterList(
                 [
                     Parameter(Identifier(decodedStepParameterName)).WithType(UShortType),
-                    Parameter.Syntax.InstructionActionCallback()
+                    InstructionHandlerSyntax.MethodParameter
                 ]))
+            .WithConstraintClauses(InstructionHandlerSyntax.ConstraintClauses(context.GeneratorContext))
             .WithBody(
                 Block(
                     List<StatementSyntax>(
                     [
                         InitializeVariableStatement(
                             instructionVariableName,
-                            ElementAccessExpression(IdentifierName(Field.Name.Instructions))
+                            ElementAccessExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        InstructionHandlerSyntax.DispatchHolderType,
+                                        IdentifierName(Field.Name.Instructions)))
                                 .WithArgumentList(
                                     BracketedArgumentList(
                                     [
@@ -220,7 +216,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
                                     ArgumentList(
                                     [
                                         Argument(ThisExpression()),
-                                        Argument(IdentifierName(Parameter.Name.InstructionActionCallback))
+                                        InstructionHandlerSyntax.Argument
                                     ])))
                     ])));
     }

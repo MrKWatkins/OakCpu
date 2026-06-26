@@ -24,12 +24,14 @@ internal static class InstructionMethodEmitter
 
         return MethodDeclaration(IntType, Identifier(plan.MethodName))
             .WithModifiers([Private, Static])
+            .WithTypeParameterList(InstructionHandlerSyntax.TypeParameters)
             .WithParameterList(
                 ParameterList(
                 [
                     Parameter.Syntax.InstructionEmulator(context),
-                    Parameter.Syntax.InstructionActionCallback()
+                    InstructionHandlerSyntax.MethodParameter
                 ]))
+            .WithConstraintClauses(InstructionHandlerSyntax.ConstraintClauses(context))
             .WithLeadingTrivia(Comment($"// {plan.Comment}"))
             .WithBody(Block(statements));
     }
@@ -62,6 +64,11 @@ internal static class InstructionMethodEmitter
         {
             if (stepPlan.NextInstructionVariableName != null)
             {
+                // Seed the next-instruction variable with the 65535 "no redirect" sentinel. A step that
+                // unconditionally redirects always overwrites this before it is read, but the seed - together with the
+                // always-true guard emitted by CreateExecuteNextInstructionAndReturn - must stay. See the detailed note
+                // on that method: the guard is a JIT code-generation boundary worth ~2.5x on the hot dispatch path, so
+                // this is deliberately NOT collapsed to an unconditional assignment even when the redirect is certain.
                 statements.Add(
                     InitializeVariableStatement(
                         stepPlan.NextInstructionVariableName,
@@ -130,7 +137,11 @@ internal static class InstructionMethodEmitter
     [Pure]
     private static StatementSyntax CreateActionCallbackStatement(Action action) =>
         ExpressionStatement(
-            InvocationExpression(IdentifierName(Parameter.Name.InstructionActionCallback))
+            InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName(InstructionHandlerSyntax.ParameterName),
+                        IdentifierName(InstructionHandlerSyntax.OnActionRequiredMethodName)))
                 .WithArgumentList(
                     ArgumentList(
                     [
@@ -169,6 +180,25 @@ internal static class InstructionMethodEmitter
             GenerateNumericLiteralExpression(tStates));
     }
 
+    // Emits the next-instruction dispatch as a guarded return:
+    //
+    //     if (nextInstructionN != 65535)
+    //     {
+    //         return tStates + emulator.ExecuteDecodedInstruction(nextInstructionN, ref handler);
+    //     }
+    //     // ...falls through to the step's normal "return tStates" / CompleteInstruction(...) tail.
+    //
+    // For a step that unconditionally redirects (move_to_opcode / move_to_sequence / move_to_interrupt_mode) the
+    // variable is always reassigned away from the 65535 sentinel before we reach here, so the guard is provably always
+    // true and the trailing return is unreachable. It therefore looks like obviously removable dead code - DO NOT
+    // remove it, and do not special-case unconditional redirects to emit the dispatch without the guard.
+    //
+    // The always-true branch is load-bearing for performance. ExecuteDecodedInstruction is [AggressiveInlining] and
+    // dispatches through the function-pointer table into the recursive instruction chain; the guard acts as a
+    // code-generation boundary that the JIT needs to optimise the hot opcode-read path well. Dropping it (so the
+    // dispatch becomes the method's unconditional tail) regressed the Z80 instruction emulator from ~x338 to ~x128
+    // real-Spectrum speed in the ZEXALL "aluop a,nn" benchmark - a ~2.5x slowdown - measured 2026-06-26. The branch is
+    // free at runtime (predicted not-taken, never mispredicts) and pays for itself many times over, so keep it.
     [Pure]
     private static StatementSyntax CreateExecuteNextInstructionAndReturn(string nextInstructionVariableName, int tStates) =>
         IfStatement(
@@ -190,7 +220,7 @@ internal static class InstructionMethodEmitter
                                 ArgumentList(
                                 [
                                     Argument(IdentifierName(nextInstructionVariableName)),
-                                    Argument(IdentifierName(Parameter.Name.InstructionActionCallback))
+                                    InstructionHandlerSyntax.Argument
                                 ]))))));
 
     [Pure]

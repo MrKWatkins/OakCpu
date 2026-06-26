@@ -196,12 +196,14 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
 
         return MethodDeclaration(IntType, Identifier(Method.Name.Error))
             .WithModifiers([Private, Static])
+            .WithTypeParameterList(InstructionHandlerSyntax.TypeParameters)
             .WithParameterList(
                 ParameterList(
                 [
                     Parameter.Syntax.InstructionEmulator(context),
-                    Parameter.Syntax.InstructionActionCallback()
+                    InstructionHandlerSyntax.MethodParameter
                 ]))
+            .WithConstraintClauses(InstructionHandlerSyntax.ConstraintClauses(context.GeneratorContext))
             .WithBody(
                 Block(
                     ThrowStatement(
@@ -257,17 +259,19 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
                         ArgumentList(
                         [
                             Argument(IdentifierName(OpcodeReadStep0FieldName)),
-                            Argument(IdentifierName(Parameter.Name.InstructionActionCallback))
+                            InstructionHandlerSyntax.Argument
                         ]))));
 
         return MethodDeclaration(IntType, Identifier(GetInstructionMethodName(context, sequence)))
             .WithModifiers([Private, Static])
+            .WithTypeParameterList(InstructionHandlerSyntax.TypeParameters)
             .WithParameterList(
                 ParameterList(
                 [
                     Parameter.Syntax.InstructionEmulator(context),
-                    Parameter.Syntax.InstructionActionCallback()
+                    InstructionHandlerSyntax.MethodParameter
                 ]))
+            .WithConstraintClauses(InstructionHandlerSyntax.ConstraintClauses(context.GeneratorContext))
             .WithLeadingTrivia(comments)
             .WithBody(Block(statements));
     }
