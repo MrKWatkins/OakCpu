@@ -47,3 +47,13 @@ Switched to aluop a,nn to match OakEmu, now that the test passes.
 | Z80InstructionEmulator   | aluop a,nn | 1.164 s | 0.0166 s | 0.0163 s |  0.69 |    0.02 |  x136.30 |    64.2 KB |        0.03 |
 | Z80StepEmulator          | aluop a,nn | 1.792 s | 0.0104 s | 0.0097 s |  1.07 |    0.02 |   x88.52 |   64.26 KB |        0.03 |
 | ContendedZ80StepEmulator | aluop a,nn | 3.619 s | 0.0246 s | 0.0230 s |  2.15 |    0.05 |   x43.84 |   64.34 KB |        0.03 |
+
+2026-06-26 - New baseline after fixing an issue with the benchmarks where sometimes PGO wouldn't kick in.
+
+| Method                 | Test       | Mean       | Error    | StdDev   | Ratio | RatioSD | ZX Speed | Allocated  | Alloc Ratio |
+|----------------------- |----------- |-----------:|---------:|---------:|------:|--------:|---------:|-----------:|------------:|
+| OakEmu                 | aluop a,nn | 1,648.2 ms | 24.43 ms | 22.85 ms |  1.00 |    0.02 |   x96.26 | 2435.25 KB |        1.00 |
+| Z80InstructionEmulator | aluop a,nn |   913.7 ms |  6.12 ms |  8.77 ms |  0.55 |    0.01 |  x173.64 |   64.31 KB |        0.03 |
+| Z80StepEmulator        | aluop a,nn | 1,938.7 ms | 37.63 ms | 48.93 ms |  1.18 |    0.03 |   x81.84 |   64.25 KB |        0.03 |
+
+
