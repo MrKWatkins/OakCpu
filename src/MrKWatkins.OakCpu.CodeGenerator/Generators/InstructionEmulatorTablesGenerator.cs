@@ -56,7 +56,7 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
         // such as the 6502, always use the no-prefix table, so the extra table and dispatch branch would be dead weight.
         if (context.GeneratorContext.Configuration.OpcodeStepTables.HasPrefixes)
         {
-            members.Add(CreateNoPrefixInstructionsField(context));
+            members.Add(CreateNoPrefixInstructionsField());
             members.Add(CreateBuildNoPrefixInstructionsMethod(context));
         }
 
@@ -68,7 +68,7 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
     }
 
     [Pure]
-    private static MemberDeclarationSyntax CreateNoPrefixInstructionsField(FileGeneratorContext context) =>
+    private static MemberDeclarationSyntax CreateNoPrefixInstructionsField() =>
         ParseMemberDeclaration(
             $$"""
               // Maps each opcode directly to its instruction function pointer for the no-prefix table, collapsing the
