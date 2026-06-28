@@ -33,6 +33,13 @@ public sealed unsafe partial class Z80InstructionEmulator
         handler.OnActionRequired(ActionRequired.OpcodeRead, emulator.address, emulator.data);
         emulator.address = emulator.IR;
         emulator.R = (byte)(emulator.R & 0b10000000 | emulator.R + 0x01 & 0b01111111);
+        // Optimise for the common no-prefixed case.
+        if (emulator.opcodeStepTable == OpcodeStepTableNoPrefix)
+        {
+            var instruction = (delegate*<Z80InstructionEmulator, ref THandler, int>)Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(Dispatch<THandler>.NoPrefixInstructions), emulator.data);
+            return 4 + instruction(emulator, ref handler);
+        }
+
         ushort nextInstruction3 = 65535;
         nextInstruction3 = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(emulator.opcodeStepTable), emulator.data);
         if (nextInstruction3 != 65535)
@@ -101,6 +108,13 @@ public sealed unsafe partial class Z80InstructionEmulator
         handler.OnActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.address = emulator.IR;
         emulator.R = (byte)(emulator.R & 0b10000000 | emulator.R + 0x01 & 0b01111111);
+        // Optimise for the common no-prefixed case.
+        if (emulator.opcodeStepTable == OpcodeStepTableNoPrefix)
+        {
+            var instruction = (delegate*<Z80InstructionEmulator, ref THandler, int>)Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(Dispatch<THandler>.NoPrefixInstructions), emulator.data);
+            return 5 + instruction(emulator, ref handler);
+        }
+
         ushort nextInstruction16 = 65535;
         nextInstruction16 = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(emulator.opcodeStepTable), emulator.data);
         if (nextInstruction16 != 65535)
@@ -10804,6 +10818,13 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        // Optimise for the common no-prefixed case.
+        if (emulator.opcodeStepTable == OpcodeStepTableNoPrefix)
+        {
+            var instruction = (delegate*<Z80InstructionEmulator, ref THandler, int>)Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(Dispatch<THandler>.NoPrefixInstructions), emulator.data);
+            return 6 + instruction(emulator, ref handler);
+        }
+
         ushort nextInstruction1966 = 65535;
         nextInstruction1966 = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(emulator.opcodeStepTable), emulator.data);
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -14641,6 +14662,13 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        // Optimise for the common no-prefixed case.
+        if (emulator.opcodeStepTable == OpcodeStepTableNoPrefix)
+        {
+            var instruction = (delegate*<Z80InstructionEmulator, ref THandler, int>)Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(Dispatch<THandler>.NoPrefixInstructions), emulator.data);
+            return 6 + instruction(emulator, ref handler);
+        }
+
         ushort nextInstruction3120 = 65535;
         nextInstruction3120 = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(emulator.opcodeStepTable), emulator.data);
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;

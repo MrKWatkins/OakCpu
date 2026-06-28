@@ -10,6 +10,8 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
 {
+    private const string BuildNoPrefixInstructionsMethodName = "BuildNoPrefixInstructions";
+
     public static readonly InstructionEmulatorTablesGenerator Instance = new();
 
     private InstructionEmulatorTablesGenerator()
@@ -48,11 +50,53 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
                         ]))
                 .AddModifiers(Public, Static, ReadOnly);
 
+        var members = new List<MemberDeclarationSyntax> { instructionsField };
+
+        // The no-prefix fast-path table only helps CPUs that swap opcode tables for prefixes. CPUs without prefixes,
+        // such as the 6502, always use the no-prefix table, so the extra table and dispatch branch would be dead weight.
+        if (context.GeneratorContext.Configuration.OpcodeStepTables.HasPrefixes)
+        {
+            members.Add(CreateNoPrefixInstructionsField(context));
+            members.Add(CreateBuildNoPrefixInstructionsMethod(context));
+        }
+
         return ClassDeclaration(InstructionHandlerSyntax.DispatchHolderName)
             .AddModifiers(Private, Static, Unsafe)
             .WithTypeParameterList(InstructionHandlerSyntax.TypeParameters)
             .WithConstraintClauses(InstructionHandlerSyntax.ConstraintClauses(context.GeneratorContext))
-            .AddMembers(instructionsField);
+            .AddMembers(members.ToArray());
+    }
+
+    [Pure]
+    private static MemberDeclarationSyntax CreateNoPrefixInstructionsField(FileGeneratorContext context) =>
+        ParseMemberDeclaration(
+            $$"""
+              // Maps each opcode directly to its instruction function pointer for the no-prefix table, collapsing the
+              // usual two-level opcodeStepTable -> step -> {{Field.Name.Instructions}} dispatch into a single load.
+              // Stored as nint because function-pointer types cannot be used as generic type arguments, so
+              // MemoryMarshal.GetArrayDataReference and Unsafe.Add cannot operate on them directly.
+              public static readonly nint[] {{InstructionEmulatorGenerator.NoPrefixInstructionsFieldName}} = {{BuildNoPrefixInstructionsMethodName}}();
+              """)!;
+
+    [Pure]
+    private static MemberDeclarationSyntax CreateBuildNoPrefixInstructionsMethod(FileGeneratorContext context)
+    {
+        var noPrefixTableFieldName = context.GeneratorContext.Configuration.OpcodeStepTables.NoPrefix.FieldName;
+
+        return ParseMemberDeclaration(
+            $$"""
+              [Pure]
+              private static nint[] {{BuildNoPrefixInstructionsMethodName}}()
+              {
+                  var table = new nint[{{noPrefixTableFieldName}}.Length];
+                  for (var opcode = 0; opcode < table.Length; opcode++)
+                  {
+                      table[opcode] = (nint){{Field.Name.Instructions}}[{{noPrefixTableFieldName}}[opcode]];
+                  }
+
+                  return table;
+              }
+              """)!;
     }
 
     [Pure]

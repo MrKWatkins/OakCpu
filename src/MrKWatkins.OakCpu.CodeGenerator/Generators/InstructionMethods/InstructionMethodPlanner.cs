@@ -85,6 +85,7 @@ internal static class InstructionMethodPlanner
         var stepLayout = context.GeneratorContext.GetStepLayout(step);
         var action = StepMetadata.GetAction(context, step);
         var containsRedirect = ContainsRedirectCall(step);
+        var isMoveToOpcode = ContainsCall(step.Statements, PreDefinedFunction.MoveToOpcode);
         var rollsBackOpcodeRead = ShouldRollbackOpcodeRead(step, action);
         var nextInstructionVariableName = containsRedirect ? $"{NextInstructionVariableNamePrefix}{stepLayout.Index}" : null;
         var trailingStatementsToSkip = context.GeneratorContext.GetImplicitInstructionStepsCompleteStatementCount(step);
@@ -93,7 +94,7 @@ internal static class InstructionMethodPlanner
             ? StatementGenerator.GenerateInstructionStatements(context, step, nextInstructionVariableName, instructionExitOverlapStep, instructionTStatesBeforeStep, trailingStatementsToSkip).ToList()
             : [];
 
-        return new InstructionStepPlan(action, rollsBackOpcodeRead, nextInstructionVariableName, stepStatements, false);
+        return new InstructionStepPlan(action, rollsBackOpcodeRead, isMoveToOpcode, nextInstructionVariableName, stepStatements, false);
     }
 
     [Pure]

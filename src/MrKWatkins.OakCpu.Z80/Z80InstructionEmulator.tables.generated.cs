@@ -284,6 +284,24 @@ public sealed unsafe partial class Z80InstructionEmulator
             &SET_0x07_IY_plus_d_E<THandler>, &SET_0x07_IY_plus_d_H<THandler>, &SET_0x07_IY_plus_d_L<THandler>, &SET_0x07_IY_plus_d<THandler>, &SET_0x07_IY_plus_d_A<THandler>, 
             &Error<THandler>
         ];
+
+        // Maps each opcode directly to its instruction function pointer for the no-prefix table, collapsing the
+        // usual two-level opcodeStepTable -> step -> Instructions dispatch into a single load.
+        // Stored as nint because function-pointer types cannot be used as generic type arguments, so
+        // MemoryMarshal.GetArrayDataReference and Unsafe.Add cannot operate on them directly.
+        public static readonly nint[] NoPrefixInstructions = BuildNoPrefixInstructions();
+
+        [Pure]
+        private static nint[] BuildNoPrefixInstructions()
+        {
+            var table = new nint[OpcodeStepTableNoPrefix.Length];
+            for (var opcode = 0; opcode < table.Length; opcode++)
+            {
+                table[opcode] = (nint)Instructions[OpcodeStepTableNoPrefix[opcode]];
+            }
+
+            return table;
+        }
     }
 
     private static readonly ushort[] OpcodeStepTableNoPrefix;

@@ -14,6 +14,7 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
 {
     internal const string ExecuteDecodedInstructionMethodName = "ExecuteDecodedInstruction";
     internal const string OpcodeReadStep0FieldName = "OpcodeReadStep0";
+    internal const string NoPrefixInstructionsFieldName = "NoPrefixInstructions";
     public static readonly InstructionEmulatorGenerator Instance = new();
 
     private InstructionEmulatorGenerator()

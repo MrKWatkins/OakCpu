@@ -42,6 +42,12 @@ public sealed class OpcodeStepTables : IEnumerable<OpcodeStepTable>
 
     public IReadOnlyDictionary<string, OpcodeStepTable> Custom { get; }
 
+    /// <summary>
+    /// Gets a value indicating whether the CPU has any prefixed or custom opcode tables beyond the default no-prefix
+    /// table. CPUs without prefixes, such as the 6502, only ever use the no-prefix table.
+    /// </summary>
+    public bool HasPrefixes => Prefixes.Count > 0 || Custom.Count > 0;
+
     [Pure]
     public OpcodeStepTable GetForPrefix(byte prefix) => Prefixes[prefix];
 

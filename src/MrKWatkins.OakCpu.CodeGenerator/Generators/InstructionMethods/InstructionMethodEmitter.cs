@@ -14,9 +14,10 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators.InstructionMethods;
 internal static class InstructionMethodEmitter
 {
     private const ushort NoNextInstructionValue = ushort.MaxValue;
+    private const string InstructionVariableName = "instruction";
 
     [Pure]
-    internal static MemberDeclarationSyntax CreateMethod(GeneratorContext context, InstructionMethodPlan plan)
+    internal static MemberDeclarationSyntax CreateMethod(FileGeneratorContext context, InstructionMethodPlan plan)
     {
         var statements = plan.Steps.Count == 0
             ? CreateEmptyBodyStatements(context, plan)
@@ -55,7 +56,7 @@ internal static class InstructionMethodEmitter
     }
 
     [Pure]
-    private static IReadOnlyList<StatementSyntax> CreateStepBodyStatements(GeneratorContext context, InstructionMethodPlan plan)
+    private static IReadOnlyList<StatementSyntax> CreateStepBodyStatements(FileGeneratorContext context, InstructionMethodPlan plan)
     {
         var statements = new List<StatementSyntax>();
         var terminated = false;
@@ -64,11 +65,17 @@ internal static class InstructionMethodEmitter
         {
             if (stepPlan.NextInstructionVariableName != null)
             {
-                // Seed the next-instruction variable with the 65535 "no redirect" sentinel. A step that
-                // unconditionally redirects always overwrites this before it is read, but the seed - together with the
-                // always-true guard emitted by CreateExecuteNextInstructionAndReturn - must stay. See the detailed note
-                // on that method: the guard is a JIT code-generation boundary worth ~2.5x on the hot dispatch path, so
-                // this is deliberately NOT collapsed to an unconditional assignment even when the redirect is certain.
+                // A move-to-opcode redirect dispatches on the just-read opcode via the swappable opcodeStepTable. When the
+                // CPU has prefixes the no-prefix table is by far the most common, so peel it onto a single opcode ->
+                // function-pointer load + call instead of the two-level opcodeStepTable -> step -> Instructions dispatch.
+                if (stepPlan.IsMoveToOpcode && context.GeneratorContext.Configuration.OpcodeStepTables.HasPrefixes)
+                {
+                    statements.Add(CreateNoPrefixOpcodeDispatch(context, index + 1));
+                }
+
+                // Seed the next-instruction variable with the 65535 "no redirect" sentinel. A conditional redirect
+                // leaves the variable at the sentinel when it does not fire, so the guard emitted by
+                // CreateExecuteNextInstructionAndReturn skips the dispatch and falls through to the step's normal tail.
                 statements.Add(
                     InitializeVariableStatement(
                         stepPlan.NextInstructionVariableName,
@@ -188,17 +195,11 @@ internal static class InstructionMethodEmitter
     //     }
     //     // ...falls through to the step's normal "return tStates" / CompleteInstruction(...) tail.
     //
-    // For a step that unconditionally redirects (move_to_opcode / move_to_sequence / move_to_interrupt_mode) the
-    // variable is always reassigned away from the 65535 sentinel before we reach here, so the guard is provably always
-    // true and the trailing return is unreachable. It therefore looks like obviously removable dead code - DO NOT
-    // remove it, and do not special-case unconditional redirects to emit the dispatch without the guard.
-    //
-    // The always-true branch is load-bearing for performance. ExecuteDecodedInstruction is [AggressiveInlining] and
-    // dispatches through the function-pointer table into the recursive instruction chain; the guard acts as a
-    // code-generation boundary that the JIT needs to optimise the hot opcode-read path well. Dropping it (so the
-    // dispatch becomes the method's unconditional tail) regressed the Z80 instruction emulator from ~x338 to ~x128
-    // real-Spectrum speed in the ZEXALL "aluop a,nn" benchmark - a ~2.5x slowdown - measured 2026-06-26. The branch is
-    // free at runtime (predicted not-taken, never mispredicts) and pays for itself many times over, so keep it.
+    // The guard exists because a redirect can be conditional: when it does not fire the variable keeps its 65535
+    // sentinel, so the guard skips the dispatch and the step falls through to its normal tail. For a step that
+    // unconditionally redirects (move_to_opcode / move_to_sequence / move_to_interrupt_mode) the variable is always
+    // reassigned before we reach here, so the guard is always true - but it is emitted uniformly rather than
+    // special-cased per redirect kind.
     [Pure]
     private static StatementSyntax CreateExecuteNextInstructionAndReturn(string nextInstructionVariableName, int tStates) =>
         IfStatement(
@@ -222,6 +223,55 @@ internal static class InstructionMethodEmitter
                                     Argument(IdentifierName(nextInstructionVariableName)),
                                     InstructionHandlerSyntax.Argument
                                 ]))))));
+
+    // Emits the peeled fast path for a move-to-opcode redirect, taken when the active opcode table is the no-prefix table:
+    //
+    //     // Optimise for the common no-prefixed case.
+    //     if (emulator.opcodeStepTable == OpcodeStepTableNoPrefix)
+    //     {
+    //         var instruction = (delegate*<{Emulator}, ref THandler, int>)Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(Dispatch<THandler>.NoPrefixInstructions), emulator.data);
+    //         return tStates + instruction(emulator, ref handler);
+    //     }
+    //
+    // This collapses the usual two dependent loads (opcodeStepTable[data] -> step, then Instructions[step] -> fnptr) into
+    // a single opcode -> function-pointer load on the hot path; prefixed tables fall through to the original dispatch.
+    [Pure]
+    private static StatementSyntax CreateNoPrefixOpcodeDispatch(FileGeneratorContext context, int tStates)
+    {
+        var lookup =
+            CastExpression(
+                InstructionHandlerSyntax.InstructionHandlerType(context.GeneratorContext),
+                CreateArrayGetWithoutBoundsCheck(
+                    context.RequiredUsings,
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        InstructionHandlerSyntax.DispatchHolderType,
+                        IdentifierName(InstructionEmulatorGenerator.NoPrefixInstructionsFieldName)),
+                    EmulatorMemberIdentifier(PreDefinedDataMember.Data.FieldName)));
+
+        var dispatch =
+            ReturnStatement(
+                BinaryExpression(
+                    SyntaxKind.AddExpression,
+                    GenerateNumericLiteralExpression(tStates),
+                    InvocationExpression(IdentifierName(InstructionVariableName))
+                        .WithArgumentList(
+                            ArgumentList(
+                            [
+                                CreateEmulatorArgument(),
+                                InstructionHandlerSyntax.Argument
+                            ]))));
+
+        return IfStatement(
+                BinaryExpression(
+                    SyntaxKind.EqualsExpression,
+                    EmulatorMemberIdentifier(PreDefinedDataMember.OpcodeStepTable.FieldName),
+                    IdentifierName(context.GeneratorContext.Configuration.OpcodeStepTables.NoPrefix.FieldName)),
+                Block(
+                    InitializeVariableStatement(InstructionVariableName, lookup),
+                    dispatch))
+            .WithLeadingTrivia(Comment("// Optimise for the common no-prefixed case."));
+    }
 
     [Pure]
     private static ReturnStatementSyntax CreateInstructionTStatesReturnStatement(int tStates) =>

@@ -6,6 +6,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators.InstructionMethods;
 internal sealed record InstructionStepPlan(
     Action Action,
     bool RollsBackOpcodeRead,
+    bool IsMoveToOpcode,
     string? NextInstructionVariableName,
     IReadOnlyList<StatementSyntax> StepStatements,
     bool RequiresBlock);
