@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file provides guidance to AI agents when working with code in this repository.
+This file provides guidance to AI agents when working with code in this repository. It exists in three places via symlinks, AGENTS.md, CLAUDE.md and .github/copilot-instructions.md.
 
 ## Project Overview
 
