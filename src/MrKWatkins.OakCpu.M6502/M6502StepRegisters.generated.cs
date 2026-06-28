@@ -10,8 +10,8 @@
 using System.Runtime.CompilerServices;
 
 namespace MrKWatkins.OakCpu.M6502;
-
-internal sealed class M6502StepRegisters : M6502Registers
+/// <inheritdoc/>
+public sealed class M6502StepRegisters : M6502Registers
 {
     private readonly M6502StepEmulator emulator;
 
@@ -20,6 +20,7 @@ internal sealed class M6502StepRegisters : M6502Registers
         this.emulator = emulator;
     }
 
+    /// <inheritdoc/>
     public override byte A
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -28,6 +29,7 @@ internal sealed class M6502StepRegisters : M6502Registers
         set => emulator.A = value;
     }
 
+    /// <inheritdoc/>
     public override byte P
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -36,6 +38,7 @@ internal sealed class M6502StepRegisters : M6502Registers
         set => emulator.P = value;
     }
 
+    /// <inheritdoc/>
     public override ushort PC
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -44,6 +47,7 @@ internal sealed class M6502StepRegisters : M6502Registers
         set => emulator.PC = value;
     }
 
+    /// <inheritdoc/>
     public override byte S
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -52,6 +56,7 @@ internal sealed class M6502StepRegisters : M6502Registers
         set => emulator.S = value;
     }
 
+    /// <inheritdoc/>
     public override byte X
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -60,6 +65,7 @@ internal sealed class M6502StepRegisters : M6502Registers
         set => emulator.X = value;
     }
 
+    /// <inheritdoc/>
     public override byte Y
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -45,13 +45,13 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
         fieldOffset += DataType.U16.Size();
 
         fieldOffset = ExplicitLayoutBuilder.AlignReferenceFieldOffset(fieldOffset);
-        members.Add(CreateObjectProperty(context, Class.Name.Registers(context), Property.Name.Registers, fieldOffset));
+        members.Add(CreateObjectProperty(context, Class.Name.InstructionRegisters(context), Property.Name.Registers, fieldOffset));
         fieldOffset += 8;
 
-        members.Add(CreateObjectProperty(context, Class.Name.Flags(context), Property.Name.Flags, fieldOffset));
+        members.Add(CreateObjectProperty(context, Class.Name.InstructionFlags(context), Property.Name.Flags, fieldOffset));
         fieldOffset += 8;
 
-        members.Add(CreateObjectProperty(context, Class.Name.Interrupts(context), Property.Name.Interrupts, fieldOffset));
+        members.Add(CreateObjectProperty(context, Class.Name.InstructionInterrupts(context), Property.Name.Interrupts, fieldOffset));
         fieldOffset += 8;
 
         members.AddRange(CreateDataMember(context, PreDefinedDataMember.OpcodeStepTable, fieldOffset));

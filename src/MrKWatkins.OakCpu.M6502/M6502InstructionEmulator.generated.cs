@@ -109,7 +109,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     /// Gets the M6502 registers.
     /// </summary>
     [field: FieldOffset(24)]
-    public M6502Registers Registers
+    public M6502InstructionRegisters Registers
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get;
@@ -119,7 +119,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     /// Gets the M6502 flags.
     /// </summary>
     [field: FieldOffset(32)]
-    public M6502Flags Flags
+    public M6502InstructionFlags Flags
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get;
@@ -129,7 +129,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     /// Gets the M6502 interrupt state.
     /// </summary>
     [field: FieldOffset(40)]
-    public M6502Interrupts Interrupts
+    public M6502InstructionInterrupts Interrupts
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get;

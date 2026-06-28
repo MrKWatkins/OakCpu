@@ -131,7 +131,7 @@ public abstract class TypeGenerator
 
     [MustUseReturnValue]
     protected static PropertyDeclarationSyntax CreateOverrideGetSetProperty(FileGeneratorContext context, TypeSyntax type, string propertyName, ExpressionSyntax getExpression, ExpressionSyntax setExpression) =>
-        CreateGetSetProperty(context, type, propertyName, getExpression, setExpression, TokenList(Public, Override));
+        WithInheritDoc(CreateGetSetProperty(context, type, propertyName, getExpression, setExpression, TokenList(Public, Override)));
 
     [Pure]
     protected static T WithXmlDocumentation<T>(T node, Definitions.Documentation documentation)
@@ -164,6 +164,22 @@ public abstract class TypeGenerator
         }
 
         var trivia = CreateXmlDocumentationTrivia(lines)
+            .AddRange(node.GetLeadingTrivia());
+        if (node is MemberDeclarationSyntax { AttributeLists.Count: > 0 } member)
+        {
+            var firstToken = member.GetFirstToken();
+            var documentedToken = firstToken.WithLeadingTrivia(trivia.AddRange(firstToken.LeadingTrivia));
+            return (T)(SyntaxNode)member.ReplaceToken(firstToken, documentedToken);
+        }
+
+        return node.WithLeadingTrivia(trivia);
+    }
+
+    [Pure]
+    protected static T WithInheritDoc<T>(T node)
+        where T : SyntaxNode
+    {
+        var trivia = CreateXmlDocumentationTrivia(["/// <inheritdoc/>"])
             .AddRange(node.GetLeadingTrivia());
         if (node is MemberDeclarationSyntax { AttributeLists.Count: > 0 } member)
         {
@@ -224,7 +240,10 @@ public abstract class TypeGenerator
             summary);
 
     /// <summary>
-    /// Creates an internal concrete facade class that stores an emulator reference and inherits from the supplied base class.
+    /// Creates a public sealed concrete facade class that stores an emulator reference and inherits from the supplied
+    /// base class. It is public, and returned covariantly from the emulator, so that callers reading state through a
+    /// concrete reference get devirtualised, inlinable accessors. The constructor stays internal so only the emulator
+    /// can create it.
     /// </summary>
     [Pure]
     protected static ClassDeclarationSyntax CreateFacadeConcreteClass(string className, string baseClassName, TypeSyntax emulatorType, ConstructorDeclarationSyntax constructor, IReadOnlyList<MemberDeclarationSyntax> members)
@@ -236,10 +255,11 @@ public abstract class TypeGenerator
         };
         declarations.AddRange(members);
 
-        return ClassDeclaration(className)
-            .AddModifiers(Internal, Sealed)
-            .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(baseClassName)))))
-            .AddMembers(declarations.ToArray());
+        return WithInheritDoc(
+            ClassDeclaration(className)
+                .AddModifiers(Public, Sealed)
+                .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(baseClassName)))))
+                .AddMembers(declarations.ToArray()));
     }
 
     /// <summary>

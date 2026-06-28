@@ -10,8 +10,8 @@
 using System.Runtime.CompilerServices;
 
 namespace MrKWatkins.OakCpu.Z80;
-
-internal sealed class Z80InstructionInterrupts : Z80Interrupts
+/// <inheritdoc/>
+public sealed class Z80InstructionInterrupts : Z80Interrupts
 {
     private readonly Z80InstructionEmulator emulator;
 
@@ -20,6 +20,7 @@ internal sealed class Z80InstructionInterrupts : Z80Interrupts
         this.emulator = emulator;
     }
 
+    /// <inheritdoc/>
     public override bool Halted
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -31,6 +32,7 @@ internal sealed class Z80InstructionInterrupts : Z80Interrupts
         }
     }
 
+    /// <inheritdoc/>
     public override bool IFF1
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -39,6 +41,7 @@ internal sealed class Z80InstructionInterrupts : Z80Interrupts
         set => emulator.iff1 = value;
     }
 
+    /// <inheritdoc/>
     public override bool IFF2
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -47,6 +50,7 @@ internal sealed class Z80InstructionInterrupts : Z80Interrupts
         set => emulator.iff2 = value;
     }
 
+    /// <inheritdoc/>
     public override byte IM
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -55,6 +59,7 @@ internal sealed class Z80InstructionInterrupts : Z80Interrupts
         set => emulator.im = value;
     }
 
+    /// <inheritdoc/>
     public override bool Interrupt
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -29,7 +29,7 @@ public abstract class Z80Registers
     /// <summary>
     /// Gets the Z80 shadow registers.
     /// </summary>
-    public Z80ShadowRegisters Shadow
+    public virtual Z80ShadowRegisters Shadow
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get;

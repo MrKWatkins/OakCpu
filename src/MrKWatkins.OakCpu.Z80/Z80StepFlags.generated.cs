@@ -10,8 +10,8 @@
 using System.Runtime.CompilerServices;
 
 namespace MrKWatkins.OakCpu.Z80;
-
-internal sealed class Z80StepFlags : Z80Flags
+/// <inheritdoc/>
+public sealed class Z80StepFlags : Z80Flags
 {
     private readonly Z80StepEmulator emulator;
 
@@ -20,6 +20,7 @@ internal sealed class Z80StepFlags : Z80Flags
         this.emulator = emulator;
     }
 
+    /// <inheritdoc/>
     public override bool C
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -28,6 +29,7 @@ internal sealed class Z80StepFlags : Z80Flags
         set => emulator.F = (byte)(value ? emulator.F | 0b00000001 : emulator.F & 0b11111110);
     }
 
+    /// <inheritdoc/>
     public override bool N
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -36,6 +38,7 @@ internal sealed class Z80StepFlags : Z80Flags
         set => emulator.F = (byte)(value ? emulator.F | 0b00000010 : emulator.F & 0b11111101);
     }
 
+    /// <inheritdoc/>
     public override bool PV
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -44,6 +47,7 @@ internal sealed class Z80StepFlags : Z80Flags
         set => emulator.F = (byte)(value ? emulator.F | 0b00000100 : emulator.F & 0b11111011);
     }
 
+    /// <inheritdoc/>
     public override bool X
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -52,6 +56,7 @@ internal sealed class Z80StepFlags : Z80Flags
         set => emulator.F = (byte)(value ? emulator.F | 0b00001000 : emulator.F & 0b11110111);
     }
 
+    /// <inheritdoc/>
     public override bool H
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -60,6 +65,7 @@ internal sealed class Z80StepFlags : Z80Flags
         set => emulator.F = (byte)(value ? emulator.F | 0b00010000 : emulator.F & 0b11101111);
     }
 
+    /// <inheritdoc/>
     public override bool Y
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -68,6 +74,7 @@ internal sealed class Z80StepFlags : Z80Flags
         set => emulator.F = (byte)(value ? emulator.F | 0b00100000 : emulator.F & 0b11011111);
     }
 
+    /// <inheritdoc/>
     public override bool Z
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -76,6 +83,7 @@ internal sealed class Z80StepFlags : Z80Flags
         set => emulator.F = (byte)(value ? emulator.F | 0b01000000 : emulator.F & 0b10111111);
     }
 
+    /// <inheritdoc/>
     public override bool S
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

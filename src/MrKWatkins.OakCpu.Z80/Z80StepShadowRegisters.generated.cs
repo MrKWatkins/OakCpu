@@ -10,8 +10,8 @@
 using System.Runtime.CompilerServices;
 
 namespace MrKWatkins.OakCpu.Z80;
-
-internal sealed class Z80StepShadowRegisters : Z80ShadowRegisters
+/// <inheritdoc/>
+public sealed class Z80StepShadowRegisters : Z80ShadowRegisters
 {
     private readonly Z80StepEmulator emulator;
 
@@ -20,6 +20,7 @@ internal sealed class Z80StepShadowRegisters : Z80ShadowRegisters
         this.emulator = emulator;
     }
 
+    /// <inheritdoc/>
     public override ushort AF
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -28,6 +29,7 @@ internal sealed class Z80StepShadowRegisters : Z80ShadowRegisters
         set => emulator.Shadow_AF = value;
     }
 
+    /// <inheritdoc/>
     public override ushort BC
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -36,6 +38,7 @@ internal sealed class Z80StepShadowRegisters : Z80ShadowRegisters
         set => emulator.Shadow_BC = value;
     }
 
+    /// <inheritdoc/>
     public override ushort DE
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -44,6 +47,7 @@ internal sealed class Z80StepShadowRegisters : Z80ShadowRegisters
         set => emulator.Shadow_DE = value;
     }
 
+    /// <inheritdoc/>
     public override ushort HL
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

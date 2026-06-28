@@ -65,7 +65,14 @@ public sealed class RegistersClassesGenerator : TypeGenerator
         TypeSyntax emulatorType,
         Func<GeneratorContext, string?, string> getConcreteClassName)
     {
-        var members = CreateRegisterProperties(context, category, createOverrideProperty: true).Cast<MemberDeclarationSyntax>().ToArray();
+        var members = CreateRegisterProperties(context, category, createOverrideProperty: true).Cast<MemberDeclarationSyntax>().ToList();
+
+        // Return the concrete category registers (e.g. the shadow registers) covariantly from the concrete registers so
+        // callers reading through a concrete reference get devirtualised, inlinable accessors.
+        if (category == null)
+        {
+            members.AddRange(CreateCategoryOverrideProperties(context, getConcreteClassName));
+        }
 
         return CreateFacadeConcreteClass(
             className,
@@ -74,6 +81,25 @@ public sealed class RegistersClassesGenerator : TypeGenerator
             CreateConcreteConstructor(context, category, className, emulatorType, getConcreteClassName),
             members);
     }
+
+    [MustUseReturnValue]
+    private static IEnumerable<PropertyDeclarationSyntax> CreateCategoryOverrideProperties(FileGeneratorContext context, Func<GeneratorContext, string?, string> getConcreteClassName) =>
+        GetCategories(context).Select(category =>
+        {
+            var concreteType = getConcreteClassName(context, category);
+            return WithInheritDoc(
+                PropertyDeclaration(IdentifierName(concreteType), Identifier(category))
+                    .WithModifiers(TokenList(Public, Override))
+                    .WithExpressionBody(
+                        ArrowExpressionClause(
+                            CastExpression(
+                                IdentifierName(concreteType),
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    BaseExpression(),
+                                    IdentifierName(category)))))
+                    .WithSemicolonToken(Semicolon));
+        });
 
     [Pure]
     private static ConstructorDeclarationSyntax CreateBaseConstructor(GeneratorContext context, IReadOnlyList<string> categories) =>
@@ -132,7 +158,7 @@ public sealed class RegistersClassesGenerator : TypeGenerator
     [MustUseReturnValue]
     private static IEnumerable<PropertyDeclarationSyntax> CreateCategoryProperties(FileGeneratorContext context, IReadOnlyList<string> categories) =>
         categories.Select(category => WithXmlDocumentation(
-            CreateGetOnlyProperty(context, Class.Name.Registers(context, category), category),
+            CreateGetOnlyProperty(context, IdentifierName(Class.Name.Registers(context, category)), category, TokenList(Public, Virtual)),
             $"Gets the {context.GeneratorContext.Cpu.Name} {category.ToLowerInvariant()} registers."));
 
     [MustUseReturnValue]

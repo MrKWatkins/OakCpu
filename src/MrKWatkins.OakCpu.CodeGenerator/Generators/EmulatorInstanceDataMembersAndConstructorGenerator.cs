@@ -40,13 +40,13 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         }
 
         fieldOffset = ExplicitLayoutBuilder.AlignReferenceFieldOffset(fieldOffset);
-        members.Add(CreateObjectProperty(context, Class.Name.Registers(context), Property.Name.Registers, fieldOffset));
+        members.Add(CreateObjectProperty(context, Class.Name.StepRegisters(context), Property.Name.Registers, fieldOffset));
         fieldOffset += 8;
 
-        members.Add(CreateObjectProperty(context, Class.Name.Flags(context), Property.Name.Flags, fieldOffset));
+        members.Add(CreateObjectProperty(context, Class.Name.StepFlags(context), Property.Name.Flags, fieldOffset));
         fieldOffset += 8;
 
-        members.Add(CreateObjectProperty(context, Class.Name.Interrupts(context), Property.Name.Interrupts, fieldOffset));
+        members.Add(CreateObjectProperty(context, Class.Name.StepInterrupts(context), Property.Name.Interrupts, fieldOffset));
         fieldOffset += 8;
 
         members.AddRange(CreateDataMember(context, PreDefinedDataMember.OpcodeStepTable, fieldOffset));

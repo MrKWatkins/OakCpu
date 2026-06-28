@@ -10,8 +10,8 @@
 using System.Runtime.CompilerServices;
 
 namespace MrKWatkins.OakCpu.M6502;
-
-internal sealed class M6502StepFlags : M6502Flags
+/// <inheritdoc/>
+public sealed class M6502StepFlags : M6502Flags
 {
     private readonly M6502StepEmulator emulator;
 
@@ -20,6 +20,7 @@ internal sealed class M6502StepFlags : M6502Flags
         this.emulator = emulator;
     }
 
+    /// <inheritdoc/>
     public override bool C
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -28,6 +29,7 @@ internal sealed class M6502StepFlags : M6502Flags
         set => emulator.P = (byte)(value ? emulator.P | 0b00000001 : emulator.P & 0b11111110);
     }
 
+    /// <inheritdoc/>
     public override bool Z
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -36,6 +38,7 @@ internal sealed class M6502StepFlags : M6502Flags
         set => emulator.P = (byte)(value ? emulator.P | 0b00000010 : emulator.P & 0b11111101);
     }
 
+    /// <inheritdoc/>
     public override bool I
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -44,6 +47,7 @@ internal sealed class M6502StepFlags : M6502Flags
         set => emulator.P = (byte)(value ? emulator.P | 0b00000100 : emulator.P & 0b11111011);
     }
 
+    /// <inheritdoc/>
     public override bool D
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -52,6 +56,7 @@ internal sealed class M6502StepFlags : M6502Flags
         set => emulator.P = (byte)(value ? emulator.P | 0b00001000 : emulator.P & 0b11110111);
     }
 
+    /// <inheritdoc/>
     public override bool B
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -60,6 +65,7 @@ internal sealed class M6502StepFlags : M6502Flags
         set => emulator.P = (byte)(value ? emulator.P | 0b00010000 : emulator.P & 0b11101111);
     }
 
+    /// <inheritdoc/>
     public override bool V
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -68,6 +74,7 @@ internal sealed class M6502StepFlags : M6502Flags
         set => emulator.P = (byte)(value ? emulator.P | 0b01000000 : emulator.P & 0b10111111);
     }
 
+    /// <inheritdoc/>
     public override bool N
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

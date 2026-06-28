@@ -135,7 +135,8 @@ public sealed class InterruptsClassGenerator : TypeGenerator
             IdentifierName(Class.Name.InstructionEmulator(context)),
             IdentifierName(Field.Name.NoNextSequenceStep));
 
-        return PropertyDeclaration(property.TypeSyntax, Identifier(property.PropertyName))
+        return WithInheritDoc(
+            PropertyDeclaration(property.TypeSyntax, Identifier(property.PropertyName))
             .WithModifiers(TokenList(Public, Override))
             .WithAccessorList(
                 AccessorList(
@@ -169,7 +170,7 @@ public sealed class InterruptsClassGenerator : TypeGenerator
                                                     noNextSequenceStep,
                                                     nextSequenceStepExpression))))
                                 ])))
-                ]));
+                ])));
     }
 
 }

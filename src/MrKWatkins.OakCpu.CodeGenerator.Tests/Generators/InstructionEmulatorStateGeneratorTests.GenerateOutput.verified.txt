@@ -211,7 +211,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     /// Gets the Z80 registers.
     /// </summary>
     [field: FieldOffset(40)]
-    public Z80Registers Registers
+    public Z80InstructionRegisters Registers
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get;
@@ -221,7 +221,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     /// Gets the Z80 flags.
     /// </summary>
     [field: FieldOffset(48)]
-    public Z80Flags Flags
+    public Z80InstructionFlags Flags
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get;
@@ -231,7 +231,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     /// Gets the Z80 interrupt state.
     /// </summary>
     [field: FieldOffset(56)]
-    public Z80Interrupts Interrupts
+    public Z80InstructionInterrupts Interrupts
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get;

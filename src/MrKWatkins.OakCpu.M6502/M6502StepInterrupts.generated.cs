@@ -10,8 +10,8 @@
 using System.Runtime.CompilerServices;
 
 namespace MrKWatkins.OakCpu.M6502;
-
-internal sealed class M6502StepInterrupts : M6502Interrupts
+/// <inheritdoc/>
+public sealed class M6502StepInterrupts : M6502Interrupts
 {
     private readonly M6502StepEmulator emulator;
 
@@ -20,6 +20,7 @@ internal sealed class M6502StepInterrupts : M6502Interrupts
         this.emulator = emulator;
     }
 
+    /// <inheritdoc/>
     public override bool IRQ
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -28,6 +29,7 @@ internal sealed class M6502StepInterrupts : M6502Interrupts
         set => emulator.irq = value;
     }
 
+    /// <inheritdoc/>
     public override bool NMI
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

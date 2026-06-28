@@ -10,8 +10,8 @@
 using System.Runtime.CompilerServices;
 
 namespace MrKWatkins.OakCpu.Z80;
-
-internal sealed class Z80InstructionRegisters : Z80Registers
+/// <inheritdoc/>
+public sealed class Z80InstructionRegisters : Z80Registers
 {
     private readonly Z80InstructionEmulator emulator;
 
@@ -20,6 +20,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         this.emulator = emulator;
     }
 
+    /// <inheritdoc/>
     public override byte A
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -28,6 +29,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.A = value;
     }
 
+    /// <inheritdoc/>
     public override ushort AF
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -36,6 +38,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.AF = value;
     }
 
+    /// <inheritdoc/>
     public override byte B
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -44,6 +47,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.B = value;
     }
 
+    /// <inheritdoc/>
     public override ushort BC
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -52,6 +56,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.BC = value;
     }
 
+    /// <inheritdoc/>
     public override byte C
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -60,6 +65,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.C = value;
     }
 
+    /// <inheritdoc/>
     public override byte D
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -68,6 +74,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.D = value;
     }
 
+    /// <inheritdoc/>
     public override ushort DE
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -76,6 +83,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.DE = value;
     }
 
+    /// <inheritdoc/>
     public override byte E
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -84,6 +92,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.E = value;
     }
 
+    /// <inheritdoc/>
     public override byte F
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -92,6 +101,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.F = value;
     }
 
+    /// <inheritdoc/>
     public override byte H
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -100,6 +110,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.H = value;
     }
 
+    /// <inheritdoc/>
     public override ushort HL
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -108,6 +119,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.HL = value;
     }
 
+    /// <inheritdoc/>
     public override byte I
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -116,6 +128,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.I = value;
     }
 
+    /// <inheritdoc/>
     public override ushort IR
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -124,6 +137,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.IR = value;
     }
 
+    /// <inheritdoc/>
     public override ushort IX
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -132,6 +146,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.IX = value;
     }
 
+    /// <inheritdoc/>
     public override byte IXH
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -140,6 +155,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.IXH = value;
     }
 
+    /// <inheritdoc/>
     public override byte IXL
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -148,6 +164,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.IXL = value;
     }
 
+    /// <inheritdoc/>
     public override ushort IY
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -156,6 +173,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.IY = value;
     }
 
+    /// <inheritdoc/>
     public override byte IYH
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -164,6 +182,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.IYH = value;
     }
 
+    /// <inheritdoc/>
     public override byte IYL
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -172,6 +191,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.IYL = value;
     }
 
+    /// <inheritdoc/>
     public override byte L
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -180,6 +200,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.L = value;
     }
 
+    /// <inheritdoc/>
     public override ushort PC
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -188,6 +209,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.PC = value;
     }
 
+    /// <inheritdoc/>
     public override byte Q
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -196,6 +218,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.Q = value;
     }
 
+    /// <inheritdoc/>
     public override byte R
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -204,6 +227,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.R = value;
     }
 
+    /// <inheritdoc/>
     public override ushort SP
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -212,6 +236,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.SP = value;
     }
 
+    /// <inheritdoc/>
     public override byte W
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -220,6 +245,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.W = value;
     }
 
+    /// <inheritdoc/>
     public override ushort WZ
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -228,6 +254,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         set => emulator.WZ = value;
     }
 
+    /// <inheritdoc/>
     public override byte Z
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -235,4 +262,7 @@ internal sealed class Z80InstructionRegisters : Z80Registers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         set => emulator.Z = value;
     }
+
+    /// <inheritdoc/>
+    public override Z80InstructionShadowRegisters Shadow => (Z80InstructionShadowRegisters)base.Shadow;
 }

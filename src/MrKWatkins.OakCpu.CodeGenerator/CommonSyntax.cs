@@ -67,6 +67,9 @@ internal static class CommonSyntax
     internal static SyntaxToken Unsafe => Token(SyntaxKind.UnsafeKeyword);
 
     [Pure]
+    internal static SyntaxToken Virtual => Token(SyntaxKind.VirtualKeyword);
+
+    [Pure]
     internal static StatementSyntax InitializeVariableStatement(string variable, ExpressionSyntax value) => InitializeVariableStatement(variable, value, IdentifierName("var"));
 
     [Pure]
