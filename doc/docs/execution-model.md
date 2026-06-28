@@ -2,6 +2,8 @@
 
 OakCpu keeps memory and I/O outside the CPU core. The emulator advances the Z80 state until it reaches a point where the host machine must perform an external action, then reports that action with [`ActionRequired`](API/MrKWatkins.OakCpu.Z80/ActionRequired/index.md).
 
+This page describes the Z80. The 6502 follows the same execution model and action set; only the CPU-specific state, such as the interrupt model, differs.
+
 ## Actions
 
 | Action | Host responsibility |
@@ -13,7 +15,7 @@ OakCpu keeps memory and I/O outside the CPU core. The emulator advances the Z80 
 | `IORead` | Read from the supplied port address and place the result in `Data`. |
 | `IOWrite` | Write `Data` to the supplied port address. |
 
-The step emulator exposes the current bus address through [`Address`](API/MrKWatkins.OakCpu.Z80/Z80StepEmulator/Address.md) and the bus data latch through [`Data`](API/MrKWatkins.OakCpu.Z80/Z80StepEmulator/Data.md). The instruction emulator passes the address and current data value to its callback and uses its [`Data`](API/MrKWatkins.OakCpu.Z80/Z80InstructionEmulator/Data.md) property for read results.
+The step emulator exposes the current bus address through [`Address`](API/MrKWatkins.OakCpu.Z80/Z80StepEmulator/Address.md) and the bus data latch through [`Data`](API/MrKWatkins.OakCpu.Z80/Z80StepEmulator/Data.md). The instruction emulator passes the address and current data value to the bus handler's `OnActionRequired` method and uses its [`Data`](API/MrKWatkins.OakCpu.Z80/Z80InstructionEmulator/Data.md) property for read results.
 
 ## Step-Level Execution
 
@@ -23,7 +25,7 @@ Use [`IsAtInstructionBoundary`](API/MrKWatkins.OakCpu.Z80/Z80StepEmulator/IsAtIn
 
 ## Instruction-Level Execution
 
-[`Z80InstructionEmulator.ExecuteInstruction`](API/MrKWatkins.OakCpu.Z80/Z80InstructionEmulator/ExecuteInstruction.md) executes until the current instruction, interrupt sequence, or `HALT` cycle completes. The callback receives each external action in order, so memory and I/O behaviour remains host-controlled.
+[`Z80InstructionEmulator.ExecuteInstruction`](API/MrKWatkins.OakCpu.Z80/Z80InstructionEmulator/ExecuteInstruction.md) executes until the current instruction, interrupt sequence, or `HALT` cycle completes. It is passed a bus handler implementing [`IZ80BusHandler`](API/MrKWatkins.OakCpu.Z80/IZ80BusHandler/index.md); the handler's `OnActionRequired` method receives each external action in order, so memory and I/O behaviour remains host-controlled. Passing the handler as a generic `struct` lets the JIT inline the bus access into the execution loop. See [Using the Emulator](using-the-emulator.md#instruction-emulator) for an example.
 
 ## Interrupts
 

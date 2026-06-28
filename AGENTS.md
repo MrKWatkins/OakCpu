@@ -15,7 +15,7 @@ All commands run from the root directory:
 ```bash
 dotnet build src/OakCpu.sln # Build all projects.
 
-dotnet run --project src/MrKWatkins.OakCpu.CodeGenerator.Console --no-build # Regenerate checked-in .generated.cs files.
+(cd src && dotnet run --project MrKWatkins.OakCpu.CodeGenerator.Console --no-build) # Regenerate checked-in .generated.cs files for all CPUs. The generator finds OakCpu.sln by searching upwards, so it must run from src.
 
 dotnet test --solution src/OakCpu.sln # Run all tests.
 dotnet test --project src/MrKWatkins.OakCpu.CodeGenerator.Tests # Run the code generator tests.
@@ -85,7 +85,7 @@ Only manually change `.generated.cs` files when experimenting with the desired g
 ## Documentation
 
 - Documentation is generated using MKDocs and is found in the `doc` folder.
-- Documentation in `doc/docs/API` is generated from the Z80 assembly using the Sesharp tool from the root of the repository: `sesharp src/MrKWatkins.OakCpu.Z80/bin/Release/net10.0/MrKWatkins.OakCpu.Z80.dll --output doc/docs/API --repository https://github.com/MrKWatkins/OakCpu`
+- Documentation in `doc/docs/API` is generated from the Z80 and 6502 assemblies using the Sesharp tool from the root of the repository: `sesharp src/MrKWatkins.OakCpu.M6502/bin/Release/net10.0/MrKWatkins.OakCpu.M6502.dll src/MrKWatkins.OakCpu.Z80/bin/Release/net10.0/MrKWatkins.OakCpu.Z80.dll --output doc/docs/API --repository https://github.com/MrKWatkins/OakCpu`
 - Documentation in the root of `doc/docs` is handwritten.
 - Handwritten documentation should link to the generated API documentation and Microsoft's API docs (https://learn.microsoft.com/en-us/dotnet/api/) for types, members, etc.
 - `ReadMe.md` gives a brief summary of the project, links to the full documentation, and is included in the NuGet package.
