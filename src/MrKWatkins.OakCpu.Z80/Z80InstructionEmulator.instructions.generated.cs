@@ -167,8 +167,8 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.Z = emulator.latch;
         emulator.W = emulator.I;
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
-        emulator.address = emulator.WZ;
-        emulator.WZ += 0x01;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.latch = emulator.data;
         emulator.address = emulator.WZ;
@@ -675,9 +675,9 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
         emulator.data = emulator.L;
-        emulator.WZ += 0x01;
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         emulator.address = emulator.WZ;
         emulator.data = emulator.H;
@@ -844,8 +844,8 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
-        emulator.WZ += 0x01;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.L = emulator.data;
         emulator.address = emulator.WZ;
@@ -967,7 +967,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
         emulator.data = emulator.A;
         emulator.Z += 0x01;
         emulator.W = emulator.A;
@@ -1101,8 +1101,8 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
-        emulator.WZ += 0x01;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.A = emulator.data;
         return emulator.CompleteInstruction(false, 9);
@@ -2936,7 +2936,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.data;
         if ((emulator.F & 0b01000000) == 0b00000000 /* condition.NZ */)
         {
-            emulator.PC = emulator.WZ;
+            emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         }
 
         return emulator.CompleteInstruction(false, 6);
@@ -2983,7 +2983,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -3096,7 +3096,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.data;
         if ((emulator.F & 0b01000000) == 0b01000000 /* condition.Z */)
         {
-            emulator.PC = emulator.WZ;
+            emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         }
 
         return emulator.CompleteInstruction(false, 6);
@@ -3126,7 +3126,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -3150,7 +3150,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -3246,7 +3246,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.data;
         if ((emulator.F & 0b00000001) == 0b00000000 /* condition.NC */)
         {
-            emulator.PC = emulator.WZ;
+            emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         }
 
         return emulator.CompleteInstruction(false, 6);
@@ -3261,7 +3261,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.Z = emulator.data;
         emulator.W = emulator.A;
-        emulator.address = emulator.WZ;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
         emulator.data = emulator.A;
         handler.OnActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
         emulator.Z += 0x01;
@@ -3292,7 +3292,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -3404,7 +3404,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.data;
         if ((emulator.F & 0b00000001) == 0b00000001 /* condition.C */)
         {
-            emulator.PC = emulator.WZ;
+            emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         }
 
         return emulator.CompleteInstruction(false, 6);
@@ -3419,11 +3419,11 @@ public sealed unsafe partial class Z80InstructionEmulator
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.Z = emulator.data;
         emulator.W = emulator.A;
-        emulator.address = emulator.WZ;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
         emulator.data = emulator.A;
         handler.OnActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.A = emulator.data;
-        emulator.WZ += 0x01;
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         return emulator.CompleteInstruction(false, 7);
     }
 
@@ -3451,7 +3451,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -3547,7 +3547,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.data;
         if ((emulator.F & 0b00000100) == 0b00000000 /* condition.PO */)
         {
-            emulator.PC = emulator.WZ;
+            emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         }
 
         return emulator.CompleteInstruction(false, 6);
@@ -3596,7 +3596,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -3695,7 +3695,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.data;
         if ((emulator.F & 0b00000100) == 0b00000100 /* condition.PE */)
         {
-            emulator.PC = emulator.WZ;
+            emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         }
 
         return emulator.CompleteInstruction(false, 6);
@@ -3735,7 +3735,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -3826,7 +3826,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.data;
         if ((emulator.F & 0b10000000) == 0b00000000 /* condition.P */)
         {
-            emulator.PC = emulator.WZ;
+            emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         }
 
         return emulator.CompleteInstruction(false, 6);
@@ -3865,7 +3865,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -3964,7 +3964,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.data;
         if ((emulator.F & 0b10000000) == 0b10000000 /* condition.M */)
         {
-            emulator.PC = emulator.WZ;
+            emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         }
 
         return emulator.CompleteInstruction(false, 6);
@@ -3978,8 +3978,6 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.iff2 = true;
         emulator.Q = 0x00;
         emulator.address = emulator.PC;
-        emulator.PC += 0x01;
-        emulator.PC -= 1;
         return 0;
     }
 
@@ -4007,7 +4005,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -8127,9 +8125,9 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
         emulator.data = emulator.IXL;
-        emulator.WZ += 0x01;
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         emulator.address = emulator.WZ;
         emulator.data = emulator.IXH;
@@ -8304,8 +8302,8 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
-        emulator.WZ += 0x01;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.IXL = emulator.data;
         emulator.address = emulator.WZ;
@@ -8435,7 +8433,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
         emulator.data = emulator.A;
         emulator.Z += 0x01;
         emulator.W = emulator.A;
@@ -8592,8 +8590,8 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
-        emulator.WZ += 0x01;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.A = emulator.data;
         return emulator.CompleteInstruction(false, 9);
@@ -10653,7 +10651,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.data;
         if ((emulator.F & 0b01000000) == 0b00000000 /* condition.NZ */)
         {
-            emulator.PC = emulator.WZ;
+            emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         }
 
         return emulator.CompleteInstruction(false, 6);
@@ -10702,7 +10700,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -10821,7 +10819,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.data;
         if ((emulator.F & 0b01000000) == 0b01000000 /* condition.Z */)
         {
-            emulator.PC = emulator.WZ;
+            emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         }
 
         return emulator.CompleteInstruction(false, 6);
@@ -10883,7 +10881,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -10908,7 +10906,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -11009,7 +11007,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.data;
         if ((emulator.F & 0b00000001) == 0b00000000 /* condition.NC */)
         {
-            emulator.PC = emulator.WZ;
+            emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         }
 
         return emulator.CompleteInstruction(false, 6);
@@ -11025,7 +11023,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.Z = emulator.data;
         emulator.W = emulator.A;
-        emulator.address = emulator.WZ;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
         emulator.data = emulator.A;
         handler.OnActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
         emulator.Z += 0x01;
@@ -11057,7 +11055,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -11175,7 +11173,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.data;
         if ((emulator.F & 0b00000001) == 0b00000001 /* condition.C */)
         {
-            emulator.PC = emulator.WZ;
+            emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         }
 
         return emulator.CompleteInstruction(false, 6);
@@ -11191,11 +11189,11 @@ public sealed unsafe partial class Z80InstructionEmulator
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.Z = emulator.data;
         emulator.W = emulator.A;
-        emulator.address = emulator.WZ;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
         emulator.data = emulator.A;
         handler.OnActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.A = emulator.data;
-        emulator.WZ += 0x01;
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         return emulator.CompleteInstruction(false, 7);
     }
 
@@ -11224,7 +11222,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -11325,7 +11323,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.data;
         if ((emulator.F & 0b00000100) == 0b00000000 /* condition.PO */)
         {
-            emulator.PC = emulator.WZ;
+            emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         }
 
         return emulator.CompleteInstruction(false, 6);
@@ -11376,7 +11374,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -11481,7 +11479,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.data;
         if ((emulator.F & 0b00000100) == 0b00000100 /* condition.PE */)
         {
-            emulator.PC = emulator.WZ;
+            emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         }
 
         return emulator.CompleteInstruction(false, 6);
@@ -11523,7 +11521,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -11628,7 +11626,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.data;
         if ((emulator.F & 0b10000000) == 0b00000000 /* condition.P */)
         {
-            emulator.PC = emulator.WZ;
+            emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         }
 
         return emulator.CompleteInstruction(false, 6);
@@ -11669,7 +11667,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -11774,7 +11772,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.W = emulator.data;
         if ((emulator.F & 0b10000000) == 0b10000000 /* condition.M */)
         {
-            emulator.PC = emulator.WZ;
+            emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         }
 
         return emulator.CompleteInstruction(false, 6);
@@ -11789,8 +11787,6 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.iff2 = true;
         emulator.Q = 0x00;
         emulator.address = emulator.PC;
-        emulator.PC += 0x01;
-        emulator.PC -= 1;
         return 0;
     }
 
@@ -11819,7 +11815,7 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.SP -= 0x01;
         emulator.address = emulator.SP;
         emulator.data = emulator.PCL;
-        emulator.PC = emulator.WZ;
+        emulator.PC = (ushort)(emulator.W << 8 | emulator.Z);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         return emulator.CompleteInstruction(false, 13);
     }
@@ -11944,9 +11940,9 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
         emulator.data = emulator.C;
-        emulator.WZ += 0x01;
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         emulator.address = emulator.WZ;
         emulator.data = emulator.B;
@@ -12079,8 +12075,8 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
-        emulator.WZ += 0x01;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.C = emulator.data;
         emulator.address = emulator.WZ;
@@ -12186,9 +12182,9 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
         emulator.data = emulator.E;
-        emulator.WZ += 0x01;
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         emulator.address = emulator.WZ;
         emulator.data = emulator.D;
@@ -12291,8 +12287,8 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
-        emulator.WZ += 0x01;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.E = emulator.data;
         emulator.address = emulator.WZ;
@@ -12396,9 +12392,9 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
         emulator.data = emulator.L;
-        emulator.WZ += 0x01;
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         emulator.address = emulator.WZ;
         emulator.data = emulator.H;
@@ -12499,8 +12495,8 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
-        emulator.WZ += 0x01;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.L = emulator.data;
         emulator.address = emulator.WZ;
@@ -12601,9 +12597,9 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
         emulator.data = emulator.SPL;
-        emulator.WZ += 0x01;
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         emulator.address = emulator.WZ;
         emulator.data = emulator.SPH;
@@ -12680,8 +12676,8 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
-        emulator.WZ += 0x01;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.SPL = emulator.data;
         emulator.address = emulator.WZ;
@@ -12782,9 +12778,9 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.HL += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.B -= 0x01;
-        emulator.address = emulator.BC;
+        emulator.address = (ushort)(emulator.B << 8 | emulator.C);
         handler.OnActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
-        emulator.WZ = (ushort)(emulator.BC + 0x01);
+        emulator.WZ = (ushort)((ushort)(emulator.B << 8 | emulator.C) + 0x01);
         var temp = emulator.data + (emulator.L & 0b11111111);
         var pv = temp & 0b00000111 ^ emulator.B;
 
@@ -12892,9 +12888,9 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.HL -= 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.B -= 0x01;
-        emulator.address = emulator.BC;
+        emulator.address = (ushort)(emulator.B << 8 | emulator.C);
         handler.OnActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
-        emulator.WZ = (ushort)(emulator.BC - 0x01);
+        emulator.WZ = (ushort)((ushort)(emulator.B << 8 | emulator.C) - 0x01);
         var temp = emulator.data + (emulator.L & 0b11111111);
         var pv = temp & 0b00000111 ^ emulator.B;
 
@@ -13101,9 +13097,9 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.HL += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.B -= 0x01;
-        emulator.address = emulator.BC;
+        emulator.address = (ushort)(emulator.B << 8 | emulator.C);
         handler.OnActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
-        emulator.WZ = (ushort)(emulator.BC + 0x01);
+        emulator.WZ = (ushort)((ushort)(emulator.B << 8 | emulator.C) + 0x01);
         {
             if (emulator.B == 0x00)
             {
@@ -13360,9 +13356,9 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.HL -= 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.B -= 0x01;
-        emulator.address = emulator.BC;
+        emulator.address = (ushort)(emulator.B << 8 | emulator.C);
         handler.OnActionRequired(ActionRequired.IOWrite, emulator.address, emulator.data);
-        emulator.WZ = (ushort)(emulator.BC - 0x01);
+        emulator.WZ = (ushort)((ushort)(emulator.B << 8 | emulator.C) - 0x01);
         {
             if (emulator.B == 0x00)
             {
@@ -13501,9 +13497,9 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
         emulator.data = emulator.IYL;
-        emulator.WZ += 0x01;
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryWrite, emulator.address, emulator.data);
         emulator.address = emulator.WZ;
         emulator.data = emulator.IYH;
@@ -13605,8 +13601,8 @@ public sealed unsafe partial class Z80InstructionEmulator
         emulator.PC += 0x01;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.W = emulator.data;
-        emulator.address = emulator.WZ;
-        emulator.WZ += 0x01;
+        emulator.address = (ushort)(emulator.W << 8 | emulator.Z);
+        emulator.WZ = (ushort)((emulator.W << 8 | emulator.Z) + 0x01);
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         emulator.IYL = emulator.data;
         emulator.address = emulator.WZ;
