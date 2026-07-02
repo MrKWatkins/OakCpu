@@ -11,7 +11,7 @@ instructions:
       - Z = Data;
       - 
       - Address = PC; PC = PC + 1; request(action.memory_read);
-      - W = Data; PC = WZ;
+      - $wz = (Data << 8) | Z; WZ = $wz; PC = $wz;
       - 
 
       - 

@@ -11,6 +11,6 @@ instructions:
       - Z = Data;
       -
       - Address = SP; SP = SP + 1; request(action.memory_read);
-      - W = Data; PC = WZ;
+      - $wz = (Data << 8) | Z; WZ = $wz; PC = $wz;
       - IFF1 = IFF2;
       - 

@@ -39,7 +39,7 @@ instructions:
         RP0: IY
         RP1: SP
     steps:
-      - $left = RP0; $right = RP1; $result = $left + $right; RP0 = $result; WZ = $left + 1; flags();
+      - $left = RP0; $right = RP1; $result = $left + $right; $high = $result >> 8; RP0 = $result; WZ = $left + 1; flags();
       - 
       - 
       - 
@@ -50,9 +50,9 @@ instructions:
     flags:
       C: ($result & 0x10000) == 0x10000
       N: 0
-      X: copy_from(RP0H)
+      X: copy_from($high)
       H: did_16_bit_addition_half_carry($left, $right, $result)
-      Y: copy_from(RP0H)
+      Y: copy_from($high)
         
   - group: 8-Bit Arithmetic
     mnemonic: ADD A, R0

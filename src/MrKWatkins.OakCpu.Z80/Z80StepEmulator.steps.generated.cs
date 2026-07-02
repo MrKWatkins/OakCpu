@@ -191,9 +191,9 @@ public sealed unsafe partial class Z80StepEmulator
     // Interrupt Mode 2 [17]
     private static void Step16(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
-        emulator.W = emulator.data;
-        emulator.Z = emulator.latch;
-        emulator.PC = emulator.WZ;
+        var wz = emulator.data << 0x08 | emulator.latch;
+        emulator.WZ = (ushort)wz;
+        emulator.PC = (ushort)wz;
     }
 
     // 0x01: LD BC, nn [0]
@@ -859,12 +859,13 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.HL;
         var right = emulator.BC;
         var result = left + right;
+        var high = result >> 0x08;
         emulator.HL = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         // Reset N.
-        int flags = emulator.H & 0b00101000; // Copy X and Y from H.
+        int flags = high & 0b00101000; // Copy X and Y from high.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
@@ -1213,12 +1214,13 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.HL;
         var right = emulator.DE;
         var result = left + right;
+        var high = result >> 0x08;
         emulator.HL = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         // Reset N.
-        int flags = emulator.H & 0b00101000; // Copy X and Y from H.
+        int flags = high & 0b00101000; // Copy X and Y from high.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
@@ -1482,12 +1484,13 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.HL;
         var right = emulator.HL;
         var result = left + right;
+        var high = result >> 0x08;
         emulator.HL = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         // Reset N.
-        int flags = emulator.H & 0b00101000; // Copy X and Y from H.
+        int flags = high & 0b00101000; // Copy X and Y from high.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
@@ -1669,12 +1672,13 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.HL;
         var right = emulator.SP;
         var result = left + right;
+        var high = result >> 0x08;
         emulator.HL = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         // Reset N.
-        int flags = emulator.H & 0b00101000; // Copy X and Y from H.
+        int flags = high & 0b00101000; // Copy X and Y from high.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
@@ -1994,8 +1998,9 @@ public sealed unsafe partial class Z80StepEmulator
     // 0xED 0x4D: RETI [4]
     private static void Step210(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
-        emulator.W = emulator.data;
-        emulator.PC = emulator.WZ;
+        var wz = emulator.data << 0x08 | emulator.Z;
+        emulator.WZ = (ushort)wz;
+        emulator.PC = (ushort)wz;
     }
 
     // 0xC2: JP NZ [5]
@@ -3178,12 +3183,13 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.IX;
         var right = emulator.BC;
         var result = left + right;
+        var high = result >> 0x08;
         emulator.IX = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         // Reset N.
-        int flags = emulator.IXH & 0b00101000; // Copy X and Y from IXH.
+        int flags = high & 0b00101000; // Copy X and Y from high.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
@@ -3247,12 +3253,13 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.IX;
         var right = emulator.DE;
         var result = left + right;
+        var high = result >> 0x08;
         emulator.IX = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         // Reset N.
-        int flags = emulator.IXH & 0b00101000; // Copy X and Y from IXH.
+        int flags = high & 0b00101000; // Copy X and Y from high.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
@@ -3320,12 +3327,13 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.IX;
         var right = emulator.IX;
         var result = left + right;
+        var high = result >> 0x08;
         emulator.IX = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         // Reset N.
-        int flags = emulator.IXH & 0b00101000; // Copy X and Y from IXH.
+        int flags = high & 0b00101000; // Copy X and Y from high.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
@@ -3557,12 +3565,13 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.IX;
         var right = emulator.SP;
         var result = left + right;
+        var high = result >> 0x08;
         emulator.IX = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         // Reset N.
-        int flags = emulator.IXH & 0b00101000; // Copy X and Y from IXH.
+        int flags = high & 0b00101000; // Copy X and Y from high.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
@@ -3992,16 +4001,18 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.HL;
         var right = emulator.BC;
         var result = left - right - (emulator.F & 0b00000001 /* flag.C */);
+        var result16 = result & 0xFFFF;
+        var high = result >> 0x08;
         emulator.HL = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         int flags = 0b00000010; // Set N.
-        flags |= emulator.H & 0b10101000; // Copy flag.X, flag.Y and S from H.
+        flags |= high & 0b10101000; // Copy flag.X, flag.Y and S from high.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ right) & (result ^ left) & 0x8000) >> 13; // Set PV if did_16_bit_subtraction_overflow(left, right, result) is true.
         flags |= ((left ^ right ^ result) & 0x1000) >> 8; // Set H if did_16_bit_subtraction_half_borrow(left, right, result) is true.
-        flags |= (Unsafe.BitCast<bool, byte>(emulator.HL == 0)) << 6; // Set Z if is_zero(HL) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result16 == 0)) << 6; // Set Z if is_zero(result16) is true.
         emulator.F = (byte)flags;
     }
 
@@ -4084,16 +4095,18 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.HL;
         var right = emulator.BC;
         var result = left + right + (emulator.F & 0b00000001 /* flag.C */);
+        var result16 = result & 0xFFFF;
+        var high = result >> 0x08;
         emulator.HL = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         // Reset N.
-        int flags = emulator.H & 0b10101000; // Copy flag.X, flag.Y and S from H.
+        int flags = high & 0b10101000; // Copy flag.X, flag.Y and S from high.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((result ^ left) & (result ^ right) & 0x8000) >> 13; // Set PV if did_16_bit_addition_overflow(left, right, result) is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
-        flags |= (Unsafe.BitCast<bool, byte>(emulator.HL == 0)) << 6; // Set Z if is_zero(HL) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result16 == 0)) << 6; // Set Z if is_zero(result16) is true.
         emulator.F = (byte)flags;
     }
 
@@ -4147,16 +4160,18 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.HL;
         var right = emulator.DE;
         var result = left - right - (emulator.F & 0b00000001 /* flag.C */);
+        var result16 = result & 0xFFFF;
+        var high = result >> 0x08;
         emulator.HL = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         int flags = 0b00000010; // Set N.
-        flags |= emulator.H & 0b10101000; // Copy flag.X, flag.Y and S from H.
+        flags |= high & 0b10101000; // Copy flag.X, flag.Y and S from high.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ right) & (result ^ left) & 0x8000) >> 13; // Set PV if did_16_bit_subtraction_overflow(left, right, result) is true.
         flags |= ((left ^ right ^ result) & 0x1000) >> 8; // Set H if did_16_bit_subtraction_half_borrow(left, right, result) is true.
-        flags |= (Unsafe.BitCast<bool, byte>(emulator.HL == 0)) << 6; // Set Z if is_zero(HL) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result16 == 0)) << 6; // Set Z if is_zero(result16) is true.
         emulator.F = (byte)flags;
     }
 
@@ -4233,16 +4248,18 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.HL;
         var right = emulator.DE;
         var result = left + right + (emulator.F & 0b00000001 /* flag.C */);
+        var result16 = result & 0xFFFF;
+        var high = result >> 0x08;
         emulator.HL = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         // Reset N.
-        int flags = emulator.H & 0b10101000; // Copy flag.X, flag.Y and S from H.
+        int flags = high & 0b10101000; // Copy flag.X, flag.Y and S from high.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((result ^ left) & (result ^ right) & 0x8000) >> 13; // Set PV if did_16_bit_addition_overflow(left, right, result) is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
-        flags |= (Unsafe.BitCast<bool, byte>(emulator.HL == 0)) << 6; // Set Z if is_zero(HL) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result16 == 0)) << 6; // Set Z if is_zero(result16) is true.
         emulator.F = (byte)flags;
     }
 
@@ -4304,16 +4321,18 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.HL;
         var right = emulator.HL;
         var result = left - right - (emulator.F & 0b00000001 /* flag.C */);
+        var result16 = result & 0xFFFF;
+        var high = result >> 0x08;
         emulator.HL = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         int flags = 0b00000010; // Set N.
-        flags |= emulator.H & 0b10101000; // Copy flag.X, flag.Y and S from H.
+        flags |= high & 0b10101000; // Copy flag.X, flag.Y and S from high.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ right) & (result ^ left) & 0x8000) >> 13; // Set PV if did_16_bit_subtraction_overflow(left, right, result) is true.
         flags |= ((left ^ right ^ result) & 0x1000) >> 8; // Set H if did_16_bit_subtraction_half_borrow(left, right, result) is true.
-        flags |= (Unsafe.BitCast<bool, byte>(emulator.HL == 0)) << 6; // Set Z if is_zero(HL) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result16 == 0)) << 6; // Set Z if is_zero(result16) is true.
         emulator.F = (byte)flags;
     }
 
@@ -4371,16 +4390,18 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.HL;
         var right = emulator.HL;
         var result = left + right + (emulator.F & 0b00000001 /* flag.C */);
+        var result16 = result & 0xFFFF;
+        var high = result >> 0x08;
         emulator.HL = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         // Reset N.
-        int flags = emulator.H & 0b10101000; // Copy flag.X, flag.Y and S from H.
+        int flags = high & 0b10101000; // Copy flag.X, flag.Y and S from high.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((result ^ left) & (result ^ right) & 0x8000) >> 13; // Set PV if did_16_bit_addition_overflow(left, right, result) is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
-        flags |= (Unsafe.BitCast<bool, byte>(emulator.HL == 0)) << 6; // Set Z if is_zero(HL) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result16 == 0)) << 6; // Set Z if is_zero(result16) is true.
         emulator.F = (byte)flags;
     }
 
@@ -4436,16 +4457,18 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.HL;
         var right = emulator.SP;
         var result = left - right - (emulator.F & 0b00000001 /* flag.C */);
+        var result16 = result & 0xFFFF;
+        var high = result >> 0x08;
         emulator.HL = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         int flags = 0b00000010; // Set N.
-        flags |= emulator.H & 0b10101000; // Copy flag.X, flag.Y and S from H.
+        flags |= high & 0b10101000; // Copy flag.X, flag.Y and S from high.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ right) & (result ^ left) & 0x8000) >> 13; // Set PV if did_16_bit_subtraction_overflow(left, right, result) is true.
         flags |= ((left ^ right ^ result) & 0x1000) >> 8; // Set H if did_16_bit_subtraction_half_borrow(left, right, result) is true.
-        flags |= (Unsafe.BitCast<bool, byte>(emulator.HL == 0)) << 6; // Set Z if is_zero(HL) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result16 == 0)) << 6; // Set Z if is_zero(result16) is true.
         emulator.F = (byte)flags;
     }
 
@@ -4500,16 +4523,18 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.HL;
         var right = emulator.SP;
         var result = left + right + (emulator.F & 0b00000001 /* flag.C */);
+        var result16 = result & 0xFFFF;
+        var high = result >> 0x08;
         emulator.HL = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         // Reset N.
-        int flags = emulator.H & 0b10101000; // Copy flag.X, flag.Y and S from H.
+        int flags = high & 0b10101000; // Copy flag.X, flag.Y and S from high.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((result ^ left) & (result ^ right) & 0x8000) >> 13; // Set PV if did_16_bit_addition_overflow(left, right, result) is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
-        flags |= (Unsafe.BitCast<bool, byte>(emulator.HL == 0)) << 6; // Set Z if is_zero(HL) is true.
+        flags |= (Unsafe.BitCast<bool, byte>(result16 == 0)) << 6; // Set Z if is_zero(result16) is true.
         emulator.F = (byte)flags;
     }
 
@@ -5172,12 +5197,13 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.IY;
         var right = emulator.BC;
         var result = left + right;
+        var high = result >> 0x08;
         emulator.IY = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         // Reset N.
-        int flags = emulator.IYH & 0b00101000; // Copy X and Y from IYH.
+        int flags = high & 0b00101000; // Copy X and Y from high.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
@@ -5191,12 +5217,13 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.IY;
         var right = emulator.DE;
         var result = left + right;
+        var high = result >> 0x08;
         emulator.IY = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         // Reset N.
-        int flags = emulator.IYH & 0b00101000; // Copy X and Y from IYH.
+        int flags = high & 0b00101000; // Copy X and Y from high.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
@@ -5250,12 +5277,13 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.IY;
         var right = emulator.IY;
         var result = left + right;
+        var high = result >> 0x08;
         emulator.IY = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         // Reset N.
-        int flags = emulator.IYH & 0b00101000; // Copy X and Y from IYH.
+        int flags = high & 0b00101000; // Copy X and Y from high.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.
@@ -5427,12 +5455,13 @@ public sealed unsafe partial class Z80StepEmulator
         var left = emulator.IY;
         var right = emulator.SP;
         var result = left + right;
+        var high = result >> 0x08;
         emulator.IY = (ushort)result;
         emulator.WZ = (ushort)(left + 0x01);
 
         // Update flags.
         // Reset N.
-        int flags = emulator.IYH & 0b00101000; // Copy X and Y from IYH.
+        int flags = high & 0b00101000; // Copy X and Y from high.
         flags |= emulator.F & 0b11000100; // Copy flag.PV, flag.Z and S from F.
         flags |= ((result) >> 16) & 1; // Set C if (result & 65536) == 65536 is true.
         flags |= ((left ^ result ^ right) & 0x1000) >> 8; // Set H if did_16_bit_addition_half_carry(left, right, result) is true.

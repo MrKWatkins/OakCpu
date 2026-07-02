@@ -11,7 +11,7 @@ instructions:
       - opcode: 0xED 0x7A
         RP0: SP
     steps:
-      - $left = HL; $right = RP0; $result = $left + $right + flag.C; HL = $result; WZ = $left + 1; flags();
+      - $left = HL; $right = RP0; $result = $left + $right + flag.C; $result16 = $result & 0xFFFF; $high = $result >> 8; HL = $result; WZ = $left + 1; flags();
       -
       -
       -
@@ -23,8 +23,8 @@ instructions:
       C: ($result & 0x10000) == 0x10000
       N: 0
       PV: did_16_bit_addition_overflow($left, $right, $result)
-      X: copy_from(H)
+      X: copy_from($high)
       H: did_16_bit_addition_half_carry($left, $right, $result)
-      Y: copy_from(H)
-      Z: is_zero(HL)
-      S: copy_from(H)
+      Y: copy_from($high)
+      Z: is_zero($result16)
+      S: copy_from($high)

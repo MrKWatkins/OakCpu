@@ -101,5 +101,5 @@ sequences:
       - latch = Data;                                                                               # 15
       -                                                                                             # 16
       - Address = WZ; request(action.memory_read);                                                  # 17
-      - W = Data; Z = latch; PC = WZ;                                                               # 18
+      - $wz = (Data << 8) | latch; WZ = $wz; PC = $wz;                                              # 18
       -                                                                                             # 19
