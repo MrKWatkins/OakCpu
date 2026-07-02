@@ -19,6 +19,8 @@ public sealed partial class RegisterYaml
 
     public bool ProgramCounter { get; private set; }
 
+    public bool Transient { get; private set; }
+
     public string? Category { get; private set; }
 
     public RegisterYaml? High { get; private set; }

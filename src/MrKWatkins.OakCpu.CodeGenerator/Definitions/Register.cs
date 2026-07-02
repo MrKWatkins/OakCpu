@@ -5,13 +5,14 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class Register
 {
-    internal Register(string name, DataType type, Documentation documentation, bool flags, bool programCounter, string? category, int fieldOffset, bool hasRegisterClassProperty, Register? parent)
+    internal Register(string name, DataType type, Documentation documentation, bool flags, bool programCounter, string? category, int fieldOffset, bool hasRegisterClassProperty, Register? parent, bool transient = false)
     {
         Name = name;
         Type = type;
         Documentation = documentation;
         Flags = flags;
         ProgramCounter = programCounter;
+        Transient = transient;
         Category = category;
         FieldOffset = fieldOffset;
         HasRegisterClassProperty = hasRegisterClassProperty;
@@ -33,6 +34,11 @@ public sealed class Register
     public bool Flags { get; }
 
     public bool ProgramCounter { get; }
+
+    // A transient register is never read at its full 16-bit width across instruction boundaries, e.g. WZ, which
+    // every instruction that uses it writes before reading. Its halves can be stored back independently without
+    // risking a 16-bit read stalling on the two byte stores.
+    public bool Transient { get; }
 
     public string? Category { get; }
 
@@ -65,20 +71,20 @@ public sealed class Register
         var u8Size = DataType.U8.Size();
         foreach (var yaml in Order(yamls.Where(y => y.Type == DataType.U16)))
         {
-            var registerPair = new Register(yaml.Name, yaml.Type, Documentation.Create(yaml.Documentation, $"register {yaml.Name}"), yaml.Flags, yaml.ProgramCounter, yaml.Category, fieldOffset, true, null);
+            var registerPair = new Register(yaml.Name, yaml.Type, Documentation.Create(yaml.Documentation, $"register {yaml.Name}"), yaml.Flags, yaml.ProgramCounter, yaml.Category, fieldOffset, true, null, yaml.Transient);
             registers.Add(registerPair);
 
             // Little endian; low byte is at the lowest address.
             registerPair.LowRegister = yaml.Low != null
-                ? new Register(yaml.Low.Name, yaml.Low.Type, Documentation.Create(yaml.Low.Documentation, $"register {yaml.Low.Name}"), yaml.Low.Flags, yaml.Low.ProgramCounter, yaml.Low.Category, fieldOffset, true, registerPair)
-                : new Register(yaml.Name + "L", DataType.U8, Documentation.Empty, false, false, yaml.Category, fieldOffset, false, registerPair);
+                ? new Register(yaml.Low.Name, yaml.Low.Type, Documentation.Create(yaml.Low.Documentation, $"register {yaml.Low.Name}"), yaml.Low.Flags, yaml.Low.ProgramCounter, yaml.Category, fieldOffset, true, registerPair, yaml.Transient)
+                : new Register(yaml.Name + "L", DataType.U8, Documentation.Empty, false, false, yaml.Category, fieldOffset, false, registerPair, yaml.Transient);
 
             registers.Add(registerPair.LowRegister);
             fieldOffset += u8Size;
 
             registerPair.HighRegister = yaml.High != null
-                ? new Register(yaml.High.Name, yaml.High.Type, Documentation.Create(yaml.High.Documentation, $"register {yaml.High.Name}"), yaml.High.Flags, yaml.High.ProgramCounter, yaml.High.Category, fieldOffset, true, registerPair)
-                : new Register(yaml.Name + "H", DataType.U8, Documentation.Empty, false, false, yaml.Category, fieldOffset, false, registerPair);
+                ? new Register(yaml.High.Name, yaml.High.Type, Documentation.Create(yaml.High.Documentation, $"register {yaml.High.Name}"), yaml.High.Flags, yaml.High.ProgramCounter, yaml.Category, fieldOffset, true, registerPair, yaml.Transient)
+                : new Register(yaml.Name + "H", DataType.U8, Documentation.Empty, false, false, yaml.Category, fieldOffset, false, registerPair, yaml.Transient);
 
             registers.Add(registerPair.HighRegister);
             fieldOffset += u8Size;
@@ -86,7 +92,7 @@ public sealed class Register
 
         foreach (var yaml in Order(yamls.Where(y => y.Type == DataType.U8)))
         {
-            registers.Add(new Register(yaml.Name, yaml.Type, Documentation.Create(yaml.Documentation, $"register {yaml.Name}"), yaml.Flags, yaml.ProgramCounter, yaml.Category, fieldOffset, true, null));
+            registers.Add(new Register(yaml.Name, yaml.Type, Documentation.Create(yaml.Documentation, $"register {yaml.Name}"), yaml.Flags, yaml.ProgramCounter, yaml.Category, fieldOffset, true, null, yaml.Transient));
             fieldOffset += u8Size;
         }
 

@@ -93,8 +93,11 @@ registers:
     type: u16
     documentation: Gets or sets the stack pointer.
 
+  # Transient as every instruction that uses WZ writes it before reading it, so it is never read at 16 bits across
+  # instruction boundaries.
   - name: WZ
     type: u16
+    transient: true
     documentation: Gets or sets the internal WZ register pair.
     high:
       name: W

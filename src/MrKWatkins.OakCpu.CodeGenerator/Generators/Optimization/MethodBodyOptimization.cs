@@ -18,7 +18,7 @@ internal abstract class MethodBodyOptimization
     private static readonly IReadOnlyList<MethodBodyOptimization> InstructionMethodOptimizations =
     [
         new RemoveCancellingAdjustments(),
-        new PromoteRegistersToLocals(),
+        new DeferRegisterStores(),
         new ComposePairReadsAfterHalfWrites()
     ];
 

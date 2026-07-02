@@ -72,3 +72,11 @@ Switched to aluop a,nn to match OakEmu, now that the test passes.
 | OakEmu                 | aluop a,nn | 1,628.2 ms | 13.35 ms | 10.42 ms |  1.00 |    0.01 |   x97.44 | 2435.25 KB |        1.00 |
 | Z80InstructionEmulator | aluop a,nn |   414.4 ms |  2.30 ms |  3.30 ms |  0.25 |    0.00 |  x382.89 |   64.24 KB |        0.03 |
 | Z80StepEmulator        | aluop a,nn | 1,921.8 ms | 37.09 ms | 46.91 ms |  1.18 |    0.03 |   x82.55 |   64.25 KB |        0.03 |
+
+2026-07-02 - After peephole optimizations,
+
+| Method                 | Test       | Mean       | Error    | StdDev   | Ratio | RatioSD | ZX Speed | Allocated  | Alloc Ratio |
+|----------------------- |----------- |-----------:|---------:|---------:|------:|--------:|---------:|-----------:|------------:|
+| OakEmu                 | aluop a,nn | 1,633.0 ms |  9.08 ms |  8.05 ms |  1.00 |    0.01 |   x97.16 | 2435.25 KB |        1.00 |
+| Z80InstructionEmulator | aluop a,nn |   351.0 ms |  2.96 ms |  4.24 ms |  0.21 |    0.00 |  x451.95 |   64.24 KB |        0.03 |
+| Z80StepEmulator        | aluop a,nn | 1,862.1 ms | 30.25 ms | 28.29 ms |  1.14 |    0.02 |   x85.20 |   64.25 KB |        0.03 |

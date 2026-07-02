@@ -191,9 +191,9 @@ public sealed unsafe partial class Z80StepEmulator
     // Interrupt Mode 2 [17]
     private static void Step16(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
-        var wz = emulator.data << 0x08 | emulator.latch;
-        emulator.WZ = (ushort)wz;
-        emulator.PC = (ushort)wz;
+        emulator.W = emulator.data;
+        emulator.Z = emulator.latch;
+        emulator.PC = (ushort)(emulator.data << 8 | emulator.latch);
     }
 
     // 0x01: LD BC, nn [0]
@@ -1998,9 +1998,8 @@ public sealed unsafe partial class Z80StepEmulator
     // 0xED 0x4D: RETI [4]
     private static void Step210(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
-        var wz = emulator.data << 0x08 | emulator.Z;
-        emulator.WZ = (ushort)wz;
-        emulator.PC = (ushort)wz;
+        emulator.W = emulator.data;
+        emulator.PC = (ushort)(emulator.data << 8 | emulator.Z);
     }
 
     // 0xC2: JP NZ [5]
