@@ -6,7 +6,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 using Parameter = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Parameter;
 
-namespace MrKWatkins.OakCpu.CodeGenerator.Generators.InstructionMethods.Optimization;
+namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Optimization;
 
 // Rewrites 16-bit reads of a register pair as a composition of its half-registers, e.g. emulator.PC = emulator.WZ
 // as emulator.PC = (ushort)(emulator.W << 8 | emulator.Z), when one of the halves was byte-written shortly before
@@ -15,7 +15,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators.InstructionMethods.Optimiza
 // always semantically identical because the halves overlay the pair, so the state tracking below only decides
 // profitability: reads are rewritten while the half-store can still plausibly be in the store buffer, i.e. at most
 // MaxCallsSinceHalfWrite calls after it, and not once the pair has subsequently been written whole.
-internal sealed class ComposePairReadsAfterHalfWrites : InstructionMethodOptimization
+internal sealed class ComposePairReadsAfterHalfWrites : MethodBodyOptimization
 {
     private const int MaxCallsSinceHalfWrite = 1;
 
@@ -183,7 +183,7 @@ internal sealed class ComposePairReadsAfterHalfWrites : InstructionMethodOptimiz
 
     [Pure]
     private static SyntaxNode RewriteReads(IReadOnlyDictionary<string, Register> pairs, IReadOnlyDictionary<string, int> state, SyntaxNode node) =>
-        new ReadRewriter(pairs, state).Visit(node) ?? node;
+        new ReadRewriter(pairs, state).Visit(node);
 
     [Pure]
     private static ExpressionSyntax CreateCompose(Register pair) =>

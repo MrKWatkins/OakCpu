@@ -31,7 +31,7 @@ public sealed class EmulatorOverlapsGenerator : EmulatorClassGenerator
     [MustUseReturnValue]
     private static MemberDeclarationSyntax CreateOverlapMethod(FileGeneratorContext context, Step step)
     {
-        var statements = StatementGenerator.GenerateOverlapStatements(context, step);
+        var statements = Optimization.MethodBodyOptimization.PerformStepMethodOptimizations(context, StatementGenerator.GenerateOverlapStatements(context, step).ToList());
 
         var comments = context.GeneratorContext.GetOverlapImplementationAndDuplicates(step).Select(s => Comment($"// Overlap {s.Name}"));
 

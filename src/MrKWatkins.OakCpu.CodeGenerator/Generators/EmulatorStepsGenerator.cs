@@ -45,7 +45,7 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
     [MustUseReturnValue]
     private static MemberDeclarationSyntax CreateStepMethod(FileGeneratorContext context, Step step)
     {
-        var statements = StatementGenerator.GenerateStatements(context, step);
+        var statements = Optimization.MethodBodyOptimization.PerformStepMethodOptimizations(context, StatementGenerator.GenerateStatements(context, step).ToList());
 
         var comments = context.GeneratorContext.GetStepLayout(step).ImplementationAndDuplicates.Select(s => Comment($"// {s.Name}"));
 

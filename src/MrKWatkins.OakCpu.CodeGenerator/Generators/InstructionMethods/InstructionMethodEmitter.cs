@@ -2,7 +2,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
-using MrKWatkins.OakCpu.CodeGenerator.Generators.InstructionMethods.Optimization;
+using MrKWatkins.OakCpu.CodeGenerator.Generators.Optimization;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
@@ -23,7 +23,7 @@ internal static class InstructionMethodEmitter
         var statements = plan.Steps.Count == 0
             ? CreateEmptyBodyStatements(context, plan)
             : CreateStepBodyStatements(context, plan);
-        statements = InstructionMethodOptimization.PerformAllOptimizations(context, statements);
+        statements = MethodBodyOptimization.PerformInstructionMethodOptimizations(context, statements);
 
         return MethodDeclaration(IntType, Identifier(plan.MethodName))
             .WithModifiers([Private, Static])

@@ -3,14 +3,14 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using Parameter = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Parameter;
 
-namespace MrKWatkins.OakCpu.CodeGenerator.Generators.InstructionMethods.Optimization;
+namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Optimization;
 
 // Removes adjacent pairs of compound assignments to the same emulator field that cancel each other out, e.g.
 // emulator.PC += 1; emulator.PC -= 1;. These arise when a step performs the overlapped read of the next opcode,
 // e.g. for EI, and the instruction emulator rolls the program counter back again because it performs the read
 // itself at the start of the next instruction. Nothing can observe the field between two adjacent statements, so
 // removing the pair is safe.
-internal sealed class RemoveCancellingAdjustments : InstructionMethodOptimization
+internal sealed class RemoveCancellingAdjustments : MethodBodyOptimization
 {
     protected override IReadOnlyList<StatementSyntax> Optimize(FileGeneratorContext context, IReadOnlyList<StatementSyntax> statements) => Optimize(statements);
 
