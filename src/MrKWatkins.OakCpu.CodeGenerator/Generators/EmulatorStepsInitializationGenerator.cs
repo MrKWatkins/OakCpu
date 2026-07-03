@@ -211,7 +211,9 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     [Pure]
     private static StatementSyntax CreateSequenceGroupStepTableInitializationStatement(FileGeneratorContext context, SequenceGroup sequenceGroup)
     {
-        var stepIndices = Enumerable.Repeat(context.GeneratorContext.ErrorStepIndex, sequenceGroup.MaximumNumber + 1).ToArray();
+        // Padded to the full byte range so that an out-of-range selector, e.g. an interrupt mode beyond 2, lands on
+        // the error entry instead of reading out of bounds, as lookups do not bounds check.
+        var stepIndices = Enumerable.Repeat(context.GeneratorContext.ErrorStepIndex, Math.Max(byte.MaxValue + 1, sequenceGroup.MaximumNumber + 1)).ToArray();
 
         foreach (var member in sequenceGroup.Members)
         {

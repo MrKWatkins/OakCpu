@@ -258,7 +258,8 @@ public sealed class SerializationTests
         SetFieldValue(emulator, "pendingnmi", Rng.NextBool());
         SetFieldValue(emulator, "previousnmi", Rng.NextBool());
         SetFieldValue(emulator, "sampledirq", Rng.NextBool());
-        SetFieldValue(emulator, "nextSequenceStep", Rng.NextUShort());
+        // Must be a valid step index or the no-step sentinel as Restore validates it.
+        SetFieldValue(emulator, "nextSequenceStep", Rng.NextBool() ? ushort.MaxValue : Rng.NextByte(0, 8));
 
         return emulator;
     }

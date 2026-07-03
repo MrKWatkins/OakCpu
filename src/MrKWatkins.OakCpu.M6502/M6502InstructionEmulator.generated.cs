@@ -164,7 +164,9 @@ public sealed unsafe partial class M6502InstructionEmulator
     private int ExecuteDecodedInstruction<THandler>(ushort decodedStep, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
-        var instruction = Dispatch<THandler>.Instructions[decodedStep];
+        // No bounds check: the opcode step tables only contain valid indices and nextSequenceStep is
+        // validated on restore.
+        var instruction = (delegate*<M6502InstructionEmulator, ref THandler, int>)Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(Dispatch<THandler>.Instructions), decodedStep);
         return instruction(this, ref handler);
     }
 

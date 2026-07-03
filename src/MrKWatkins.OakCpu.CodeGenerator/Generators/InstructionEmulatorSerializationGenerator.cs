@@ -1,3 +1,5 @@
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
 
@@ -26,5 +28,19 @@ public sealed class InstructionEmulatorSerializationGenerator : SerializationGen
     protected override IEnumerable<SerializedField> GetAdditionalSerializedFields(GeneratorContext context, int nextFieldOffset)
     {
         yield return new SerializedField(Field.Name.NextSequenceStep, DataType.U16, nextFieldOffset, DataType.U16.Size());
+    }
+
+    [Pure]
+    protected override IEnumerable<StatementSyntax> GetRestoreValidationStatements(GeneratorContext context)
+    {
+        // The next sequence step indexes the dispatch table without a bounds check, so a corrupt state must not be
+        // allowed to restore an out-of-range value.
+        yield return SyntaxFactory.ParseStatement(
+            $$"""
+              if ({{Field.Name.NextSequenceStep}} != {{Field.Name.NoNextSequenceStep}} && {{Field.Name.NextSequenceStep}} >= {{context.InstructionEmulatorDispatchCount}})
+              {
+                  throw new InvalidOperationException("Unknown next sequence step.");
+              }
+              """);
     }
 }

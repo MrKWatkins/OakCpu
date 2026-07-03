@@ -16,6 +16,6 @@ public sealed class InstructionEmulatorTablesGeneratorTests : TestFixture
         var result = InstructionEmulatorTablesGenerator.Instance.Generate(Z80GeneratorContext);
 
         result.Contains($"private static readonly ushort[] {fieldName};", StringComparison.Ordinal).Should().BeTrue();
-        result.Contains($"{fieldName} = [", StringComparison.Ordinal).Should().BeTrue();
+        result.Contains($"{fieldName} =", StringComparison.Ordinal).Should().BeTrue();
     }
 }

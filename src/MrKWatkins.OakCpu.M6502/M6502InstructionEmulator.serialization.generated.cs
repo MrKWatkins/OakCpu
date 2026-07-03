@@ -113,6 +113,11 @@ public sealed unsafe partial class M6502InstructionEmulator
         {
             source.Slice(1, 21).CopyTo(new Span<byte>((byte*)block0, 21));
         }
+
+        if (nextSequenceStep != NoNextSequenceStep && nextSequenceStep >= 285)
+        {
+            throw new InvalidOperationException("Unknown next sequence step.");
+        }
     }
 
     /// <summary>

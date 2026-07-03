@@ -80,3 +80,12 @@ Switched to aluop a,nn to match OakEmu, now that the test passes.
 | OakEmu                 | aluop a,nn | 1,633.0 ms |  9.08 ms |  8.05 ms |  1.00 |    0.01 |   x97.16 | 2435.25 KB |        1.00 |
 | Z80InstructionEmulator | aluop a,nn |   351.0 ms |  2.96 ms |  4.24 ms |  0.21 |    0.00 |  x451.95 |   64.24 KB |        0.03 |
 | Z80StepEmulator        | aluop a,nn | 1,862.1 ms | 30.25 ms | 28.29 ms |  1.14 |    0.02 |   x85.20 |   64.25 KB |        0.03 |
+
+2026-07-03 - Remove bounds check in ExecuteDecodedInstruction.
+
+| Method                 | Test       | Mean       | Error    | StdDev   | Median     | Ratio | RatioSD | ZX Speed | Allocated  | Alloc Ratio |
+|----------------------- |----------- |-----------:|---------:|---------:|-----------:|------:|--------:|---------:|-----------:|------------:|
+| OakEmu                 | aluop a,nn | 1,637.8 ms | 13.17 ms | 12.32 ms | 1,641.7 ms |  1.00 |    0.01 |   x96.87 | 2435.25 KB |        1.00 |
+| Z80InstructionEmulator | aluop a,nn |   342.8 ms |  6.85 ms |  9.60 ms |   345.3 ms |  0.21 |    0.01 |  x462.84 |   64.24 KB |        0.03 |
+| Z80StepEmulator        | aluop a,nn | 1,948.2 ms | 38.14 ms | 66.80 ms | 1,978.6 ms |  1.19 |    0.04 |   x81.44 |   64.25 KB |        0.03 |
+

@@ -37,11 +37,13 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
     {
         // The dispatch table holds function pointers to the generic instruction methods, so it must live inside a generic
         // holder class. Each closed THandler gets its own monomorphised table and instruction methods, letting the JIT
-        // inline the handler's OnActionRequired call into every bus access.
+        // inline the handler's OnActionRequired call into every bus access. The pointers are stored as nint because
+        // function-pointer types cannot be used as generic type arguments, so MemoryMarshal.GetArrayDataReference and
+        // Unsafe.Add could not operate on the table directly.
         var instructionsField =
             FieldDeclaration(
                     VariableDeclaration(
-                            ArrayType(InstructionHandlerSyntax.InstructionHandlerType(context.GeneratorContext))
+                            ArrayType(IdentifierName("nint"))
                                 .WithRankSpecifiers([ArrayRankSpecifier([OmittedArraySizeExpression()])]))
                         .WithVariables(
                         [
@@ -91,7 +93,7 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
                   var table = new nint[{{noPrefixTableFieldName}}.Length];
                   for (var opcode = 0; opcode < table.Length; opcode++)
                   {
-                      table[opcode] = (nint){{Field.Name.Instructions}}[{{noPrefixTableFieldName}}[opcode]];
+                      table[opcode] = {{Field.Name.Instructions}}[{{noPrefixTableFieldName}}[opcode]];
                   }
 
                   return table;
@@ -126,7 +128,16 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
                 InstructionHandlerSyntax.AddressOfInstructionMethod(InstructionEmulatorGenerator.GetInstructionMethodName(context, sequence));
         }
 
-        return CollectionExpression(SeparatedList<CollectionElementSyntax>(handlers.Select(ExpressionElement)));
+        // The address of a method group must be converted to its function pointer type before it can convert to
+        // nint, and the inner cast must be parenthesized as (nint)(...)&Method would parse as a binary and.
+        return CollectionExpression(
+            SeparatedList<CollectionElementSyntax>(
+                handlers.Select(handler =>
+                    ExpressionElement(
+                        CastExpression(
+                            IdentifierName("nint"),
+                            ParenthesizedExpression(
+                                CastExpression(InstructionHandlerSyntax.InstructionHandlerType(context.GeneratorContext), handler)))))));
     }
 
     [Pure]
@@ -166,7 +177,9 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
     [Pure]
     private static StatementSyntax CreateSequenceGroupStepTableInitializationStatement(FileGeneratorContext context, SequenceGroup sequenceGroup)
     {
-        var stepIndices = Enumerable.Repeat(context.GeneratorContext.InstructionEmulatorErrorIndex, sequenceGroup.MaximumNumber + 1).ToArray();
+        // Padded to the full byte range so that an out-of-range selector, e.g. an interrupt mode beyond 2, lands on
+        // the error entry instead of reading out of bounds, as lookups do not bounds check.
+        var stepIndices = Enumerable.Repeat(context.GeneratorContext.InstructionEmulatorErrorIndex, Math.Max(byte.MaxValue + 1, sequenceGroup.MaximumNumber + 1)).ToArray();
         foreach (var member in sequenceGroup.Members)
         {
             stepIndices[member.Key] = context.GeneratorContext.GetInstructionEmulatorSequenceIndex(member.Value);

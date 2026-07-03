@@ -266,7 +266,9 @@ public sealed unsafe partial class Z80InstructionEmulator
     private int ExecuteDecodedInstruction<THandler>(ushort decodedStep, ref THandler handler)
         where THandler : IZ80BusHandler, allows ref struct
     {
-        var instruction = Dispatch<THandler>.Instructions[decodedStep];
+        // No bounds check: the opcode step tables only contain valid indices and nextSequenceStep is
+        // validated on restore.
+        var instruction = (delegate*<Z80InstructionEmulator, ref THandler, int>)Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(Dispatch<THandler>.Instructions), decodedStep);
         return instruction(this, ref handler);
     }
 

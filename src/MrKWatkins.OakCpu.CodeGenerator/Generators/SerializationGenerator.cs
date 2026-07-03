@@ -218,6 +218,8 @@ public abstract class SerializationGenerator : TypeGenerator
             serializedOffset += block.Size;
         }
 
+        statements.AddRange(GetRestoreValidationStatements(context.GeneratorContext));
+
         return WithXmlDocumentation(
             MethodDeclaration(VoidType, Identifier(RestoreMethodName))
                 .WithModifiers([Public])
@@ -233,6 +235,10 @@ public abstract class SerializationGenerator : TypeGenerator
                 [SourceParameterName] = "The serialized CPU state to read from."
             });
     }
+
+    // Validation of restored values that would otherwise let a corrupt state reach lookups that do not bounds check.
+    [Pure]
+    protected virtual IEnumerable<StatementSyntax> GetRestoreValidationStatements(GeneratorContext context) => [];
 
     [MustUseReturnValue]
     private MemberDeclarationSyntax GenerateRestoreStream(FileGeneratorContext context)

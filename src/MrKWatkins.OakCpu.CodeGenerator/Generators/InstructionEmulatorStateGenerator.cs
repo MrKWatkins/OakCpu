@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MrKWatkins.OakCpu.CodeGenerator.Definitions;
@@ -199,17 +200,19 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
                     List<StatementSyntax>(
                     [
                         InitializeVariableStatement(
-                            instructionVariableName,
-                            ElementAccessExpression(
-                                    MemberAccessExpression(
-                                        SyntaxKind.SimpleMemberAccessExpression,
-                                        InstructionHandlerSyntax.DispatchHolderType,
-                                        IdentifierName(Field.Name.Instructions)))
-                                .WithArgumentList(
-                                    BracketedArgumentList(
-                                    [
-                                        Argument(IdentifierName(decodedStepParameterName))
-                                    ]))),
+                                instructionVariableName,
+                                CastExpression(
+                                    InstructionHandlerSyntax.InstructionHandlerType(context.GeneratorContext),
+                                    CreateArrayGetWithoutBoundsCheck(
+                                        context.RequiredUsings,
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            InstructionHandlerSyntax.DispatchHolderType,
+                                            IdentifierName(Field.Name.Instructions)),
+                                        IdentifierName(decodedStepParameterName))))
+                            .WithLeadingTrivia(
+                                Comment("// No bounds check: the opcode step tables only contain valid indices and nextSequenceStep is"),
+                                Comment("// validated on restore.")),
                         ReturnStatement(
                             InvocationExpression(IdentifierName(instructionVariableName))
                                 .WithArgumentList(

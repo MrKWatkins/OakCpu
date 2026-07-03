@@ -15,6 +15,6 @@ public class Config : ManualConfig
         // slower pre-PGO tier; on a loaded machine that made results bimodal (~x140 vs ~x335). A generous fixed warmup
         // guarantees the PGO rejit has completed before measurement, matching the steady state a long-running emulator
         // (billions of instructions) always reaches.
-        AddJob(Job.Default.WithWarmupCount(20));
+        AddJob(Job.Default.WithWarmupCount(30));
     }
 }

@@ -143,6 +143,11 @@ public sealed unsafe partial class Z80InstructionEmulator
         {
             source.Slice(1, 40).CopyTo(new Span<byte>((byte*)block0, 40));
         }
+
+        if (nextSequenceStep != NoNextSequenceStep && nextSequenceStep >= 1321)
+        {
+            throw new InvalidOperationException("Unknown next sequence step.");
+        }
     }
 
     /// <summary>
