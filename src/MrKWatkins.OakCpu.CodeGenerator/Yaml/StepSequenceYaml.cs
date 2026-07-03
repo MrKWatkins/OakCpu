@@ -23,6 +23,12 @@ public sealed partial class StepSequenceYaml
         private set => steps = value;
     }
 
+    /// <summary>
+    /// Explicit pins for each step, sampled at the rising edge of the step's clock. Overrides the pins inferred from the
+    /// actions requested by the sequence's steps. Missing trailing entries default to no pins.
+    /// </summary>
+    public IReadOnlyList<IReadOnlyList<string>>? OverrideStepPins { get; private set; }
+
     public NextOpcodeMode NextOpcode { get; private set; }
 
     [Pure]

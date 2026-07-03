@@ -79,7 +79,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     [Pure]
     private static StatementSyntax CreateInitializeStepsField(FileGeneratorContext context)
     {
-        var stepCreations = context.GeneratorContext.AllSteps.Select(step => CreateStep(context, step)).Append(CreateErrorStep());
+        var stepCreations = context.GeneratorContext.AllSteps.Select(step => CreateStep(context, step)).Append(CreateErrorStep(context));
 
         var elements = stepCreations.Select(ExpressionElement).ToArray();
 
@@ -105,11 +105,11 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
     }
 
     [Pure]
-    private static ImplicitObjectCreationExpressionSyntax CreateErrorStep()
+    private static ImplicitObjectCreationExpressionSyntax CreateErrorStep(FileGeneratorContext context)
     {
         var handler = PrefixUnaryExpression(SyntaxKind.AddressOfExpression, IdentifierName(Method.Name.Error));
 
-        return CreateStepCreation(handler, 0, Action.None, LiteralExpression(SyntaxKind.DefaultLiteralExpression));
+        return CreateStepCreation(context, handler, 0, Action.None, 0, LiteralExpression(SyntaxKind.DefaultLiteralExpression));
     }
 
     [Pure]
@@ -129,25 +129,35 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
             : LiteralExpression(SyntaxKind.DefaultLiteralExpression);
 
         var action = StepMetadata.GetAction(generatorContext, step);
+        var pins = StepMetadata.GetPins(generatorContext, step);
 
-        return CreateStepCreation(handler, nextStep, action, overlap);
+        return CreateStepCreation(context, handler, nextStep, action, pins, overlap);
     }
 
     [Pure]
-    private static ImplicitObjectCreationExpressionSyntax CreateStepCreation(ExpressionSyntax handler, int nextStep, Action action, ExpressionSyntax overlap) =>
-        ImplicitObjectCreationExpression()
-            .WithArgumentList(
-                ArgumentList([
-                    Argument(handler),
-                    Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(nextStep))),
-                    Argument(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            // TODO: static using for ActionRequired.
-                            IdentifierName(TypeName.ActionRequiredEnum),
-                            IdentifierName(action.EnumName))),
-                    Argument(overlap)
-                ]));
+    private static ImplicitObjectCreationExpressionSyntax CreateStepCreation(FileGeneratorContext context, ExpressionSyntax handler, int nextStep, Action action, byte pins, ExpressionSyntax overlap)
+    {
+        var arguments = new List<ArgumentSyntax>
+        {
+            Argument(handler),
+            Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(nextStep))),
+            Argument(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    // TODO: static using for ActionRequired.
+                    IdentifierName(TypeName.ActionRequiredEnum),
+                    IdentifierName(action.EnumName)))
+        };
+
+        if (context.GeneratorContext.Configuration.HasPins)
+        {
+            arguments.Add(Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(pins))));
+        }
+
+        arguments.Add(Argument(overlap));
+
+        return ImplicitObjectCreationExpression().WithArgumentList(ArgumentList([.. arguments]));
+    }
 
     [Pure]
     private static ExpressionSyntax CreateOverlap(FileGeneratorContext context, Step step) =>

@@ -27,6 +27,7 @@ public sealed unsafe partial class Z80StepEmulator
         interrupt = false;
         latch = 0;
         overlapPipeline = default(delegate*<Z80StepEmulator, void>);
+        pins = 0;
         AF = 0;
         BC = 0;
         DE = 0;

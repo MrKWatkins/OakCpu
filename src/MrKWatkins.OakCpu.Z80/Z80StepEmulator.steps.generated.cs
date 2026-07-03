@@ -26,6 +26,7 @@ public sealed unsafe partial class Z80StepEmulator
         var step = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(Steps), currentStep);
         currentStep = step.NextStep;
         var actionRequired = step.ActionRequired;
+        pins = step.Pins;
         if (step.Handler != default)
         {
             step.Handler(this, ref actionRequired);
@@ -137,6 +138,7 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.ExecuteOverlap();
         emulator.iff1 = false;
         emulator.iff2 = false;
+        emulator.address = emulator.PC;
     }
 
     // Interrupt Mode 1 [7]

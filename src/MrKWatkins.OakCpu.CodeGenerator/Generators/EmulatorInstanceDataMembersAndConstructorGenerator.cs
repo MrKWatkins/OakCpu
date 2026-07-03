@@ -3,6 +3,7 @@ using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
+using Field = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Field;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -37,6 +38,15 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         {
             members.AddRange(CreateDataMember(context, dataMember, fieldOffset));
             fieldOffset += dataMember.Size;
+        }
+
+        // The pins state is deliberately placed after the serialized members; it describes the most recent step only, so it is
+        // not part of the serialized CPU state.
+        if (generatorContext.Configuration.HasPins)
+        {
+            members.Add(ExplicitLayoutBuilder.CreateOffsetField(context, ByteType, Field.Name.Pins, fieldOffset, Private));
+            members.Add(CreatePinsProperty(context));
+            fieldOffset += 1;
         }
 
         fieldOffset = ExplicitLayoutBuilder.AlignReferenceFieldOffset(fieldOffset);
@@ -89,6 +99,21 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
         yield return WithXmlDocumentation(
             ExplicitLayoutBuilder.CreateDataMemberProperty(context, member),
             member.Documentation);
+    }
+
+    [MustUseReturnValue]
+    private static PropertyDeclarationSyntax CreatePinsProperty(FileGeneratorContext context)
+    {
+        var pinsType = Class.Name.Pins(context.GeneratorContext);
+        var getter = CreateGetAccessor(
+            context.RequiredUsings,
+            CastExpression(IdentifierName(pinsType), IdentifierName(Field.Name.Pins)));
+
+        return WithXmlDocumentation(
+            PropertyDeclaration(IdentifierName(pinsType), Identifier(Property.Name.Pins))
+                .WithModifiers(TokenList(Public))
+                .WithAccessorList(AccessorList([getter])),
+            $"Gets the pins asserted during the T-state completed by the most recent call to Step, sampled at the rising edge of the T-state's clock. None after a reset, and undefined after a restore, until the next call to Step.");
     }
 
     [MustUseReturnValue]

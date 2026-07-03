@@ -10,7 +10,8 @@ public sealed class Configuration(
     IReadOnlyDictionary<string, Flag> flags,
     OpcodeStepTables opcodeStepTables,
     IReadOnlyDictionary<string, UserDefinedDataMember> userDefinedDataMembers,
-    IReadOnlyDictionary<string, UserDefinedFunction> userDefinedFunctions)
+    IReadOnlyDictionary<string, UserDefinedFunction> userDefinedFunctions,
+    IReadOnlyDictionary<string, Pin>? pins = null)
 {
     private IReadOnlyDictionary<string, DataMember>? allDataMembers;
     private IReadOnlyDictionary<string, Function>? allFunctions;
@@ -18,6 +19,10 @@ public sealed class Configuration(
     private Register? programCounter;
 
     public IReadOnlyDictionary<string, Action> Actions => actions;
+
+    public IReadOnlyDictionary<string, Pin> Pins { get; } = pins ?? new Dictionary<string, Pin>();
+
+    public bool HasPins => Pins.Count != 0;
 
     public IReadOnlyDictionary<string, Register> Registers { get; } = registers;
 

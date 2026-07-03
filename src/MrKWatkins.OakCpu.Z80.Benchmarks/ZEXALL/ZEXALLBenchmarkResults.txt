@@ -89,3 +89,10 @@ Switched to aluop a,nn to match OakEmu, now that the test passes.
 | Z80InstructionEmulator | aluop a,nn |   342.8 ms |  6.85 ms |  9.60 ms |   345.3 ms |  0.21 |    0.01 |  x462.84 |   64.24 KB |        0.03 |
 | Z80StepEmulator        | aluop a,nn | 1,948.2 ms | 38.14 ms | 66.80 ms | 1,978.6 ms |  1.19 |    0.04 |   x81.44 |   64.25 KB |        0.03 |
 
+2026-07-03 - After adding pins for the step emulator.
+
+| Method                 | Test       | Mean       | Error    | StdDev   | Ratio | RatioSD | ZX Speed | Allocated  | Alloc Ratio |
+|----------------------- |----------- |-----------:|---------:|---------:|------:|--------:|---------:|-----------:|------------:|
+| OakEmu                 | aluop a,nn | 1,658.6 ms | 20.31 ms | 19.00 ms |  1.00 |    0.02 |   x95.66 | 2435.25 KB |        1.00 |
+| Z80InstructionEmulator | aluop a,nn |   347.9 ms |  2.26 ms |  2.00 ms |  0.21 |    0.00 |  x456.04 |   64.24 KB |        0.03 |
+| Z80StepEmulator        | aluop a,nn | 1,962.4 ms | 27.31 ms | 25.55 ms |  1.18 |    0.02 |   x80.85 |   64.26 KB |        0.03 |

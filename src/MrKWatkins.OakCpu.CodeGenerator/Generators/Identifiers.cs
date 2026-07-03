@@ -91,6 +91,12 @@ internal static class Identifiers
             /// </summary>
             [Pure]
             public static string InstructionInterrupts(GeneratorContext context) => $"{context.Cpu.Name}InstructionInterrupts";
+
+            /// <summary>
+            /// Gets the generated pins enum name.
+            /// </summary>
+            [Pure]
+            public static string Pins(GeneratorContext context) => $"{context.Cpu.Name}Pins";
         }
 
         /// <summary>
@@ -151,6 +157,16 @@ internal static class Identifiers
             /// The overlap field on the generated step struct.
             /// </summary>
             public const string Overlap = "Overlap";
+
+            /// <summary>
+            /// The pins field on the generated step struct.
+            /// </summary>
+            public const string StepPins = "Pins";
+
+            /// <summary>
+            /// The pins state field on the step emulator.
+            /// </summary>
+            public const string Pins = "pins";
 
             /// <summary>
             /// The deferred next-sequence-step field on the instruction emulator.
@@ -289,6 +305,11 @@ internal static class Identifiers
             /// The generated property name for the interrupts facade.
             /// </summary>
             public const string Interrupts = "Interrupts";
+
+            /// <summary>
+            /// The generated property name for the pins state.
+            /// </summary>
+            public const string Pins = "Pins";
         }
     }
 

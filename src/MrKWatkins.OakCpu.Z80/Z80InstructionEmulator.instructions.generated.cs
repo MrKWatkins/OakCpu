@@ -105,6 +105,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.iff1 = false;
         emulator.iff2 = false;
+        emulator.address = emulator.PC;
         handler.OnActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.address = emulator.IR;
         emulator.R = (byte)(emulator.R & 0b10000000 | emulator.R + 0x01 & 0b01111111);
@@ -131,6 +132,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.iff1 = false;
         emulator.iff2 = false;
+        emulator.address = emulator.PC;
         handler.OnActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.address = emulator.IR;
         emulator.R = (byte)(emulator.R & 0b10000000 | emulator.R + 0x01 & 0b01111111);
@@ -154,6 +156,7 @@ public sealed unsafe partial class Z80InstructionEmulator
     {
         emulator.iff1 = false;
         emulator.iff2 = false;
+        emulator.address = emulator.PC;
         handler.OnActionRequired(ActionRequired.IORead, emulator.address, emulator.data);
         emulator.latch = emulator.data;
         emulator.address = emulator.IR;

@@ -28,7 +28,7 @@ public sealed class EmulatorStepsInitializationGeneratorTests : TestFixture
 
         var result = EmulatorStepsInitializationGenerator.Instance.Generate(Z80GeneratorContext);
 
-        result.Contains($"new(default, 0, ActionRequired.None, &Overlap{overlapMethodIndex})", StringComparison.Ordinal).Should().BeTrue();
-        result.Contains($"new(&Step{prefixedNopLayout.MethodIndex}, 0, ActionRequired.None, &Overlap{overlapMethodIndex})", StringComparison.Ordinal).Should().BeFalse();
+        result.Contains($"new(default, 0, ActionRequired.None, 0, &Overlap{overlapMethodIndex})", StringComparison.Ordinal).Should().BeTrue();
+        result.Contains($"new(&Step{prefixedNopLayout.MethodIndex}, 0, ActionRequired.None, 0, &Overlap{overlapMethodIndex})", StringComparison.Ordinal).Should().BeFalse();
     }
 }

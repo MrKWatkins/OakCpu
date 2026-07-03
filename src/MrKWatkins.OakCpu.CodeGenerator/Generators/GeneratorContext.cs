@@ -320,7 +320,8 @@ public sealed class GeneratorContext
     [Pure]
     private static Configuration CreateConfiguration(YamlFile yaml)
     {
-        var actions = Action.Create(yaml.Cpu);
+        var pins = Pin.Create(yaml.Cpu);
+        var actions = Action.Create(yaml.Cpu, pins);
         var registers = Register.Create(yaml.Registers);
         var flags = Flag.Create(yaml.Flags);
         var opcodeStepTables = new OpcodeStepTables(yaml.Instructions);
@@ -329,7 +330,7 @@ public sealed class GeneratorContext
             .ToDictionary(u => u.Name);
 
         var userDefinedFunctions = UserDefinedFunction.CreateDeclarations(yaml.Functions);
-        var configuration = new Configuration(actions, registers, flags, opcodeStepTables, userDefinedDataMembers, userDefinedFunctions);
+        var configuration = new Configuration(actions, registers, flags, opcodeStepTables, userDefinedDataMembers, userDefinedFunctions, pins);
         UserDefinedFunction.ParseExpressions(configuration, userDefinedFunctions, yaml.Functions);
         return configuration;
     }

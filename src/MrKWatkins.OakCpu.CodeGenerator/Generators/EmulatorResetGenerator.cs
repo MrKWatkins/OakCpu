@@ -4,6 +4,7 @@ using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
+using Field = MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers.Field;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
@@ -33,6 +34,7 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
     {
         var statements = ResetSyntax.GenerateResetOpcodeStepTable(context)
             .Concat(GenerateResetDataMembers(context))
+            .Concat(context.GeneratorContext.Configuration.HasPins ? [ResetSyntax.GenerateReset(Field.Name.Pins, DataType.U8)] : Enumerable.Empty<StatementSyntax>())
             .Concat(ResetSyntax.GenerateResetRegisters(context));
 
         return WithXmlDocumentation(

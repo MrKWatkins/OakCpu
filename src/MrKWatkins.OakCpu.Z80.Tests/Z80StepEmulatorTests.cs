@@ -152,7 +152,7 @@ public sealed class Z80StepEmulatorTests
     [TestCase(0)]
     [TestCase(1)]
     [TestCase(2)]
-    public void LastActionWasInterruptAcknowledgeRead_InterruptMode(byte interruptMode)
+    public void Pins_InterruptAcknowledge_InterruptMode(byte interruptMode)
     {
         var memory = new byte[65536];
         memory[0x0000] = 0x00;
@@ -171,7 +171,7 @@ public sealed class Z80StepEmulatorTests
         while (!emulator.IsAtInstructionBoundary || emulator.Registers.PC != 0x0001)
         {
             actionRequired = Step(emulator, memory);
-            emulator.LastActionWasInterruptAcknowledgeRead.Should().BeFalse();
+            (emulator.Pins & Z80Pins.IORQ).Should().Equal(Z80Pins.None);
         }
 
         emulator.Interrupts.Interrupt = true;
@@ -180,11 +180,11 @@ public sealed class Z80StepEmulatorTests
             actionRequired = Step(emulator, memory);
         }
 
-        emulator.LastActionWasInterruptAcknowledgeRead.Should().BeTrue();
+        emulator.Pins.Should().Equal(Z80Pins.M1 | Z80Pins.IORQ);
     }
 
     [Test]
-    public void LastActionWasInterruptAcknowledgeRead_IN_A_N()
+    public void Pins_IORead_IN_A_N()
     {
         var memory = new byte[65536];
         memory[0x0000] = 0xDB;
@@ -194,11 +194,11 @@ public sealed class Z80StepEmulatorTests
 
         StepUntilIORead(emulator, memory);
 
-        emulator.LastActionWasInterruptAcknowledgeRead.Should().BeFalse();
+        emulator.Pins.Should().Equal(Z80Pins.IORQ | Z80Pins.RD);
     }
 
     [Test]
-    public void LastActionWasInterruptAcknowledgeRead_INI()
+    public void Pins_IORead_INI()
     {
         var memory = new byte[65536];
         memory[0x0000] = 0xED;
@@ -215,7 +215,7 @@ public sealed class Z80StepEmulatorTests
 
         StepUntilIORead(emulator, memory);
 
-        emulator.LastActionWasInterruptAcknowledgeRead.Should().BeFalse();
+        emulator.Pins.Should().Equal(Z80Pins.IORQ | Z80Pins.RD);
     }
 
     [Test]
@@ -281,6 +281,102 @@ public sealed class Z80StepEmulatorTests
             actionRequired = Step(emulator, memory);
         }
         while (actionRequired != ActionRequired.IORead);
+    }
+
+    [Test]
+    public void Pins()
+    {
+        var emulator = new Z80StepEmulator();
+
+        // Opcode fetch of LD (BC), A: an M1 cycle followed by a memory refresh.
+        emulator.Step().Should().Equal(ActionRequired.OpcodeRead);
+        emulator.Pins.Should().Equal(Z80Pins.M1);
+        emulator.Data = 0x02;
+        emulator.Step().Should().Equal(ActionRequired.None);
+        emulator.Pins.Should().Equal(Z80Pins.M1 | Z80Pins.MREQ | Z80Pins.RD);
+        emulator.Step().Should().Equal(ActionRequired.None);
+        emulator.Pins.Should().Equal(Z80Pins.RFSH);
+        emulator.Step().Should().Equal(ActionRequired.None);
+        emulator.Pins.Should().Equal(Z80Pins.RFSH | Z80Pins.MREQ);
+
+        // The memory write cycle: the action fires at T1 before any control pins are asserted, with WR following at T3.
+        emulator.Step().Should().Equal(ActionRequired.MemoryWrite);
+        emulator.Pins.Should().Equal(Z80Pins.None);
+        emulator.Step().Should().Equal(ActionRequired.None);
+        emulator.Pins.Should().Equal(Z80Pins.MREQ);
+        emulator.Step().Should().Equal(ActionRequired.None);
+        emulator.Pins.Should().Equal(Z80Pins.MREQ | Z80Pins.WR);
+    }
+
+    [Test]
+    public void Pins_IORead()
+    {
+        var emulator = new Z80StepEmulator();
+
+        // Opcode fetch of IN A, (n).
+        emulator.Step().Should().Equal(ActionRequired.OpcodeRead);
+        emulator.Data = 0xDB;
+        emulator.Step();
+        emulator.Step();
+        emulator.Step();
+
+        // Operand read: the action fires at T1; MREQ and RD are asserted for T2 and T3.
+        emulator.Step().Should().Equal(ActionRequired.MemoryRead);
+        emulator.Pins.Should().Equal(Z80Pins.None);
+        emulator.Data = 0xFE;
+        emulator.Step().Should().Equal(ActionRequired.None);
+        emulator.Pins.Should().Equal(Z80Pins.MREQ | Z80Pins.RD);
+        emulator.Step().Should().Equal(ActionRequired.None);
+        emulator.Pins.Should().Equal(Z80Pins.MREQ | Z80Pins.RD);
+
+        // I/O read: T1 puts the port on the address bus with no control pins asserted; IORQ and RD assert from T2 to the
+        // end of the cycle, with the action firing at T2.
+        emulator.Step().Should().Equal(ActionRequired.None);
+        emulator.Pins.Should().Equal(Z80Pins.None);
+        emulator.Address.Should().Equal(0x00FE);
+        emulator.Step().Should().Equal(ActionRequired.IORead);
+        emulator.Pins.Should().Equal(Z80Pins.IORQ | Z80Pins.RD);
+        emulator.Data = 0xAA;
+        emulator.Step().Should().Equal(ActionRequired.None);
+        emulator.Pins.Should().Equal(Z80Pins.IORQ | Z80Pins.RD);
+        emulator.Step().Should().Equal(ActionRequired.None);
+        emulator.Pins.Should().Equal(Z80Pins.IORQ | Z80Pins.RD);
+    }
+
+    [Test]
+    public void Pins_InterruptAcknowledge()
+    {
+        var emulator = new Z80StepEmulator
+        {
+            Interrupts =
+            {
+                IM = 1,
+                IFF1 = true,
+                IFF2 = true
+            }
+        };
+
+        // Fetch a NOP with the interrupt line asserted; the interrupt is accepted at the instruction boundary.
+        emulator.Step().Should().Equal(ActionRequired.OpcodeRead);
+        emulator.Data = 0x00;
+        emulator.Interrupts.Interrupt = true;
+        emulator.Step();
+        emulator.Step();
+        emulator.Step();
+
+        // The interrupt acknowledge is an M1 cycle with IORQ instead of MREQ and the interrupted PC on the address bus.
+        emulator.Step().Should().Equal(ActionRequired.None);
+        emulator.Pins.Should().Equal(Z80Pins.M1);
+        emulator.Address.Should().Equal(emulator.Registers.PC);
+        emulator.Step().Should().Equal(ActionRequired.IORead);
+        emulator.Pins.Should().Equal(Z80Pins.M1 | Z80Pins.IORQ);
+        emulator.Data = 0xFF;
+        emulator.Step().Should().Equal(ActionRequired.None);
+        emulator.Pins.Should().Equal(Z80Pins.M1 | Z80Pins.IORQ);
+        emulator.Step().Should().Equal(ActionRequired.None);
+        emulator.Pins.Should().Equal(Z80Pins.RFSH);
+        emulator.Step().Should().Equal(ActionRequired.None);
+        emulator.Pins.Should().Equal(Z80Pins.RFSH | Z80Pins.MREQ);
     }
 
     private static ActionRequired Step(Z80StepEmulator emulator, byte[] memory)

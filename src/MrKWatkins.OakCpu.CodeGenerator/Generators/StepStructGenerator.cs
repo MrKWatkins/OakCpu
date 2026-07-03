@@ -11,6 +11,7 @@ public sealed class StepStructGenerator : TypeGenerator
     private const string StepHandlerParameterName = "handler";
     private const string StepNextStepParameterName = "nextStep";
     private const string StepActionRequiredParameterName = "actionRequired";
+    private const string StepPinsParameterName = "pins";
     private const string StepOverlapParameterName = "overlap";
 
     public static readonly StepStructGenerator Instance = new();
@@ -34,24 +35,35 @@ public sealed class StepStructGenerator : TypeGenerator
 
         var actionRequiredType = IdentifierName(TypeName.ActionRequiredEnum);
         var overlapType = CreateOverlapHandlerType(context);
+        var hasPins = context.GeneratorContext.Configuration.HasPins;
+
+        var parameters = new List<ParameterSyntax>
+        {
+            Parameter(Identifier(StepHandlerParameterName)).WithType(actionType),
+            Parameter(Identifier(StepNextStepParameterName)).WithType(UShortType),
+            Parameter(Identifier(StepActionRequiredParameterName)).WithType(actionRequiredType)
+        };
+
+        var fields = new List<MemberDeclarationSyntax>
+        {
+            CreateField(actionType, Field.Name.Handler, StepHandlerParameterName),
+            CreateField(UShortType, Field.Name.NextStep, StepNextStepParameterName),
+            CreateField(actionRequiredType, Field.Name.ActionRequired, StepActionRequiredParameterName)
+        };
+
+        if (hasPins)
+        {
+            parameters.Add(Parameter(Identifier(StepPinsParameterName)).WithType(ByteType));
+            fields.Add(CreateField(ByteType, Field.Name.StepPins, StepPinsParameterName));
+        }
+
+        parameters.Add(Parameter(Identifier(StepOverlapParameterName)).WithType(overlapType));
+        fields.Add(CreateField(overlapType, Field.Name.Overlap, StepOverlapParameterName));
 
         return StructDeclaration(TypeName.StepStruct)
             .WithModifiers(TokenList(Internal, Unsafe, ReadOnly))
-            .WithParameterList(
-                ParameterList(
-                [
-                    Parameter(Identifier(StepHandlerParameterName)).WithType(actionType),
-                    Parameter(Identifier(StepNextStepParameterName)).WithType(UShortType),
-                    Parameter(Identifier(StepActionRequiredParameterName)).WithType(actionRequiredType),
-                    Parameter(Identifier(StepOverlapParameterName)).WithType(overlapType)
-                ]))
-            .WithMembers(
-            [
-                CreateField(actionType, Field.Name.Handler, StepHandlerParameterName),
-                CreateField(UShortType, Field.Name.NextStep, StepNextStepParameterName),
-                CreateField(actionRequiredType, Field.Name.ActionRequired, StepActionRequiredParameterName),
-                CreateField(overlapType, Field.Name.Overlap, StepOverlapParameterName)
-            ]);
+            .WithParameterList(ParameterList([.. parameters]))
+            .WithMembers([.. fields]);
     }
 
     [Pure]

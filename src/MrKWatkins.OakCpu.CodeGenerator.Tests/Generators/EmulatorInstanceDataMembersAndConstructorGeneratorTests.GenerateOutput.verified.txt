@@ -204,10 +204,22 @@ public sealed unsafe partial class Z80StepEmulator
         set => data = value;
     }
 
+    [FieldOffset(40)]
+    private byte pins;
+
+    /// <summary>
+    /// Gets the pins asserted during the T-state completed by the most recent call to Step, sampled at the rising edge of the T-state's clock. None after a reset, and undefined after a restore, until the next call to Step.
+    /// </summary>
+    public Z80Pins Pins
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => (Z80Pins)pins;
+    }
+
     /// <summary>
     /// Gets the Z80 registers.
     /// </summary>
-    [field: FieldOffset(40)]
+    [field: FieldOffset(48)]
     public Z80StepRegisters Registers
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -217,7 +229,7 @@ public sealed unsafe partial class Z80StepEmulator
     /// <summary>
     /// Gets the Z80 flags.
     /// </summary>
-    [field: FieldOffset(48)]
+    [field: FieldOffset(56)]
     public Z80StepFlags Flags
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -227,16 +239,16 @@ public sealed unsafe partial class Z80StepEmulator
     /// <summary>
     /// Gets the Z80 interrupt state.
     /// </summary>
-    [field: FieldOffset(56)]
+    [field: FieldOffset(64)]
     public Z80StepInterrupts Interrupts
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get;
     }
 
-    [FieldOffset(64)]
+    [FieldOffset(72)]
     private ushort[] opcodeStepTable;
 
-    [FieldOffset(72)]
+    [FieldOffset(80)]
     private delegate*<Z80StepEmulator, void> overlapPipeline;
 }

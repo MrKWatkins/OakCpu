@@ -124,6 +124,18 @@ public sealed class EmulatorStepsGenerator : EmulatorClassGenerator
                                 ]))))),
         };
 
+        if (context.GeneratorContext.Configuration.HasPins)
+        {
+            // pins = step.Pins; inserted before the handler runs so the handler cannot observe stale pins.
+            stepMethodStatements.Insert(
+                3,
+                ExpressionStatement(
+                    AssignmentExpression(
+                        SyntaxKind.SimpleAssignmentExpression,
+                        IdentifierName(Field.Name.Pins),
+                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(stepVariableName), IdentifierName(Field.Name.StepPins)))));
+        }
+
         if (onStepCompleteStatements.Length != 0)
         {
             stepMethodStatements.Add(

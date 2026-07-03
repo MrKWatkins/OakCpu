@@ -5,14 +5,21 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public sealed class NamedStepSequence : StepSequence
 {
-    private NamedStepSequence(string name, IReadOnlyList<Step> steps, NextOpcodeMode nextOpcode, bool executeOverlapOnStart)
+    private NamedStepSequence(string name, IReadOnlyList<Step> steps, NextOpcodeMode nextOpcode, bool executeOverlapOnStart, IReadOnlyList<byte>? stepPins = null)
         : base(name, steps, nextOpcode, executeOverlapOnStart)
     {
+        OverrideStepPins = stepPins;
     }
+
+    /// <summary>
+    /// Explicit pins for each step, overriding the pins inferred from the actions requested by the sequence's steps, or
+    /// <c>null</c> if the sequence does not override them.
+    /// </summary>
+    public IReadOnlyList<byte>? OverrideStepPins { get; }
 
     [Pure]
     public static NamedStepSequence Create(ParserContext context, StepSequenceYaml yaml) =>
-        new(yaml.Name, Step.Parse(GetDisplayName(yaml.Name), context, yaml.Steps), yaml.NextOpcode, yaml.ExecuteOverlapOnStart);
+        new(yaml.Name, Step.Parse(GetDisplayName(yaml.Name), context, yaml.Steps), yaml.NextOpcode, yaml.ExecuteOverlapOnStart, CreateOverrideStepPins(context, yaml));
 
     [Pure]
     public static NamedStepSequence Create(
@@ -22,6 +29,22 @@ public sealed class NamedStepSequence : StepSequence
         NextOpcodeMode nextOpcode,
         bool executeOverlapOnStart = false) =>
         new(name, Step.Parse(GetDisplayName(name), context, steps), nextOpcode, executeOverlapOnStart);
+
+    [Pure]
+    private static IReadOnlyList<byte>? CreateOverrideStepPins(ParserContext context, StepSequenceYaml yaml)
+    {
+        if (yaml.OverrideStepPins == null)
+        {
+            return null;
+        }
+
+        if (yaml.OverrideStepPins.Count > yaml.Steps.Count)
+        {
+            throw new InvalidOperationException($"The sequence {yaml.Name} has more override_step_pins entries than steps.");
+        }
+
+        return yaml.OverrideStepPins.Select(row => Pin.ResolveMask(context.Configuration.Pins, row, $"sequence {yaml.Name}")).ToList();
+    }
 
     [Pure]
     private static string GetDisplayName(string name) =>

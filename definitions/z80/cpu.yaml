@@ -4,21 +4,55 @@ cpu:
   name: Z80
   documentation: Provides generated Z80 CPU emulators.
   default_next_opcode: overlapped
+  # The bus control pins visible to external hardware, sampled at the rising edge of each T-state's clock. Active-low pins are
+  # represented as active-high flags.
+  pins:
+    - name: M1
+      documentation: Machine cycle one; the CPU is fetching an opcode, or acknowledging an interrupt when combined with IORQ.
+
+    - name: MREQ
+      documentation: Memory request; the address bus holds a valid memory address.
+
+    - name: IORQ
+      documentation: Input/output request; the address bus holds a valid I/O port address, or the CPU is acknowledging an interrupt when combined with M1.
+
+    - name: RD
+      documentation: Read; the CPU wants to read data from memory or an I/O port.
+
+    - name: WR
+      documentation: Write; the data bus holds valid data to write to memory or an I/O port.
+
+    - name: RFSH
+      documentation: Refresh; the address bus holds a refresh address for dynamic memory.
+
+    - name: HALT
+      documentation: The CPU has executed a HALT instruction and is awaiting an interrupt.
+
+  # Each action's pins list gives the pins asserted during the T-states of its machine cycle, one entry per T-state starting
+  # at the step that requests the action.
   actions:
     - name: opcode_read
       documentation: The host must read an opcode byte from memory.
+      # T1 asserts M1 with the address; the read happens at T2; T3 and T4 refresh dynamic memory.
+      pins: [[M1], [M1, MREQ, RD], [RFSH], [RFSH, MREQ]]
 
     - name: memory_read
       documentation: The host must read a byte from memory.
+      pins: [[], [MREQ, RD], [MREQ, RD]]
 
     - name: memory_write
       documentation: The host must write a byte to memory.
+      pins: [[], [MREQ], [MREQ, WR]]
 
     - name: io_read
       documentation: The host must read a byte from an I/O port.
+      # The request fires at T2 of the four T-state I/O cycle; T1 before it puts the port address on the bus with no control
+      # pins asserted, so it needs no entry.
+      pins: [[IORQ, RD], [IORQ, RD], [IORQ, RD]]
 
     - name: io_write
       documentation: The host must write a byte to an I/O port.
+      pins: [[IORQ, WR], [IORQ, WR], [IORQ, WR]]
 
   fields:
     - name: latch
