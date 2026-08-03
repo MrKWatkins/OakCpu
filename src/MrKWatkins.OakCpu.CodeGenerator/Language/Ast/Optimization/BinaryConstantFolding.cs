@@ -16,6 +16,7 @@ internal sealed class BinaryConstantFolding : Optimizer<BinaryOperation>
         {
             "+" => leftNumber.Value + rightNumber.Value,
             "-" => leftNumber.Value - rightNumber.Value,
+            "*" => leftNumber.Value * rightNumber.Value,
             "<<" => leftNumber.Value << rightNumber.Value,
             ">>" => leftNumber.Value >> rightNumber.Value,
             "&" => leftNumber.Value & rightNumber.Value,

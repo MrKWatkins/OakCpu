@@ -57,6 +57,7 @@ public sealed class ConstantFoldingTests
 
     private static readonly object[] BinaryConstantFoldCases =
     [
+        new object[] { Operator.Multiply, 3, 4, "0x0C" },
         new object[] { Operator.Add, 1, 2, "0x03" },
         new object[] { Operator.Subtract, 5, 2, "0x03" },
         new object[] { Operator.LeftShift, 1, 2, "0x04" },

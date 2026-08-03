@@ -59,12 +59,12 @@ public sealed class LexerTests
     }
 
     [Test]
-    public void UnsupportedOperator_Asterisk()
+    public void UnsupportedOperator_Percent()
     {
-        using var reader = new StringReader("*");
+        using var reader = new StringReader("%");
         var lexer = new Lexer(reader);
 
-        lexer.Invoking(l => l.Read()).Should().Throw<InvalidOperationException>().That.Should().HaveMessage("Unexpected character '*'.");
+        lexer.Invoking(l => l.Read()).Should().Throw<InvalidOperationException>().That.Should().HaveMessage("Unexpected character '%'.");
     }
 
     [Test]
@@ -167,6 +167,7 @@ public sealed class LexerTests
         yield return Create("AF'", new Identifier(0, "AF'"), new EndOfInput(3));
 
         // Binary operators
+        yield return Create("*", new BinaryOperator(0, Operator.Multiply), new EndOfInput(1));
         yield return Create("+", new BinaryOperator(0, Operator.Add), new EndOfInput(1));
         yield return Create("-", new BinaryOperator(0, Operator.Subtract), new EndOfInput(1));
         yield return Create("&", new BinaryOperator(0, Operator.And), new EndOfInput(1));

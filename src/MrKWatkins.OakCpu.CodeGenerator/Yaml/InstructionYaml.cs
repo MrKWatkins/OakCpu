@@ -45,5 +45,23 @@ public sealed partial class InstructionYaml
     [Pure]
     public NextOpcodeMode GetEffectiveNextOpcode(NextOpcodeMode defaultNextOpcode) => NextOpcode ?? defaultNextOpcode;
 
+    /// <summary>
+    /// Creates a copy of this instruction with the specified opcodes. Used when a variant CPU overrides some, but not all, of the
+    /// opcodes of an instruction from the CPU it is based on.
+    /// </summary>
+    [Pure]
+    internal InstructionYaml WithOpcodes(IReadOnlyList<OpcodeYaml> newOpcodes) =>
+        new()
+        {
+            Group = Group,
+            Mnemonic = Mnemonic,
+            OpcodeTable = OpcodeTable,
+            Opcodes = newOpcodes,
+            Steps = Steps,
+            Flags = Flags,
+            NextOpcode = NextOpcode,
+            OverlappedSequence = OverlappedSequence
+        };
+
     public override string ToString() => Mnemonic;
 }

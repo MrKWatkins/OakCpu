@@ -31,7 +31,7 @@ internal static class SequenceValidation
     [Pure]
     private static IEnumerable<ValidationError> ValidateHaltedSequence(YamlFile yaml, HashSet<string> availableSequenceNames)
     {
-        if (yaml.Interrupts.Properties.Any(property => string.Equals(property.Name, "halted", StringComparison.OrdinalIgnoreCase))
+        if (yaml.Interrupts!.Properties.Any(property => string.Equals(property.Name, "halted", StringComparison.OrdinalIgnoreCase))
             && !availableSequenceNames.Contains("halted"))
         {
             yield return new ValidationError("No sequence named halted exists for the halted state.");
@@ -64,7 +64,7 @@ internal static class SequenceValidation
             .Select(sequence => sequence.Group!.Number)
             .ToHashSet();
 
-        foreach (var duplicate in yaml.Interrupts.Modes
+        foreach (var duplicate in yaml.Interrupts!.Modes
                      .Indexed()
                      .Where(item => !explicitInterruptModes.Contains(item.Item.Number))
                      .GroupBy(item => item.Item.Number)
@@ -76,7 +76,7 @@ internal static class SequenceValidation
                 duplicate.Select(item => $"interrupts.modes[{item.Index}].number").OrderBy(path => path, StringComparer.Ordinal).ToArray());
         }
 
-        foreach (var (mode, index) in yaml.Interrupts.Modes.Indexed()
+        foreach (var (mode, index) in yaml.Interrupts!.Modes.Indexed()
                      .Where(item => item.Item.Sequence != null && !availableSequenceNames.Contains(item.Item.Sequence))
                      .Select(item => (item.Item, item.Index)))
         {

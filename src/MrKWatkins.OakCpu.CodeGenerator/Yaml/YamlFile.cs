@@ -18,7 +18,11 @@ public sealed partial class YamlFile
 
     public CpuYaml Cpu { get; private set; } = null!;
 
-    public InterruptsYaml Interrupts { get; private set; } = null!;
+    /// <summary>
+    /// The interrupts, if this file defines any. Most files do not; the definitions for a CPU are combined into a single
+    /// <see cref="YamlFile" /> before use, and variant CPUs inherit their interrupts from the CPU they are based on.
+    /// </summary>
+    public InterruptsYaml? Interrupts { get; private set; }
 
     public IReadOnlyList<RegisterYaml> Registers
     {
@@ -94,10 +98,18 @@ public sealed partial class YamlFile
             instructions.AddRange(file.Instructions);
             functions.AddRange(file.Functions);
         }
+        var combinedCpu = cpu ?? throw new InvalidOperationException("No cpu definition found.");
+
+        // Variants inherit their interrupts from the CPU they are based on, so they do not need to define any themselves.
+        if (interrupts == null && combinedCpu.Base == null)
+        {
+            throw new InvalidOperationException("No interrupts definition found.");
+        }
+
         return new YamlFile
         {
-            Cpu = cpu ?? throw new InvalidOperationException("No cpu definition found."),
-            Interrupts = interrupts ?? throw new InvalidOperationException("No interrupts definition found."),
+            Cpu = combinedCpu,
+            Interrupts = interrupts,
             OnInstructionStepsComplete = onInstructionStepsComplete,
             OnInstructionComplete = onInstructionComplete,
             OnStepComplete = onStepComplete,
@@ -108,5 +120,67 @@ public sealed partial class YamlFile
             Instructions = instructions,
             Functions = functions
         };
+    }
+
+    /// <summary>
+    /// Merges the definitions for a variant CPU into the definitions for the CPU it is based on. Registers and flags are appended to
+    /// those from the base CPU; sequences and functions with the same name as one from the base CPU replace it; instructions replace
+    /// the individual opcodes they define, rather than entire instructions from the base CPU.
+    /// </summary>
+    [Pure]
+    public static YamlFile Merge(YamlFile @base, YamlFile variant) =>
+        new()
+        {
+            Cpu = CpuYaml.Merge(@base.Cpu, variant.Cpu),
+            Interrupts = variant.Interrupts ?? @base.Interrupts,
+            OnInstructionStepsComplete = variant.OnInstructionStepsComplete ?? @base.OnInstructionStepsComplete,
+            OnInstructionComplete = variant.OnInstructionComplete ?? @base.OnInstructionComplete,
+            OnStepComplete = variant.OnStepComplete ?? @base.OnStepComplete,
+            OpcodeRead = variant.OpcodeRead.Count > 0 ? variant.OpcodeRead : @base.OpcodeRead,
+            Sequences = MergeByName(@base.Sequences, variant.Sequences, sequence => sequence.Name),
+            Registers = [.. @base.Registers, .. variant.Registers],
+            Flags = [.. @base.Flags, .. variant.Flags],
+            Instructions = MergeInstructions(@base.Instructions, variant.Instructions),
+            Functions = MergeByName(@base.Functions, variant.Functions, function => function.Name)
+        };
+
+    [Pure]
+    private static IReadOnlyList<InstructionYaml> MergeInstructions(IReadOnlyList<InstructionYaml> @base, IReadOnlyList<InstructionYaml> variant)
+    {
+        var variantOpcodes = variant
+            .SelectMany(instruction => instruction.Opcodes.Select(opcode => (instruction.OpcodeTable, opcode.PrefixByte, opcode.OpcodeByte)))
+            .ToHashSet();
+
+        var instructions = new List<InstructionYaml>();
+        foreach (var instruction in @base)
+        {
+            var opcodes = instruction.Opcodes
+                .Where(opcode => !variantOpcodes.Contains((instruction.OpcodeTable, opcode.PrefixByte, opcode.OpcodeByte)))
+                .ToList();
+
+            if (opcodes.Count == instruction.Opcodes.Count)
+            {
+                instructions.Add(instruction);
+            }
+            else if (opcodes.Count > 0)
+            {
+                // The variant has overridden some, but not all, of the opcodes for the instruction.
+                instructions.Add(instruction.WithOpcodes(opcodes));
+            }
+
+            // Otherwise the variant has overridden every opcode for the instruction, so it no longer exists.
+        }
+
+        instructions.AddRange(variant);
+
+        return instructions;
+    }
+
+    [Pure]
+    private static IReadOnlyList<TYaml> MergeByName<TYaml>(IReadOnlyList<TYaml> @base, IReadOnlyList<TYaml> variant, Func<TYaml, string> getName)
+    {
+        var variantNames = variant.Select(getName).ToHashSet(StringComparer.Ordinal);
+
+        return [.. @base.Where(item => !variantNames.Contains(getName(item))), .. variant];
     }
 }

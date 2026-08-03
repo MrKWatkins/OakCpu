@@ -15,6 +15,10 @@ public sealed class ParserTests
     [TestCase("!true", "!(True)")]
     [TestCase("~0xFF", "~(0xFF)")]
     [TestCase("1 == 2", "0x01 == 0x02")]
+    [TestCase("R * 2", "R * 0x02")]
+    [TestCase("R + R * RP0", "R + R * RP0")] // * has higher precedence than +.
+    [TestCase("(R + R) * RP0", "(R + R) * RP0")] // Parentheses override precedence.
+    [TestCase("R * R + RP0", "R * R + RP0")]
     [TestCase("R << 2", "R << 0x02")]
     [TestCase("R >> 1", "R >> 0x01")]
     [TestCase("R < 10", "R < 0x0A")]

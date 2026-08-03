@@ -20,7 +20,7 @@ public sealed class DataMemberValidationTests
                   type: u8
             """);
 
-        var errors = DataMemberValidation.Validate(yaml.Cpu.Fields, yaml.Interrupts.Properties).ToArray();
+        var errors = DataMemberValidation.Validate(yaml.Cpu.Fields, yaml.Interrupts!.Properties).ToArray();
 
         errors.Should().HaveCount(1);
         errors[0].Message.Should().Equal("The data member shared is defined multiple times.");

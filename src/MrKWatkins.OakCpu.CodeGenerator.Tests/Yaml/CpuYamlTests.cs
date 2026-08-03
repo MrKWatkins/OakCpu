@@ -14,6 +14,20 @@ public class CpuYamlTests : TestFixture
     }
 
     [Test]
+    public void Deserialize_ValidCpuWithBase()
+    {
+        var yaml = """
+                   name: Z80N
+                   base: z80
+                   """;
+
+        var cpu = YamlSerializer.Deserialize<CpuYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        cpu.Name.Should().Equal("Z80N");
+        cpu.Base.Should().Equal("z80");
+    }
+
+    [Test]
     public void Deserialize_ValidCpuWithMinimalProperties()
     {
         var yaml = """

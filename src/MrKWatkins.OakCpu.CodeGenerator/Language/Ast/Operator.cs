@@ -6,8 +6,9 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
 public sealed class Operator
 {
     // Precedence taken from https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/#operator-precedence.
-    public static readonly Operator Not = new("!", SyntaxKind.LogicalNotExpression, 10, DataType.I32);
-    public static readonly Operator BitwiseNot = new("~", SyntaxKind.BitwiseNotExpression, 10, DataType.I32);
+    public static readonly Operator Not = new("!", SyntaxKind.LogicalNotExpression, 11, DataType.I32);
+    public static readonly Operator BitwiseNot = new("~", SyntaxKind.BitwiseNotExpression, 11, DataType.I32);
+    public static readonly Operator Multiply = new("*", SyntaxKind.MultiplyExpression, 10, DataType.I32, SyntaxKind.MultiplyAssignmentExpression, leftIdentity: 1, rightIdentity: 1);
     public static readonly Operator Add = new("+", SyntaxKind.AddExpression, 9, DataType.I32, SyntaxKind.AddAssignmentExpression, leftIdentity: 0, rightIdentity: 0);
     public static readonly Operator Subtract = new("-", SyntaxKind.SubtractExpression, 9, DataType.I32, SyntaxKind.SubtractAssignmentExpression, rightIdentity: 0);
     public static readonly Operator LeftShift = new("<<", SyntaxKind.LeftShiftExpression, 8, DataType.Bool, SyntaxKind.LeftShiftAssignmentExpression, rightIdentity: 0);
@@ -29,6 +30,7 @@ public sealed class Operator
 
     public static readonly IReadOnlyDictionary<string, Operator> BinaryOperators = new[]
         {
+            Multiply,
             Add,
             Subtract,
             LeftShift,

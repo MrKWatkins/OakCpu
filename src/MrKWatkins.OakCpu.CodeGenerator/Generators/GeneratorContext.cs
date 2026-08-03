@@ -111,15 +111,40 @@ public sealed class GeneratorContext
     [Pure]
     public static async Task<GeneratorContext> CreateAsync(string rootNamespace, DirectoryInfo definitionsDirectory)
     {
+        var combined = await LoadAsync(definitionsDirectory);
+
+        // CPUs can be variants of other CPUs, inheriting their definitions. Definitions directories for the CPUs are siblings of each other.
+        var cpus = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { definitionsDirectory.Name };
+        var parentDirectory = definitionsDirectory.Parent ?? throw new InvalidOperationException($"Definitions directory {definitionsDirectory} has no parent directory.");
+        while (combined.Cpu.Base is { } baseCpu)
+        {
+            if (!cpus.Add(baseCpu))
+            {
+                throw new InvalidOperationException($"CPU {combined.Cpu.Name} has a circular base CPU reference to {baseCpu}.");
+            }
+
+            var baseDirectory = new DirectoryInfo(Path.Combine(parentDirectory.FullName, baseCpu));
+            if (!baseDirectory.Exists)
+            {
+                throw new InvalidOperationException($"Could not find the definitions directory {baseDirectory} for base CPU {baseCpu}.");
+            }
+
+            combined = YamlFile.Merge(await LoadAsync(baseDirectory), combined);
+        }
+
+        return Create(rootNamespace, combined);
+    }
+
+    [Pure]
+    private static async Task<YamlFile> LoadAsync(DirectoryInfo definitionsDirectory)
+    {
         var yamls = new List<YamlFile>();
         foreach (var file in definitionsDirectory.GetFiles("*.yaml", SearchOption.AllDirectories))
         {
             yamls.Add(await DeserializeYamlAsync<YamlFile>(file));
         }
 
-        var combined = YamlFile.Combine(yamls);
-
-        return Create(rootNamespace, combined);
+        return YamlFile.Combine(yamls);
     }
 
     [Pure]
@@ -183,7 +208,7 @@ public sealed class GeneratorContext
         var opcodeRead = CreateOpcodeReadSequence(parserContext, namedSequences, yaml);
         var instructions = Instruction.Create(parserContext, cpu, yaml.Instructions);
         var prefixJumps = PrefixJump.Create(parserContext, instructions);
-        var interrupts = Interrupts.Create(parserContext, yaml.Interrupts, namedSequences);
+        var interrupts = Interrupts.Create(parserContext, yaml.Interrupts!, namedSequences);
         var sequences = CreateSequences(namedSequences, opcodeRead, interrupts);
         var sequenceGroups = CreateSequenceGroups(yaml, interrupts, sequences);
         var allSteps = CreateAllSteps(opcodeRead, prefixJumps, sequences, instructions);
@@ -326,7 +351,7 @@ public sealed class GeneratorContext
         var flags = Flag.Create(yaml.Flags);
         var opcodeStepTables = new OpcodeStepTables(yaml.Instructions);
         var userDefinedDataMembers = UserDefinedDataMember.Create(yaml.Cpu.Fields, Visibility.Private)
-            .Concat(UserDefinedDataMember.Create(yaml.Interrupts.Properties, Visibility.Internal))
+            .Concat(UserDefinedDataMember.Create(yaml.Interrupts!.Properties, Visibility.Internal))
             .ToDictionary(u => u.Name);
 
         var userDefinedFunctions = UserDefinedFunction.CreateDeclarations(yaml.Functions);

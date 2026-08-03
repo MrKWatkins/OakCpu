@@ -4,9 +4,9 @@ This file provides guidance to AI agents when working with code in this reposito
 
 ## Project Overview
 
-OakCpu is a C# library providing cycle-accurate emulators for 8-bit CPUs. The only CPU currently implemented is the Z80, published as the `MrKWatkins.OakCpu.Z80` NuGet package.
+OakCpu is a C# library providing cycle-accurate emulators for 8-bit CPUs. The Z80 is the mature implementation, published as the `MrKWatkins.OakCpu.Z80` NuGet package; a 6502 implementation also exists as `MrKWatkins.OakCpu.M6502`.
 
-The Z80 implementation is generated from YAML instruction definitions in `definitions/z80`. The generated `.cs` files are checked into git, so normal consumers and builds do not need to run the generator.
+Implementations are generated from YAML instruction definitions in `definitions/<cpu>`, e.g. `definitions/z80`. The generated `.cs` files are checked into git, so normal consumers and builds do not need to run the generator.
 
 ## Build & Test Commands
 
@@ -17,37 +17,45 @@ dotnet build src/OakCpu.sln # Build all projects.
 
 (cd src && dotnet run --project MrKWatkins.OakCpu.CodeGenerator.Console --no-build) # Regenerate checked-in .generated.cs files for all CPUs. The generator finds OakCpu.sln by searching upwards, so it must run from src.
 
-dotnet test --solution src/OakCpu.sln # Run all tests.
-dotnet test --project src/MrKWatkins.OakCpu.CodeGenerator.Tests # Run the code generator tests.
-dotnet test --project src/MrKWatkins.OakCpu.Z80.Tests # Run the Z80 emulator tests.
-dotnet test --project src/MrKWatkins.OakCpu.Z80.Tests --filter "FullyQualifiedName~InterruptsTests|FullyQualifiedName~TimingTests" # Run interrupt and timing regression tests.
-dotnet test --project src/MrKWatkins.OakCpu.Z80.Tests --filter "FullyQualifiedName~Z80StepEmulatorTests" # Run a single test class.
+./src/MrKWatkins.OakCpu.CodeGenerator.Tests/bin/Debug/net10.0/MrKWatkins.OakCpu.CodeGenerator.Tests # Run the code generator tests.
+./src/MrKWatkins.OakCpu.Z80.Tests/bin/Debug/net10.0/MrKWatkins.OakCpu.Z80.Tests # Run the Z80 emulator tests.
+./src/MrKWatkins.OakCpu.M6502.Tests/bin/Debug/net10.0/MrKWatkins.OakCpu.M6502.Tests # Run the 6502 emulator tests.
 
 dotnet format src/OakCpu.sln # Format the source code.
 ```
 
-For interrupt- and timing-related changes, do not stop at the broad solution test run. Also run the focused `InterruptsTests` and `TimingTests` filter above.
+The test projects use the NUnit runner with Microsoft Testing Platform (`EnableNUnitRunner`), so the test executables are run directly, as above. `dotnet test` does **not** work with the .NET 10 SDK: it drives VSTest, which Microsoft Testing Platform no longer supports, and every form of the command fails with "Testing with VSTest target is no longer supported by Microsoft.Testing.Platform on .NET 10 SDK and later". Build first, then run the executables. Command line filters (`--filter`, `--treenode-filter`) did not match any tests when tried, so prefer a full run of a test project.
 
-After regenerating with `CodeGenerator.Console`, do not use `dotnet test --no-build` for sign-off. The generator changes checked-in `.generated.cs` files, so the solution must be rebuilt as part of the post-regeneration validation pass.
+A plain run of a test executable runs every non-`[Explicit]` test, which includes the interrupt regression tests (`InterruptsTests` and `InterruptBoundaryTests`). The large skipped count in the Z80 run is the `[Explicit]` suites — SingleStep, ZEXALL, Raxoft and Mark Woodmass.
 
-The test projects use the NUnit runner with Microsoft Testing Platform (`EnableNUnitRunner`), so test executables can also be run directly.
+After regenerating with `CodeGenerator.Console`, always rebuild before running the tests for sign-off. The generator changes checked-in `.generated.cs` files, so a stale build will test the old emulator.
 
 ## Architecture
 
-The repository is organised around a code generation pipeline and the generated Z80 emulator:
+The repository is organised around a code generation pipeline and the generated emulators:
 
-- **YAML definitions** (`definitions/z80/*.yaml`) define CPU registers, flags, interrupts, and instructions. Do not change these files unless the task is specifically instruction-definition work.
+- **YAML definitions** (`definitions/<cpu>/*.yaml`, e.g. `definitions/z80`) define CPU registers, flags, interrupts, and instructions. Do not change these files unless the task is specifically instruction-definition work.
 - **`MrKWatkins.OakCpu.CodeGenerator`** parses YAML via VYaml, processes the instruction expression DSL through a custom lexer/parser/AST, and generates C# with Roslyn.
-- **`MrKWatkins.OakCpu.CodeGenerator.Console`** invokes the generator and writes checked-in `.generated.cs` files to disk.
-- **`MrKWatkins.OakCpu.SourceGenerator`** uses the same generator library as a Roslyn source generator.
-- **`MrKWatkins.OakCpu.Z80`** contains the emulator package. Most code is generated; handwritten files provide runtime entry points such as `Z80StepEmulator` and `Z80InstructionEmulator`.
-- **`MrKWatkins.OakCpu.Z80.Testing`** contains emulator test harness utilities.
-- **`MrKWatkins.OakCpu.CodeGenerator.Tests`** tests the generator, parser, expression model, and generated output.
-- **`MrKWatkins.OakCpu.Z80.Tests`** tests the emulator with FUSE, ZEXALL, timing, interrupt, and other Z80 test suites.
+- **`MrKWatkins.OakCpu.CodeGenerator.Console`** invokes the generator and writes checked-in `.generated.cs` files to disk. The CPUs to generate, and the project each is written to, are a hardcoded list in its `Program.cs`.
+- **`MrKWatkins.OakCpu.SourceGenerator`** uses the same generator library as a Roslyn source generator. It is not in the solution, is not referenced by anything, and does not currently compile against the generator API; the console generator is the live path.
+- **`MrKWatkins.OakCpu.Z80`** and **`MrKWatkins.OakCpu.M6502`** contain the emulator packages. Nearly all the code is generated; the only handwritten files are the partial-class runtime entry points, `Z80StepEmulator.cs` for the Z80 and `M6502StepEmulator.cs`/`M6502InstructionEmulator.cs` for the 6502.
+- **`MrKWatkins.OakCpu.Z80.Testing`** and **`MrKWatkins.OakCpu.M6502.Testing`** contain emulator test harness utilities, built on the `MrKWatkins.EmulatorTestSuites` packages.
+- **`MrKWatkins.OakCpu.CodeGenerator.Tests`** tests the generator, parser, expression model, and generated output. Generator output is covered by Verify.NUnit snapshots (`{Class}.{Method}.verified.txt` beside the test source).
+- **`MrKWatkins.OakCpu.Z80.Tests`** and **`MrKWatkins.OakCpu.M6502.Tests`** test the emulators. The test data comes from the `MrKWatkins.EmulatorTestSuites` NuGet packages, not from this repository.
 - **`MrKWatkins.OakCpu.Z80.Benchmarks`** contains BenchmarkDotNet performance tests. Do not run benchmarks during normal development.
-- **`MrKWatkins.OakCpu.Z80.Disassemble`** is a JIT assembly analysis tool. Do not run it during normal development.
 
 Only manually change `.generated.cs` files when experimenting with the desired generated output. Once the correct output is known, update the generator and regenerate the files.
+
+### Variant CPUs
+
+A CPU can be defined as a variant of another CPU by setting `base:` in the `cpu:` block of its `cpu.yaml`, naming the definitions directory of the CPU it is based on, e.g. `base: z80`. The variant then contains only its additions and overrides; everything else is inherited, so base definitions are never duplicated.
+
+The merge is performed by `YamlFile.Merge`, before validation:
+
+- Pins, actions, fields, registers and flags from the variant are **appended** to those of the base CPU. Do not reorder them: `ActionRequired` and pin values are assigned by list position, so appending keeps the values generated for the base CPU stable.
+- Sequences and functions **replace** a base one with the same name.
+- The CPU name, and any hooks (`on_instruction_complete` etc.), interrupts and `default_next_opcode` the variant defines, take precedence; anything it omits is inherited.
+- Instructions override **individual opcodes**, not whole instructions. If a variant instruction claims an opcode belonging to a base instruction, only that opcode is removed from the base instruction, which is dropped entirely only if it loses all of its opcodes. This matters because base instructions commonly cover many opcodes at once, e.g. the Z80 `NOP` covers all the unused `ED` opcodes.
 
 ## Code Conventions
 
