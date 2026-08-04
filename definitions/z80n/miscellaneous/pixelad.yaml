@@ -1,0 +1,15 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L1825
+#     A single four T-state machine cycle that dispatches the PIXELAD command, so eight T-states in total with the prefix fetch.
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n.vhd#L939
+#     The display address of the pixel at column E, row D:
+#       H <= "010" & D(7 downto 6) & D(2 downto 0)
+#       L <= D(5 downto 3) & E(7 downto 3)
+#     No flags are written.
+instructions:
+  - group: Z80N Miscellaneous
+    mnemonic: PIXELAD
+    opcodes:
+      - opcode: 0xED 0x94
+    steps:
+      - HL = 0x4000 | ((D & 0xC0) << 5) | ((D & 0x07) << 8) | ((D & 0x38) << 2) | (E >> 3);

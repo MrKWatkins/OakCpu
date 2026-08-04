@@ -1,0 +1,33 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L1921
+#     Six machine cycles, five of them after the opcode fetch and all three T-states, so twenty three T-states in total with the
+#     prefix fetch. Set_Addr_To sets the address for the following machine cycle, so:
+#       2  reads the first immediate byte from PC, decrements SP and points the next cycle at it
+#       3  writes that byte to SP
+#       4  reads the second immediate byte from PC, decrements SP and points the next cycle at it
+#       5  writes that byte to SP
+#       6  no bus activity
+#     The immediate is big endian, so the byte read first is the high byte and is pushed first, leaving the word on the stack in
+#     the usual little endian order. No flags are written.
+instructions:
+  - group: Z80N Miscellaneous
+    mnemonic: PUSH $nn
+    opcodes:
+      - opcode: 0xED 0x8A
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Z = Data;
+      -
+      - SP = SP - 1; Address = SP; Data = Z; request(action.memory_write);
+      -
+      -
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Z = Data;
+      -
+      - SP = SP - 1; Address = SP; Data = Z; request(action.memory_write);
+      -
+      -
+      -
+      -
+      -
+      -

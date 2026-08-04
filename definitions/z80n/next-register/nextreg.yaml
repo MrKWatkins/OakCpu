@@ -1,0 +1,45 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L1668
+#     NEXTREG $n, $n has five machine cycles, all three T-states after the opcode fetch, so twenty T-states in total with the
+#     prefix fetch: two immediate reads, then the cycle that raises Z80N_dout_o with the NEXTREGW command, then one more.
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L1690
+#     NEXTREG $n, A has four, so seventeen T-states in total; it strobes A as the value during the opcode fetch and needs only one
+#     immediate read for the register number.
+#
+# Both strobe the register number as the high byte and the value as the low byte of the command's data, so the emulators put the
+# register number in Address and the value in Data. No flags are written.
+instructions:
+  - group: Z80N Next Register
+    mnemonic: NEXTREG $n, $n
+    opcodes:
+      - opcode: 0xED 0x91
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - latch = Data;
+      -
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      -
+      -
+      - Address = latch; request(action.next_register_write);
+      -
+      -
+      -
+      -
+      -
+      -
+
+  - group: Z80N Next Register
+    mnemonic: NEXTREG $n, A
+    opcodes:
+      - opcode: 0xED 0x92
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      -
+      -
+      - Address = Data; Data = A; request(action.next_register_write);
+      -
+      -
+      -
+      -
+      -
+      -

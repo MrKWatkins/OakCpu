@@ -1,0 +1,23 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L1795
+#     A single four T-state machine cycle that dispatches the BSRA_DE_B command, so eight T-states in total with the prefix fetch.
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n.vhd#L1001
+#     The core copies bit 15 of DE into bit 16 of a seventeen bit temporary and shifts it right as a signed value by B(4 downto 0),
+#     i.e. an arithmetic shift that fills with the sign bit, so shifts of sixteen or more leave DE all zeroes or all ones. No flags
+#     are written.
+#
+# Shifting the complement and complementing the result fills with ones; the sign bit chooses between that and a plain shift, which
+# fills with zeroes.
+instructions:
+  - group: Z80N Barrel Shift
+    mnemonic: BSRA DE, B
+    opcodes:
+      - opcode: 0xED 0x29
+    steps:
+      - |
+        $count = B & 0x1F;
+        if (DE & 0x8000) != 0;
+          DE = ~((~DE & 0xFFFF) >> $count);
+        else;
+          DE = DE >> $count;
+        endif;

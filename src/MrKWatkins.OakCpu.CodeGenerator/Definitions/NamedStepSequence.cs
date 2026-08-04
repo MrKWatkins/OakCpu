@@ -6,16 +6,9 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 public sealed class NamedStepSequence : StepSequence
 {
     private NamedStepSequence(string name, IReadOnlyList<Step> steps, NextOpcodeMode nextOpcode, bool executeOverlapOnStart, IReadOnlyList<byte>? stepPins = null)
-        : base(name, steps, nextOpcode, executeOverlapOnStart)
+        : base(name, steps, nextOpcode, executeOverlapOnStart, overrideStepPins: stepPins)
     {
-        OverrideStepPins = stepPins;
     }
-
-    /// <summary>
-    /// Explicit pins for each step, overriding the pins inferred from the actions requested by the sequence's steps, or
-    /// <c>null</c> if the sequence does not override them.
-    /// </summary>
-    public IReadOnlyList<byte>? OverrideStepPins { get; }
 
     [Pure]
     public static NamedStepSequence Create(ParserContext context, StepSequenceYaml yaml) =>
@@ -43,7 +36,7 @@ public sealed class NamedStepSequence : StepSequence
             throw new InvalidOperationException($"The sequence {yaml.Name} has more override_step_pins entries than steps.");
         }
 
-        return yaml.OverrideStepPins.Select(row => Pin.ResolveMask(context.Configuration.Pins, row, $"sequence {yaml.Name}")).ToList();
+        return Pin.ResolveMasks(context.Configuration.Pins, yaml.OverrideStepPins, $"sequence {yaml.Name}");
     }
 
     [Pure]

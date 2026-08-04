@@ -1,0 +1,56 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L2098
+#     Shares the LDI microcode with LDIX; four machine cycles, the second a three T-state read from HL and the third a five T-state
+#     write to DE. Bit 4 of the opcode is set, so the fourth machine cycle runs and repeats the instruction while BC is not zero;
+#     it is a five T-state cycle with no bus activity, making the repeating iterations twenty one T-states and the last sixteen.
+#
+# The write is conditional in the same way as it is for LDIX; see ldix.yaml for that and for the disagreement with the wiki over
+# whether the Z80N block transfers write flags.
+instructions:
+  - group: Z80N Block Transfer
+    mnemonic: LDIRX
+    opcodes:
+      - opcode: 0xED 0xB4
+    steps:
+      - Address = HL; HL = HL + 1; request(action.memory_read);
+      -
+      -
+      - |
+        latch = Data;
+        Address = DE; DE = DE + 1;
+        if A != latch;
+          request(action.memory_write);
+        else;
+          request(action.memory_read);
+        endif;
+      -
+      -
+      -
+      - |
+        $result = A + latch;
+        BC = BC - 1;
+        if BC == 0;
+          $x = $result & 0x08;
+          $y = $result & 0x02;
+          flags();
+          instruction_complete();
+        endif;
+      -
+      - PC = PC - 1; WZ = PC; PC = PC - 1; $x = PCH & 0x08; $y = PCH & 0x20; flags();
+      -
+      -
+      -
+      -
+    override_step_pins:
+      - []
+      - [MREQ, RD]
+      - [MREQ, RD]
+      - []
+      - [MREQ]
+      - [MREQ, WR]
+    flags:
+      N: 0
+      PV: BC != 0;
+      X: $x != 0
+      H: 0
+      Y: $y != 0

@@ -1,0 +1,12 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L1789
+#     A single four T-state machine cycle that dispatches the BSLA_DE_B command, so eight T-states in total with the prefix fetch.
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n.vhd#L987
+#     DE <= shift_left(DE, B(4 downto 0)), so shifts of sixteen or more leave DE zero. No flags are written.
+instructions:
+  - group: Z80N Barrel Shift
+    mnemonic: BSLA DE, B
+    opcodes:
+      - opcode: 0xED 0x28
+    steps:
+      - DE = DE << (B & 0x1F);

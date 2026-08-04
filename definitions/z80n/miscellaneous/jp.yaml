@@ -1,0 +1,29 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L1837
+#     Two machine cycles, the second an I/O read from BC. TStates <= "100" makes it four T-states and asserting IORQ adds the
+#     automatic wait T-state, so it takes five and the instruction takes thirteen in total with the prefix fetch. IN r, (C) leaves
+#     its I/O cycle at the default three T-states and so takes twelve, which is the known figure for it and confirms the wait.
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n.vhd#L979
+#     PC(13 downto 6) <= the byte read and PC(5 downto 0) <= 0, leaving the top two bits of PC alone, i.e. a jump within the
+#     current 16K bank to a multiple of 64. No flags are written.
+#
+# The I/O cycle holds IORQ and RD for its extra T-state, which the four T-state io_read pin pattern cannot express, so the pins are
+# given explicitly.
+instructions:
+  - group: Z80N Miscellaneous
+    mnemonic: JP (C)
+    opcodes:
+      - opcode: 0xED 0x98
+    steps:
+      - Address = BC;
+      - request(action.io_read);
+      -
+      -
+      - PC = (PC & 0xC000) | (Data << 6);
+      -
+    override_step_pins:
+      - []
+      - [IORQ, RD]
+      - [IORQ, RD]
+      - [IORQ, RD]
+      - [IORQ, RD]

@@ -5,7 +5,13 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 public abstract class StepSequence : IEnumerable<Step>
 {
-    private protected StepSequence(string? name, IReadOnlyList<Step> steps, NextOpcodeMode nextOpcode, bool executeOverlapOnStart = false, string? overlappedSequenceName = null)
+    private protected StepSequence(
+        string? name,
+        IReadOnlyList<Step> steps,
+        NextOpcodeMode nextOpcode,
+        bool executeOverlapOnStart = false,
+        string? overlappedSequenceName = null,
+        IReadOnlyList<byte>? overrideStepPins = null)
     {
         if (steps.Count == 0)
         {
@@ -22,6 +28,7 @@ public abstract class StepSequence : IEnumerable<Step>
         NextOpcode = nextOpcode;
         ExecuteOverlapOnStart = executeOverlapOnStart;
         OverlappedSequenceName = overlappedSequenceName;
+        OverrideStepPins = overrideStepPins;
     }
 
     public string? Name { get; }
@@ -35,6 +42,13 @@ public abstract class StepSequence : IEnumerable<Step>
     public bool ExecuteOverlapOnStart { get; }
 
     public string? OverlappedSequenceName { get; }
+
+    /// <summary>
+    /// Explicit pins for each step, overriding the pins inferred from the actions requested by the sequence's steps, or
+    /// <c>null</c> if the sequence does not override them. Needed for machine cycles that are longer than the requested
+    /// action's pin pattern, which hold their pins for the extra T-states.
+    /// </summary>
+    public IReadOnlyList<byte>? OverrideStepPins { get; }
 
     [Pure]
     public IEnumerator<Step> GetEnumerator() => Steps.GetEnumerator();

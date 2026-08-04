@@ -1,0 +1,24 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L1718
+#     A single four T-state machine cycle that dispatches the ADD_HL_A, ADD_DE_A or ADD_BC_A command, so eight T-states in total
+#     with the prefix fetch.
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n.vhd#L764
+#     rr <= rr + A, with A zero extended.
+#
+# The carry flag is cleared. The core writes F(Flag_C) from bit 16 of its temporary, but the addition is evaluated at 16 bits, so
+# the carry out is lost and the bit it reads is always zero. https://wiki.specnext.dev/Extended_Z80_instruction_set says these
+# instructions "most probably always reset the carry flag", which agrees. No other flags are written.
+instructions:
+  - group: Z80N Arithmetic
+    mnemonic: ADD RP0, A
+    opcodes:
+      - opcode: 0xED 0x31
+        RP0: HL
+      - opcode: 0xED 0x32
+        RP0: DE
+      - opcode: 0xED 0x33
+        RP0: BC
+    steps:
+      - RP0 = RP0 + A; flags();
+    flags:
+      C: 0

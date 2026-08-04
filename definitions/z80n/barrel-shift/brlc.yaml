@@ -1,0 +1,13 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L1813
+#     A single four T-state machine cycle that dispatches the BRLC_DE_B command, so eight T-states in total with the prefix fetch.
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n.vhd#L1022
+#     DE <= rotate_left(DE, B(4 downto 0)). Rotating a sixteen bit value is modulo sixteen, so only the low four bits of B matter.
+#     No flags are written.
+instructions:
+  - group: Z80N Barrel Shift
+    mnemonic: BRLC DE, B
+    opcodes:
+      - opcode: 0xED 0x2C
+    steps:
+      - $count = B & 0x0F; DE = (DE << $count) | (DE >> (16 - $count));

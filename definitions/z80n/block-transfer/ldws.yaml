@@ -1,0 +1,29 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L2141
+#     Three machine cycles: the opcode fetch, a three T-state read from HL, and a three T-state write to DE, so fourteen T-states
+#     in total with the prefix fetch. The write is unconditional, unlike the other Z80N block transfers.
+#
+# L is incremented through the ALU during the opcode fetch and D during the write, both with Save_ALU set, so the flags left are
+# those of the increment of D, which is what https://wiki.specnext.dev/Extended_Z80_instruction_set documents. Neither BC nor the
+# rest of HL and DE are touched, so this moves a byte down one display line rather than along.
+instructions:
+  - group: Z80N Block Transfer
+    mnemonic: LDWS
+    opcodes:
+      - opcode: 0xED 0xA5
+    steps:
+      - Address = HL; L = L + 1; request(action.memory_read);
+      -
+      -
+      - Address = DE; request(action.memory_write);
+      -
+      - D = D + 1; flags();
+      -
+    flags:
+      N: 0
+      PV: D == 0x80
+      X: copy_from(D)
+      H: (D & 0x0F) == 0x00
+      Y: copy_from(D)
+      Z: is_zero(D)
+      S: is_negative(D)

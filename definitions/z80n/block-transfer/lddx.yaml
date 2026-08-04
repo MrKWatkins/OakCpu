@@ -1,0 +1,54 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L2230
+#     Has its own microcode block, of the same shape as LDI's; four machine cycles, the second a three T-state read from HL and the
+#     third a five T-state write to DE, so sixteen T-states in total with the prefix fetch. The fourth only runs when the
+#     instruction repeats, which LDDX never does, as bit 4 of the opcode is clear. HL is decremented rather than incremented, but
+#     DE is still incremented, as it is for every Z80N block transfer.
+#
+# The write is conditional: "if is a "X" instruction, test for the excluding byte", i.e. Write is only asserted when the byte read
+# does not match A, which is how the ZX Spectrum Next skips transparent pixels. The machine cycle still runs for its five T-states
+# either way, and with Write not asserted, and NoRead not set, it reads from DE instead of writing to it.
+#
+# I_BT is set unconditionally, so the flags are those of LDI: X and Y from A plus the byte read, H and N cleared, and PV from BC.
+# Note that https://wiki.specnext.dev/Extended_Z80_instruction_set says the Z80N block transfers "do not modify any flags", which
+# the core does not agree with; nothing excludes the X instructions from
+# https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n.vhd#L1277, where the flags for a
+# block transfer are written.
+instructions:
+  - group: Z80N Block Transfer
+    mnemonic: LDDX
+    opcodes:
+      - opcode: 0xED 0xAC
+    steps:
+      - Address = HL; HL = HL - 1; request(action.memory_read);
+      -
+      -
+      - |
+        latch = Data;
+        Address = DE; DE = DE + 1;
+        if A != latch;
+          request(action.memory_write);
+        else;
+          request(action.memory_read);
+        endif;
+      -
+      -
+      -
+      - $result = A + latch; BC = BC - 1; flags();
+      -
+    # A conditional request is not the step's action, so it has no pin pattern for the generator to lay down; these are the pins
+    # LDI produces. They show a write even when the byte matched and the core read instead, which only differs in RD in place of WR;
+    # MREQ, and so the timing anything watching the bus sees, is the same either way.
+    override_step_pins:
+      - []
+      - [MREQ, RD]
+      - [MREQ, RD]
+      - []
+      - [MREQ]
+      - [MREQ, WR]
+    flags:
+      N: 0
+      PV: BC != 0;
+      X: ($result & 0x08) != 0
+      H: 0
+      Y: ($result & 0x02) != 0

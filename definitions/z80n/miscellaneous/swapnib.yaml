@@ -1,0 +1,12 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L1754
+#     A single four T-state machine cycle that dispatches the SWAPNIB_A command, so eight T-states in total with the prefix fetch.
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n.vhd#L702
+#     ACC <= A(3 downto 0) & A(7 downto 4). No flags are written.
+instructions:
+  - group: Z80N Miscellaneous
+    mnemonic: SWAPNIB
+    opcodes:
+      - opcode: 0xED 0x23
+    steps:
+      - A = (A << 4) | (A >> 4);

@@ -44,4 +44,8 @@ public sealed class Pin(string name, byte value, Documentation documentation)
 
         return mask;
     }
+
+    [Pure]
+    public static IReadOnlyList<byte> ResolveMasks(IReadOnlyDictionary<string, Pin> pins, IEnumerable<IReadOnlyList<string>> names, string owner) =>
+        names.Select(row => ResolveMask(pins, row, owner)).ToList();
 }

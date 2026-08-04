@@ -1,0 +1,27 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L2516
+#     Shares the OUTI microcode, but with three machine cycles rather than four as it never repeats. TStates <= "101" makes the
+#     opcode fetch five T-states, the second cycle is a three T-state read from HL, and the third an I/O write to BC that takes
+#     four with its automatic wait T-state, so sixteen in total with the prefix fetch.
+#
+# The microcode skips the Read_To_Reg, Save_ALU and ALU_Op assignments for 0xED 0x90, which is where OUTI's decrement of B and the
+# flags that come with it are done, so OUTINB leaves B alone and writes no flags. I_BTR is still set, but that only drives the
+# repeat logic; https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n.vhd#L1277 shows only
+# I_BT and I_BC writing flags.
+#
+# The first step is the fifth T-state of the opcode fetch, which the four T-state opcode read cannot express.
+instructions:
+  - group: Z80N Miscellaneous
+    mnemonic: OUTINB
+    opcodes:
+      - opcode: 0xED 0x90
+    steps:
+      -
+      - Address = HL; HL = HL + 1; request(action.memory_read);
+      -
+      -
+      - Address = BC;
+      - request(action.io_write);
+      -
+      -
+      -

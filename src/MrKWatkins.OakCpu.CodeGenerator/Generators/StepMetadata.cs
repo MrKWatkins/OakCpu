@@ -48,7 +48,7 @@ internal static class StepMetadata
         var sequence = layout.Sequence;
         var index = GetIndexInSequence(sequence, step);
 
-        if (sequence is NamedStepSequence { OverrideStepPins: { } overrideStepPins })
+        if (sequence.OverrideStepPins is { } overrideStepPins)
         {
             return index < overrideStepPins.Count ? overrideStepPins[index] : (byte)0;
         }

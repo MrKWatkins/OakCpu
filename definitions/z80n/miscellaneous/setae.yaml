@@ -1,0 +1,13 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L1831
+#     A single four T-state machine cycle that dispatches the SET_A_E command, so eight T-states in total with the prefix fetch.
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n.vhd#L923
+#     A one bit pixel mask for the pixel E addresses within its byte; the core selects it from bits 2 to 0 of E, from 10000000 for
+#     zero down to 00000001 for seven. No flags are written.
+instructions:
+  - group: Z80N Miscellaneous
+    mnemonic: SETAE
+    opcodes:
+      - opcode: 0xED 0x95
+    steps:
+      - A = 0x80 >> (E & 0x07);

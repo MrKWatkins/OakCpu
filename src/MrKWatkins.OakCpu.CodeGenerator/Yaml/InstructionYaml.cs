@@ -42,6 +42,12 @@ public sealed partial class InstructionYaml
 
     public string? OverlappedSequence { get; private set; }
 
+    /// <summary>
+    /// Explicit pins for each step, one entry per step, overriding the pins inferred from the actions the steps request. Needed for
+    /// machine cycles longer than the requested action's pin pattern, which hold their pins for the extra T-states.
+    /// </summary>
+    public IReadOnlyList<IReadOnlyList<string>>? OverrideStepPins { get; private set; }
+
     [Pure]
     public NextOpcodeMode GetEffectiveNextOpcode(NextOpcodeMode defaultNextOpcode) => NextOpcode ?? defaultNextOpcode;
 
@@ -60,7 +66,8 @@ public sealed partial class InstructionYaml
             Steps = Steps,
             Flags = Flags,
             NextOpcode = NextOpcode,
-            OverlappedSequence = OverlappedSequence
+            OverlappedSequence = OverlappedSequence,
+            OverrideStepPins = OverrideStepPins
         };
 
     public override string ToString() => Mnemonic;

@@ -1,0 +1,12 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L1760
+#     A single four T-state machine cycle that dispatches the MIRROR_A command, so eight T-states in total with the prefix fetch.
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n.vhd#L706
+#     ACC <= A(0) & A(1) & A(2) & A(3) & A(4) & A(5) & A(6) & A(7), i.e. the bits of A reversed. No flags are written.
+instructions:
+  - group: Z80N Miscellaneous
+    mnemonic: MIRROR A
+    opcodes:
+      - opcode: 0xED 0x24
+    steps:
+      - A = ((A & 0x01) << 7) | ((A & 0x02) << 5) | ((A & 0x04) << 3) | ((A & 0x08) << 1) | ((A & 0x10) >> 1) | ((A & 0x20) >> 3) | ((A & 0x40) >> 5) | ((A & 0x80) >> 7);

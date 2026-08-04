@@ -1,0 +1,38 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L1850
+#     Three machine cycles, with TStates <= "100" applying to all of them, so the two immediate reads take four T-states each
+#     rather than the usual three; sixteen T-states in total with the prefix fetch. LDZ and LDW load the immediate into WZ.
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n.vhd#L1105
+#     rr <= rr + WZ. No flags are written.
+#
+# The reads hold MREQ and RD for their extra T-state, which the three T-state memory_read pin pattern cannot express, so the pins
+# are given explicitly.
+instructions:
+  - group: Z80N Arithmetic
+    mnemonic: ADD RP0, $nn
+    opcodes:
+      - opcode: 0xED 0x34
+        RP0: HL
+      - opcode: 0xED 0x35
+        RP0: DE
+      - opcode: 0xED 0x36
+        RP0: BC
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - Z = Data;
+      -
+      -
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - W = Data; RP0 = RP0 + WZ;
+      -
+      -
+      -
+    override_step_pins:
+      - []
+      - [MREQ, RD]
+      - [MREQ, RD]
+      - [MREQ, RD]
+      - []
+      - [MREQ, RD]
+      - [MREQ, RD]
+      - [MREQ, RD]

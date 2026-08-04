@@ -1,0 +1,19 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L1819
+#     A single four T-state machine cycle that dispatches the PIXELDN command, so eight T-states in total with the prefix fetch.
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n.vhd#L900
+#     Moves HL down one display line. The core increments the eight bit value H(4 downto 3) & L(7 downto 5) & H(2 downto 0), which
+#     is the line within the display, then writes the parts back:
+#       H <= H(7 downto 5) & incremented(7 downto 6) & incremented(2 downto 0)
+#       L <= incremented(5 downto 3) & L(4 downto 0)
+#     No flags are written.
+instructions:
+  - group: Z80N Miscellaneous
+    mnemonic: PIXELDN
+    opcodes:
+      - opcode: 0xED 0x93
+    steps:
+      - |
+        $line = ((((H & 0x18) << 3) | ((L & 0xE0) >> 2) | (H & 0x07)) + 1) & 0xFF;
+        L = (($line & 0x38) << 2) | (L & 0x1F);
+        H = (H & 0xE0) | (($line & 0xC0) >> 3) | ($line & 0x07);

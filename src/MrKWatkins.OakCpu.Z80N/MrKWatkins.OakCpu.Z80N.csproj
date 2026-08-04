@@ -1,0 +1,81 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>MrKWatkins.OakCpu.Z80N.Testing</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>MrKWatkins.OakCpu.Z80N.Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Z80NStepEmulator.initialization.generated.cs">
+        <DependentUpon>Z80NStepEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NStepEmulator.interrupts.generated.cs">
+        <DependentUpon>Z80NStepEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NStepEmulator.overlaps.generated.cs">
+        <DependentUpon>Z80NStepEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NStepEmulator.reset.generated.cs">
+        <DependentUpon>Z80NStepEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NStepEmulator.serialization.generated.cs">
+        <DependentUpon>Z80NStepEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NStepEmulator.steps.generated.cs">
+        <DependentUpon>Z80NStepEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NInstructionEmulator.generated.cs">
+        <DependentUpon>Z80NInstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NInstructionEmulator.instructions.generated.cs">
+        <DependentUpon>Z80NInstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NInstructionEmulator.interrupts.generated.cs">
+        <DependentUpon>Z80NInstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NInstructionEmulator.reset.generated.cs">
+        <DependentUpon>Z80NInstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NInstructionEmulator.tables.generated.cs">
+        <DependentUpon>Z80NInstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NStepEmulator.generated.cs">
+        <DependentUpon>Z80NStepEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NStepFlags.generated.cs">
+        <DependentUpon>Z80NStepEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NStepInterrupts.generated.cs">
+        <DependentUpon>Z80NStepEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NStepRegisters.generated.cs">
+        <DependentUpon>Z80NStepEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NStepShadowRegisters.generated.cs">
+        <DependentUpon>Z80NStepEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NInstructionFlags.generated.cs">
+        <DependentUpon>Z80NInstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NInstructionInterrupts.generated.cs">
+        <DependentUpon>Z80NInstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NInstructionRegisters.generated.cs">
+        <DependentUpon>Z80NInstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NInstructionShadowRegisters.generated.cs">
+        <DependentUpon>Z80NInstructionEmulator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Z80NInstructionEmulator.serialization.generated.cs">
+        <DependentUpon>Z80NInstructionEmulator.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+</Project>

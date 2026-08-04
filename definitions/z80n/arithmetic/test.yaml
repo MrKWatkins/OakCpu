@@ -1,0 +1,26 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L1778
+#     Two machine cycles, the second a three T-state immediate read, so eleven T-states in total with the prefix fetch.
+#
+# The microcode runs the immediate through the ALU against A with Save_ALU set, but leaves Read_To_Reg commented out, so the flags
+# are written but A is not. The ALU operation comes from bits 5 to 3 of the opcode, which are 100 for 0xED 0x27, i.e. AND, so the
+# flags are those of AND $n with the result discarded.
+instructions:
+  - group: Z80N Arithmetic
+    mnemonic: TEST $n
+    opcodes:
+      - opcode: 0xED 0x27
+    steps:
+      - Address = PC; PC = PC + 1; request(action.memory_read);
+      - $result = A & Data; flags();
+      -
+      -
+    flags:
+      C: 0
+      N: 0
+      PV: even_parity($result)
+      X: copy_from($result)
+      H: 1
+      Y: copy_from($result)
+      Z: is_zero($result)
+      S: copy_from($result)

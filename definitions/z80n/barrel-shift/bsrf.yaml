@@ -1,0 +1,15 @@
+# Decoded from ZX Spectrum Next FPGA core version 3.02.03:
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n_mcode.vhd#L1807
+#     A single four T-state machine cycle that dispatches the BSRF_DE_B command, so eight T-states in total with the prefix fetch.
+#   https://gitlab.com/SpectrumNext/ZX_Spectrum_Next_FPGA/-/blob/master/cores/zxnext/src/cpu/t80n.vhd#L1001
+#     Shared with BSRA and BSRL; bit 0 of the opcode is put into bit 16 of the seventeen bit temporary before the shift, which is
+#     one for 0xED 0x2B, so the shift fills with ones. Shifts of sixteen or more leave DE all ones. No flags are written.
+#
+# Shifting the complement and complementing the result fills with ones.
+instructions:
+  - group: Z80N Barrel Shift
+    mnemonic: BSRF DE, B
+    opcodes:
+      - opcode: 0xED 0x2B
+    steps:
+      - DE = ~((~DE & 0xFFFF) >> (B & 0x1F));

@@ -16,8 +16,8 @@ public sealed class Instruction : StepSequence
         new NumberOpcodePlaceholder(static opcode => opcode.N0, static (_, value, replacement) => ReplaceNumber(value, "N0", replacement))
     ];
 
-    private Instruction(string group, string mnemonic, string? opcodeTable, byte? prefix, byte opcode, NextOpcodeMode nextOpcode, string? overlappedSequence, IReadOnlyList<Step> steps, IReadOnlyDictionary<string, Expression> flags, IReadOnlyList<(byte? Prefix, byte Opcode, Step Step)> duplicates)
-        : base(null, steps, nextOpcode, overlappedSequenceName: overlappedSequence)
+    private Instruction(string group, string mnemonic, string? opcodeTable, byte? prefix, byte opcode, NextOpcodeMode nextOpcode, string? overlappedSequence, IReadOnlyList<Step> steps, IReadOnlyDictionary<string, Expression> flags, IReadOnlyList<(byte? Prefix, byte Opcode, Step Step)> duplicates, IReadOnlyList<byte>? overrideStepPins)
+        : base(null, steps, nextOpcode, overlappedSequenceName: overlappedSequence, overrideStepPins: overrideStepPins)
     {
         Group = group;
         Mnemonic = mnemonic;
@@ -87,8 +87,25 @@ public sealed class Instruction : StepSequence
 
             ResolveTypesInFlagsExpressions(steps, flags);
 
-            yield return new Instruction(yaml.Group, mnemonic, yaml.OpcodeTable, opcodeYaml.PrefixByte, opcodeYaml.OpcodeByte, nextOpcode, yaml.OverlappedSequence, steps, flags, duplicates);
+            yield return new Instruction(yaml.Group, mnemonic, yaml.OpcodeTable, opcodeYaml.PrefixByte, opcodeYaml.OpcodeByte, nextOpcode, yaml.OverlappedSequence, steps, flags, duplicates, CreateOverrideStepPins(context, yaml, mnemonic, steps.Count));
         }
+    }
+
+    [Pure]
+    private static IReadOnlyList<byte>? CreateOverrideStepPins(ParserContext context, InstructionYaml yaml, string mnemonic, int stepCount)
+    {
+        if (yaml.OverrideStepPins == null)
+        {
+            return null;
+        }
+
+        if (yaml.OverrideStepPins.Count > stepCount)
+        {
+            // The implicit empty overlap step is collapsed, so it does not need an entry.
+            throw new InvalidOperationException($"The instruction {mnemonic} has more override_step_pins entries than steps.");
+        }
+
+        return Pin.ResolveMasks(context.Configuration.Pins, yaml.OverrideStepPins, $"instruction {mnemonic}");
     }
 
     [Pure]
