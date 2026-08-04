@@ -6,12 +6,6 @@ namespace MrKWatkins.OakCpu.Z80N.Testing;
 public class Z80NStepEmulatorTestHarness(Z80NStepEmulator emulator) : Z80SteppableTestHarness
 {
     private readonly byte[] memory = new byte[65536];
-    private readonly List<(byte Register, byte Value)> nextRegisterWrites = [];
-
-    /// <summary>
-    /// The Next registers written to, in the order they were written.
-    /// </summary>
-    public IReadOnlyList<(byte Register, byte Value)> NextRegisterWrites => nextRegisterWrites;
 
     public Z80NStepEmulatorTestHarness()
         : this(new Z80NStepEmulator())
@@ -197,7 +191,7 @@ public class Z80NStepEmulatorTestHarness(Z80NStepEmulator emulator) : Z80Steppab
                 break;
 
             case ActionRequired.NextRegisterWrite:
-                nextRegisterWrites.Add(((byte)emulator.Address, emulator.Data));
+                WriteNextRegister((byte)emulator.Address, emulator.Data);
                 break;
         }
 
@@ -228,10 +222,8 @@ public class Z80NStepEmulatorTestHarness(Z80NStepEmulator emulator) : Z80Steppab
             case ActionRequired.IOWrite:
                 return new Cycle(CycleType.IOWrite, TStates, emulator.Address, emulator.Data);
 
-            // TODO: Report as a Next register write once MrKWatkins.EmulatorTestSuites.Z80 has a cycle type for one. Nothing
-            // is put on the memory or I/O buses, so no cycle is the closest of the existing types.
             case ActionRequired.NextRegisterWrite:
-                return new Cycle(CycleType.None, TStates, emulator.Address, emulator.Data);
+                return new Cycle(CycleType.NextRegisterWrite, TStates, emulator.Address, emulator.Data);
         }
         throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");
     }

@@ -7,12 +7,6 @@ public sealed class Z80NInstructionEmulatorTestHarness : Z80TestHarness
 {
     private readonly Z80NInstructionEmulator emulator;
     private readonly byte[] memory = new byte[65536];
-    private readonly List<(byte Register, byte Value)> nextRegisterWrites = [];
-
-    /// <summary>
-    /// The Next registers written to, in the order they were written.
-    /// </summary>
-    public IReadOnlyList<(byte Register, byte Value)> NextRegisterWrites => nextRegisterWrites;
 
     public Z80NInstructionEmulatorTestHarness()
         : this(new Z80NInstructionEmulator())
@@ -199,7 +193,7 @@ public sealed class Z80NInstructionEmulatorTestHarness : Z80TestHarness
                 break;
 
             case ActionRequired.NextRegisterWrite:
-                nextRegisterWrites.Add(((byte)address, data));
+                WriteNextRegister((byte)address, data);
                 break;
         }
 
@@ -227,10 +221,8 @@ public sealed class Z80NInstructionEmulatorTestHarness : Z80TestHarness
             case ActionRequired.IOWrite:
                 return new Cycle(CycleType.IOWrite, TStates, address, data);
 
-            // TODO: Report as a Next register write once MrKWatkins.EmulatorTestSuites.Z80 has a cycle type for one. Nothing
-            // is put on the memory or I/O buses, so no cycle is the closest of the existing types.
             case ActionRequired.NextRegisterWrite:
-                return new Cycle(CycleType.None, TStates, address, data);
+                return new Cycle(CycleType.NextRegisterWrite, TStates, address, data);
         }
 
         throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");

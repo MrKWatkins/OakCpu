@@ -1,1 +1,5 @@
 SingleStepTemp
+
+# Verify
+*.received.*
+*.received/
