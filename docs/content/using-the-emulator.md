@@ -4,8 +4,8 @@ OakCpu provides two Z80 emulators:
 
 | Type                                                                                  | Use when                                                                                           |
 |---------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
-| [`Z80StepEmulator`](API/MrKWatkins.OakCpu.Z80/Z80StepEmulator/index.md)               | You need cycle-by-cycle control over memory and I/O timing.                                        |
-| [`Z80InstructionEmulator`](API/MrKWatkins.OakCpu.Z80/Z80InstructionEmulator/index.md) | You want to execute one complete instruction at a time while still observing each external action. |
+| [`Z80StepEmulator`](api/MrKWatkins.OakCpu.Z80/Z80StepEmulator/index.md)               | You need cycle-by-cycle control over memory and I/O timing.                                        |
+| [`Z80InstructionEmulator`](api/MrKWatkins.OakCpu.Z80/Z80InstructionEmulator/index.md) | You want to execute one complete instruction at a time while still observing each external action. |
 
 ## Install the Package
 
@@ -21,7 +21,7 @@ using MrKWatkins.OakCpu.Z80;
 
 ## Step Emulator
 
-[`Z80StepEmulator`](API/MrKWatkins.OakCpu.Z80/Z80StepEmulator/index.md) advances one T-state at a time. Each call to `Step()` returns an [`ActionRequired`](API/MrKWatkins.OakCpu.Z80/ActionRequired/index.md) value describing what the host must do for that cycle.
+[`Z80StepEmulator`](api/MrKWatkins.OakCpu.Z80/Z80StepEmulator/index.md) advances one T-state at a time. Each call to `Step()` returns an [`ActionRequired`](api/MrKWatkins.OakCpu.Z80/ActionRequired/index.md) value describing what the host must do for that cycle.
 
 ```csharp
 var cpu = new Z80StepEmulator();
@@ -56,7 +56,7 @@ The step emulator is the best fit for machine emulators where exact bus timing m
 
 ## Instruction Emulator
 
-[`Z80InstructionEmulator`](API/MrKWatkins.OakCpu.Z80/Z80InstructionEmulator/index.md) executes one instruction per call. Rather than a delegate, it takes a *bus handler*: a value implementing [`IZ80BusHandler`](API/MrKWatkins.OakCpu.Z80/IZ80BusHandler/index.md). The emulator calls the handler's `OnActionRequired` method for every memory and I/O action the instruction performs, and [`ExecuteInstruction`](API/MrKWatkins.OakCpu.Z80/Z80InstructionEmulator/ExecuteInstruction.md) returns the number of T-states consumed.
+[`Z80InstructionEmulator`](api/MrKWatkins.OakCpu.Z80/Z80InstructionEmulator/index.md) executes one instruction per call. Rather than a delegate, it takes a *bus handler*: a value implementing [`IZ80BusHandler`](api/MrKWatkins.OakCpu.Z80/IZ80BusHandler/index.md). The emulator calls the handler's `OnActionRequired` method for every memory and I/O action the instruction performs, and [`ExecuteInstruction`](api/MrKWatkins.OakCpu.Z80/Z80InstructionEmulator/ExecuteInstruction.md) returns the number of T-states consumed.
 
 Implement the handler as a `struct`. `ExecuteInstruction` is generic over the handler type, so the JIT produces a version of the execution loop specialised for your handler and inlines the `OnActionRequired` calls straight into each bus access, with no delegate dispatch. That monomorphisation is what makes the instruction emulator considerably faster than the step emulator. The `allows ref struct` constraint means the handler may even be a `ref struct`.
 
@@ -105,9 +105,9 @@ The instruction level emulator is faster than the step level emulator, so is bes
 
 Both emulators expose the same high-level state objects:
 
-- [`Registers`](API/MrKWatkins.OakCpu.Z80/Z80Registers/index.md) provides the main and shadow Z80 registers.
-- [`Flags`](API/MrKWatkins.OakCpu.Z80/Z80Flags/index.md) exposes individual flag bits.
-- [`Interrupts`](API/MrKWatkins.OakCpu.Z80/Z80Interrupts/index.md) exposes interrupt flip-flops, interrupt mode, `HALT` state, and the external interrupt line.
+- [`Registers`](api/MrKWatkins.OakCpu.Z80/Z80Registers/index.md) provides the main and shadow Z80 registers.
+- [`Flags`](api/MrKWatkins.OakCpu.Z80/Z80Flags/index.md) exposes individual flag bits.
+- [`Interrupts`](api/MrKWatkins.OakCpu.Z80/Z80Interrupts/index.md) exposes interrupt flip-flops, interrupt mode, `HALT` state, and the external interrupt line.
 
 Use `Reset()` to restore the CPU core to its reset state. Use `Serialize(Stream)`, `Restore(Stream)`, and `Deserialize(Stream)` to persist and reload CPU state.
 

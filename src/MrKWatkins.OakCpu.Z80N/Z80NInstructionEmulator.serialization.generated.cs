@@ -14,12 +14,12 @@ namespace MrKWatkins.OakCpu.Z80N;
 public sealed unsafe partial class Z80NInstructionEmulator
 {
     /// <summary>
-    /// The number of bytes required to serialize the emulator state.
+    /// The number of bytes required to serialise the emulator state.
     /// </summary>
     public const int SerializedSize = 41;
 
     /// <summary>
-    /// Serializes this emulator's Z80N CPU state.
+    /// Serialises this emulator's Z80N CPU state.
     /// </summary>
     /// <param name="destination">
     /// The destination span to write the CPU state to.
@@ -71,7 +71,7 @@ public sealed unsafe partial class Z80NInstructionEmulator
     }
 
     /// <summary>
-    /// Serializes this emulator's Z80N CPU state.
+    /// Serialises this emulator's Z80N CPU state.
     /// </summary>
     /// <param name="stream">
     /// The stream to write the CPU state to.
@@ -84,13 +84,13 @@ public sealed unsafe partial class Z80NInstructionEmulator
     }
 
     /// <summary>
-    /// Deserializes a Z80N CPU state.
+    /// Deserialises a Z80N CPU state.
     /// </summary>
     /// <param name="source">
-    /// The serialized CPU state to read from.
+    /// The serialised CPU state to read from.
     /// </param>
     /// <returns>
-    /// The deserialized Z80N emulator.
+    /// The deserialised Z80N emulator.
     /// </returns>
     public static Z80NInstructionEmulator Deserialize(ReadOnlySpan<byte> source)
     {
@@ -100,13 +100,13 @@ public sealed unsafe partial class Z80NInstructionEmulator
     }
 
     /// <summary>
-    /// Deserializes a Z80N CPU state.
+    /// Deserialises a Z80N CPU state.
     /// </summary>
     /// <param name="stream">
     /// The stream to read the CPU state from.
     /// </param>
     /// <returns>
-    /// The deserialized Z80N emulator.
+    /// The deserialised Z80N emulator.
     /// </returns>
     public static Z80NInstructionEmulator Deserialize(Stream stream)
     {
@@ -116,10 +116,10 @@ public sealed unsafe partial class Z80NInstructionEmulator
     }
 
     /// <summary>
-    /// Restores this emulator from a serialized Z80N CPU state.
+    /// Restores this emulator from a serialised Z80N CPU state.
     /// </summary>
     /// <param name="source">
-    /// The serialized CPU state to read from.
+    /// The serialised CPU state to read from.
     /// </param>
     public void Restore(ReadOnlySpan<byte> source)
     {
@@ -151,7 +151,7 @@ public sealed unsafe partial class Z80NInstructionEmulator
     }
 
     /// <summary>
-    /// Restores this emulator from a serialized Z80N CPU state.
+    /// Restores this emulator from a serialised Z80N CPU state.
     /// </summary>
     /// <param name="stream">
     /// The stream to read the CPU state from.

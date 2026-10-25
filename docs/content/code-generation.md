@@ -12,7 +12,7 @@ OakCpu's Z80 and 6502 implementations are generated from YAML definitions in the
 
 ## Regenerating Source
 
-Run the console generator from the `src` directory. It locates the solution by searching upwards for `OakCpu.sln`, which lives there, so it must be run from `src` or a subdirectory of it:
+Run the console generator from the `src` directory. It locates the solution by searching upwards for `OakCpu.slnx`, which lives there, so it must be run from `src` or a subdirectory of it:
 
 ```bash
 cd src

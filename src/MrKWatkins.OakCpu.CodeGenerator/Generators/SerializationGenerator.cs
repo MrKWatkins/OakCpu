@@ -136,7 +136,7 @@ public abstract class SerializationGenerator : TypeGenerator
                                 .WithInitializer(EqualsValueClause(GenerateNumericLiteralExpression(layout.SerializedSize)))
                         ]))
                 .WithModifiers(TokenList(Public, Token(SyntaxKind.ConstKeyword))),
-            "The number of bytes required to serialize the emulator state.");
+            "The number of bytes required to serialise the emulator state.");
 
     [Pure]
     private MemberDeclarationSyntax GenerateDeserializeSpan(GeneratorContext context)
@@ -163,12 +163,12 @@ public abstract class SerializationGenerator : TypeGenerator
                         .WithType(GenericName(Identifier("ReadOnlySpan")).WithTypeArgumentList(TypeArgumentList([ByteType])))
                 ]))
                 .WithBody(Block(createEmulator, restore, returnEmulator)),
-            $"Deserializes a {context.Cpu.Name} CPU state.",
+            $"Deserialises a {context.Cpu.Name} CPU state.",
             parameters: new Dictionary<string, string>
             {
-                [SourceParameterName] = "The serialized CPU state to read from."
+                [SourceParameterName] = "The serialised CPU state to read from."
             },
-            returns: $"The deserialized {context.Cpu.Name} emulator.");
+            returns: $"The deserialised {context.Cpu.Name} emulator.");
     }
 
     [MustUseReturnValue]
@@ -188,12 +188,12 @@ public abstract class SerializationGenerator : TypeGenerator
                     Parameter(Identifier(StreamParameterName)).WithType(IdentifierName(nameof(Stream)))
                 ]))
                 .WithBody(Block(buffer, read, returnEmulator)),
-            $"Deserializes a {context.GeneratorContext.Cpu.Name} CPU state.",
+            $"Deserialises a {context.GeneratorContext.Cpu.Name} CPU state.",
             parameters: new Dictionary<string, string>
             {
                 [StreamParameterName] = "The stream to read the CPU state from."
             },
-            returns: $"The deserialized {context.GeneratorContext.Cpu.Name} emulator.");
+            returns: $"The deserialised {context.GeneratorContext.Cpu.Name} emulator.");
     }
 
     [MustUseReturnValue]
@@ -229,10 +229,10 @@ public abstract class SerializationGenerator : TypeGenerator
                         .WithType(GenericName(Identifier("ReadOnlySpan")).WithTypeArgumentList(TypeArgumentList([ByteType])))
                 ]))
                 .WithBody(Block(statements)),
-            $"Restores this emulator from a serialized {context.GeneratorContext.Cpu.Name} CPU state.",
+            $"Restores this emulator from a serialised {context.GeneratorContext.Cpu.Name} CPU state.",
             parameters: new Dictionary<string, string>
             {
-                [SourceParameterName] = "The serialized CPU state to read from."
+                [SourceParameterName] = "The serialised CPU state to read from."
             });
     }
 
@@ -257,7 +257,7 @@ public abstract class SerializationGenerator : TypeGenerator
                     Parameter(Identifier(StreamParameterName)).WithType(IdentifierName(nameof(Stream)))
                 ]))
                 .WithBody(Block(buffer, read, restore)),
-            $"Restores this emulator from a serialized {context.GeneratorContext.Cpu.Name} CPU state.",
+            $"Restores this emulator from a serialised {context.GeneratorContext.Cpu.Name} CPU state.",
             parameters: new Dictionary<string, string>
             {
                 [StreamParameterName] = "The stream to read the CPU state from."
@@ -300,7 +300,7 @@ public abstract class SerializationGenerator : TypeGenerator
                         .WithType(GenericName(Identifier("Span")).WithTypeArgumentList(TypeArgumentList([ByteType])))
                 ]))
                 .WithBody(Block(statements)),
-            $"Serializes this emulator's {context.GeneratorContext.Cpu.Name} CPU state.",
+            $"Serialises this emulator's {context.GeneratorContext.Cpu.Name} CPU state.",
             parameters: new Dictionary<string, string>
             {
                 [DestinationParameterName] = "The destination span to write the CPU state to."
@@ -324,7 +324,7 @@ public abstract class SerializationGenerator : TypeGenerator
                     Parameter(Identifier(StreamParameterName)).WithType(IdentifierName(nameof(Stream)))
                 ]))
                 .WithBody(Block(buffer, serialize, write)),
-            $"Serializes this emulator's {context.GeneratorContext.Cpu.Name} CPU state.",
+            $"Serialises this emulator's {context.GeneratorContext.Cpu.Name} CPU state.",
             parameters: new Dictionary<string, string>
             {
                 [StreamParameterName] = "The stream to write the CPU state to."

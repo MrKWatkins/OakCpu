@@ -61,7 +61,7 @@ public static class Generator
         var currentDirectory = new DirectoryInfo(Environment.CurrentDirectory);
         while (true)
         {
-            if (currentDirectory.EnumerateFiles("OakCpu.sln").Any())
+            if (currentDirectory.EnumerateFiles("OakCpu.slnx").Any())
             {
                 return currentDirectory;
             }

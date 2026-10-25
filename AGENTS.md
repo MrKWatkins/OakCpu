@@ -13,18 +13,24 @@ Implementations are generated from YAML instruction definitions in `definitions/
 All commands run from the root directory:
 
 ```bash
-dotnet build src/OakCpu.sln # Build all projects.
+dotnet build src/OakCpu.slnx # Build all projects.
 
-(cd src && dotnet run --project MrKWatkins.OakCpu.CodeGenerator.Console --no-build) # Regenerate checked-in .generated.cs files for all CPUs. The generator finds OakCpu.sln by searching upwards, so it must run from src.
+(cd src && dotnet run --project MrKWatkins.OakCpu.CodeGenerator.Console --no-build) # Regenerate checked-in .generated.cs files for all CPUs. The generator finds OakCpu.slnx by searching upwards, so it must run from src.
 
 ./src/MrKWatkins.OakCpu.CodeGenerator.Tests/bin/Debug/net10.0/MrKWatkins.OakCpu.CodeGenerator.Tests # Run the code generator tests.
 ./src/MrKWatkins.OakCpu.Z80.Tests/bin/Debug/net10.0/MrKWatkins.OakCpu.Z80.Tests # Run the Z80 emulator tests.
 ./src/MrKWatkins.OakCpu.M6502.Tests/bin/Debug/net10.0/MrKWatkins.OakCpu.M6502.Tests # Run the 6502 emulator tests.
 
-dotnet format src/OakCpu.sln # Format the source code.
+dotnet format src/OakCpu.slnx # Format the source code.
 ```
 
-The test projects use the NUnit runner with Microsoft Testing Platform (`EnableNUnitRunner`), so the test executables are run directly, as above. `dotnet test` does **not** work with the .NET 10 SDK: it drives VSTest, which Microsoft Testing Platform no longer supports, and every form of the command fails with "Testing with VSTest target is no longer supported by Microsoft.Testing.Platform on .NET 10 SDK and later". Build first, then run the executables. Command line filters (`--filter`, `--treenode-filter`) did not match any tests when tried, so prefer a full run of a test project.
+The test projects use NUnit on Microsoft Testing Platform (`EnableNUnitRunner`). `src/global.json` selects native MTP mode, so run tests from `src`:
+
+```bash
+(cd src && dotnet test --solution OakCpu.slnx) # Run all non-explicit tests.
+```
+
+The test executables above can also run directly. The shared build uses native MTP to collect coverage. Keep the explicitly marked long-running emulator suites excluded from normal builds.
 
 A plain run of a test executable runs every non-`[Explicit]` test, which includes the interrupt regression tests (`InterruptsTests` and `InterruptBoundaryTests`). The large skipped count in the Z80 run is the `[Explicit]` suites — SingleStep, ZEXALL, Raxoft and Mark Woodmass.
 
@@ -87,13 +93,14 @@ The merge is performed by `YamlFile.Merge`, before validation:
 
 ## Formatting Conventions
 
-- Ensure formatting is correct by running `dotnet format src/OakCpu.sln` after completing code changes.
+- Ensure formatting is correct by running `dotnet format src/OakCpu.slnx` after completing code changes.
 - Do not leave generated build, coverage, documentation site, or temporary files in the working tree.
 
 ## Documentation
 
-- Documentation is generated using MKDocs and is found in the `doc` folder.
-- Documentation in `doc/docs/API` is generated from the Z80 and 6502 assemblies using the Sesharp tool from the root of the repository: `sesharp src/MrKWatkins.OakCpu.M6502/bin/Release/net10.0/MrKWatkins.OakCpu.M6502.dll src/MrKWatkins.OakCpu.Z80/bin/Release/net10.0/MrKWatkins.OakCpu.Z80.dll --output doc/docs/API --repository https://github.com/MrKWatkins/OakCpu`
-- Documentation in the root of `doc/docs` is handwritten.
-- Handwritten documentation should link to the generated API documentation and Microsoft's API docs (https://learn.microsoft.com/en-us/dotnet/api/) for types, members, etc.
+- Handwritten Markdown lives in `docs/content`; guide navigation and all three API assembly inputs (6502, Z80 and Z80N) are configured in `docs/site.json`.
+- Sesharp, Vale and VitePress run in the shared documentation image. Generated APIs and site output stay in ignored `artifacts`; never commit them.
+- Preview with `python3 docs/preview.py` or the JetBrains **Preview documentation** run configuration, then open `http://localhost:5173/OakCpu/`. Docker and the .NET 10 SDK are required.
+- Build and Release call `MrKWatkins/build/dotnet/project`. Release can publish packages, documentation, or both, using NuGet trusted publishing.
+- Handwritten documentation should link to generated APIs under `api/` and Microsoft's API docs (https://learn.microsoft.com/en-us/dotnet/api/) for framework types and members.
 - `ReadMe.md` gives a brief summary of the project, links to the full documentation, and is included in the NuGet package.

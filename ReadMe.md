@@ -13,3 +13,16 @@ Full documentation is available at [mrkwatkins.github.io/OakCpu](https://mrkwatk
 ## Licencing
 
 Licensed under GPL v3.0.
+
+## Building and documentation
+
+Build and Test compiles the solution, runs the tests and validates the complete documentation on pushes and pull requests. Release runs the same validation,
+then publishes the prepared packages and documentation. Leave the version blank for the next minor release, or enter an explicit stable version.
+Both publication options default to true. Turn **publish-packages** off to update only documentation without creating a new package or release tag.
+The API reference then uses the latest released source; `api-ref` can select corrected XML comments from another commit.
+
+Preview with `python3 docs/preview.py` or **Preview documentation** in a JetBrains IDE, with Docker and the .NET 10 SDK installed.
+Open `http://localhost:5173/OakCpu/`. Generated API pages and site output are ignored build artifacts.
+
+Configure NuGet trusted publishing for repository `OakCpu`, workflow `release.yml`, environment `github-pages`, owner `MrKWatkins` and the three CPU packages.
+Set GitHub Pages to **GitHub Actions**, and allow `main` to deploy to the `github-pages` environment. No stored NuGet API key is required.

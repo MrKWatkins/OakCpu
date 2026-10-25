@@ -1,0 +1,244 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/definitions/" />
+  <Folder Name="/definitions/6502/">
+    <File Path="../definitions/6502/cpu.yaml" />
+    <File Path="../definitions/6502/flags.yaml" />
+    <File Path="../definitions/6502/functions.yaml" />
+    <File Path="../definitions/6502/interrupts.yaml" />
+    <File Path="../definitions/6502/registers.yaml" />
+  </Folder>
+  <Folder Name="/definitions/6502/arithmetic/">
+    <File Path="../definitions/6502/arithmetic/adc.yaml" />
+    <File Path="../definitions/6502/arithmetic/sbc.yaml" />
+  </Folder>
+  <Folder Name="/definitions/6502/compare/">
+    <File Path="../definitions/6502/compare/cmp.yaml" />
+    <File Path="../definitions/6502/compare/cpx.yaml" />
+    <File Path="../definitions/6502/compare/cpy.yaml" />
+  </Folder>
+  <Folder Name="/definitions/6502/control-flow/">
+    <File Path="../definitions/6502/control-flow/branches.yaml" />
+    <File Path="../definitions/6502/control-flow/jumps-and-calls.yaml" />
+    <File Path="../definitions/6502/control-flow/system.yaml" />
+  </Folder>
+  <Folder Name="/definitions/6502/general-purpose/">
+    <File Path="../definitions/6502/general-purpose/increments-and-decrements.yaml" />
+    <File Path="../definitions/6502/general-purpose/nop.yaml" />
+    <File Path="../definitions/6502/general-purpose/stack.yaml" />
+    <File Path="../definitions/6502/general-purpose/status.yaml" />
+    <File Path="../definitions/6502/general-purpose/transfers.yaml" />
+  </Folder>
+  <Folder Name="/definitions/6502/load/">
+    <File Path="../definitions/6502/load/lda.yaml" />
+    <File Path="../definitions/6502/load/ldx.yaml" />
+    <File Path="../definitions/6502/load/ldy.yaml" />
+  </Folder>
+  <Folder Name="/definitions/6502/logical/">
+    <File Path="../definitions/6502/logical/and.yaml" />
+    <File Path="../definitions/6502/logical/bit.yaml" />
+    <File Path="../definitions/6502/logical/eor.yaml" />
+    <File Path="../definitions/6502/logical/ora.yaml" />
+  </Folder>
+  <Folder Name="/definitions/6502/shift/">
+    <File Path="../definitions/6502/shift/asl.yaml" />
+    <File Path="../definitions/6502/shift/lsr.yaml" />
+    <File Path="../definitions/6502/shift/rol.yaml" />
+    <File Path="../definitions/6502/shift/ror.yaml" />
+  </Folder>
+  <Folder Name="/definitions/6502/store/">
+    <File Path="../definitions/6502/store/sta.yaml" />
+    <File Path="../definitions/6502/store/stx.yaml" />
+    <File Path="../definitions/6502/store/sty.yaml" />
+  </Folder>
+  <Folder Name="/definitions/6502/undocumented/">
+    <File Path="../definitions/6502/undocumented/bus-sensitive.yaml" />
+    <File Path="../definitions/6502/undocumented/composite-arithmetic-and-compare.yaml" />
+    <File Path="../definitions/6502/undocumented/composite-shift-and-logical.yaml" />
+    <File Path="../definitions/6502/undocumented/immediate.yaml" />
+    <File Path="../definitions/6502/undocumented/load-and-store.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80/">
+    <File Path="../definitions/z80/cpu.yaml" />
+    <File Path="../definitions/z80/flags.yaml" />
+    <File Path="../definitions/z80/functions.yaml" />
+    <File Path="../definitions/z80/interrupts.yaml" />
+    <File Path="../definitions/z80/registers.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80/16-bit-arithmetic/">
+    <File Path="../definitions/z80/16-bit-arithmetic/adc.yaml" />
+    <File Path="../definitions/z80/16-bit-arithmetic/dec.yaml" />
+    <File Path="../definitions/z80/16-bit-arithmetic/inc.yaml" />
+    <File Path="../definitions/z80/16-bit-arithmetic/sbc.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80/16-bit-load/">
+    <File Path="../definitions/z80/16-bit-load/ld-16-bit-copy_register-pair_register-pair.yaml" />
+    <File Path="../definitions/z80/16-bit-load/ld-16-bit-load_register-pair_immediate.yaml" />
+    <File Path="../definitions/z80/16-bit-load/ld-16-bit-load_register-pair_indirect.yaml" />
+    <File Path="../definitions/z80/16-bit-load/ld-16-bit-store_indirect_register-pair.yaml" />
+    <File Path="../definitions/z80/16-bit-load/pop.yaml" />
+    <File Path="../definitions/z80/16-bit-load/push.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80/8-bit-arithmetic/">
+    <File Path="../definitions/z80/8-bit-arithmetic/adc.yaml" />
+    <File Path="../definitions/z80/8-bit-arithmetic/add.yaml" />
+    <File Path="../definitions/z80/8-bit-arithmetic/and.yaml" />
+    <File Path="../definitions/z80/8-bit-arithmetic/cp.yaml" />
+    <File Path="../definitions/z80/8-bit-arithmetic/dec.yaml" />
+    <File Path="../definitions/z80/8-bit-arithmetic/inc.yaml" />
+    <File Path="../definitions/z80/8-bit-arithmetic/or.yaml" />
+    <File Path="../definitions/z80/8-bit-arithmetic/sbc.yaml" />
+    <File Path="../definitions/z80/8-bit-arithmetic/sub.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80/8-bit-load/">
+    <File Path="../definitions/z80/8-bit-load/ld-8-bit-copy_register_register.yaml" />
+    <File Path="../definitions/z80/8-bit-load/ld-8-bit-load_register_immediate.yaml" />
+    <File Path="../definitions/z80/8-bit-load/ld-8-bit-load_register_indirect.yaml" />
+    <File Path="../definitions/z80/8-bit-load/ld-8-bit-load_register_register-pair-indirect.yaml" />
+    <File Path="../definitions/z80/8-bit-load/ld-8-bit-store_indirect_register.yaml" />
+    <File Path="../definitions/z80/8-bit-load/ld-8-bit-store_register-pair-indirect_immediate.yaml" />
+    <File Path="../definitions/z80/8-bit-load/ld-8-bit-store_register-pair-indirect_register.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80/bit-set-reset-and-test/">
+    <File Path="../definitions/z80/bit-set-reset-and-test/bit.yaml" />
+    <File Path="../definitions/z80/bit-set-reset-and-test/res.yaml" />
+    <File Path="../definitions/z80/bit-set-reset-and-test/set.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80/call-and-return/">
+    <File Path="../definitions/z80/call-and-return/call.yaml" />
+    <File Path="../definitions/z80/call-and-return/ret.yaml" />
+    <File Path="../definitions/z80/call-and-return/reti.yaml" />
+    <File Path="../definitions/z80/call-and-return/retn.yaml" />
+    <File Path="../definitions/z80/call-and-return/rst.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80/exchange-block-transfer-and-search/">
+    <File Path="../definitions/z80/exchange-block-transfer-and-search/cpd.yaml" />
+    <File Path="../definitions/z80/exchange-block-transfer-and-search/cpdr.yaml" />
+    <File Path="../definitions/z80/exchange-block-transfer-and-search/cpi.yaml" />
+    <File Path="../definitions/z80/exchange-block-transfer-and-search/cpir.yaml" />
+    <File Path="../definitions/z80/exchange-block-transfer-and-search/ex.yaml" />
+    <File Path="../definitions/z80/exchange-block-transfer-and-search/exx.yaml" />
+    <File Path="../definitions/z80/exchange-block-transfer-and-search/ldd.yaml" />
+    <File Path="../definitions/z80/exchange-block-transfer-and-search/lddr.yaml" />
+    <File Path="../definitions/z80/exchange-block-transfer-and-search/ldi.yaml" />
+    <File Path="../definitions/z80/exchange-block-transfer-and-search/ldir.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80/general-purpose-arithmetic-and-cpu-control/">
+    <File Path="../definitions/z80/general-purpose-arithmetic-and-cpu-control/ccf.yaml" />
+    <File Path="../definitions/z80/general-purpose-arithmetic-and-cpu-control/cpl.yaml" />
+    <File Path="../definitions/z80/general-purpose-arithmetic-and-cpu-control/daa.yaml" />
+    <File Path="../definitions/z80/general-purpose-arithmetic-and-cpu-control/di.yaml" />
+    <File Path="../definitions/z80/general-purpose-arithmetic-and-cpu-control/ei.yaml" />
+    <File Path="../definitions/z80/general-purpose-arithmetic-and-cpu-control/halt.yaml" />
+    <File Path="../definitions/z80/general-purpose-arithmetic-and-cpu-control/im.yaml" />
+    <File Path="../definitions/z80/general-purpose-arithmetic-and-cpu-control/neg.yaml" />
+    <File Path="../definitions/z80/general-purpose-arithmetic-and-cpu-control/nop.yaml" />
+    <File Path="../definitions/z80/general-purpose-arithmetic-and-cpu-control/scf.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80/input-and-output/">
+    <File Path="../definitions/z80/input-and-output/in.yaml" />
+    <File Path="../definitions/z80/input-and-output/ind.yaml" />
+    <File Path="../definitions/z80/input-and-output/indr.yaml" />
+    <File Path="../definitions/z80/input-and-output/ini.yaml" />
+    <File Path="../definitions/z80/input-and-output/inir.yaml" />
+    <File Path="../definitions/z80/input-and-output/otdr.yaml" />
+    <File Path="../definitions/z80/input-and-output/otir.yaml" />
+    <File Path="../definitions/z80/input-and-output/out.yaml" />
+    <File Path="../definitions/z80/input-and-output/outd.yaml" />
+    <File Path="../definitions/z80/input-and-output/outi.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80/jump/">
+    <File Path="../definitions/z80/jump/djnz.yaml" />
+    <File Path="../definitions/z80/jump/jp.yaml" />
+    <File Path="../definitions/z80/jump/jr.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80/rotate-and-shift/">
+    <File Path="../definitions/z80/rotate-and-shift/rl.yaml" />
+    <File Path="../definitions/z80/rotate-and-shift/rla.yaml" />
+    <File Path="../definitions/z80/rotate-and-shift/rlc.yaml" />
+    <File Path="../definitions/z80/rotate-and-shift/rlca.yaml" />
+    <File Path="../definitions/z80/rotate-and-shift/rld.yaml" />
+    <File Path="../definitions/z80/rotate-and-shift/rr.yaml" />
+    <File Path="../definitions/z80/rotate-and-shift/rra.yaml" />
+    <File Path="../definitions/z80/rotate-and-shift/rrc.yaml" />
+    <File Path="../definitions/z80/rotate-and-shift/rrca.yaml" />
+    <File Path="../definitions/z80/rotate-and-shift/rrd.yaml" />
+    <File Path="../definitions/z80/rotate-and-shift/sla.yaml" />
+    <File Path="../definitions/z80/rotate-and-shift/sll.yaml" />
+    <File Path="../definitions/z80/rotate-and-shift/sra.yaml" />
+    <File Path="../definitions/z80/rotate-and-shift/srl.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80n/">
+    <File Path="../definitions/z80n/cpu.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80n/arithmetic/">
+    <File Path="../definitions/z80n/arithmetic/add-register-pair-accumulator.yaml" />
+    <File Path="../definitions/z80n/arithmetic/add-register-pair-immediate.yaml" />
+    <File Path="../definitions/z80n/arithmetic/mul.yaml" />
+    <File Path="../definitions/z80n/arithmetic/test.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80n/barrel-shift/">
+    <File Path="../definitions/z80n/barrel-shift/brlc.yaml" />
+    <File Path="../definitions/z80n/barrel-shift/bsla.yaml" />
+    <File Path="../definitions/z80n/barrel-shift/bsra.yaml" />
+    <File Path="../definitions/z80n/barrel-shift/bsrf.yaml" />
+    <File Path="../definitions/z80n/barrel-shift/bsrl.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80n/block-transfer/">
+    <File Path="../definitions/z80n/block-transfer/lddrx.yaml" />
+    <File Path="../definitions/z80n/block-transfer/lddx.yaml" />
+    <File Path="../definitions/z80n/block-transfer/ldirx.yaml" />
+    <File Path="../definitions/z80n/block-transfer/ldix.yaml" />
+    <File Path="../definitions/z80n/block-transfer/ldpirx.yaml" />
+    <File Path="../definitions/z80n/block-transfer/ldws.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80n/miscellaneous/">
+    <File Path="../definitions/z80n/miscellaneous/jp.yaml" />
+    <File Path="../definitions/z80n/miscellaneous/mirror.yaml" />
+    <File Path="../definitions/z80n/miscellaneous/outinb.yaml" />
+    <File Path="../definitions/z80n/miscellaneous/pixelad.yaml" />
+    <File Path="../definitions/z80n/miscellaneous/pixeldn.yaml" />
+    <File Path="../definitions/z80n/miscellaneous/push.yaml" />
+    <File Path="../definitions/z80n/miscellaneous/setae.yaml" />
+    <File Path="../definitions/z80n/miscellaneous/swapnib.yaml" />
+  </Folder>
+  <Folder Name="/definitions/z80n/next-register/">
+    <File Path="../definitions/z80n/next-register/nextreg.yaml" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="../.gitignore" />
+    <File Path="../AGENTS.md" />
+    <File Path="../CLAUDE.md" />
+    <File Path="../Icon.png" />
+    <File Path="../License.md" />
+    <File Path="../ReadMe.md" />
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+  </Folder>
+  <Folder Name="/Solution Items/.github/">
+    <File Path="../.github/copilot-instructions.md" />
+  </Folder>
+  <Folder Name="/Solution Items/.github/workflows/">
+    <File Path="../.github/workflows/build.yml" />
+    <File Path="../.github/workflows/release.yml" />
+  </Folder>
+  <Project Path="MrKWatkins.OakCpu.CodeGenerator.Console/MrKWatkins.OakCpu.CodeGenerator.Console.csproj" />
+  <Project Path="MrKWatkins.OakCpu.CodeGenerator.Tests/MrKWatkins.OakCpu.CodeGenerator.Tests.csproj" />
+  <Project Path="MrKWatkins.OakCpu.CodeGenerator/MrKWatkins.OakCpu.CodeGenerator.csproj" />
+  <Project Path="MrKWatkins.OakCpu.M6502.Testing/MrKWatkins.OakCpu.M6502.Testing.csproj" />
+  <Project Path="MrKWatkins.OakCpu.M6502.Tests/MrKWatkins.OakCpu.M6502.Tests.csproj" />
+  <Project Path="MrKWatkins.OakCpu.M6502/MrKWatkins.OakCpu.M6502.csproj" />
+  <Project Path="MrKWatkins.OakCpu.Z80.Benchmarks/MrKWatkins.OakCpu.Z80.Benchmarks.csproj" />
+  <Project Path="MrKWatkins.OakCpu.Z80.Testing/MrKWatkins.OakCpu.Z80.Testing.csproj" />
+  <Project Path="MrKWatkins.OakCpu.Z80.Tests/MrKWatkins.OakCpu.Z80.Tests.csproj" />
+  <Project Path="MrKWatkins.OakCpu.Z80/MrKWatkins.OakCpu.Z80.csproj" />
+  <Project Path="MrKWatkins.OakCpu.Z80N.Testing/MrKWatkins.OakCpu.Z80N.Testing.csproj" />
+  <Project Path="MrKWatkins.OakCpu.Z80N.Tests/MrKWatkins.OakCpu.Z80N.Tests.csproj" />
+  <Project Path="MrKWatkins.OakCpu.Z80N/MrKWatkins.OakCpu.Z80N.csproj" />
+</Solution>

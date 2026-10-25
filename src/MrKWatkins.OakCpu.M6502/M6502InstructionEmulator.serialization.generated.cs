@@ -14,12 +14,12 @@ namespace MrKWatkins.OakCpu.M6502;
 public sealed unsafe partial class M6502InstructionEmulator
 {
     /// <summary>
-    /// The number of bytes required to serialize the emulator state.
+    /// The number of bytes required to serialise the emulator state.
     /// </summary>
     public const int SerializedSize = 22;
 
     /// <summary>
-    /// Serializes this emulator's M6502 CPU state.
+    /// Serialises this emulator's M6502 CPU state.
     /// </summary>
     /// <param name="destination">
     /// The destination span to write the CPU state to.
@@ -47,7 +47,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     }
 
     /// <summary>
-    /// Serializes this emulator's M6502 CPU state.
+    /// Serialises this emulator's M6502 CPU state.
     /// </summary>
     /// <param name="stream">
     /// The stream to write the CPU state to.
@@ -60,13 +60,13 @@ public sealed unsafe partial class M6502InstructionEmulator
     }
 
     /// <summary>
-    /// Deserializes a M6502 CPU state.
+    /// Deserialises a M6502 CPU state.
     /// </summary>
     /// <param name="source">
-    /// The serialized CPU state to read from.
+    /// The serialised CPU state to read from.
     /// </param>
     /// <returns>
-    /// The deserialized M6502 emulator.
+    /// The deserialised M6502 emulator.
     /// </returns>
     public static M6502InstructionEmulator Deserialize(ReadOnlySpan<byte> source)
     {
@@ -76,13 +76,13 @@ public sealed unsafe partial class M6502InstructionEmulator
     }
 
     /// <summary>
-    /// Deserializes a M6502 CPU state.
+    /// Deserialises a M6502 CPU state.
     /// </summary>
     /// <param name="stream">
     /// The stream to read the CPU state from.
     /// </param>
     /// <returns>
-    /// The deserialized M6502 emulator.
+    /// The deserialised M6502 emulator.
     /// </returns>
     public static M6502InstructionEmulator Deserialize(Stream stream)
     {
@@ -92,10 +92,10 @@ public sealed unsafe partial class M6502InstructionEmulator
     }
 
     /// <summary>
-    /// Restores this emulator from a serialized M6502 CPU state.
+    /// Restores this emulator from a serialised M6502 CPU state.
     /// </summary>
     /// <param name="source">
-    /// The serialized CPU state to read from.
+    /// The serialised CPU state to read from.
     /// </param>
     public void Restore(ReadOnlySpan<byte> source)
     {
@@ -121,7 +121,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     }
 
     /// <summary>
-    /// Restores this emulator from a serialized M6502 CPU state.
+    /// Restores this emulator from a serialised M6502 CPU state.
     /// </summary>
     /// <param name="stream">
     /// The stream to read the CPU state from.

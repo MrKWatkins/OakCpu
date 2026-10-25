@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "title": "OakCpu",
+  "description": "Cycle-accurate emulators for 8-bit CPUs.",
+  "repository": "https://github.com/MrKWatkins/OakCpu",
+  "base": "/OakCpu/",
+  "vocabularyDirectory": "docs/vocabulary",
+  "guide": [
+    {
+      "text": "Overview",
+      "link": "/"
+    },
+    {
+      "text": "Using the emulator",
+      "link": "/using-the-emulator"
+    },
+    {
+      "text": "Execution model",
+      "link": "/execution-model"
+    },
+    {
+      "text": "Code generation",
+      "link": "/code-generation"
+    }
+  ],
+  "api": {
+    "generator": "sesharp",
+    "assemblies": [
+      "src/MrKWatkins.OakCpu.M6502/bin/Release/net10.0/MrKWatkins.OakCpu.M6502.dll",
+      "src/MrKWatkins.OakCpu.Z80/bin/Release/net10.0/MrKWatkins.OakCpu.Z80.dll",
+      "src/MrKWatkins.OakCpu.Z80N/bin/Release/net10.0/MrKWatkins.OakCpu.Z80N.dll"
+    ]
+  }
+}

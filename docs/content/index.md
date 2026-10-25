@@ -30,7 +30,7 @@ Create either a step emulator for cycle-accurate integration or an instruction e
 
 ## Execution Model
 
-The emulator reports external bus activity with [`ActionRequired`](API/MrKWatkins.OakCpu.Z80/ActionRequired/index.md). The host supplies or consumes data through the emulator's `Address` and `Data` properties.
+The emulator reports external bus activity with [`ActionRequired`](api/MrKWatkins.OakCpu.Z80/ActionRequired/index.md). The host supplies or consumes data through the emulator's `Address` and `Data` properties.
 
 [Read more](execution-model.md)
 
@@ -46,19 +46,19 @@ Reference documentation is generated from the release assemblies:
 
 Z80:
 
-- [`Z80StepEmulator`](API/MrKWatkins.OakCpu.Z80/Z80StepEmulator/index.md)
-- [`Z80InstructionEmulator`](API/MrKWatkins.OakCpu.Z80/Z80InstructionEmulator/index.md)
-- [`Z80Registers`](API/MrKWatkins.OakCpu.Z80/Z80Registers/index.md)
-- [`Z80Flags`](API/MrKWatkins.OakCpu.Z80/Z80Flags/index.md)
-- [`Z80Interrupts`](API/MrKWatkins.OakCpu.Z80/Z80Interrupts/index.md)
+- [`Z80StepEmulator`](api/MrKWatkins.OakCpu.Z80/Z80StepEmulator/index.md)
+- [`Z80InstructionEmulator`](api/MrKWatkins.OakCpu.Z80/Z80InstructionEmulator/index.md)
+- [`Z80Registers`](api/MrKWatkins.OakCpu.Z80/Z80Registers/index.md)
+- [`Z80Flags`](api/MrKWatkins.OakCpu.Z80/Z80Flags/index.md)
+- [`Z80Interrupts`](api/MrKWatkins.OakCpu.Z80/Z80Interrupts/index.md)
 
 6502:
 
-- [`M6502StepEmulator`](API/MrKWatkins.OakCpu.M6502/M6502StepEmulator/index.md)
-- [`M6502InstructionEmulator`](API/MrKWatkins.OakCpu.M6502/M6502InstructionEmulator/index.md)
-- [`M6502Registers`](API/MrKWatkins.OakCpu.M6502/M6502Registers/index.md)
-- [`M6502Flags`](API/MrKWatkins.OakCpu.M6502/M6502Flags/index.md)
-- [`M6502Interrupts`](API/MrKWatkins.OakCpu.M6502/M6502Interrupts/index.md)
+- [`M6502StepEmulator`](api/MrKWatkins.OakCpu.M6502/M6502StepEmulator/index.md)
+- [`M6502InstructionEmulator`](api/MrKWatkins.OakCpu.M6502/M6502InstructionEmulator/index.md)
+- [`M6502Registers`](api/MrKWatkins.OakCpu.M6502/M6502Registers/index.md)
+- [`M6502Flags`](api/MrKWatkins.OakCpu.M6502/M6502Flags/index.md)
+- [`M6502Interrupts`](api/MrKWatkins.OakCpu.M6502/M6502Interrupts/index.md)
 
 ## Future Plans
 
