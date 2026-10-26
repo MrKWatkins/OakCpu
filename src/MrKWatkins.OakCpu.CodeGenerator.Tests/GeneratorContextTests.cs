@@ -27,16 +27,16 @@ public sealed class GeneratorContextTests : TestFixture
     }
 
     [Test]
-    public void CreateAsync_ThrowsWhenYamlCannotBeLoaded()
+    public async Task CreateAsync_ThrowsWhenYamlCannotBeLoaded()
     {
         var directory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), $"oakcpu-codegen-{Guid.NewGuid():N}"));
         directory.Create();
 
         try
         {
-            File.WriteAllText(Path.Combine(directory.FullName, "broken.yaml"), "cpu: [");
+            await File.WriteAllTextAsync(Path.Combine(directory.FullName, "broken.yaml"), "cpu: [");
 
-            var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => _ = await GeneratorContext.CreateAsync("MrKWatkins.OakCpu.Z80", directory));
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () => _ = await GeneratorContext.CreateAsync("MrKWatkins.OakCpu.Z80", directory));
 
             exception!.Message.Should().Contain("Could not load YAML file");
             exception.InnerException.Should().NotBeNull();
