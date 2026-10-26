@@ -6,47 +6,44 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Yaml;
 public sealed partial class InstructionYaml
 {
     private static readonly IReadOnlyDictionary<string, string> EmptyFlags = new Dictionary<string, string>();
-    private IReadOnlyList<OpcodeYaml>? opcodes;
-    private IReadOnlyList<string?>? steps;
-    private IReadOnlyDictionary<string, string>? flags;
 
     private InstructionYaml()
     {
     }
 
-    public string Group { get; private set; } = null!;
+    public string Group { get; private init; } = null!;
 
-    public string Mnemonic { get; private set; } = null!;
+    public string Mnemonic { get; private init; } = null!;
 
-    public string? OpcodeTable { get; private set; }
+    public string? OpcodeTable { get; private init; }
 
     public IReadOnlyList<OpcodeYaml> Opcodes
     {
-        get => opcodes ?? [];
-        private set => opcodes = value;
+        get => field ?? [];
+        private init;
     }
 
     public IReadOnlyList<string?> Steps
     {
-        get => steps ?? [];
-        private set => steps = value;
+        get => field ?? [];
+        private init;
     }
 
     public IReadOnlyDictionary<string, string> Flags
     {
-        get => flags ?? EmptyFlags;
-        private set => flags = value;
+        get => field ?? EmptyFlags;
+        private init;
     }
 
-    public NextOpcodeMode? NextOpcode { get; private set; }
+    public NextOpcodeMode? NextOpcode { get; private init; }
 
-    public string? OverlappedSequence { get; private set; }
+    public string? OverlappedSequence { get; private init; }
 
     /// <summary>
     /// Explicit pins for each step, one entry per step, overriding the pins inferred from the actions the steps request. Needed for
     /// machine cycles longer than the requested action's pin pattern, which hold their pins for the extra T-states.
     /// </summary>
-    public IReadOnlyList<IReadOnlyList<string>>? OverrideStepPins { get; private set; }
+    public IReadOnlyList<IReadOnlyList<string>>? OverrideStepPins { get; private init; }
 
     [Pure]
     public NextOpcodeMode GetEffectiveNextOpcode(NextOpcodeMode defaultNextOpcode) => NextOpcode ?? defaultNextOpcode;

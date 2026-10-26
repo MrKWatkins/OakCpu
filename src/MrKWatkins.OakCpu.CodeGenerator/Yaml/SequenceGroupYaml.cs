@@ -9,7 +9,7 @@ public sealed partial class SequenceGroupYaml
     {
     }
 
-    public string Name { get; private set; } = null!;
+    public string Name { get; private init; } = null!;
 
-    public byte Number { get; private set; }
+    public byte Number { get; private init; }
 }

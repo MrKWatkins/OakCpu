@@ -13,11 +13,6 @@ public sealed class Configuration(
     IReadOnlyDictionary<string, UserDefinedFunction> userDefinedFunctions,
     IReadOnlyDictionary<string, Pin>? pins = null)
 {
-    private IReadOnlyDictionary<string, DataMember>? allDataMembers;
-    private IReadOnlyDictionary<string, Function>? allFunctions;
-    private Register? flagsRegister;
-    private Register? programCounter;
-
     public IReadOnlyDictionary<string, Action> Actions => actions;
 
     public IReadOnlyDictionary<string, Pin> Pins { get; } = pins ?? new Dictionary<string, Pin>();
@@ -34,15 +29,15 @@ public sealed class Configuration(
 
     public IReadOnlyDictionary<string, UserDefinedDataMember> UserDefinedDataMembers => userDefinedDataMembers;
 
-    public IReadOnlyDictionary<string, DataMember> AllDataMembers => allDataMembers ??= UserDefinedDataMembers.Values.Concat<DataMember>(PreDefinedDataMember.All.Values).ToDictionary(f => f.Name, StringComparer.OrdinalIgnoreCase);
+    public IReadOnlyDictionary<string, DataMember> AllDataMembers => field ??= UserDefinedDataMembers.Values.Concat<DataMember>(PreDefinedDataMember.All.Values).ToDictionary(f => f.Name, StringComparer.OrdinalIgnoreCase);
 
     public IReadOnlyDictionary<string, UserDefinedFunction> UserDefinedFunctions { get; } = userDefinedFunctions;
 
-    public IReadOnlyDictionary<string, Function> AllFunctions => allFunctions ??= UserDefinedFunctions.Values.Concat<Function>(PreDefinedFunction.All.Values).ToDictionary(f => f.Name);
+    public IReadOnlyDictionary<string, Function> AllFunctions => field ??= UserDefinedFunctions.Values.Concat<Function>(PreDefinedFunction.All.Values).ToDictionary(f => f.Name);
 
-    public Register FlagsRegister => flagsRegister ??= GetSingleRegister(r => r.Flags, "flags");
+    public Register FlagsRegister => field ??= GetSingleRegister(r => r.Flags, "flags");
 
-    public Register ProgramCounter => programCounter ??= GetSingleRegister(r => r.ProgramCounter, "program_counter");
+    public Register ProgramCounter => field ??= GetSingleRegister(r => r.ProgramCounter, "program_counter");
 
     [Pure]
     private Register GetSingleRegister(Func<Register, bool> predicate, string field)

@@ -9,15 +9,15 @@ public sealed partial class FieldYaml
     {
     }
 
-    public string Name { get; private set; } = null!;
+    public string Name { get; private init; } = null!;
 
-    public DataType Type { get; private set; }
+    public DataType Type { get; private init; }
 
-    public string? Documentation { get; private set; }
+    public string? Documentation { get; private init; }
 
-    public bool Getter { get; private set; }
+    public bool Getter { get; private init; }
 
-    public bool Setter { get; private set; }
+    public bool Setter { get; private init; }
 
     public override string ToString() => $"{Name}: {Type}";
 }

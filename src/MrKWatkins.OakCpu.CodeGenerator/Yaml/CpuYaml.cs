@@ -5,50 +5,45 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Yaml;
 [YamlObject]
 public sealed partial class CpuYaml
 {
-    private IReadOnlyList<ActionYaml>? actions;
-    private IReadOnlyList<PinYaml>? pins;
-    private IReadOnlyList<FieldYaml>? fields;
-    private IReadOnlyList<string?>? opcodeRead;
-
     private CpuYaml()
     {
     }
 
-    public string Name { get; private set; } = null!;
+    public string Name { get; private init; } = null!;
 
     /// <summary>
     /// The name of the definitions directory for the CPU this CPU is a variant of, if any. Definitions from the base CPU are inherited;
     /// this CPU's definitions are additions to, or overrides of, them.
     /// </summary>
-    public string? Base { get; private set; }
+    public string? Base { get; private init; }
 
-    public string? Documentation { get; private set; }
+    public string? Documentation { get; private init; }
 
     public IReadOnlyList<ActionYaml> Actions
     {
-        get => actions ?? [];
-        private set => actions = value;
+        get => field ?? [];
+        private init;
     }
 
     public IReadOnlyList<PinYaml> Pins
     {
-        get => pins ?? [];
-        private set => pins = value;
+        get => field ?? [];
+        private init;
     }
 
     public IReadOnlyList<FieldYaml> Fields
     {
-        get => fields ?? [];
-        private set => fields = value;
+        get => field ?? [];
+        private init;
     }
 
     public IReadOnlyList<string?> OpcodeRead
     {
-        get => opcodeRead ?? [];
-        private set => opcodeRead = value;
+        get => field ?? [];
+        private init;
     }
 
-    public NextOpcodeMode? DefaultNextOpcode { get; private set; }
+    public NextOpcodeMode? DefaultNextOpcode { get; private init; }
 
     [YamlIgnore]
     public NextOpcodeMode EffectiveDefaultNextOpcode => DefaultNextOpcode ?? NextOpcodeMode.Read;

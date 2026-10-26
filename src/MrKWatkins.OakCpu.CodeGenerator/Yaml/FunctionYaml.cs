@@ -5,24 +5,22 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Yaml;
 [YamlObject]
 public sealed partial class FunctionYaml
 {
-    private IReadOnlyList<string>? parameters;
-
     private FunctionYaml()
     {
     }
 
-    public string Name { get; private set; } = null!;
+    public string Name { get; private init; } = null!;
 
     // TODO: VYaml bug - if this is of the type DataType then the Yaml parser fails.
-    public string Type { get; private set; } = null!;
+    public string Type { get; private init; } = null!;
 
     public IReadOnlyList<string> Parameters
     {
-        get => parameters ?? [];
-        private set => parameters = value;
+        get => field ?? [];
+        private init;
     }
 
-    public string Expression { get; private set; } = null!;
+    public string Expression { get; private init; } = null!;
 
     public override string ToString() => $"{Type} {Name}({string.Join(", ", Parameters)})";
 }

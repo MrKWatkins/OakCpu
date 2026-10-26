@@ -5,21 +5,19 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Yaml;
 [YamlObject]
 public sealed partial class InterruptModeYaml
 {
-    private IReadOnlyList<string?>? steps;
-
     private InterruptModeYaml()
     {
     }
 
-    public byte Number { get; private set; }
+    public byte Number { get; private init; }
 
-    public string? Sequence { get; private set; }
+    public string? Sequence { get; private init; }
 
     public IReadOnlyList<string?> Steps
     {
-        get => steps ?? [];
-        private set => steps = value;
+        get => field ?? [];
+        private init;
     }
 
-    public NextOpcodeMode NextOpcode { get; private set; }
+    public NextOpcodeMode NextOpcode { get; private init; }
 }

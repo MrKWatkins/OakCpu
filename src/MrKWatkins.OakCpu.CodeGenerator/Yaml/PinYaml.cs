@@ -9,9 +9,9 @@ public sealed partial class PinYaml
     {
     }
 
-    public string Name { get; private set; } = null!;
+    public string Name { get; private init; } = null!;
 
-    public string? Documentation { get; private set; }
+    public string? Documentation { get; private init; }
 
     public override string ToString() => Name;
 }

@@ -9,23 +9,23 @@ public sealed partial class RegisterYaml
     {
     }
 
-    public string Name { get; private set; } = null!;
+    public string Name { get; private init; } = null!;
 
-    public DataType Type { get; private set; }
+    public DataType Type { get; private init; }
 
-    public string? Documentation { get; private set; }
+    public string? Documentation { get; private init; }
 
-    public bool Flags { get; private set; }
+    public bool Flags { get; private init; }
 
-    public bool ProgramCounter { get; private set; }
+    public bool ProgramCounter { get; private init; }
 
-    public bool Transient { get; private set; }
+    public bool Transient { get; private init; }
 
-    public string? Category { get; private set; }
+    public string? Category { get; private init; }
 
-    public RegisterYaml? High { get; private set; }
+    public RegisterYaml? High { get; private init; }
 
-    public RegisterYaml? Low { get; private set; }
+    public RegisterYaml? Low { get; private init; }
 
     public override string ToString() => $"{Name}: {Type}";
 }

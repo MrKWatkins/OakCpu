@@ -5,66 +5,61 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Yaml;
 [YamlObject]
 public sealed partial class YamlFile
 {
-    private IReadOnlyList<RegisterYaml>? registers;
-    private IReadOnlyList<FlagYaml>? flags;
-    private IReadOnlyList<InstructionYaml>? instructions;
     private IReadOnlyList<string?>? opcodeRead;
-    private IReadOnlyList<StepSequenceYaml>? sequences;
-    private IReadOnlyList<FunctionYaml>? functions;
 
     private YamlFile()
     {
     }
 
-    public CpuYaml Cpu { get; private set; } = null!;
+    public CpuYaml Cpu { get; private init; } = null!;
 
     /// <summary>
     /// The interrupts, if this file defines any. Most files do not; the definitions for a CPU are combined into a single
     /// <see cref="YamlFile" /> before use, and variant CPUs inherit their interrupts from the CPU they are based on.
     /// </summary>
-    public InterruptsYaml? Interrupts { get; private set; }
+    public InterruptsYaml? Interrupts { get; private init; }
 
     public IReadOnlyList<RegisterYaml> Registers
     {
-        get => registers ?? [];
-        private set => registers = value;
+        get => field ?? [];
+        private init;
     }
 
     public IReadOnlyList<FlagYaml> Flags
     {
-        get => flags ?? [];
-        private set => flags = value;
+        get => field ?? [];
+        private init;
     }
 
     public IReadOnlyList<InstructionYaml> Instructions
     {
-        get => instructions ?? [];
-        private set => instructions = value;
+        get => field ?? [];
+        private init;
     }
 
     public IReadOnlyList<string?> OpcodeRead
     {
         get => opcodeRead ?? Sequences.FirstOrDefault(sequence => sequence.Name == "opcode_read")?.Steps ?? [];
-        private set => opcodeRead = value;
+        private init => opcodeRead = value;
     }
 
     public IReadOnlyList<StepSequenceYaml> Sequences
     {
-        get => sequences ?? [];
-        private set => sequences = value;
+        get => field ?? [];
+        private init;
     }
 
     public IReadOnlyList<FunctionYaml> Functions
     {
-        get => functions ?? [];
-        private set => functions = value;
+        get => field ?? [];
+        private init;
     }
 
-    public string? OnInstructionStepsComplete { get; private set; }
+    public string? OnInstructionStepsComplete { get; private init; }
 
-    public string? OnInstructionComplete { get; private set; }
+    public string? OnInstructionComplete { get; private init; }
 
-    public string? OnStepComplete { get; private set; }
+    public string? OnStepComplete { get; private init; }
 
     [Pure]
     public static YamlFile Combine(params IEnumerable<YamlFile> files)

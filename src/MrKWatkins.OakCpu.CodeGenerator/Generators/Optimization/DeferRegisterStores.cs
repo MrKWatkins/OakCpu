@@ -252,9 +252,9 @@ internal sealed class DeferRegisterStores : MethodBodyOptimization
 
         public bool SpansBarrier { get; set; }
 
-        public int FirstAccessTopLevelIndex { get; set; } = -1;
+        public int FirstAccessTopLevelIndex { get; init; } = -1;
 
-        public bool FirstAccessIsNested { get; set; }
+        public bool FirstAccessIsNested { get; init; }
 
         public bool HasHalfWrites { get; set; }
 

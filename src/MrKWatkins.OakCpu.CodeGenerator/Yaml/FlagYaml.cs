@@ -9,15 +9,15 @@ public sealed partial class FlagYaml
     {
     }
 
-    public string Name { get; private set; } = null!;
+    public string Name { get; private init; } = null!;
 
-    public int Index { get; private set; }
+    public int Index { get; private init; }
 
-    public string? Documentation { get; private set; }
+    public string? Documentation { get; private init; }
 
-    public string? Condition { get; private set; }
+    public string? Condition { get; private init; }
 
-    public string? NotCondition { get; private set; }
+    public string? NotCondition { get; private init; }
 
     public override string ToString() => Name;
 }
