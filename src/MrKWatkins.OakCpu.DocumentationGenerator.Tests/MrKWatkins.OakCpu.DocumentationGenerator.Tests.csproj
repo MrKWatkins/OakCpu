@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <PackageReference Include="MrKWatkins.OakAsm.Z80" />
+        <PackageReference Include="MrKWatkins.OakAsm.Z80N" />
+        <PackageReference Include="Verify.NUnit" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="VerifyNUnit" />
+        <Using Include="MrKWatkins.OakCpu.Definitions" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\MrKWatkins.OakCpu.DocumentationGenerator\MrKWatkins.OakCpu.DocumentationGenerator.csproj" />
+    </ItemGroup>
+</Project>

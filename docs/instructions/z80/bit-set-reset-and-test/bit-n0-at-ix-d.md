@@ -1,0 +1,451 @@
+---
+cpu: Z80
+defined_by: Z80
+form: BIT N0, (IX + d)
+mnemonic: BIT b, (IX + d)
+group: Bit Set, Reset, and Test
+description: "Tests bit {N0} of the byte at (IX + d), setting the Z flag if it is zero."
+undocumented: false
+flags:
+  - flag: S
+    effect: changed
+    description: Copied from bit 7 of the tested bit.
+  - flag: Z
+    effect: changed
+    description: Set if the tested bit is zero, otherwise reset.
+  - flag: Y
+    effect: changed
+    description: Copied from bit 5 of W.
+  - flag: H
+    effect: set
+    description: Set.
+  - flag: X
+    effect: changed
+    description: Copied from bit 3 of W.
+  - flag: PV
+    effect: changed
+    description: Set if the tested bit is zero, otherwise reset.
+  - flag: N
+    effect: reset
+    description: Reset.
+  - flag: C
+    effect: unaffected
+    description: Unaffected.
+opcodes:
+  - encoding: DD CB d 40
+    mnemonic: BIT 0, (IX + d)
+    operands: { N0: 0 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 41
+    mnemonic: BIT 0, (IX + d)
+    operands: { N0: 0 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 42
+    mnemonic: BIT 0, (IX + d)
+    operands: { N0: 0 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 43
+    mnemonic: BIT 0, (IX + d)
+    operands: { N0: 0 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 44
+    mnemonic: BIT 0, (IX + d)
+    operands: { N0: 0 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 45
+    mnemonic: BIT 0, (IX + d)
+    operands: { N0: 0 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 46
+    mnemonic: BIT 0, (IX + d)
+    operands: { N0: 0 }
+    tstates: [20]
+    undocumented: false
+  - encoding: DD CB d 47
+    mnemonic: BIT 0, (IX + d)
+    operands: { N0: 0 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 48
+    mnemonic: BIT 1, (IX + d)
+    operands: { N0: 1 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 49
+    mnemonic: BIT 1, (IX + d)
+    operands: { N0: 1 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 4A
+    mnemonic: BIT 1, (IX + d)
+    operands: { N0: 1 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 4B
+    mnemonic: BIT 1, (IX + d)
+    operands: { N0: 1 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 4C
+    mnemonic: BIT 1, (IX + d)
+    operands: { N0: 1 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 4D
+    mnemonic: BIT 1, (IX + d)
+    operands: { N0: 1 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 4E
+    mnemonic: BIT 1, (IX + d)
+    operands: { N0: 1 }
+    tstates: [20]
+    undocumented: false
+  - encoding: DD CB d 4F
+    mnemonic: BIT 1, (IX + d)
+    operands: { N0: 1 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 50
+    mnemonic: BIT 2, (IX + d)
+    operands: { N0: 2 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 51
+    mnemonic: BIT 2, (IX + d)
+    operands: { N0: 2 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 52
+    mnemonic: BIT 2, (IX + d)
+    operands: { N0: 2 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 53
+    mnemonic: BIT 2, (IX + d)
+    operands: { N0: 2 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 54
+    mnemonic: BIT 2, (IX + d)
+    operands: { N0: 2 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 55
+    mnemonic: BIT 2, (IX + d)
+    operands: { N0: 2 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 56
+    mnemonic: BIT 2, (IX + d)
+    operands: { N0: 2 }
+    tstates: [20]
+    undocumented: false
+  - encoding: DD CB d 57
+    mnemonic: BIT 2, (IX + d)
+    operands: { N0: 2 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 58
+    mnemonic: BIT 3, (IX + d)
+    operands: { N0: 3 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 59
+    mnemonic: BIT 3, (IX + d)
+    operands: { N0: 3 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 5A
+    mnemonic: BIT 3, (IX + d)
+    operands: { N0: 3 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 5B
+    mnemonic: BIT 3, (IX + d)
+    operands: { N0: 3 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 5C
+    mnemonic: BIT 3, (IX + d)
+    operands: { N0: 3 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 5D
+    mnemonic: BIT 3, (IX + d)
+    operands: { N0: 3 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 5E
+    mnemonic: BIT 3, (IX + d)
+    operands: { N0: 3 }
+    tstates: [20]
+    undocumented: false
+  - encoding: DD CB d 5F
+    mnemonic: BIT 3, (IX + d)
+    operands: { N0: 3 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 60
+    mnemonic: BIT 4, (IX + d)
+    operands: { N0: 4 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 61
+    mnemonic: BIT 4, (IX + d)
+    operands: { N0: 4 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 62
+    mnemonic: BIT 4, (IX + d)
+    operands: { N0: 4 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 63
+    mnemonic: BIT 4, (IX + d)
+    operands: { N0: 4 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 64
+    mnemonic: BIT 4, (IX + d)
+    operands: { N0: 4 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 65
+    mnemonic: BIT 4, (IX + d)
+    operands: { N0: 4 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 66
+    mnemonic: BIT 4, (IX + d)
+    operands: { N0: 4 }
+    tstates: [20]
+    undocumented: false
+  - encoding: DD CB d 67
+    mnemonic: BIT 4, (IX + d)
+    operands: { N0: 4 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 68
+    mnemonic: BIT 5, (IX + d)
+    operands: { N0: 5 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 69
+    mnemonic: BIT 5, (IX + d)
+    operands: { N0: 5 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 6A
+    mnemonic: BIT 5, (IX + d)
+    operands: { N0: 5 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 6B
+    mnemonic: BIT 5, (IX + d)
+    operands: { N0: 5 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 6C
+    mnemonic: BIT 5, (IX + d)
+    operands: { N0: 5 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 6D
+    mnemonic: BIT 5, (IX + d)
+    operands: { N0: 5 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 6E
+    mnemonic: BIT 5, (IX + d)
+    operands: { N0: 5 }
+    tstates: [20]
+    undocumented: false
+  - encoding: DD CB d 6F
+    mnemonic: BIT 5, (IX + d)
+    operands: { N0: 5 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 70
+    mnemonic: BIT 6, (IX + d)
+    operands: { N0: 6 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 71
+    mnemonic: BIT 6, (IX + d)
+    operands: { N0: 6 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 72
+    mnemonic: BIT 6, (IX + d)
+    operands: { N0: 6 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 73
+    mnemonic: BIT 6, (IX + d)
+    operands: { N0: 6 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 74
+    mnemonic: BIT 6, (IX + d)
+    operands: { N0: 6 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 75
+    mnemonic: BIT 6, (IX + d)
+    operands: { N0: 6 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 76
+    mnemonic: BIT 6, (IX + d)
+    operands: { N0: 6 }
+    tstates: [20]
+    undocumented: false
+  - encoding: DD CB d 77
+    mnemonic: BIT 6, (IX + d)
+    operands: { N0: 6 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 78
+    mnemonic: BIT 7, (IX + d)
+    operands: { N0: 7 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 79
+    mnemonic: BIT 7, (IX + d)
+    operands: { N0: 7 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 7A
+    mnemonic: BIT 7, (IX + d)
+    operands: { N0: 7 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 7B
+    mnemonic: BIT 7, (IX + d)
+    operands: { N0: 7 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 7C
+    mnemonic: BIT 7, (IX + d)
+    operands: { N0: 7 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 7D
+    mnemonic: BIT 7, (IX + d)
+    operands: { N0: 7 }
+    tstates: [20]
+    undocumented: true
+  - encoding: DD CB d 7E
+    mnemonic: BIT 7, (IX + d)
+    operands: { N0: 7 }
+    tstates: [20]
+    undocumented: false
+  - encoding: DD CB d 7F
+    mnemonic: BIT 7, (IX + d)
+    operands: { N0: 7 }
+    tstates: [20]
+    undocumented: true
+references:
+  - name: Zilog Z80 CPU User Manual
+    url: "https://www.zilog.com/docs/z80/um0080.pdf"
+  - name: Z80 instruction set, MSX Assembly Page
+    url: "https://map.grauw.nl/resources/z80instr.php"
+---
+
+# BIT b, (IX + d)
+
+Tests bit b of the byte at (IX + d), setting the Z flag if it is zero.
+
+## Flags
+
+| Flag | Effect |
+| ---- | ------ |
+| S | Copied from bit 7 of the tested bit. |
+| Z | Set if the tested bit is zero, otherwise reset. |
+| Y | Copied from bit 5 of W. |
+| H | Set. |
+| X | Copied from bit 3 of W. |
+| PV | Set if the tested bit is zero, otherwise reset. |
+| N | Reset. |
+| C | Unaffected. |
+
+## Opcodes
+
+| Opcode | Encoding | T-states | Notes |
+| ------ | -------- | -------- | ----- |
+| `BIT 0, (IX + d)` | `DD CB d 40` | 20 | Undocumented. |
+| `BIT 0, (IX + d)` | `DD CB d 41` | 20 | Undocumented. |
+| `BIT 0, (IX + d)` | `DD CB d 42` | 20 | Undocumented. |
+| `BIT 0, (IX + d)` | `DD CB d 43` | 20 | Undocumented. |
+| `BIT 0, (IX + d)` | `DD CB d 44` | 20 | Undocumented. |
+| `BIT 0, (IX + d)` | `DD CB d 45` | 20 | Undocumented. |
+| `BIT 0, (IX + d)` | `DD CB d 46` | 20 |  |
+| `BIT 0, (IX + d)` | `DD CB d 47` | 20 | Undocumented. |
+| `BIT 1, (IX + d)` | `DD CB d 48` | 20 | Undocumented. |
+| `BIT 1, (IX + d)` | `DD CB d 49` | 20 | Undocumented. |
+| `BIT 1, (IX + d)` | `DD CB d 4A` | 20 | Undocumented. |
+| `BIT 1, (IX + d)` | `DD CB d 4B` | 20 | Undocumented. |
+| `BIT 1, (IX + d)` | `DD CB d 4C` | 20 | Undocumented. |
+| `BIT 1, (IX + d)` | `DD CB d 4D` | 20 | Undocumented. |
+| `BIT 1, (IX + d)` | `DD CB d 4E` | 20 |  |
+| `BIT 1, (IX + d)` | `DD CB d 4F` | 20 | Undocumented. |
+| `BIT 2, (IX + d)` | `DD CB d 50` | 20 | Undocumented. |
+| `BIT 2, (IX + d)` | `DD CB d 51` | 20 | Undocumented. |
+| `BIT 2, (IX + d)` | `DD CB d 52` | 20 | Undocumented. |
+| `BIT 2, (IX + d)` | `DD CB d 53` | 20 | Undocumented. |
+| `BIT 2, (IX + d)` | `DD CB d 54` | 20 | Undocumented. |
+| `BIT 2, (IX + d)` | `DD CB d 55` | 20 | Undocumented. |
+| `BIT 2, (IX + d)` | `DD CB d 56` | 20 |  |
+| `BIT 2, (IX + d)` | `DD CB d 57` | 20 | Undocumented. |
+| `BIT 3, (IX + d)` | `DD CB d 58` | 20 | Undocumented. |
+| `BIT 3, (IX + d)` | `DD CB d 59` | 20 | Undocumented. |
+| `BIT 3, (IX + d)` | `DD CB d 5A` | 20 | Undocumented. |
+| `BIT 3, (IX + d)` | `DD CB d 5B` | 20 | Undocumented. |
+| `BIT 3, (IX + d)` | `DD CB d 5C` | 20 | Undocumented. |
+| `BIT 3, (IX + d)` | `DD CB d 5D` | 20 | Undocumented. |
+| `BIT 3, (IX + d)` | `DD CB d 5E` | 20 |  |
+| `BIT 3, (IX + d)` | `DD CB d 5F` | 20 | Undocumented. |
+| `BIT 4, (IX + d)` | `DD CB d 60` | 20 | Undocumented. |
+| `BIT 4, (IX + d)` | `DD CB d 61` | 20 | Undocumented. |
+| `BIT 4, (IX + d)` | `DD CB d 62` | 20 | Undocumented. |
+| `BIT 4, (IX + d)` | `DD CB d 63` | 20 | Undocumented. |
+| `BIT 4, (IX + d)` | `DD CB d 64` | 20 | Undocumented. |
+| `BIT 4, (IX + d)` | `DD CB d 65` | 20 | Undocumented. |
+| `BIT 4, (IX + d)` | `DD CB d 66` | 20 |  |
+| `BIT 4, (IX + d)` | `DD CB d 67` | 20 | Undocumented. |
+| `BIT 5, (IX + d)` | `DD CB d 68` | 20 | Undocumented. |
+| `BIT 5, (IX + d)` | `DD CB d 69` | 20 | Undocumented. |
+| `BIT 5, (IX + d)` | `DD CB d 6A` | 20 | Undocumented. |
+| `BIT 5, (IX + d)` | `DD CB d 6B` | 20 | Undocumented. |
+| `BIT 5, (IX + d)` | `DD CB d 6C` | 20 | Undocumented. |
+| `BIT 5, (IX + d)` | `DD CB d 6D` | 20 | Undocumented. |
+| `BIT 5, (IX + d)` | `DD CB d 6E` | 20 |  |
+| `BIT 5, (IX + d)` | `DD CB d 6F` | 20 | Undocumented. |
+| `BIT 6, (IX + d)` | `DD CB d 70` | 20 | Undocumented. |
+| `BIT 6, (IX + d)` | `DD CB d 71` | 20 | Undocumented. |
+| `BIT 6, (IX + d)` | `DD CB d 72` | 20 | Undocumented. |
+| `BIT 6, (IX + d)` | `DD CB d 73` | 20 | Undocumented. |
+| `BIT 6, (IX + d)` | `DD CB d 74` | 20 | Undocumented. |
+| `BIT 6, (IX + d)` | `DD CB d 75` | 20 | Undocumented. |
+| `BIT 6, (IX + d)` | `DD CB d 76` | 20 |  |
+| `BIT 6, (IX + d)` | `DD CB d 77` | 20 | Undocumented. |
+| `BIT 7, (IX + d)` | `DD CB d 78` | 20 | Undocumented. |
+| `BIT 7, (IX + d)` | `DD CB d 79` | 20 | Undocumented. |
+| `BIT 7, (IX + d)` | `DD CB d 7A` | 20 | Undocumented. |
+| `BIT 7, (IX + d)` | `DD CB d 7B` | 20 | Undocumented. |
+| `BIT 7, (IX + d)` | `DD CB d 7C` | 20 | Undocumented. |
+| `BIT 7, (IX + d)` | `DD CB d 7D` | 20 | Undocumented. |
+| `BIT 7, (IX + d)` | `DD CB d 7E` | 20 |  |
+| `BIT 7, (IX + d)` | `DD CB d 7F` | 20 | Undocumented. |
+
+## References
+
+- [Zilog Z80 CPU User Manual](https://www.zilog.com/docs/z80/um0080.pdf)
+- [Z80 instruction set, MSX Assembly Page](https://map.grauw.nl/resources/z80instr.php)

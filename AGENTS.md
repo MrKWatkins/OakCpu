@@ -16,8 +16,11 @@ All commands run from the root directory:
 dotnet build src/OakCpu.slnx # Build all projects.
 
 (cd src && dotnet run --project MrKWatkins.OakCpu.CodeGenerator.Console --no-build) # Regenerate checked-in .generated.cs files for all CPUs. The generator finds OakCpu.slnx by searching upwards, so it must run from src.
+(cd src && dotnet run --project MrKWatkins.OakCpu.DocumentationGenerator.Console --no-build) # Regenerate the checked-in Markdown instruction documentation in docs/instructions for the Z80 and Z80N. Also run from src.
 
+./src/MrKWatkins.OakCpu.Definitions.Tests/bin/Debug/net10.0/MrKWatkins.OakCpu.Definitions.Tests # Run the definitions model tests.
 ./src/MrKWatkins.OakCpu.CodeGenerator.Tests/bin/Debug/net10.0/MrKWatkins.OakCpu.CodeGenerator.Tests # Run the code generator tests.
+./src/MrKWatkins.OakCpu.DocumentationGenerator.Tests/bin/Debug/net10.0/MrKWatkins.OakCpu.DocumentationGenerator.Tests # Run the documentation generator tests.
 ./src/MrKWatkins.OakCpu.Z80.Tests/bin/Debug/net10.0/MrKWatkins.OakCpu.Z80.Tests # Run the Z80 emulator tests.
 ./src/MrKWatkins.OakCpu.M6502.Tests/bin/Debug/net10.0/MrKWatkins.OakCpu.M6502.Tests # Run the 6502 emulator tests.
 
@@ -40,13 +43,18 @@ After regenerating with `CodeGenerator.Console`, always rebuild before running t
 
 The repository is organised around a code generation pipeline and the generated emulators:
 
-- **YAML definitions** (`definitions/<cpu>/*.yaml`, e.g. `definitions/z80`) define CPU registers, flags, interrupts, and instructions. Do not change these files unless the task is specifically instruction-definition work.
-- **`MrKWatkins.OakCpu.CodeGenerator`** parses YAML via VYaml, processes the instruction expression DSL through a custom lexer/parser/AST, and generates C# with Roslyn.
+- **YAML definitions** (`definitions/<cpu>/*.yaml`, e.g. `definitions/z80`) define CPU registers, flags, interrupts, and instructions. Do not change these files unless the task is specifically instruction-definition or documentation work. Each instruction has a `documentation` description for the generated documentation, with operand placeholders such as `{R0}` in braces; instructions, opcodes and registers can be marked `undocumented: true`; and an instruction can describe a flag by hand with `flag_documentation` when its expression is too involved to describe automatically.
+- **`MrKWatkins.OakCpu.Definitions`** parses YAML via VYaml, processes the instruction expression DSL through a custom lexer/parser/AST, validates the definitions and builds the `CpuModel` the generators work from. It has no dependency on Roslyn.
+- **`MrKWatkins.OakCpu.CodeGenerator`** generates C# with Roslyn from the model, adding the Roslyn syntax the model needs as extension members.
 - **`MrKWatkins.OakCpu.CodeGenerator.Console`** invokes the generator and writes checked-in `.generated.cs` files to disk. The CPUs to generate, and the project each is written to, are a hardcoded list in its `Program.cs`.
+- **`MrKWatkins.OakCpu.DocumentationGenerator`** generates Markdown documentation for every instruction from the model: a page per instruction form, e.g. `LD R0, (RP0 + d)`, with YAML front matter carrying the description, the effect on each flag derived from the instruction's flag expressions, and every opcode with its encoding, operands, T-states and whether it is undocumented. T-states are calculated from the steps, and the undocumented status of duplicate opcodes from the definitions.
+- **`MrKWatkins.OakCpu.DocumentationGenerator.Console`** writes the checked-in documentation to `docs/instructions/<cpu>`. The CPUs to document are a hardcoded list in its `Program.cs`.
 - **`MrKWatkins.OakCpu.SourceGenerator`** uses the same generator library as a Roslyn source generator. It is not in the solution, is not referenced by anything, and does not currently compile against the generator API; the console generator is the live path.
 - **`MrKWatkins.OakCpu.Z80`** and **`MrKWatkins.OakCpu.M6502`** contain the emulator packages. Nearly all the code is generated; the only handwritten files are the partial-class runtime entry points, `Z80StepEmulator.cs` for the Z80 and `M6502StepEmulator.cs`/`M6502InstructionEmulator.cs` for the 6502.
 - **`MrKWatkins.OakCpu.Z80.Testing`** and **`MrKWatkins.OakCpu.M6502.Testing`** contain emulator test harness utilities, built on the `MrKWatkins.EmulatorTestSuites` packages.
-- **`MrKWatkins.OakCpu.CodeGenerator.Tests`** tests the generator, parser, expression model, and generated output. Generator output is covered by Verify.NUnit snapshots (`{Class}.{Method}.verified.txt` beside the test source).
+- **`MrKWatkins.OakCpu.Definitions.Tests`** tests the YAML schema, parser, expression model, validation and model.
+- **`MrKWatkins.OakCpu.CodeGenerator.Tests`** tests the generator and generated output. Generator output is covered by Verify.NUnit snapshots (`{Class}.{Method}.verified.txt` beside the test source).
+- **`MrKWatkins.OakCpu.DocumentationGenerator.Tests`** tests the documentation generator, including checking the calculated T-states against the `MrKWatkins.OakAsm` packages and Verify.NUnit snapshots of the Markdown.
 - **`MrKWatkins.OakCpu.Z80.Tests`** and **`MrKWatkins.OakCpu.M6502.Tests`** test the emulators. The test data comes from the `MrKWatkins.EmulatorTestSuites` NuGet packages, not from this repository.
 - **`MrKWatkins.OakCpu.Z80.Benchmarks`** contains BenchmarkDotNet performance tests. Do not run benchmarks during normal development.
 

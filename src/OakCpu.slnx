@@ -233,6 +233,9 @@
   <Project Path="MrKWatkins.OakCpu.CodeGenerator/MrKWatkins.OakCpu.CodeGenerator.csproj" />
   <Project Path="MrKWatkins.OakCpu.Definitions.Tests/MrKWatkins.OakCpu.Definitions.Tests.csproj" />
   <Project Path="MrKWatkins.OakCpu.Definitions/MrKWatkins.OakCpu.Definitions.csproj" />
+  <Project Path="MrKWatkins.OakCpu.DocumentationGenerator.Console/MrKWatkins.OakCpu.DocumentationGenerator.Console.csproj" />
+  <Project Path="MrKWatkins.OakCpu.DocumentationGenerator.Tests/MrKWatkins.OakCpu.DocumentationGenerator.Tests.csproj" />
+  <Project Path="MrKWatkins.OakCpu.DocumentationGenerator/MrKWatkins.OakCpu.DocumentationGenerator.csproj" />
   <Project Path="MrKWatkins.OakCpu.M6502.Testing/MrKWatkins.OakCpu.M6502.Testing.csproj" />
   <Project Path="MrKWatkins.OakCpu.M6502.Tests/MrKWatkins.OakCpu.M6502.Tests.csproj" />
   <Project Path="MrKWatkins.OakCpu.M6502/MrKWatkins.OakCpu.M6502.csproj" />

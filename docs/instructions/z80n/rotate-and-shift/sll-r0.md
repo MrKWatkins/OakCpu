@@ -1,0 +1,111 @@
+---
+cpu: Z80N
+defined_by: Z80
+form: SLL R0
+mnemonic: SLL r
+group: Rotate and Shift
+description: "Shifts {R0} left one bit; bit 7 is copied to the carry flag and bit 0 is set."
+undocumented: true
+flags:
+  - flag: S
+    effect: changed
+    description: "Copied from bit 7 of {R0}."
+  - flag: Z
+    effect: changed
+    description: "Set if {R0} is zero, otherwise reset."
+  - flag: Y
+    effect: changed
+    description: "Copied from bit 5 of {R0}."
+  - flag: H
+    effect: reset
+    description: Reset.
+  - flag: X
+    effect: changed
+    description: "Copied from bit 3 of {R0}."
+  - flag: PV
+    effect: changed
+    description: "Set if {R0} has even parity, otherwise reset."
+  - flag: N
+    effect: reset
+    description: Reset.
+  - flag: C
+    effect: changed
+    description: "Set if bit 7 of the original value of {R0} is set, otherwise reset."
+opcodes:
+  - encoding: CB 30
+    mnemonic: SLL B
+    operands: { R0: B }
+    tstates: [8]
+    undocumented: true
+  - encoding: CB 31
+    mnemonic: SLL C
+    operands: { R0: C }
+    tstates: [8]
+    undocumented: true
+  - encoding: CB 32
+    mnemonic: SLL D
+    operands: { R0: D }
+    tstates: [8]
+    undocumented: true
+  - encoding: CB 33
+    mnemonic: SLL E
+    operands: { R0: E }
+    tstates: [8]
+    undocumented: true
+  - encoding: CB 34
+    mnemonic: SLL H
+    operands: { R0: H }
+    tstates: [8]
+    undocumented: true
+  - encoding: CB 35
+    mnemonic: SLL L
+    operands: { R0: L }
+    tstates: [8]
+    undocumented: true
+  - encoding: CB 37
+    mnemonic: SLL A
+    operands: { R0: A }
+    tstates: [8]
+    undocumented: true
+references:
+  - name: Z80 instruction set, MSX Assembly Page
+    url: "https://map.grauw.nl/resources/z80instr.php"
+  - name: The Undocumented Z80 Documented
+    url: "http://www.z80.info/zip/z80-documented.pdf"
+---
+
+# SLL r
+
+Shifts r left one bit; bit 7 is copied to the carry flag and bit 0 is set.
+
+This instruction is undocumented.
+
+## Flags
+
+| Flag | Effect |
+| ---- | ------ |
+| S | Copied from bit 7 of r. |
+| Z | Set if r is zero, otherwise reset. |
+| Y | Copied from bit 5 of r. |
+| H | Reset. |
+| X | Copied from bit 3 of r. |
+| PV | Set if r has even parity, otherwise reset. |
+| N | Reset. |
+| C | Set if bit 7 of the original value of r is set, otherwise reset. |
+
+## Opcodes
+
+| Opcode | Encoding | T-states | Notes |
+| ------ | -------- | -------- | ----- |
+| `SLL B` | `CB 30` | 8 |  |
+| `SLL C` | `CB 31` | 8 |  |
+| `SLL D` | `CB 32` | 8 |  |
+| `SLL E` | `CB 33` | 8 |  |
+| `SLL H` | `CB 34` | 8 |  |
+| `SLL L` | `CB 35` | 8 |  |
+| `SLL A` | `CB 37` | 8 |  |
+
+## References
+
+- [Z80 instruction set, MSX Assembly Page](https://map.grauw.nl/resources/z80instr.php)
+- [The Undocumented Z80 Documented](http://www.z80.info/zip/z80-documented.pdf)

@@ -18,7 +18,10 @@ public sealed class Step
 
     public override string ToString() => $"{Name} => {string.Join("; ", Statements)};";
 
-    internal Action? SpecifiedAction { get; }
+    /// <summary>
+    /// The action requested by the step, if any.
+    /// </summary>
+    public Action? SpecifiedAction { get; }
 
     [Pure]
     public static IReadOnlyList<Step> Parse(string baseName, ParserContext context, IReadOnlyList<string?> steps) =>

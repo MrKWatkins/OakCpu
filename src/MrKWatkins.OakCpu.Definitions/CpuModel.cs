@@ -14,6 +14,7 @@ namespace MrKWatkins.OakCpu.Definitions;
 public sealed class CpuModel
 {
     private CpuModel(
+        YamlFile yaml,
         Configuration configuration,
         Cpu cpu,
         Interrupts interrupts,
@@ -29,6 +30,7 @@ public sealed class CpuModel
         IReadOnlyDictionary<Step, StepLayout> stepLayouts,
         IReadOnlyList<Step> functionSteps)
     {
+        Yaml = yaml;
         Configuration = configuration;
         Cpu = cpu;
         Interrupts = interrupts;
@@ -44,6 +46,11 @@ public sealed class CpuModel
         StepLayouts = stepLayouts;
         FunctionSteps = functionSteps;
     }
+
+    /// <summary>
+    /// The combined definitions the model was built from, with the definitions of any base CPUs merged in.
+    /// </summary>
+    public YamlFile Yaml { get; }
 
     public Configuration Configuration { get; }
 
@@ -172,6 +179,7 @@ public sealed class CpuModel
         var stepLayouts = StepFinalizer.Finalize(allSteps, CreateStepSequences(opcodeRead, prefixJumps, sequences, instructions));
 
         return new CpuModel(
+            yaml,
             configuration,
             cpu,
             interrupts,

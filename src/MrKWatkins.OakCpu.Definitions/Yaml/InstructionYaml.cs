@@ -47,6 +47,16 @@ public sealed partial class InstructionYaml
         private init;
     }
 
+    /// <summary>
+    /// Descriptions of the instruction's effect on flags for documentation, by flag, for flags whose <see cref="Flags" />
+    /// expressions are too involved to describe automatically.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> FlagDocumentation
+    {
+        get => field ?? EmptyFlags;
+        private init;
+    }
+
     public NextOpcodeMode? NextOpcode { get; private init; }
 
     public string? OverlappedSequence { get; private init; }
@@ -76,6 +86,7 @@ public sealed partial class InstructionYaml
             Opcodes = newOpcodes,
             Steps = Steps,
             Flags = Flags,
+            FlagDocumentation = FlagDocumentation,
             NextOpcode = NextOpcode,
             OverlappedSequence = OverlappedSequence,
             OverrideStepPins = OverrideStepPins

@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+      <ProjectReference Include="..\MrKWatkins.OakCpu.Definitions\MrKWatkins.OakCpu.Definitions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Using Include="MrKWatkins.OakCpu.Definitions" />
+    </ItemGroup>
+</Project>
