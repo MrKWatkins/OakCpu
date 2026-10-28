@@ -1,5 +1,4 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators.InstructionMethods;
 

@@ -1,8 +1,7 @@
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using MrKWatkins.OakCpu.CodeGenerator.Definitions;
-using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
+using MrKWatkins.OakCpu.Definitions.Language.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 

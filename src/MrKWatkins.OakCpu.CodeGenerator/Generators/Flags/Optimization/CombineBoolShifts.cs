@@ -1,5 +1,5 @@
 using MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Actions;
-using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
+using MrKWatkins.OakCpu.Definitions.Language.Ast;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Optimization;
 

@@ -1,4 +1,3 @@
-using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Tests.Generators;

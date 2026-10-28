@@ -1,7 +1,6 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using MrKWatkins.OakCpu.CodeGenerator.Definitions;
-using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
+using MrKWatkins.OakCpu.Definitions.Language.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 
@@ -116,7 +115,7 @@ internal static class StatementAssignmentEmitter
     {
         if (assignment.Value is not BinaryOperation binary ||
             binary.Left != assignment.Target ||
-            binary.Operator.CompoundAssignmentSyntaxKind == null)
+            binary.Operator.CompoundAssignmentSyntaxKind is not { } compoundAssignmentSyntaxKind)
         {
             statement = null;
             return false;
@@ -131,7 +130,7 @@ internal static class StatementAssignmentEmitter
         var value = ExpressionGenerator.GenerateExpressionSyntax(context, binary.Right);
         var target = assignment.Target is TemporaryVariableAccess temporaryVariableAccess ? temporaryVariableAccess.Identifier : ExpressionGenerator.GenerateExpressionSyntax(context, assignment.Target);
 
-        statement = ExpressionStatement(AssignmentExpression(binary.Operator.CompoundAssignmentSyntaxKind.Value, target, value));
+        statement = ExpressionStatement(AssignmentExpression(compoundAssignmentSyntaxKind, target, value));
         return true;
     }
 }

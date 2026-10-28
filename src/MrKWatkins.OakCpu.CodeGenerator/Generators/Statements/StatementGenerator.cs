@@ -1,8 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using MrKWatkins.OakCpu.CodeGenerator.Definitions;
-using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
-using MrKWatkins.OakCpu.CodeGenerator.Yaml;
+using MrKWatkins.OakCpu.Definitions.Language.Ast;
+using MrKWatkins.OakCpu.Definitions.Yaml;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Statements;
 

@@ -1,8 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-    <ItemGroup>
-        <EmbeddedResource Include="Yaml\TestData\*.yaml" />
-    </ItemGroup>
+<Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
         <PackageReference Include="VYaml" />
@@ -12,6 +8,7 @@
     <ItemGroup>
         <Using Include="VerifyNUnit" />
         <Using Include="MrKWatkins.OakCpu.CodeGenerator.Generators.Statements" />
+        <Using Include="MrKWatkins.OakCpu.Definitions" />
     </ItemGroup>
 
     <ItemGroup>

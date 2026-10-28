@@ -1,6 +1,5 @@
-using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Generators;
-using MrKWatkins.OakCpu.CodeGenerator.Yaml;
+using MrKWatkins.OakCpu.Definitions.Yaml;
 using VYaml.Serialization;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Tests;

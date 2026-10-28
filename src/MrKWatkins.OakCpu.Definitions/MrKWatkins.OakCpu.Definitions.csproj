@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+      <PackageReference Include="VYaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <InternalsVisibleTo Include="MrKWatkins.OakCpu.CodeGenerator" />
+      <InternalsVisibleTo Include="MrKWatkins.OakCpu.CodeGenerator.Tests" />
+    </ItemGroup>
+</Project>

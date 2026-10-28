@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <EmbeddedResource Include="Yaml\TestData\*.yaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="VYaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="MrKWatkins.OakCpu.Definitions" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\MrKWatkins.OakCpu.Definitions\MrKWatkins.OakCpu.Definitions.csproj" />
+    </ItemGroup>
+</Project>

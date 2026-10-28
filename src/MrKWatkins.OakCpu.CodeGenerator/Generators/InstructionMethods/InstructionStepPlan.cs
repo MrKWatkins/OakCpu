@@ -1,5 +1,5 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
+using Action = MrKWatkins.OakCpu.Definitions.Action;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators.InstructionMethods;
 

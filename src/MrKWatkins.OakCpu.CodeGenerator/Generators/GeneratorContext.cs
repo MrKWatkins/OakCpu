@@ -1,56 +1,55 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using MrKWatkins.OakCpu.CodeGenerator.Definitions;
-using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
-using MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
-using MrKWatkins.OakCpu.CodeGenerator.Validation;
-using MrKWatkins.OakCpu.CodeGenerator.Yaml;
-using VYaml.Serialization;
-using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
+using MrKWatkins.OakCpu.Definitions.Language.Ast;
+using MrKWatkins.OakCpu.Definitions.Yaml;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators;
 
 public sealed class GeneratorContext
 {
-    private readonly ModelState model;
     private readonly OverlapState overlap;
     private readonly InstructionEmulatorDispatchInfo instructionEmulatorDispatchInfo;
 
-    private GeneratorContext(string rootNamespace, ModelState model, OverlapState overlap)
+    private GeneratorContext(string rootNamespace, CpuModel model, OverlapState overlap)
     {
         RootNamespace = rootNamespace;
-        this.model = model;
+        Model = model;
         this.overlap = overlap;
         instructionEmulatorDispatchInfo = CreateInstructionEmulatorDispatchInfo();
     }
 
     public string RootNamespace { get; }
 
-    public Configuration Configuration => model.Configuration;
+    /// <summary>
+    /// The model of the CPU built from its definitions.
+    /// </summary>
+    public CpuModel Model { get; }
 
-    public Cpu Cpu => model.Cpu;
+    public Configuration Configuration => Model.Configuration;
 
-    public Interrupts Interrupts => model.Interrupts;
+    public Cpu Cpu => Model.Cpu;
 
-    public IReadOnlyDictionary<string, StepSequence> Sequences => model.Sequences;
+    public Interrupts Interrupts => Model.Interrupts;
 
-    public IReadOnlyDictionary<string, SequenceGroup> SequenceGroups => model.SequenceGroups;
+    public IReadOnlyDictionary<string, StepSequence> Sequences => Model.Sequences;
 
-    public StepSequence OpcodeRead => model.OpcodeRead;
+    public IReadOnlyDictionary<string, SequenceGroup> SequenceGroups => Model.SequenceGroups;
 
-    public IReadOnlyList<Statement> OnInstructionStepsComplete => model.OnInstructionStepsComplete;
+    public StepSequence OpcodeRead => Model.OpcodeRead;
 
-    public IReadOnlyList<Statement> OnInstructionComplete => model.OnInstructionComplete;
+    public IReadOnlyList<Statement> OnInstructionStepsComplete => Model.OnInstructionStepsComplete;
 
-    public IReadOnlyList<Statement> OnStepComplete => model.OnStepComplete;
+    public IReadOnlyList<Statement> OnInstructionComplete => Model.OnInstructionComplete;
 
-    public IReadOnlyList<Instruction> Instructions => model.Instructions;
+    public IReadOnlyList<Statement> OnStepComplete => Model.OnStepComplete;
 
-    public IReadOnlyDictionary<byte, PrefixJump> PrefixJumps => model.PrefixJumps;
+    public IReadOnlyList<Instruction> Instructions => Model.Instructions;
 
-    public IReadOnlyList<Step> FunctionSteps => model.FunctionSteps;
+    public IReadOnlyDictionary<byte, PrefixJump> PrefixJumps => Model.PrefixJumps;
 
-    public IReadOnlyList<Step> AllSteps => model.AllSteps;
+    public IReadOnlyList<Step> FunctionSteps => Model.FunctionSteps;
+
+    public IReadOnlyList<Step> AllSteps => Model.AllSteps;
 
     public IReadOnlyList<Step> OverlapSteps => overlap.OverlapSteps;
 
@@ -65,7 +64,7 @@ public sealed class GeneratorContext
     public ushort GetInstructionEmulatorSequenceIndex(StepSequence sequence) => instructionEmulatorDispatchInfo.SequenceIndices[sequence];
 
     [Pure]
-    public StepLayout GetStepLayout(Step step) => model.StepLayouts.TryGetValue(step, out var layout) ? layout : throw new InvalidOperationException($"No finalized layout has been defined for step {step.Name}.");
+    public StepLayout GetStepLayout(Step step) => Model.GetStepLayout(step);
 
     [Pure]
     internal int GetImplicitInstructionStepsCompleteStatementCount(Step step)
@@ -84,12 +83,10 @@ public sealed class GeneratorContext
     }
 
     [Pure]
-    public StepSequence GetSequence(string name) =>
-        Sequences.TryGetValue(name, out var sequence) ? sequence : throw new InvalidOperationException($"No sequence named {name} exists.");
+    public StepSequence GetSequence(string name) => Model.GetSequence(name);
 
     [Pure]
-    public SequenceGroup GetSequenceGroup(string name) =>
-        SequenceGroups.TryGetValue(name, out var sequenceGroup) ? sequenceGroup : throw new InvalidOperationException($"No sequence group named {name} exists.");
+    public SequenceGroup GetSequenceGroup(string name) => Model.GetSequenceGroup(name);
 
     [Pure]
     public int GetOverlapMethodIndex(Step step) =>
@@ -109,64 +106,15 @@ public sealed class GeneratorContext
     public FileScopedNamespaceDeclarationSyntax CreateRootNamespaceDeclaration() => SyntaxFactory.FileScopedNamespaceDeclaration(SyntaxFactory.ParseName(RootNamespace));
 
     [Pure]
-    public static async Task<GeneratorContext> CreateAsync(string rootNamespace, DirectoryInfo definitionsDirectory)
-    {
-        var combined = await LoadAsync(definitionsDirectory);
-
-        // CPUs can be variants of other CPUs, inheriting their definitions. Definitions directories for the CPUs are siblings of each other.
-        var cpus = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { definitionsDirectory.Name };
-        var parentDirectory = definitionsDirectory.Parent ?? throw new InvalidOperationException($"Definitions directory {definitionsDirectory} has no parent directory.");
-        while (combined.Cpu.Base is { } baseCpu)
-        {
-            if (!cpus.Add(baseCpu))
-            {
-                throw new InvalidOperationException($"CPU {combined.Cpu.Name} has a circular base CPU reference to {baseCpu}.");
-            }
-
-            var baseDirectory = new DirectoryInfo(Path.Combine(parentDirectory.FullName, baseCpu));
-            if (!baseDirectory.Exists)
-            {
-                throw new InvalidOperationException($"Could not find the definitions directory {baseDirectory} for base CPU {baseCpu}.");
-            }
-
-            combined = YamlFile.Merge(await LoadAsync(baseDirectory), combined);
-        }
-
-        return Create(rootNamespace, combined);
-    }
+    public static async Task<GeneratorContext> CreateAsync(string rootNamespace, DirectoryInfo definitionsDirectory) =>
+        Create(rootNamespace, await CpuModel.LoadAsync(definitionsDirectory));
 
     [Pure]
-    private static async Task<YamlFile> LoadAsync(DirectoryInfo definitionsDirectory)
-    {
-        var yamls = new List<YamlFile>();
-        foreach (var file in definitionsDirectory.GetFiles("*.yaml", SearchOption.AllDirectories))
-        {
-            yamls.Add(await DeserializeYamlAsync<YamlFile>(file));
-        }
-
-        return YamlFile.Combine(yamls);
-    }
+    internal static GeneratorContext Create(string rootNamespace, YamlFile yaml) => Create(rootNamespace, CpuModel.Create(yaml));
 
     [Pure]
-    private static async Task<TYaml> DeserializeYamlAsync<TYaml>(FileInfo file)
+    public static GeneratorContext Create(string rootNamespace, CpuModel model)
     {
-        try
-        {
-            await using var stream = file.OpenRead();
-            return await YamlSerializer.DeserializeAsync<TYaml>(stream, YamlOptions.Instance);
-        }
-        catch (Exception exception)
-        {
-            throw new InvalidOperationException($"Could not load YAML file {file}.", exception);
-        }
-    }
-
-    [Pure]
-    internal static GeneratorContext Create(string rootNamespace, YamlFile yaml)
-    {
-        DefinitionValidation.Validate(yaml);
-
-        var model = CreateModelState(yaml);
         var overlap = CreateOverlapState(rootNamespace, model);
         return new GeneratorContext(rootNamespace, model, overlap);
     }
@@ -199,94 +147,17 @@ public sealed class GeneratorContext
     }
 
     [Pure]
-    private static ModelState CreateModelState(YamlFile yaml)
-    {
-        var configuration = CreateConfiguration(yaml);
-        var parserContext = CreateParserContext(configuration, yaml.OnInstructionStepsComplete);
-        var cpu = Cpu.Create(yaml.Cpu);
-        var namedSequences = CreateNamedSequences(parserContext, yaml.Sequences);
-        var opcodeRead = CreateOpcodeReadSequence(parserContext, namedSequences, yaml);
-        var instructions = Instruction.Create(parserContext, cpu, yaml.Instructions);
-        var prefixJumps = PrefixJump.Create(parserContext, instructions);
-        var interrupts = Interrupts.Create(parserContext, yaml.Interrupts!, namedSequences);
-        var sequences = CreateSequences(namedSequences, opcodeRead, interrupts);
-        var sequenceGroups = CreateSequenceGroups(yaml, interrupts, sequences);
-        var allSteps = CreateAllSteps(opcodeRead, prefixJumps, sequences, instructions);
-        var stepLayouts = StepFinalizer.Finalize(allSteps, CreateStepSequences(opcodeRead, prefixJumps, sequences, instructions));
-
-        return new ModelState(configuration, cpu, interrupts, sequences, sequenceGroups, opcodeRead, parserContext.OnInstructionStepsComplete, ParseStatements(configuration, yaml.OnInstructionComplete), ParseStatements(configuration, yaml.OnStepComplete), instructions, prefixJumps, allSteps, stepLayouts.Layouts, stepLayouts.FunctionSteps);
-    }
-
-    [Pure]
-    private static ParserContext CreateParserContext(Configuration configuration, string? onInstructionStepsComplete)
-    {
-        var context = new ParserContext(configuration);
-        return context.WithOnInstructionStepsComplete(Parser.ParseStatements(context, onInstructionStepsComplete));
-    }
-
-    [Pure]
-    private static IReadOnlyList<Statement> ParseStatements(Configuration configuration, string? statements)
-    {
-        var context = new ParserContext(configuration);
-        return Parser.ParseStatements(context, statements);
-    }
-
-    [Pure]
-    private static StepSequence CreateOpcodeReadSequence(ParserContext context, IReadOnlyDictionary<string, StepSequence> namedSequences, YamlFile yaml) =>
-        namedSequences.TryGetValue("opcode_read", out var opcodeReadSequence)
-            ? opcodeReadSequence
-            : yaml.OpcodeRead.Any()
-                ? NamedStepSequence.Create(context, "opcode_read", yaml.OpcodeRead, NextOpcodeMode.Custom, true)
-                : throw new InvalidOperationException("No opcode_read sequence has been defined.");
-
-    [Pure]
-    private static IReadOnlyDictionary<string, StepSequence> CreateSequences(IReadOnlyDictionary<string, StepSequence> namedSequences, StepSequence opcodeRead, Interrupts interrupts) =>
-        namedSequences.Values
-            .Append(opcodeRead)
-            .Concat(interrupts.AllSequences)
-            .Distinct()
-            .Where(sequence => sequence.Name != null)
-            .ToDictionary(sequence => sequence.Name!, StringComparer.Ordinal);
-
-    [Pure]
-    private static IReadOnlyList<Step> CreateAllSteps(
-        StepSequence opcodeRead,
-        IReadOnlyDictionary<byte, PrefixJump> prefixJumps,
-        IReadOnlyDictionary<string, StepSequence> sequences,
-        IReadOnlyList<Instruction> instructions) =>
-        // Steps need to keep their order within an instruction or all hell breaks loose.
-        opcodeRead
-            .Concat(prefixJumps.Values.SelectMany(prefixJump => prefixJump.Steps))
-            .Concat(sequences.Values.Where(sequence => !ReferenceEquals(sequence, opcodeRead)).SelectMany(sequence => sequence.Steps))
-            .Concat(instructions.SelectMany(instruction => instruction.Steps))
-            .ToList();
-
-    [Pure]
-    private static IReadOnlyDictionary<Step, StepSequence> CreateStepSequences(
-        StepSequence opcodeRead,
-        IReadOnlyDictionary<byte, PrefixJump> prefixJumps,
-        IReadOnlyDictionary<string, StepSequence> sequences,
-        IReadOnlyList<Instruction> instructions) =>
-        Enumerable
-            .Repeat(opcodeRead, 1)
-            .Concat(prefixJumps.Values)
-            .Concat(sequences.Values.Where(sequence => !ReferenceEquals(sequence, opcodeRead)))
-            .Concat(instructions)
-            .SelectMany(sequence => sequence.Steps.Select(step => (Step: step, Sequence: sequence)))
-            .ToDictionary(x => x.Step, x => x.Sequence);
-
-    [Pure]
-    private static OverlapState CreateOverlapState(string rootNamespace, ModelState model)
+    private static OverlapState CreateOverlapState(string rootNamespace, CpuModel model)
     {
         var overlapCandidates = model.AllSteps
-            .Where(step => model.StepLayouts[step].ExecutesAsOverlapOnly)
+            .Where(step => model.GetStepLayout(step).ExecutesAsOverlapOnly)
             .ToList();
 
         var overlapGroups = CreateOverlapGroups(rootNamespace, model, overlapCandidates);
 
         var overlapSteps = overlapGroups
             .Select(group => group.First())
-            .OrderBy(step => model.StepLayouts[step].Index)
+            .OrderBy(step => model.GetStepLayout(step).Index)
             .ToList();
 
         var overlapImplementations = overlapGroups
@@ -294,7 +165,7 @@ public sealed class GeneratorContext
             .ToDictionary(x => x.Step, x => x.Implementation);
 
         var overlapImplementationAndDuplicates = overlapGroups
-            .ToDictionary(group => group.First(), group => (IReadOnlyList<Step>)group.OrderBy(step => model.StepLayouts[step].Index).ToList());
+            .ToDictionary(group => group.First(), group => (IReadOnlyList<Step>)group.OrderBy(step => model.GetStepLayout(step).Index).ToList());
 
         var overlapMethodIndices = overlapSteps
             .Select((step, index) => (Step: step, Index: index))
@@ -308,7 +179,7 @@ public sealed class GeneratorContext
     }
 
     [Pure]
-    private static IReadOnlyList<IReadOnlyList<Step>> CreateOverlapGroups(string rootNamespace, ModelState model, IReadOnlyList<Step> overlapCandidates)
+    private static IReadOnlyList<IReadOnlyList<Step>> CreateOverlapGroups(string rootNamespace, CpuModel model, IReadOnlyList<Step> overlapCandidates)
     {
         var temporaryContext = new GeneratorContext(rootNamespace, model, OverlapState.Empty);
 
@@ -332,75 +203,6 @@ public sealed class GeneratorContext
 
         return groups;
     }
-
-    [Pure]
-    private static IReadOnlyDictionary<string, StepSequence> CreateNamedSequences(ParserContext context, IReadOnlyList<StepSequenceYaml> yamls) =>
-        yamls
-            .Select(sequence => NamedStepSequence.Create(context, sequence))
-            .ToDictionary(
-                sequence => sequence.Name ?? throw new InvalidOperationException("Named sequences must have a name."),
-                sequence => (StepSequence)sequence,
-                StringComparer.Ordinal);
-
-    [Pure]
-    private static Configuration CreateConfiguration(YamlFile yaml)
-    {
-        var pins = Pin.Create(yaml.Cpu);
-        var actions = Action.Create(yaml.Cpu, pins);
-        var registers = Register.Create(yaml.Registers);
-        var flags = Flag.Create(yaml.Flags);
-        var opcodeStepTables = new OpcodeStepTables(yaml.Instructions);
-        var userDefinedDataMembers = UserDefinedDataMember.Create(yaml.Cpu.Fields, Visibility.Private)
-            .Concat(UserDefinedDataMember.Create(yaml.Interrupts!.Properties, Visibility.Internal))
-            .ToDictionary(u => u.Name);
-
-        var userDefinedFunctions = UserDefinedFunction.CreateDeclarations(yaml.Functions);
-        var configuration = new Configuration(actions, registers, flags, opcodeStepTables, userDefinedDataMembers, userDefinedFunctions, pins);
-        UserDefinedFunction.ParseExpressions(configuration, userDefinedFunctions, yaml.Functions);
-        return configuration;
-    }
-
-    [Pure]
-    private static IReadOnlyDictionary<string, SequenceGroup> CreateSequenceGroups(YamlFile yaml, Interrupts interrupts, IReadOnlyDictionary<string, StepSequence> sequences)
-    {
-        var groupedSequences = yaml.Sequences
-            .Where(sequence => sequence.Group != null)
-            .Select(
-                sequence => (
-                    GroupName: sequence.Group!.Name,
-                    sequence.Group.Number,
-                    Sequence: sequences.TryGetValue(sequence.Name, out var stepSequence)
-                        ? stepSequence
-                        : throw new InvalidOperationException($"No sequence named {sequence.Name} exists for sequence group {sequence.Group.Name}.")
-                ))
-            .ToList();
-
-        var topLevelGroups = groupedSequences
-            .Select(member => (member.GroupName, member.Number))
-            .ToHashSet();
-
-        var legacyInterruptModes = interrupts.Modes
-            .Where(mode => !topLevelGroups.Contains((InterruptMode.SequenceGroupName, mode.Number)))
-            .Select(mode => (InterruptMode.SequenceGroupName, mode.Number, mode.Sequence));
-
-        return SequenceGroup.Create(groupedSequences.Concat(legacyInterruptModes));
-    }
-
-    private sealed record ModelState(
-        Configuration Configuration,
-        Cpu Cpu,
-        Interrupts Interrupts,
-        IReadOnlyDictionary<string, StepSequence> Sequences,
-        IReadOnlyDictionary<string, SequenceGroup> SequenceGroups,
-        StepSequence OpcodeRead,
-        IReadOnlyList<Statement> OnInstructionStepsComplete,
-        IReadOnlyList<Statement> OnInstructionComplete,
-        IReadOnlyList<Statement> OnStepComplete,
-        IReadOnlyList<Instruction> Instructions,
-        IReadOnlyDictionary<byte, PrefixJump> PrefixJumps,
-        IReadOnlyList<Step> AllSteps,
-        IReadOnlyDictionary<Step, StepLayout> StepLayouts,
-        IReadOnlyList<Step> FunctionSteps);
 
     private sealed record OverlapState(
         IReadOnlyList<Step> OverlapSteps,

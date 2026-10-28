@@ -1,0 +1,244 @@
+using MrKWatkins.OakCpu.Definitions.Language.Ast;
+using MrKWatkins.OakCpu.Definitions.Language.Parsing;
+using MrKWatkins.OakCpu.Definitions.Yaml;
+
+namespace MrKWatkins.OakCpu.Definitions;
+
+public sealed class Instruction : StepSequence
+{
+    private static readonly IReadOnlyList<IOpcodePlaceholder> OpcodePlaceholders =
+    [
+        new StringOpcodePlaceholder(static opcode => opcode.R0, static (context, value, replacement) => ReplaceRegister(context, value, "R0", replacement)),
+        new StringOpcodePlaceholder(static opcode => opcode.R1, static (context, value, replacement) => ReplaceRegister(context, value, "R1", replacement)),
+        new StringOpcodePlaceholder(static opcode => opcode.RP0, static (context, value, replacement) => ReplaceRegister(context, value, "RP0", replacement)),
+        new StringOpcodePlaceholder(static opcode => opcode.RP1, static (context, value, replacement) => ReplaceRegister(context, value, "RP1", replacement)),
+        new StringOpcodePlaceholder(static opcode => opcode.C0, static (context, value, replacement) => ReplaceCondition(context, value, "C0", replacement)),
+        new NumberOpcodePlaceholder(static opcode => opcode.N0, static (_, value, replacement) => ReplaceNumber(value, "N0", replacement))
+    ];
+
+    private Instruction(string group, string mnemonic, string? opcodeTable, byte? prefix, byte opcode, NextOpcodeMode nextOpcode, string? overlappedSequence, IReadOnlyList<Step> steps, IReadOnlyDictionary<string, Expression> flags, IReadOnlyList<(byte? Prefix, byte Opcode, Step Step)> duplicates, IReadOnlyList<byte>? overrideStepPins)
+        : base(null, steps, nextOpcode, overlappedSequenceName: overlappedSequence, overrideStepPins: overrideStepPins)
+    {
+        Group = group;
+        Mnemonic = mnemonic;
+        OpcodeTable = opcodeTable;
+        Prefix = prefix;
+        Opcode = opcode;
+        Flags = flags;
+        Duplicates = duplicates;
+    }
+
+    public string Group { get; }
+
+    public string Mnemonic { get; }
+
+    public string? OpcodeTable { get; }
+
+    public byte? Prefix { get; }
+
+    public byte Opcode { get; }
+
+    public IReadOnlyDictionary<string, Expression> Flags { get; }
+
+    public IReadOnlyList<(byte? Prefix, byte Opcode, Step Step)> Duplicates { get; }
+
+    public bool UpdatesFlags => Flags.Any();
+
+    [Pure]
+    public static IReadOnlyList<Instruction> Create(ParserContext context, Cpu cpu, IReadOnlyList<InstructionYaml> yamls) =>
+        yamls.SelectMany(y => Create(context, cpu, y)).OrderBy(i => i.OpcodeTable).ThenBy(i => i.Prefix).ThenBy(i => i.Opcode).ToList();
+
+    [Pure]
+    private static IEnumerable<Instruction> Create(ParserContext context, Cpu cpu, InstructionYaml yaml)
+    {
+        var tablePrefix = yaml.OpcodeTable != null ? $"{yaml.OpcodeTable} " : "";
+        var nextOpcode = yaml.GetEffectiveNextOpcode(cpu.DefaultNextOpcode);
+        var stepExpressions = ShouldCollapseImplicitEmptyOverlap(yaml, nextOpcode)
+            ? yaml.Steps.Take(yaml.Steps.Count - 1).ToList()
+            : yaml.Steps;
+        if (stepExpressions.Count != yaml.Steps.Count)
+        {
+            nextOpcode = NextOpcodeMode.Read;
+        }
+
+        foreach (var group in yaml.Opcodes.GroupBy(o => o, OpcodeYamlDuplicateEqualityComparer.Instance))
+        {
+            var opcodeAndDuplicates = group.ToList();
+            opcodeAndDuplicates.Sort(OpcodeYamlNoPrefixFirstComparer.Instance);
+
+            var opcodeYaml = opcodeAndDuplicates[0];
+
+            var mnemonic = Substitute(context, opcodeYaml, yaml.Mnemonic);
+
+            var steps = stepExpressions
+                .Select((expressions, index) =>
+                {
+                    var step = Substitute(context, opcodeYaml, expressions);
+
+                    var requiresCompleteInstruction = nextOpcode != NextOpcodeMode.Custom && index == stepExpressions.Count - 1;
+
+                    return Step.Parse($"{tablePrefix}{opcodeYaml.Opcode}: {mnemonic} [{index}]", context, step, requiresCompleteInstruction);
+                })
+                .ToList();
+
+            var duplicates = opcodeAndDuplicates.Skip(1).Select(y => (y.PrefixByte, y.OpcodeByte, steps[0])).ToList();
+
+            var flags = yaml.Flags.ToDictionary(kvp => kvp.Key, kvp => Parser.ParseExpression(context, Substitute(context, opcodeYaml, kvp.Value)));
+
+            ResolveTypesInFlagsExpressions(steps, flags);
+
+            yield return new Instruction(yaml.Group, mnemonic, yaml.OpcodeTable, opcodeYaml.PrefixByte, opcodeYaml.OpcodeByte, nextOpcode, yaml.OverlappedSequence, steps, flags, duplicates, CreateOverrideStepPins(context, yaml, mnemonic, steps.Count));
+        }
+    }
+
+    [Pure]
+    private static IReadOnlyList<byte>? CreateOverrideStepPins(ParserContext context, InstructionYaml yaml, string mnemonic, int stepCount)
+    {
+        if (yaml.OverrideStepPins == null)
+        {
+            return null;
+        }
+
+        if (yaml.OverrideStepPins.Count > stepCount)
+        {
+            // The implicit empty overlap step is collapsed, so it does not need an entry.
+            throw new InvalidOperationException($"The instruction {mnemonic} has more override_step_pins entries than steps.");
+        }
+
+        return Pin.ResolveMasks(context.Configuration.Pins, yaml.OverrideStepPins, $"instruction {mnemonic}");
+    }
+
+    [Pure]
+    private static bool ShouldCollapseImplicitEmptyOverlap(InstructionYaml yaml, NextOpcodeMode nextOpcode) =>
+        yaml.NextOpcode == null &&
+        yaml.OverlappedSequence == null &&
+        nextOpcode == NextOpcodeMode.Overlapped &&
+        yaml.Steps.Count > 1 &&
+        string.IsNullOrWhiteSpace(yaml.Steps[^1]);
+
+    private static void ResolveTypesInFlagsExpressions(IReadOnlyList<Step> steps, IReadOnlyDictionary<string, Expression> flags)
+    {
+        if (flags.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var step in steps)
+        {
+            ResolveTypesInFlagsExpressions(step, flags);
+        }
+    }
+    private static void ResolveTypesInFlagsExpressions(Step steps, IReadOnlyDictionary<string, Expression> flags)
+    {
+        var variables = new Dictionary<string, TemporaryVariable>();
+        foreach (var node in steps.Statements.SelectMany(s => s.TraverseDepthFirst()))
+        {
+            if (node is IReferencesTemporaryVariable referencesTemporaryVariable)
+            {
+                variables[referencesTemporaryVariable.Variable.Name] = referencesTemporaryVariable.Variable;
+            }
+            else if (node is CallStatement call && call.Call.Function == PreDefinedFunction.Flags)
+            {
+                // When calling the flag all temps needed should have been defined. TODO: Should be doing something different to handle if/else branches correctly, i.e. a scoped walk.
+                ResolveTypesInFlagsExpressions(variables, flags);
+                return;
+            }
+        }
+    }
+
+    private static void ResolveTypesInFlagsExpressions(IReadOnlyDictionary<string, TemporaryVariable> temporaryVariables, IReadOnlyDictionary<string, Expression> flags)
+    {
+        foreach (var kvp in flags)
+        {
+            var flag = kvp.Key;
+
+            foreach (var variableReference in kvp.Value.TraverseDepthFirst().OfType<IReferencesTemporaryVariable>())
+            {
+                if (!temporaryVariables.TryGetValue(variableReference.Variable.Name, out var variable))
+                {
+                    throw new InvalidOperationException($"The temporary variable {variableReference.Variable.Name} referenced by flag {flag} has not been defined.");
+                }
+                variableReference.Variable.Type = variable.Type;
+            }
+        }
+    }
+
+    [Pure]
+    private static string Substitute(ParserContext context, OpcodeYaml opcodeYaml, string? value)
+    {
+        if (value == null)
+        {
+            return "";
+        }
+
+        return OpcodePlaceholders.Aggregate(value, (current, placeholder) => placeholder.Replace(context, current, opcodeYaml));
+    }
+
+    [Pure]
+    private static string ReplaceRegister(ParserContext context, string value, string registerVariable, string? replacement)
+    {
+        if (replacement != null)
+        {
+            var register = context.Configuration.Registers[replacement];
+
+            if (register.HighRegister != null)
+            {
+                value = value.Replace($"{registerVariable}H", register.HighRegister.Name, StringComparison.Ordinal);
+            }
+            if (register.LowRegister != null)
+            {
+                value = value.Replace($"{registerVariable}L", register.LowRegister.Name, StringComparison.Ordinal);
+            }
+
+            value = value.Replace(registerVariable, register.Name, StringComparison.Ordinal);
+        }
+
+        return value;
+    }
+
+    [Pure]
+    private static string ReplaceCondition(ParserContext context, string value, string conditionVariable, string? replacement)
+    {
+        if (replacement != null)
+        {
+            var condition = context.Configuration.Conditions[replacement];
+
+            value = value.Replace(conditionVariable, condition.Name, StringComparison.Ordinal);
+        }
+
+        return value;
+    }
+
+    [Pure]
+    private static string ReplaceNumber(string value, string conditionVariable, byte? replacement)
+    {
+        if (replacement != null)
+        {
+            value = value.Replace(conditionVariable, $"0x{replacement.Value:X2}", StringComparison.Ordinal);
+        }
+
+        return value;
+    }
+
+    private interface IOpcodePlaceholder
+    {
+        [Pure]
+        string Replace(ParserContext context, string value, OpcodeYaml opcode);
+    }
+
+    private sealed record StringOpcodePlaceholder(
+        Func<OpcodeYaml, string?> GetReplacement,
+        Func<ParserContext, string, string?, string> ReplaceCore) : IOpcodePlaceholder
+    {
+        [Pure]
+        public string Replace(ParserContext context, string value, OpcodeYaml opcode) => ReplaceCore(context, value, GetReplacement(opcode));
+    }
+
+    private sealed record NumberOpcodePlaceholder(
+        Func<OpcodeYaml, byte?> GetReplacement,
+        Func<ParserContext, string, byte?, string> ReplaceCore) : IOpcodePlaceholder
+    {
+        [Pure]
+        public string Replace(ParserContext context, string value, OpcodeYaml opcode) => ReplaceCore(context, value, GetReplacement(opcode));
+    }
+}

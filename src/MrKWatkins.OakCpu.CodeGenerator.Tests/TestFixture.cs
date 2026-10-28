@@ -1,5 +1,5 @@
 using MrKWatkins.OakCpu.CodeGenerator.Generators;
-using MrKWatkins.OakCpu.CodeGenerator.Yaml;
+using MrKWatkins.OakCpu.Definitions.Yaml;
 using VYaml.Serialization;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Tests;
@@ -8,7 +8,7 @@ public abstract class TestFixture
 {
     private static readonly Lazy<YamlFile> LazyZ80Yaml = new(() => LoadZ80YamlAsync().Result);
     private static readonly Lazy<GeneratorContext> LazyZ80GeneratorInput = new(() => GeneratorContext.Create("MrKWatkins.OakCpu.Z80", Z80Yaml));
-    private static readonly Lazy<YamlFile> LazyZ80NYaml = new(() => YamlFile.Merge(Z80Yaml, LoadYamlAsync(GetDefinitionsDirectory("z80n")).Result));
+    private static readonly Lazy<YamlFile> LazyZ80NYaml = new(() => YamlFile.Merge(Z80Yaml, CpuModel.LoadDirectoryAsync(new DirectoryInfo(GetDefinitionsDirectory("z80n"))).Result));
     private static readonly Lazy<GeneratorContext> LazyZ80NGeneratorInput = new(() => GeneratorContext.Create("MrKWatkins.OakCpu.Z80N", Z80NYaml));
 
     protected static YamlFile Z80Yaml => LazyZ80Yaml.Value;
@@ -36,18 +36,7 @@ public abstract class TestFixture
     }
 
     [Pure]
-    protected static Task<YamlFile> LoadZ80YamlAsync() => LoadYamlAsync(Z80DefinitionsDirectory);
-
-    [Pure]
-    private static async Task<YamlFile> LoadYamlAsync(string definitionsDirectory)
-    {
-        var yamls = new List<YamlFile>();
-        foreach (var file in Directory.GetFiles(definitionsDirectory, "*.yaml", SearchOption.AllDirectories))
-        {
-            yamls.Add(await DeserializeYamlAsync<YamlFile>(file));
-        }
-        return YamlFile.Combine(yamls);
-    }
+    protected static Task<YamlFile> LoadZ80YamlAsync() => CpuModel.LoadDirectoryAsync(new DirectoryInfo(Z80DefinitionsDirectory));
 
     private static async Task<TYaml> DeserializeYamlAsync<TYaml>([PathReference] string file)
     {

@@ -1,11 +1,10 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Generators.Flags;
-using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
+using MrKWatkins.OakCpu.Definitions.Language.Ast;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static MrKWatkins.OakCpu.CodeGenerator.CommonSyntax;
 using static MrKWatkins.OakCpu.CodeGenerator.Generators.Identifiers;
-using Action = MrKWatkins.OakCpu.CodeGenerator.Definitions.Action;
+using Action = MrKWatkins.OakCpu.Definitions.Action;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Statements;
 

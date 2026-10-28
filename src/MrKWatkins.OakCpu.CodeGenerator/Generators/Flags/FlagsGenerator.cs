@@ -1,7 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using MrKWatkins.OakCpu.CodeGenerator.Definitions;
 using MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Actions;
 using MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Optimization;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;

@@ -1,5 +1,5 @@
-using MrKWatkins.OakCpu.CodeGenerator.Language.Ast;
-using MrKWatkins.OakCpu.CodeGenerator.Language.Parsing;
+using MrKWatkins.OakCpu.Definitions.Language.Ast;
+using MrKWatkins.OakCpu.Definitions.Language.Parsing;
 
 namespace MrKWatkins.OakCpu.CodeGenerator.Tests.Generators;
 

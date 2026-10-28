@@ -1,0 +1,12 @@
+using System.Text;
+
+namespace MrKWatkins.OakCpu.Definitions.Language.Ast;
+
+public sealed class FlagAccess(Flag flag) : Access(flag.Name)
+{
+    public Flag Flag { get; } = flag;
+
+    public override DataType Type => DataType.I32Bool;
+
+    public override void WriteStringRepresentation(StringBuilder stringRepresentation) => stringRepresentation.Append(Flag);
+}
