@@ -5,6 +5,8 @@ namespace MrKWatkins.OakCpu.Definitions.Yaml;
 [YamlObject]
 public sealed partial class YamlFile
 {
+    private static readonly IReadOnlyDictionary<InstructionYaml, string> EmptyInheritedFrom = new Dictionary<InstructionYaml, string>();
+
     private IReadOnlyList<string?>? opcodeRead;
 
     private YamlFile()
@@ -60,6 +62,17 @@ public sealed partial class YamlFile
     public string? OnInstructionComplete { get; private init; }
 
     public string? OnStepComplete { get; private init; }
+
+    /// <summary>
+    /// The instructions inherited from the CPUs this CPU is based on, keyed by instruction, with the name of the CPU the
+    /// instruction was inherited from. Empty unless the file is the result of a <see cref="Merge" />.
+    /// </summary>
+    [YamlIgnore]
+    public IReadOnlyDictionary<InstructionYaml, string> InheritedFrom
+    {
+        get => field ?? EmptyInheritedFrom;
+        private init;
+    }
 
     [Pure]
     public static YamlFile Combine(params IEnumerable<YamlFile> files)
@@ -123,8 +136,12 @@ public sealed partial class YamlFile
     /// the individual opcodes they define, rather than entire instructions from the base CPU.
     /// </summary>
     [Pure]
-    public static YamlFile Merge(YamlFile @base, YamlFile variant) =>
-        new()
+    public static YamlFile Merge(YamlFile @base, YamlFile variant)
+    {
+        var inheritedFrom = new Dictionary<InstructionYaml, string>();
+        var instructions = MergeInstructions(@base, variant, inheritedFrom);
+
+        return new YamlFile
         {
             Cpu = CpuYaml.Merge(@base.Cpu, variant.Cpu),
             Interrupts = variant.Interrupts ?? @base.Interrupts,
@@ -135,13 +152,18 @@ public sealed partial class YamlFile
             Sequences = MergeByName(@base.Sequences, variant.Sequences, sequence => sequence.Name),
             Registers = [.. @base.Registers, .. variant.Registers],
             Flags = [.. @base.Flags, .. variant.Flags],
-            Instructions = MergeInstructions(@base.Instructions, variant.Instructions),
-            Functions = MergeByName(@base.Functions, variant.Functions, function => function.Name)
+            Instructions = instructions,
+            Functions = MergeByName(@base.Functions, variant.Functions, function => function.Name),
+            InheritedFrom = inheritedFrom
         };
+    }
 
     [Pure]
-    private static IReadOnlyList<InstructionYaml> MergeInstructions(IReadOnlyList<InstructionYaml> @base, IReadOnlyList<InstructionYaml> variant)
+    private static IReadOnlyList<InstructionYaml> MergeInstructions(YamlFile baseFile, YamlFile variantFile, Dictionary<InstructionYaml, string> inheritedFrom)
     {
+        var @base = baseFile.Instructions;
+        var variant = variantFile.Instructions;
+
         var variantOpcodes = variant
             .SelectMany(instruction => instruction.Opcodes.Select(opcode => (instruction.OpcodeTable, opcode.PrefixByte, opcode.OpcodeByte)))
             .ToHashSet();
@@ -153,14 +175,20 @@ public sealed partial class YamlFile
                 .Where(opcode => !variantOpcodes.Contains((instruction.OpcodeTable, opcode.PrefixByte, opcode.OpcodeByte)))
                 .ToList();
 
+            // Instructions the base inherited itself keep the name of the CPU that defined them.
+            var inheritedFromCpu = baseFile.InheritedFrom.GetValueOrDefault(instruction) ?? baseFile.Cpu.Name;
+
             if (opcodes.Count == instruction.Opcodes.Count)
             {
                 instructions.Add(instruction);
+                inheritedFrom.Add(instruction, inheritedFromCpu);
             }
             else if (opcodes.Count > 0)
             {
                 // The variant has overridden some, but not all, of the opcodes for the instruction.
-                instructions.Add(instruction.WithOpcodes(opcodes));
+                var reduced = instruction.WithOpcodes(opcodes);
+                instructions.Add(reduced);
+                inheritedFrom.Add(reduced, inheritedFromCpu);
             }
 
             // Otherwise the variant has overridden every opcode for the instruction, so it no longer exists.

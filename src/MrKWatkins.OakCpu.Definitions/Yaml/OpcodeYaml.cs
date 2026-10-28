@@ -24,6 +24,12 @@ public sealed partial class OpcodeYaml
 
     public byte? N0 { get; internal init; }
 
+    /// <summary>
+    /// Whether the opcode is undocumented, i.e. not in the manufacturer's documentation for the CPU, when the rest of the
+    /// instruction's opcodes are documented.
+    /// </summary>
+    public bool Undocumented { get; internal init; }
+
     public override string ToString() => Opcode;
 
     [YamlIgnore]

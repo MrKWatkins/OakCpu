@@ -15,6 +15,18 @@ public sealed partial class InstructionYaml
 
     public string Mnemonic { get; private init; } = null!;
 
+    /// <summary>
+    /// A description of what the instruction does for documentation. Placeholders in the mnemonic, e.g. <c>R0</c>, can be
+    /// used in braces, e.g. <c>{R0}</c>, and are replaced with the operand for each opcode.
+    /// </summary>
+    public string? Documentation { get; private init; }
+
+    /// <summary>
+    /// Whether every opcode of the instruction is undocumented, i.e. not in the manufacturer's documentation for the CPU.
+    /// Individual opcodes can be marked instead with <see cref="OpcodeYaml.Undocumented" />.
+    /// </summary>
+    public bool Undocumented { get; private init; }
+
     public string? OpcodeTable { get; private init; }
 
     public IReadOnlyList<OpcodeYaml> Opcodes
@@ -58,6 +70,8 @@ public sealed partial class InstructionYaml
         {
             Group = Group,
             Mnemonic = Mnemonic,
+            Documentation = Documentation,
+            Undocumented = Undocumented,
             OpcodeTable = OpcodeTable,
             Opcodes = newOpcodes,
             Steps = Steps,

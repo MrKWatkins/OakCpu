@@ -1,3 +1,6 @@
+using MrKWatkins.OakCpu.Definitions.Yaml;
+using VYaml.Serialization;
+
 namespace MrKWatkins.OakCpu.Definitions.Tests.Yaml;
 
 public sealed class InstructionYamlTests : TestFixture
@@ -41,5 +44,72 @@ public sealed class InstructionYamlTests : TestFixture
             "Jump",
             "Redirects",
             "Rotate and Shift");
+    }
+
+    [Test]
+    public void Deserialize_DocumentationAndUndocumented()
+    {
+        var yaml = """
+                   group: Test
+                   mnemonic: SLL R0
+                   documentation: Shifts {R0} left.
+                   undocumented: true
+                   opcodes:
+                     - opcode: 0xCB 0x30
+                       undocumented: true
+                     - opcode: 0xCB 0x31
+                   steps:
+                     - R0 = R0 << 1;
+                   """;
+
+        var instruction = YamlSerializer.Deserialize<InstructionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        instruction.Documentation.Should().Equal("Shifts {R0} left.");
+        instruction.Undocumented.Should().BeTrue();
+        instruction.Opcodes[0].Undocumented.Should().BeTrue();
+        instruction.Opcodes[1].Undocumented.Should().BeFalse();
+    }
+
+    [Test]
+    public void Deserialize_DocumentationAndUndocumentedDefaults()
+    {
+        var yaml = """
+                   group: Test
+                   mnemonic: NOP
+                   opcodes:
+                     - opcode: 0x00
+                   steps:
+                     -
+                   """;
+
+        var instruction = YamlSerializer.Deserialize<InstructionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        instruction.Documentation.Should().BeNull();
+        instruction.Undocumented.Should().BeFalse();
+        instruction.Opcodes[0].Undocumented.Should().BeFalse();
+    }
+
+    [Test]
+    public void WithOpcodes_KeepsDocumentationAndUndocumented()
+    {
+        var yaml = """
+                   group: Test
+                   mnemonic: SLL R0
+                   documentation: Shifts {R0} left.
+                   undocumented: true
+                   opcodes:
+                     - opcode: 0xCB 0x30
+                     - opcode: 0xCB 0x31
+                   steps:
+                     - R0 = R0 << 1;
+                   """;
+
+        var instruction = YamlSerializer.Deserialize<InstructionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        var reduced = instruction.WithOpcodes([instruction.Opcodes[0]]);
+
+        reduced.Opcodes.Should().HaveCount(1);
+        reduced.Documentation.Should().Equal("Shifts {R0} left.");
+        reduced.Undocumented.Should().BeTrue();
     }
 }

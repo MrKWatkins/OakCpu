@@ -73,4 +73,27 @@ public class RegisterYamlTests : TestFixture
         serializedYaml.Contains("name: B", StringComparison.Ordinal).Should().BeTrue();
         serializedYaml.Contains("type: u8", StringComparison.Ordinal).Should().BeTrue();
     }
+
+    [Test]
+    public void Deserialize_Undocumented()
+    {
+        var yaml = """
+                   name: IX
+                   type: u16
+                   high:
+                     name: IXH
+                     type: u8
+                     undocumented: true
+                   low:
+                     name: IXL
+                     type: u8
+                     undocumented: true
+                   """;
+
+        var register = YamlSerializer.Deserialize<RegisterYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
+
+        register.Undocumented.Should().BeFalse();
+        register.High!.Undocumented.Should().BeTrue();
+        register.Low!.Undocumented.Should().BeTrue();
+    }
 }

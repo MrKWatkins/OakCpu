@@ -206,6 +206,50 @@ public sealed class YamlFileTests : TestFixture
         AssertThat.Invoking(() => DefinitionValidation.Validate(merged)).Should().NotThrow();
     }
 
+    [Test]
+    public void Merge_RecordsInheritedInstructions()
+    {
+        var merged = YamlFile.Merge(Base, Variant);
+
+        // NOP lost some opcodes to the variant, so is a reduced copy; HALT lost its only opcode so is gone.
+        var nop = merged.Instructions.Single(i => i.Mnemonic == "NOP");
+        merged.InheritedFrom[nop].Should().Equal("TestCpu");
+        merged.InheritedFrom.Keys.Select(i => i.Mnemonic).Should().SequenceEqual("NOP");
+
+        foreach (var variantInstruction in Variant.Instructions)
+        {
+            merged.InheritedFrom.ContainsKey(variantInstruction).Should().BeFalse();
+        }
+    }
+
+    [Test]
+    public void Merge_InheritedInstructionsKeepTheCpuThatDefinedThem()
+    {
+        var variantOfVariant = DeserializeYamlFile(
+            """
+            cpu:
+              name: TestCpuVariant2
+              base: TestCpuVariant
+            instructions:
+              - group: Variant2
+                mnemonic: LDWS
+                opcodes:
+                  - opcode: 0xED 0x25
+                steps:
+                  -
+            """);
+
+        var merged = YamlFile.Merge(YamlFile.Merge(Base, Variant), variantOfVariant);
+
+        merged.InheritedFrom
+            .Select(kvp => $"{kvp.Key.Mnemonic} from {kvp.Value}")
+            .Order(StringComparer.Ordinal)
+            .Should().SequenceEqual("LD BR, VR from TestCpuVariant", "MIRROR from TestCpuVariant", "NOP from TestCpu", "SWAPNIB from TestCpuVariant");
+    }
+
+    [Test]
+    public void Combine_HasNoInheritedInstructions() => Base.InheritedFrom.Should().BeEmpty();
+
     private static YamlFile Base =>
         DeserializeYamlFile(
             """

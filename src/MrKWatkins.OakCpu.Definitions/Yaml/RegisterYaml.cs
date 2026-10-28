@@ -21,6 +21,12 @@ public sealed partial class RegisterYaml
 
     public bool Transient { get; private init; }
 
+    /// <summary>
+    /// Whether the register is undocumented, i.e. not in the manufacturer's documentation for the CPU. Instructions using an
+    /// undocumented register are themselves undocumented.
+    /// </summary>
+    public bool Undocumented { get; private init; }
+
     public string? Category { get; private init; }
 
     public RegisterYaml? High { get; private init; }
