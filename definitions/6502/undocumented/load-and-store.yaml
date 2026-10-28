@@ -6,7 +6,7 @@ sequences:
 
 instructions:
   - group: Undocumented
-    mnemonic: "LAX #n"
+    instruction: "LAX #n"
     opcodes:
       - opcode: 0xAB
     steps:
@@ -17,7 +17,7 @@ instructions:
       N: is_negative(A)
 
   - group: Undocumented
-    mnemonic: LAX zp
+    instruction: LAX zp
     opcodes:
       - opcode: 0xA7
     steps:
@@ -29,7 +29,7 @@ instructions:
       N: is_negative(A)
 
   - group: Undocumented
-    mnemonic: LAX zp,Y
+    instruction: LAX zp,Y
     opcodes:
       - opcode: 0xB7
     steps:
@@ -42,7 +42,7 @@ instructions:
       N: is_negative(A)
 
   - group: Undocumented
-    mnemonic: LAX abs
+    instruction: LAX abs
     opcodes:
       - opcode: 0xAF
     steps:
@@ -55,7 +55,7 @@ instructions:
       N: is_negative(A)
 
   - group: Undocumented
-    mnemonic: LAX abs,Y
+    instruction: LAX abs,Y
     next_opcode: custom
     opcodes:
       - opcode: 0xBF
@@ -66,7 +66,7 @@ instructions:
       - Address = AD + Y; move_to_sequence(sequence.lax_finish); request(action.memory_read);
 
   - group: Undocumented
-    mnemonic: "LAX (zp,X)"
+    instruction: "LAX (zp,X)"
     opcodes:
       - opcode: 0xA3
     steps:
@@ -81,7 +81,7 @@ instructions:
       N: is_negative(A)
 
   - group: Undocumented
-    mnemonic: "LAX (zp),Y"
+    instruction: "LAX (zp),Y"
     next_opcode: custom
     opcodes:
       - opcode: 0xB3
@@ -93,7 +93,7 @@ instructions:
       - Address = AD + Y; move_to_sequence(sequence.lax_finish); request(action.memory_read);
 
   - group: Undocumented
-    mnemonic: SAX zp
+    instruction: SAX zp
     next_opcode: overlapped
     opcodes:
       - opcode: 0x87
@@ -103,7 +103,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: SAX zp,Y
+    instruction: SAX zp,Y
     next_opcode: overlapped
     opcodes:
       - opcode: 0x97
@@ -114,7 +114,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: SAX abs
+    instruction: SAX abs
     next_opcode: overlapped
     opcodes:
       - opcode: 0x8F
@@ -125,7 +125,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: "SAX (zp,X)"
+    instruction: "SAX (zp,X)"
     next_opcode: overlapped
     opcodes:
       - opcode: 0x83

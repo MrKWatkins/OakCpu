@@ -1,6 +1,6 @@
 instructions:
   - group: Store
-    mnemonic: STA zp
+    instruction: STA zp
     next_opcode: overlapped
     opcodes:
       - opcode: 0x85
@@ -10,7 +10,7 @@ instructions:
       -
 
   - group: Store
-    mnemonic: STA zp,X
+    instruction: STA zp,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x95
@@ -21,7 +21,7 @@ instructions:
       -
 
   - group: Store
-    mnemonic: STA abs
+    instruction: STA abs
     next_opcode: overlapped
     opcodes:
       - opcode: 0x8D
@@ -32,7 +32,7 @@ instructions:
       -
 
   - group: Store
-    mnemonic: STA abs,X
+    instruction: STA abs,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x9D
@@ -44,7 +44,7 @@ instructions:
       -
 
   - group: Store
-    mnemonic: STA abs,Y
+    instruction: STA abs,Y
     next_opcode: overlapped
     opcodes:
       - opcode: 0x99
@@ -56,7 +56,7 @@ instructions:
       -
 
   - group: Store
-    mnemonic: "STA (zp,X)"
+    instruction: "STA (zp,X)"
     next_opcode: overlapped
     opcodes:
       - opcode: 0x81
@@ -69,7 +69,7 @@ instructions:
       -
 
   - group: Store
-    mnemonic: "STA (zp),Y"
+    instruction: "STA (zp),Y"
     next_opcode: overlapped
     opcodes:
       - opcode: 0x91

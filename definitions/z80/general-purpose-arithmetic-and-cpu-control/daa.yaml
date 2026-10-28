@@ -1,6 +1,6 @@
 instructions:
   - group: General-Purpose Arithmetic and CPU Control
-    mnemonic: DAA
+    instruction: DAA
     documentation: "Adjusts A to binary coded decimal after an addition or subtraction of binary coded decimal values, using the N, H and C flags to choose the adjustment."
     flag_documentation:
       H: "After an addition, i.e. with the N flag reset, set if the low nibble of A was greater than 9 before the adjustment, otherwise reset. After a subtraction, i.e. with the N flag set, set if the H flag was set and the low nibble of A was less than 6 before the adjustment, otherwise reset."

@@ -9,13 +9,13 @@ namespace MrKWatkins.OakCpu.Definitions.Tests;
 public sealed class InstructionTests
 {
     [Test]
-    public void Create_SubstitutesOpcodePlaceholdersAcrossMnemonicStepsAndFlags()
+    public void Create_SubstitutesOpcodePlaceholdersAcrossInstructionStepsAndFlags()
     {
         var yaml = YamlSerializer.Deserialize<InstructionYaml>(
             Encoding.UTF8.GetBytes(
                 """
                 group: Test
-                mnemonic: TEST R0,R1,RP0,RP1,C0,N0
+                instruction: TEST R0,R1,RP0,RP1,C0,N0
                 opcodes:
                   - opcode: 0x01
                 steps:

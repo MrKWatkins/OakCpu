@@ -1,6 +1,6 @@
 instructions:
   - group: 16-Bit Arithmetic
-    mnemonic: SBC HL, RP0
+    instruction: SBC HL, RP0
     documentation: "Subtracts {RP0} and the carry flag from HL."
     opcodes:
       - opcode: 0xED 0x42

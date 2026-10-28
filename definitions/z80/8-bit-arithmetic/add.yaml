@@ -1,6 +1,6 @@
 instructions:
   - group: 8-Bit Arithmetic
-    mnemonic: ADD RP0, RP1
+    instruction: ADD RP0, RP1
     documentation: "Adds {RP1} to {RP0}."
     opcodes:
       - opcode: 0x09
@@ -56,7 +56,7 @@ instructions:
       Y: copy_from($high)
         
   - group: 8-Bit Arithmetic
-    mnemonic: ADD A, R0
+    instruction: ADD A, R0
     documentation: "Adds {R0} to A."
     opcodes:
       - opcode: 0x80
@@ -116,7 +116,7 @@ instructions:
       S: copy_from($result)
     
   - group: 8-Bit Arithmetic
-    mnemonic: ADD A, n
+    instruction: ADD A, n
     documentation: "Adds n to A."
     opcodes:
       - opcode: 0xC6
@@ -138,7 +138,7 @@ instructions:
       S: copy_from($result)
 
   - group: 8-Bit Arithmetic
-    mnemonic: ADD A, (HL)
+    instruction: ADD A, (HL)
     documentation: "Adds the byte at (HL) to A."
     opcodes:
       - opcode: 0x86
@@ -158,7 +158,7 @@ instructions:
       S: copy_from($result)
 
   - group: 8-Bit Arithmetic
-    mnemonic: ADD A, (RP0 + n)
+    instruction: ADD A, (RP0 + n)
     documentation: "Adds the byte at ({RP0} + n) to A."
     opcodes:
       - opcode: 0xDD 0x86

@@ -9,7 +9,7 @@
 #     No flags are written.
 instructions:
   - group: Z80N Miscellaneous
-    mnemonic: PIXELDN
+    instruction: PIXELDN
     documentation: "Updates HL from a ZX Spectrum screen address to the address of the pixel on the line below."
     opcodes:
       - opcode: 0xED 0x93

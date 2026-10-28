@@ -5,7 +5,7 @@
 #     ACC <= A(0) & A(1) & A(2) & A(3) & A(4) & A(5) & A(6) & A(7), i.e. the bits of A reversed. No flags are written.
 instructions:
   - group: Z80N Miscellaneous
-    mnemonic: MIRROR A
+    instruction: MIRROR A
     documentation: "Reverses the order of the bits in A."
     opcodes:
       - opcode: 0xED 0x24

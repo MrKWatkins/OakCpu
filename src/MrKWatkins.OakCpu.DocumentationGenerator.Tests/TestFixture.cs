@@ -36,11 +36,11 @@ public abstract class TestFixture
 
     [Pure]
     protected static InstructionYaml GetInstructionYaml(CpuModel model, string form) =>
-        model.Yaml.Instructions.First(instruction => instruction.Mnemonic == form);
+        model.Yaml.Instructions.First(instruction => instruction.Instruction == form);
 
     [Pure]
     protected static InstructionDocumentation GetDocumentation(IReadOnlyList<InstructionDocumentation> documentation, string form) =>
-        documentation.Single(d => d.Form == form);
+        documentation.Single(d => d.Instruction == form);
 
     [Pure]
     protected static string GetDefinitionsDirectory(string cpu)

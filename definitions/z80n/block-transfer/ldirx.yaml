@@ -8,7 +8,7 @@
 # whether the Z80N block transfers write flags.
 instructions:
   - group: Z80N Block Transfer
-    mnemonic: LDIRX
+    instruction: LDIRX
     documentation: "Copies the byte at (HL) to (DE) unless it equals A, then increments HL and DE and decrements BC, repeating until BC is zero."
     opcodes:
       - opcode: 0xED 0xB4

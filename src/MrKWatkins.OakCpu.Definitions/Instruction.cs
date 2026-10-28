@@ -68,7 +68,7 @@ public sealed class Instruction : StepSequence
 
             var opcodeYaml = opcodeAndDuplicates[0];
 
-            var mnemonic = Substitute(context, opcodeYaml, yaml.Mnemonic);
+            var mnemonic = Substitute(context, opcodeYaml, yaml.Instruction);
 
             var steps = stepExpressions
                 .Select((expressions, index) =>

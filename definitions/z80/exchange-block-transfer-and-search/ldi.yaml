@@ -1,6 +1,6 @@
 instructions:
   - group: Exchange, Block Transfer, and Search
-    mnemonic: LDI
+    instruction: LDI
     documentation: "Copies the byte at (HL) to (DE), then increments HL and DE and decrements BC."
     opcodes:
       - opcode: 0xED 0xA0

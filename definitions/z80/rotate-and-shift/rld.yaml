@@ -1,6 +1,6 @@
 instructions:
   - group: Rotate and Shift
-    mnemonic: RLD
+    instruction: RLD
     documentation: "Rotates the low nibble of A and the two nibbles of the byte at (HL) left one nibble as a twelve bit value: the low nibble of A moves to the low nibble of (HL), the low nibble of (HL) to its high nibble, and the high nibble of (HL) to the low nibble of A."
     opcodes:
       - opcode: 0xED 0x6F

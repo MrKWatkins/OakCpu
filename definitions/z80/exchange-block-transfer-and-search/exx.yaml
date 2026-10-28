@@ -1,6 +1,6 @@
 instructions:
   - group: Exchange, Block Transfer, and Search
-    mnemonic: EXX
+    instruction: EXX
     documentation: "Exchanges BC, DE and HL with their shadow registers BC', DE' and HL'."
     opcodes:
       - opcode: 0xD9

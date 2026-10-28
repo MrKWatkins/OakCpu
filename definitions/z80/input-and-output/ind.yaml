@@ -1,6 +1,6 @@
 instructions:
   - group: Input and Output
-    mnemonic: IND
+    instruction: IND
     documentation: "Reads a byte from the port addressed by BC into (HL), then decrements HL and B."
     opcodes:
       - opcode: 0xED 0xAA

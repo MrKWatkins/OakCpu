@@ -1,6 +1,6 @@
 instructions:
   - group: Shift
-    mnemonic: ROL A
+    instruction: ROL A
     next_opcode: overlapped
     opcodes:
       - opcode: 0x2A
@@ -8,7 +8,7 @@ instructions:
       - $carry = P & 0x01; $value = A; A = (($value << 1) | $carry) & 0xFF; P = P & 0x7C; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; if is_negative($value); P = P | 0x01; endif;
 
   - group: Shift
-    mnemonic: ROL zp
+    instruction: ROL zp
     next_opcode: overlapped
     opcodes:
       - opcode: 0x26
@@ -20,7 +20,7 @@ instructions:
       -
 
   - group: Shift
-    mnemonic: ROL zp,X
+    instruction: ROL zp,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x36
@@ -33,7 +33,7 @@ instructions:
       -
 
   - group: Shift
-    mnemonic: ROL abs
+    instruction: ROL abs
     next_opcode: overlapped
     opcodes:
       - opcode: 0x2E
@@ -46,7 +46,7 @@ instructions:
       -
 
   - group: Shift
-    mnemonic: ROL abs,X
+    instruction: ROL abs,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x3E

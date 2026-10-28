@@ -1,6 +1,6 @@
 instructions:
   - group: 16-Bit Load
-    mnemonic: LD RP0, nn
+    instruction: LD RP0, nn
     documentation: "Loads nn into {RP0}."
     opcodes:
       - opcode: 0x01

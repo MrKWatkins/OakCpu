@@ -10,31 +10,20 @@ public sealed class MarkdownWriterTests : TestFixture
     [TestCase("SLL R0")]
     [TestCase("LDIR")]
     [TestCase("DAA")]
-    public Task Write(string form) => Verify(MarkdownWriter.Write(GetDocumentation(Z80Documentation, form))).UseParameters(CpuDocumentation.Slug(form));
+    public Task Write(string instruction) => Verify(MarkdownWriter.Write(GetDocumentation(Z80Documentation, instruction))).UseParameters(CpuDocumentation.Slug(instruction));
 
     [TestCase("LDIRX")]
     [TestCase("NEXTREG $n, $n")]
-    public Task Write_Z80N(string form) => Verify(MarkdownWriter.Write(GetDocumentation(Z80NDocumentation, form))).UseParameters(CpuDocumentation.Slug(form));
+    public Task Write_Z80N(string instruction) => Verify(MarkdownWriter.Write(GetDocumentation(Z80NDocumentation, instruction))).UseParameters(CpuDocumentation.Slug(instruction));
 
     [Test]
-    public void Write_FrontMatterQuotesSpecialCharacters()
-    {
-        var markdown = MarkdownWriter.Write(GetDocumentation(Z80Documentation, "LD R0, (RP0 + d)"));
-
-        markdown.Should().StartWith("---\ncpu: Z80\n");
-        markdown.Should().Contain("form: LD R0, (RP0 + d)\n");
-        markdown.Should().Contain("description: \"");
-        markdown.Should().Contain("url: \"https://");
-    }
-
-    [Test]
-    public void Write_SubstitutesSymbolicOperandsInTheBody()
+    public void Write_SubstitutesSymbolicOperands()
     {
         var markdown = MarkdownWriter.Write(GetDocumentation(Z80Documentation, "SLL R0"));
-        var body = markdown[(markdown.IndexOf("\n---\n", StringComparison.Ordinal) + 5)..];
 
-        body.Should().StartWith("\n# SLL r\n");
-        body.Should().NotContain("{R0}");
-        body.Should().Contain("This instruction is undocumented.");
+        markdown.Should().StartWith("# SLL r\n");
+        markdown.Should().NotContain("{R0}");
+        markdown.Should().Contain("This instruction is undocumented.");
+        markdown.Should().Contain("| Instruction | Opcode | T-States | Notes |");
     }
 }

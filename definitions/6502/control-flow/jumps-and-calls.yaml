@@ -1,6 +1,6 @@
 instructions:
   - group: Jump
-    mnemonic: JMP abs
+    instruction: JMP abs
     opcodes:
       - opcode: 0x4C
     steps:
@@ -9,7 +9,7 @@ instructions:
       - PC = (Data << 8) | AD;
 
   - group: Jump
-    mnemonic: "JMP (abs)"
+    instruction: "JMP (abs)"
     opcodes:
       - opcode: 0x6C
     steps:
@@ -20,7 +20,7 @@ instructions:
       - PC = (Data << 8) | AD;
 
   - group: Call and Return
-    mnemonic: JSR abs
+    instruction: JSR abs
     opcodes:
       - opcode: 0x20
     steps:
@@ -32,7 +32,7 @@ instructions:
       - PC = (Data << 8) | AD;
 
   - group: Call and Return
-    mnemonic: RTS
+    instruction: RTS
     opcodes:
       - opcode: 0x60
     steps:

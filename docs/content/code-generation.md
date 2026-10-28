@@ -46,9 +46,9 @@ The variant contains only its additions and overrides; everything else is inheri
 
 ## Instruction Documentation
 
-The definitions also document the instructions. Each instruction has a `documentation` description, with the placeholders from its mnemonic in braces, for example `Loads the byte at ({RP0} + d) into {R0}.` for `LD R0, (RP0 + d)`. Instructions, opcodes and registers that are not in the manufacturer's documentation are marked `undocumented: true`; prefixed copies of other opcodes are worked out from the definitions and need no marking. The rest comes from the definitions themselves: the effect on each flag is described from the instruction's flag expressions, and the T-states are calculated from its steps, with a `flag_documentation` entry describing a flag by hand where its expression is too involved to describe automatically.
+The definitions also document the instructions. Each instruction has a `documentation` description, with the placeholders from its `instruction` in braces, for example `Loads the byte at ({RP0} + d) into {R0}.` for `LD R0, (RP0 + d)`. Instructions, opcodes and registers that are not in the manufacturer's documentation are marked `undocumented: true`; prefixed copies of other opcodes are worked out from the definitions and need no marking. The rest comes from the definitions themselves: the effect on each flag is described from the instruction's flag expressions, and the T-states are calculated from its steps, with a `flag_documentation` entry describing a flag by hand where its expression is too involved to describe automatically.
 
-The documentation generator writes a Markdown page per instruction form to `docs/instructions/<cpu>`, with YAML front matter carrying everything on the page as data, so that other tools can use it without parsing the Markdown. Run it from the `src` directory like the code generator:
+The documentation generator writes a Markdown page per instruction to `docs/instructions/<cpu>` for people to read, and an `instructions.yaml` alongside them carrying everything on the pages as data for other tools. The YAML uses the same keys as the definitions where the two share a concept: `instruction`, `opcode`, `documentation`, `undocumented` and the operand placeholders. Run it from the `src` directory like the code generator:
 
 ```bash
 cd src

@@ -1,6 +1,6 @@
 instructions:
   - group: 8-Bit Arithmetic
-    mnemonic: DEC R0
+    instruction: DEC R0
     documentation: "Decrements {R0}."
     opcodes:
       - opcode: 0x05
@@ -57,7 +57,7 @@ instructions:
       S: is_negative(R0)
     
   - group: 8-Bit Arithmetic
-    mnemonic: DEC (HL)
+    instruction: DEC (HL)
     documentation: "Decrements the byte at (HL)."
     opcodes:
       - opcode: 0x35
@@ -80,7 +80,7 @@ instructions:
       S: is_negative(Data)
     
   - group: 8-Bit Arithmetic
-    mnemonic: DEC (RP0 + d)
+    instruction: DEC (RP0 + d)
     documentation: "Decrements the byte at ({RP0} + d)."
     opcodes:
       - opcode: 0xDD 0x35

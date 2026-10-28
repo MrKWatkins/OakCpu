@@ -1,0 +1,99 @@
+﻿cpu: Z80
+instructions:
+  - instruction: JR C0, d
+    defined_by: Z80
+    group: Jump
+    documentation: "Jumps to the address d bytes from the next instruction if condition {C0} is met; otherwise continues with the next instruction."
+    undocumented: false
+    page: jump/jr-c0-d.md
+    flags:
+      S:
+        effect: unaffected
+        documentation: Unaffected.
+      Z:
+        effect: unaffected
+        documentation: Unaffected.
+      Y:
+        effect: unaffected
+        documentation: Unaffected.
+      H:
+        effect: unaffected
+        documentation: Unaffected.
+      X:
+        effect: unaffected
+        documentation: Unaffected.
+      PV:
+        effect: unaffected
+        documentation: Unaffected.
+      N:
+        effect: unaffected
+        documentation: Unaffected.
+      C:
+        effect: unaffected
+        documentation: Unaffected.
+    opcodes:
+      - opcode: 20 d
+        instruction: JR NZ, d
+        C0: NZ
+        t_states: [7, 12]
+        undocumented: false
+      - opcode: 28 d
+        instruction: JR Z, d
+        C0: Z
+        t_states: [7, 12]
+        undocumented: false
+      - opcode: 30 d
+        instruction: JR NC, d
+        C0: NC
+        t_states: [7, 12]
+        undocumented: false
+      - opcode: 38 d
+        instruction: JR C, d
+        C0: C
+        t_states: [7, 12]
+        undocumented: false
+      - opcode: DD 20 d
+        instruction: JR NZ, d
+        C0: NZ
+        t_states: [11, 16]
+        undocumented: true
+      - opcode: DD 28 d
+        instruction: JR Z, d
+        C0: Z
+        t_states: [11, 16]
+        undocumented: true
+      - opcode: DD 30 d
+        instruction: JR NC, d
+        C0: NC
+        t_states: [11, 16]
+        undocumented: true
+      - opcode: DD 38 d
+        instruction: JR C, d
+        C0: C
+        t_states: [11, 16]
+        undocumented: true
+      - opcode: FD 20 d
+        instruction: JR NZ, d
+        C0: NZ
+        t_states: [11, 16]
+        undocumented: true
+      - opcode: FD 28 d
+        instruction: JR Z, d
+        C0: Z
+        t_states: [11, 16]
+        undocumented: true
+      - opcode: FD 30 d
+        instruction: JR NC, d
+        C0: NC
+        t_states: [11, 16]
+        undocumented: true
+      - opcode: FD 38 d
+        instruction: JR C, d
+        C0: C
+        t_states: [11, 16]
+        undocumented: true
+    references:
+      - name: Zilog Z80 CPU User Manual
+        url: "https://www.zilog.com/docs/z80/um0080.pdf"
+      - name: Z80 instruction set, MSX Assembly Page
+        url: "https://map.grauw.nl/resources/z80instr.php"

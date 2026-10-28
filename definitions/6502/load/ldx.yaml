@@ -6,7 +6,7 @@ sequences:
 
 instructions:
   - group: Load
-    mnemonic: "LDX #n"
+    instruction: "LDX #n"
     opcodes:
       - opcode: 0xA2
     steps:
@@ -17,7 +17,7 @@ instructions:
       N: is_negative(X)
 
   - group: Load
-    mnemonic: LDX zp
+    instruction: LDX zp
     opcodes:
       - opcode: 0xA6
     steps:
@@ -29,7 +29,7 @@ instructions:
       N: is_negative(X)
 
   - group: Load
-    mnemonic: LDX zp,Y
+    instruction: LDX zp,Y
     opcodes:
       - opcode: 0xB6
     steps:
@@ -42,7 +42,7 @@ instructions:
       N: is_negative(X)
 
   - group: Load
-    mnemonic: LDX abs
+    instruction: LDX abs
     opcodes:
       - opcode: 0xAE
     steps:
@@ -55,7 +55,7 @@ instructions:
       N: is_negative(X)
 
   - group: Load
-    mnemonic: LDX abs,Y
+    instruction: LDX abs,Y
     next_opcode: custom
     opcodes:
       - opcode: 0xBE

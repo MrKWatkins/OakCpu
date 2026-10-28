@@ -1,48 +1,3 @@
----
-cpu: Z80
-defined_by: Z80
-form: OTDR
-mnemonic: OTDR
-group: Input and Output
-description: Decrements B, then writes the byte at (HL) to the port addressed by BC and decrements HL, repeating until B is zero.
-undocumented: false
-flags:
-  - flag: S
-    effect: changed
-    description: Set if bit 7 of B is set, otherwise reset.
-  - flag: Z
-    effect: changed
-    description: Set if B is zero, otherwise reset.
-  - flag: Y
-    effect: changed
-    description: When the instruction completes, set if bit 1 of B is set, otherwise reset. When it repeats, set if bit 5 of PCH is set, otherwise reset.
-  - flag: H
-    effect: changed
-    description: "When the instruction completes, set if (the value read + L) is greater than 0xFF, otherwise reset. When it repeats, reset if (the value read + L) is not greater than 0xFF; otherwise set if the low nibble of B is zero when bit 7 of the value read is set, or 0x0F when it is reset, otherwise reset."
-  - flag: X
-    effect: changed
-    description: When the instruction completes, set if bit 3 of B is set, otherwise reset. When it repeats, set if bit 3 of PCH is set, otherwise reset.
-  - flag: PV
-    effect: changed
-    description: "When the instruction completes, set if (((the value read + L) & 7) ^ B) has even parity, otherwise reset. When it repeats, set if (((the value read + L) & 7) ^ B) and (B & 7) have the same parity, otherwise reset; when (the value read + L) is greater than 0xFF, ((B - 1) & 7) is used instead of (B & 7) if bit 7 of the value read is set, and ((B + 1) & 7) if it is reset."
-  - flag: N
-    effect: changed
-    description: Set if bit 7 of the value read is set, otherwise reset.
-  - flag: C
-    effect: changed
-    description: "Set if (the value read + (L & 0xFF)) is greater than 0xFF, otherwise reset."
-opcodes:
-  - encoding: ED BB
-    mnemonic: OTDR
-    tstates: [16, 21]
-    undocumented: false
-references:
-  - name: Zilog Z80 CPU User Manual
-    url: "https://www.zilog.com/docs/z80/um0080.pdf"
-  - name: Z80 instruction set, MSX Assembly Page
-    url: "https://map.grauw.nl/resources/z80instr.php"
----
-
 # OTDR
 
 Decrements B, then writes the byte at (HL) to the port addressed by BC and decrements HL, repeating until B is zero.
@@ -62,8 +17,8 @@ Decrements B, then writes the byte at (HL) to the port addressed by BC and decre
 
 ## Opcodes
 
-| Opcode | Encoding | T-states | Notes |
-| ------ | -------- | -------- | ----- |
+| Instruction | Opcode | T-States | Notes |
+| ----------- | ------ | -------- | ----- |
 | `OTDR` | `ED BB` | 16 or 21 |  |
 
 ## References

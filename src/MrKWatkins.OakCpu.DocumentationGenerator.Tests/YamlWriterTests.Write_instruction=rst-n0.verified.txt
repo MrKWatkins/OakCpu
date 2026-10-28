@@ -1,0 +1,159 @@
+﻿cpu: Z80
+instructions:
+  - instruction: RST N0
+    defined_by: Z80
+    group: Call and Return
+    documentation: "Pushes the address of the next instruction onto the stack, then jumps to address {N0}."
+    undocumented: false
+    page: call-and-return/rst-n0.md
+    flags:
+      S:
+        effect: unaffected
+        documentation: Unaffected.
+      Z:
+        effect: unaffected
+        documentation: Unaffected.
+      Y:
+        effect: unaffected
+        documentation: Unaffected.
+      H:
+        effect: unaffected
+        documentation: Unaffected.
+      X:
+        effect: unaffected
+        documentation: Unaffected.
+      PV:
+        effect: unaffected
+        documentation: Unaffected.
+      N:
+        effect: unaffected
+        documentation: Unaffected.
+      C:
+        effect: unaffected
+        documentation: Unaffected.
+    opcodes:
+      - opcode: C7
+        instruction: RST 0x00
+        N0: 0x00
+        t_states: [11]
+        undocumented: false
+      - opcode: CF
+        instruction: RST 0x08
+        N0: 0x08
+        t_states: [11]
+        undocumented: false
+      - opcode: D7
+        instruction: RST 0x10
+        N0: 0x10
+        t_states: [11]
+        undocumented: false
+      - opcode: DF
+        instruction: RST 0x18
+        N0: 0x18
+        t_states: [11]
+        undocumented: false
+      - opcode: E7
+        instruction: RST 0x20
+        N0: 0x20
+        t_states: [11]
+        undocumented: false
+      - opcode: EF
+        instruction: RST 0x28
+        N0: 0x28
+        t_states: [11]
+        undocumented: false
+      - opcode: F7
+        instruction: RST 0x30
+        N0: 0x30
+        t_states: [11]
+        undocumented: false
+      - opcode: FF
+        instruction: RST 0x38
+        N0: 0x38
+        t_states: [11]
+        undocumented: false
+      - opcode: DD C7
+        instruction: RST 0x00
+        N0: 0x00
+        t_states: [15]
+        undocumented: true
+      - opcode: DD CF
+        instruction: RST 0x08
+        N0: 0x08
+        t_states: [15]
+        undocumented: true
+      - opcode: DD D7
+        instruction: RST 0x10
+        N0: 0x10
+        t_states: [15]
+        undocumented: true
+      - opcode: DD DF
+        instruction: RST 0x18
+        N0: 0x18
+        t_states: [15]
+        undocumented: true
+      - opcode: DD E7
+        instruction: RST 0x20
+        N0: 0x20
+        t_states: [15]
+        undocumented: true
+      - opcode: DD EF
+        instruction: RST 0x28
+        N0: 0x28
+        t_states: [15]
+        undocumented: true
+      - opcode: DD F7
+        instruction: RST 0x30
+        N0: 0x30
+        t_states: [15]
+        undocumented: true
+      - opcode: DD FF
+        instruction: RST 0x38
+        N0: 0x38
+        t_states: [15]
+        undocumented: true
+      - opcode: FD C7
+        instruction: RST 0x00
+        N0: 0x00
+        t_states: [15]
+        undocumented: true
+      - opcode: FD CF
+        instruction: RST 0x08
+        N0: 0x08
+        t_states: [15]
+        undocumented: true
+      - opcode: FD D7
+        instruction: RST 0x10
+        N0: 0x10
+        t_states: [15]
+        undocumented: true
+      - opcode: FD DF
+        instruction: RST 0x18
+        N0: 0x18
+        t_states: [15]
+        undocumented: true
+      - opcode: FD E7
+        instruction: RST 0x20
+        N0: 0x20
+        t_states: [15]
+        undocumented: true
+      - opcode: FD EF
+        instruction: RST 0x28
+        N0: 0x28
+        t_states: [15]
+        undocumented: true
+      - opcode: FD F7
+        instruction: RST 0x30
+        N0: 0x30
+        t_states: [15]
+        undocumented: true
+      - opcode: FD FF
+        instruction: RST 0x38
+        N0: 0x38
+        t_states: [15]
+        undocumented: true
+    references:
+      - name: Zilog Z80 CPU User Manual
+        url: "https://www.zilog.com/docs/z80/um0080.pdf"
+      - name: Z80 instruction set, MSX Assembly Page
+        url: "https://map.grauw.nl/resources/z80instr.php"

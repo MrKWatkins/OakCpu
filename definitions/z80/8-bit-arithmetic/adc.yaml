@@ -1,6 +1,6 @@
 instructions:       
   - group: 8-Bit Arithmetic
-    mnemonic: ADC A, R0
+    instruction: ADC A, R0
     documentation: "Adds {R0} and the carry flag to A."
     opcodes:
       - opcode: 0x88
@@ -60,7 +60,7 @@ instructions:
       S: copy_from($result)
 
   - group: 8-Bit Arithmetic
-    mnemonic: ADC A, n
+    instruction: ADC A, n
     documentation: "Adds n and the carry flag to A."
     opcodes:
       - opcode: 0xCE
@@ -82,7 +82,7 @@ instructions:
       S: copy_from($result)
     
   - group: 8-Bit Arithmetic
-    mnemonic: ADC A, (HL)
+    instruction: ADC A, (HL)
     documentation: "Adds the byte at (HL) and the carry flag to A."
     opcodes:
       - opcode: 0x8E
@@ -102,7 +102,7 @@ instructions:
       S: copy_from($result)
     
   - group: 8-Bit Arithmetic
-    mnemonic: ADC A, (RP0 + n)
+    instruction: ADC A, (RP0 + n)
     documentation: "Adds the byte at ({RP0} + n) and the carry flag to A."
     opcodes:
       - opcode: 0xDD 0x8E

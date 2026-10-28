@@ -1,48 +1,3 @@
----
-cpu: Z80N
-defined_by: Z80
-form: RLC (IY + d)
-mnemonic: RLC (IY + d)
-group: Rotate and Shift
-description: "Rotates the byte at (IY + d) left one bit; bit 7 is copied to both bit 0 and the carry flag."
-undocumented: false
-flags:
-  - flag: S
-    effect: changed
-    description: Copied from bit 7 of the result.
-  - flag: Z
-    effect: changed
-    description: Set if the result is zero, otherwise reset.
-  - flag: Y
-    effect: changed
-    description: Copied from bit 5 of the result.
-  - flag: H
-    effect: reset
-    description: Reset.
-  - flag: X
-    effect: changed
-    description: Copied from bit 3 of the result.
-  - flag: PV
-    effect: changed
-    description: Set if the result has even parity, otherwise reset.
-  - flag: N
-    effect: reset
-    description: Reset.
-  - flag: C
-    effect: changed
-    description: Set if bit 7 of the value read is set, otherwise reset.
-opcodes:
-  - encoding: FD CB d 06
-    mnemonic: RLC (IY + d)
-    tstates: [23]
-    undocumented: false
-references:
-  - name: Zilog Z80 CPU User Manual
-    url: "https://www.zilog.com/docs/z80/um0080.pdf"
-  - name: Z80 instruction set, MSX Assembly Page
-    url: "https://map.grauw.nl/resources/z80instr.php"
----
-
 # RLC (IY + d)
 
 Rotates the byte at (IY + d) left one bit; bit 7 is copied to both bit 0 and the carry flag.
@@ -62,8 +17,8 @@ Rotates the byte at (IY + d) left one bit; bit 7 is copied to both bit 0 and the
 
 ## Opcodes
 
-| Opcode | Encoding | T-states | Notes |
-| ------ | -------- | -------- | ----- |
+| Instruction | Opcode | T-States | Notes |
+| ----------- | ------ | -------- | ----- |
 | `RLC (IY + d)` | `FD CB d 06` | 23 |  |
 
 ## References

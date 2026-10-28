@@ -1,6 +1,6 @@
 instructions:
   - group: Undocumented
-    mnemonic: "ANC #n"
+    instruction: "ANC #n"
     opcodes:
       - opcode: 0x0B
     steps:
@@ -8,7 +8,7 @@ instructions:
       - A = A & Data; P = P & 0x7C; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x81; endif;
 
   - group: Undocumented
-    mnemonic: "ANC #n"
+    instruction: "ANC #n"
     opcodes:
       - opcode: 0x2B
     steps:
@@ -16,7 +16,7 @@ instructions:
       - A = A & Data; P = P & 0x7C; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x81; endif;
 
   - group: Undocumented
-    mnemonic: "ALR #n"
+    instruction: "ALR #n"
     opcodes:
       - opcode: 0x4B
     steps:
@@ -24,7 +24,7 @@ instructions:
       - $value = A & Data; A = $value >> 1; P = P & 0x7C; if is_zero(A); P = P | 0x02; endif; if ($value & 0x01) != 0; P = P | 0x01; endif;
 
   - group: Undocumented
-    mnemonic: "ARR #n"
+    instruction: "ARR #n"
     opcodes:
       - opcode: 0x6B
     steps:
@@ -32,7 +32,7 @@ instructions:
       - $value = A & Data; A = (($value >> 1) | ((P & 0x01) << 7)) & 0xFF; P = P & 0x3C; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; if (((A >> 6) ^ (A >> 5)) & 0x01) != 0; P = P | 0x40; endif; if flag.D; if (($value & 0x0F) + ($value & 0x01)) > 0x05; A = (A & 0xF0) | ((A + 0x06) & 0x0F); endif; if (($value & 0xF0) + ($value & 0x10)) > 0x50; A = (A + 0x60) & 0xFF; P = P | 0x01; endif; else; if (A & 0x40) != 0; P = P | 0x01; endif; endif;
 
   - group: Undocumented
-    mnemonic: "SBX #n"
+    instruction: "SBX #n"
     opcodes:
       - opcode: 0xCB
     steps:
@@ -40,7 +40,7 @@ instructions:
       - $value = A & X; X = ($value - Data) & 0xFF; P = P & 0x7C; if $value >= Data; P = P | 0x01; endif; if is_zero(X); P = P | 0x02; endif; if is_negative(X); P = P | 0x80; endif;
 
   - group: Undocumented
-    mnemonic: "USBC #n"
+    instruction: "USBC #n"
     opcodes:
       - opcode: 0xEB
     steps:

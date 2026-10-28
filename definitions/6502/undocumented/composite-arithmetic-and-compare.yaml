@@ -1,6 +1,6 @@
 instructions:
   - group: Undocumented
-    mnemonic: DCP zp
+    instruction: DCP zp
     next_opcode: overlapped
     opcodes:
       - opcode: 0xC7
@@ -12,7 +12,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: DCP zp,X
+    instruction: DCP zp,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0xD7
@@ -25,7 +25,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: DCP abs
+    instruction: DCP abs
     next_opcode: overlapped
     opcodes:
       - opcode: 0xCF
@@ -38,7 +38,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: DCP abs,X
+    instruction: DCP abs,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0xDF
@@ -52,7 +52,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: DCP abs,Y
+    instruction: DCP abs,Y
     next_opcode: overlapped
     opcodes:
       - opcode: 0xDB
@@ -66,7 +66,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: "DCP (zp,X)"
+    instruction: "DCP (zp,X)"
     next_opcode: overlapped
     opcodes:
       - opcode: 0xC3
@@ -81,7 +81,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: "DCP (zp),Y"
+    instruction: "DCP (zp),Y"
     next_opcode: overlapped
     opcodes:
       - opcode: 0xD3
@@ -96,7 +96,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: ISC zp
+    instruction: ISC zp
     next_opcode: overlapped
     opcodes:
       - opcode: 0xE7
@@ -108,7 +108,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: ISC zp,X
+    instruction: ISC zp,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0xF7
@@ -121,7 +121,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: ISC abs
+    instruction: ISC abs
     next_opcode: overlapped
     opcodes:
       - opcode: 0xEF
@@ -134,7 +134,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: ISC abs,X
+    instruction: ISC abs,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0xFF
@@ -148,7 +148,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: ISC abs,Y
+    instruction: ISC abs,Y
     next_opcode: overlapped
     opcodes:
       - opcode: 0xFB
@@ -162,7 +162,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: "ISC (zp,X)"
+    instruction: "ISC (zp,X)"
     next_opcode: overlapped
     opcodes:
       - opcode: 0xE3
@@ -177,7 +177,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: "ISC (zp),Y"
+    instruction: "ISC (zp),Y"
     next_opcode: overlapped
     opcodes:
       - opcode: 0xF3

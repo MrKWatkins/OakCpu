@@ -1,6 +1,6 @@
 instructions:
   - group: General-Purpose Arithmetic and CPU Control
-    mnemonic: NOP
+    instruction: NOP
     documentation: "Does nothing."
     opcodes:
       - opcode: 0x00

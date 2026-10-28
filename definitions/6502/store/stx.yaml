@@ -1,6 +1,6 @@
 instructions:
   - group: Store
-    mnemonic: STX zp
+    instruction: STX zp
     next_opcode: overlapped
     opcodes:
       - opcode: 0x86
@@ -10,7 +10,7 @@ instructions:
       -
 
   - group: Store
-    mnemonic: STX zp,Y
+    instruction: STX zp,Y
     next_opcode: overlapped
     opcodes:
       - opcode: 0x96
@@ -21,7 +21,7 @@ instructions:
       -
 
   - group: Store
-    mnemonic: STX abs
+    instruction: STX abs
     next_opcode: overlapped
     opcodes:
       - opcode: 0x8E

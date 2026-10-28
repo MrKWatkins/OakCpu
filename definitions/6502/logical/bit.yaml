@@ -1,6 +1,6 @@
 instructions:
   - group: Logical
-    mnemonic: BIT zp
+    instruction: BIT zp
     opcodes:
       - opcode: 0x24
     steps:
@@ -13,7 +13,7 @@ instructions:
       N: is_negative(Data)
 
   - group: Logical
-    mnemonic: BIT abs
+    instruction: BIT abs
     opcodes:
       - opcode: 0x2C
     steps:

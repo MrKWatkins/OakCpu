@@ -147,11 +147,11 @@ public sealed class YamlFileTests : TestFixture
         var merged = YamlFile.Merge(Base, Variant);
 
         // The base NOP keeps the opcodes the variant has not overridden.
-        var nop = merged.Instructions.Single(instruction => instruction.Mnemonic == "NOP");
+        var nop = merged.Instructions.Single(instruction => instruction.Instruction == "NOP");
         nop.Opcodes.Select(opcode => opcode.Opcode).Should().SequenceEqual("0x00", "0xED 0x25");
 
         // The variant instructions are appended.
-        merged.Instructions.Select(instruction => instruction.Mnemonic).Should().SequenceEqual("NOP", "SWAPNIB", "MIRROR", "LD BR, VR");
+        merged.Instructions.Select(instruction => instruction.Instruction).Should().SequenceEqual("NOP", "SWAPNIB", "MIRROR", "LD BR, VR");
     }
 
     [Test]
@@ -160,7 +160,7 @@ public sealed class YamlFileTests : TestFixture
         var merged = YamlFile.Merge(Base, Variant);
 
         // The variant overrides the single opcode for the base HALT, so it no longer exists.
-        merged.Instructions.Select(instruction => instruction.Mnemonic).Should().NotContain("HALT");
+        merged.Instructions.Select(instruction => instruction.Instruction).Should().NotContain("HALT");
     }
 
     [Test]
@@ -174,7 +174,7 @@ public sealed class YamlFileTests : TestFixture
               handle: base_handler
             instructions:
               - group: Base
-                mnemonic: BASE
+                instruction: BASE
                 opcode_table: DDCB
                 opcodes:
                   - opcode: 0x06
@@ -187,7 +187,7 @@ public sealed class YamlFileTests : TestFixture
               base: TestCpu
             instructions:
               - group: Variant
-                mnemonic: VARIANT
+                instruction: VARIANT
                 opcodes:
                   - opcode: 0x06
             """);
@@ -195,7 +195,7 @@ public sealed class YamlFileTests : TestFixture
         var merged = YamlFile.Merge(@base, variant);
 
         // The opcodes are in different opcode tables, so the base instruction is not overridden.
-        merged.Instructions.Select(instruction => instruction.Mnemonic).Should().SequenceEqual("BASE", "VARIANT");
+        merged.Instructions.Select(instruction => instruction.Instruction).Should().SequenceEqual("BASE", "VARIANT");
     }
 
     [Test]
@@ -212,9 +212,9 @@ public sealed class YamlFileTests : TestFixture
         var merged = YamlFile.Merge(Base, Variant);
 
         // NOP lost some opcodes to the variant, so is a reduced copy; HALT lost its only opcode so is gone.
-        var nop = merged.Instructions.Single(i => i.Mnemonic == "NOP");
+        var nop = merged.Instructions.Single(i => i.Instruction == "NOP");
         merged.InheritedFrom[nop].Should().Equal("TestCpu");
-        merged.InheritedFrom.Keys.Select(i => i.Mnemonic).Should().SequenceEqual("NOP");
+        merged.InheritedFrom.Keys.Select(i => i.Instruction).Should().SequenceEqual("NOP");
 
         foreach (var variantInstruction in Variant.Instructions)
         {
@@ -232,7 +232,7 @@ public sealed class YamlFileTests : TestFixture
               base: TestCpuVariant
             instructions:
               - group: Variant2
-                mnemonic: LDWS
+                instruction: LDWS
                 opcodes:
                   - opcode: 0xED 0x25
                 steps:
@@ -242,7 +242,7 @@ public sealed class YamlFileTests : TestFixture
         var merged = YamlFile.Merge(YamlFile.Merge(Base, Variant), variantOfVariant);
 
         merged.InheritedFrom
-            .Select(kvp => $"{kvp.Key.Mnemonic} from {kvp.Value}")
+            .Select(kvp => $"{kvp.Key.Instruction} from {kvp.Value}")
             .Order(StringComparer.Ordinal)
             .Should().SequenceEqual("LD BR, VR from TestCpuVariant", "MIRROR from TestCpuVariant", "NOP from TestCpu", "SWAPNIB from TestCpuVariant");
     }
@@ -296,7 +296,7 @@ public sealed class YamlFileTests : TestFixture
                 expression: value
             instructions:
               - group: Base
-                mnemonic: NOP
+                instruction: NOP
                 opcodes:
                   - opcode: 0x00
                   - opcode: 0xED 0x23
@@ -305,7 +305,7 @@ public sealed class YamlFileTests : TestFixture
                 steps:
                   -
               - group: Base
-                mnemonic: HALT
+                instruction: HALT
                 opcodes:
                   - opcode: 0x76
                 steps:
@@ -344,19 +344,19 @@ public sealed class YamlFileTests : TestFixture
                 expression: value + 1
             instructions:
               - group: Variant
-                mnemonic: SWAPNIB
+                instruction: SWAPNIB
                 opcodes:
                   - opcode: 0xED 0x23
                 steps:
                   -
               - group: Variant
-                mnemonic: MIRROR
+                instruction: MIRROR
                 opcodes:
                   - opcode: 0xED 0x24
                 steps:
                   -
               - group: Variant
-                mnemonic: LD BR, VR
+                instruction: LD BR, VR
                 opcodes:
                   - opcode: 0x76
                 steps:

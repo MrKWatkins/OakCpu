@@ -1,6 +1,6 @@
 instructions:
   - group: Call and Return
-    mnemonic: RST N0
+    instruction: RST N0
     documentation: "Pushes the address of the next instruction onto the stack, then jumps to address {N0}."
     opcodes:
       - opcode: 0xC7

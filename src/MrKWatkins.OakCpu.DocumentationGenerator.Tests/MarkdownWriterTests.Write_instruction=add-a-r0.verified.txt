@@ -1,0 +1,47 @@
+﻿# ADD A, r
+
+Adds r to A.
+
+## Flags
+
+| Flag | Effect |
+| ---- | ------ |
+| S | Copied from bit 7 of the result. |
+| Z | Set if A is zero, otherwise reset. |
+| Y | Copied from bit 5 of the result. |
+| H | Set if there was a carry from bit 3 to bit 4, otherwise reset. |
+| X | Copied from bit 3 of the result. |
+| PV | Set if the addition overflowed, otherwise reset. |
+| N | Reset. |
+| C | Set if bit 8 of the result is set, otherwise reset. |
+
+## Opcodes
+
+| Instruction | Opcode | T-States | Notes |
+| ----------- | ------ | -------- | ----- |
+| `ADD A, B` | `80` | 4 |  |
+| `ADD A, C` | `81` | 4 |  |
+| `ADD A, D` | `82` | 4 |  |
+| `ADD A, E` | `83` | 4 |  |
+| `ADD A, H` | `84` | 4 |  |
+| `ADD A, L` | `85` | 4 |  |
+| `ADD A, A` | `87` | 4 |  |
+| `ADD A, B` | `DD 80` | 8 | Undocumented. |
+| `ADD A, C` | `DD 81` | 8 | Undocumented. |
+| `ADD A, D` | `DD 82` | 8 | Undocumented. |
+| `ADD A, E` | `DD 83` | 8 | Undocumented. |
+| `ADD A, IXH` | `DD 84` | 8 | Undocumented. |
+| `ADD A, IXL` | `DD 85` | 8 | Undocumented. |
+| `ADD A, A` | `DD 87` | 8 | Undocumented. |
+| `ADD A, B` | `FD 80` | 8 | Undocumented. |
+| `ADD A, C` | `FD 81` | 8 | Undocumented. |
+| `ADD A, D` | `FD 82` | 8 | Undocumented. |
+| `ADD A, E` | `FD 83` | 8 | Undocumented. |
+| `ADD A, IYH` | `FD 84` | 8 | Undocumented. |
+| `ADD A, IYL` | `FD 85` | 8 | Undocumented. |
+| `ADD A, A` | `FD 87` | 8 | Undocumented. |
+
+## References
+
+- [Zilog Z80 CPU User Manual](https://www.zilog.com/docs/z80/um0080.pdf)
+- [Z80 instruction set, MSX Assembly Page](https://map.grauw.nl/resources/z80instr.php)

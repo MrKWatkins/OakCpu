@@ -10,7 +10,7 @@ public sealed class OperandsTests : TestFixture
     [TestCase("ADD RP0, RP1", "RP0 RP1")]
     [TestCase("BIT N0, R0", "N0 R0")]
     [TestCase("JP C0, nn", "C0")]
-    public void PlaceholdersIn(string mnemonic, string expected) => string.Join(' ', Operands.PlaceholdersIn(mnemonic)).Should().Equal(expected);
+    public void PlaceholdersIn(string instruction, string expected) => string.Join(' ', Operands.PlaceholdersIn(instruction)).Should().Equal(expected);
 
     [TestCase("Copies {R1} into {R0}.", "R1 R0")]
     [TestCase("Does nothing.", "")]
@@ -23,7 +23,7 @@ public sealed class OperandsTests : TestFixture
         var yaml = GetInstructionYaml(Z80Model, "LD R0, (RP0 + d)");
         var opcode = yaml.Opcodes.Single(o => o.PrefixByte == 0xFD && o.OpcodeByte == 0x4E);
 
-        var operands = Operands.For(yaml.Mnemonic, opcode);
+        var operands = Operands.For(yaml.Instruction, opcode);
 
         operands.Select(o => $"{o.Key}={o.Value}").Should().SequenceEqual("R0=C", "RP0=IY");
     }
@@ -34,7 +34,7 @@ public sealed class OperandsTests : TestFixture
         var yaml = GetInstructionYaml(Z80Model, "BIT N0, R0");
         var opcode = yaml.Opcodes.Single(o => o.OpcodeByte == 0x5F);
 
-        Operands.For(yaml.Mnemonic, opcode).Select(o => $"{o.Key}={o.Value}").Should().SequenceEqual("N0=3", "R0=A");
+        Operands.For(yaml.Instruction, opcode).Select(o => $"{o.Key}={o.Value}").Should().SequenceEqual("N0=3", "R0=A");
     }
 
     [Test]
@@ -50,15 +50,15 @@ public sealed class OperandsTests : TestFixture
         AssertThat.Invoking(() => Operands.Substitute("Copies {R1}.", [new KeyValuePair<string, string>("R0", "B")])).Should().Throw<InvalidOperationException>();
 
     [Test]
-    public void SubstituteMnemonic() =>
-        Operands.SubstituteMnemonic("LD R0, (RP0 + d)", [new KeyValuePair<string, string>("R0", "B"), new KeyValuePair<string, string>("RP0", "IX")]).Should().Equal("LD B, (IX + d)");
+    public void SubstituteInstruction() =>
+        Operands.SubstituteInstruction("LD R0, (RP0 + d)", [new KeyValuePair<string, string>("R0", "B"), new KeyValuePair<string, string>("RP0", "IX")]).Should().Equal("LD B, (IX + d)");
 
     [Test]
     public void Symbolic()
     {
         var yaml = GetInstructionYaml(Z80Model, "LD R0, (RP0 + d)");
 
-        Operands.SubstituteMnemonic(yaml.Mnemonic, Operands.Symbolic(yaml.Mnemonic, yaml.Opcodes)).Should().Equal("LD r, (rr + d)");
+        Operands.SubstituteInstruction(yaml.Instruction, Operands.Symbolic(yaml.Instruction, yaml.Opcodes)).Should().Equal("LD r, (rr + d)");
     }
 
     [Test]
@@ -66,7 +66,7 @@ public sealed class OperandsTests : TestFixture
     {
         var yaml = GetInstructionYaml(Z80Model, "BIT N0, R0");
 
-        Operands.SubstituteMnemonic(yaml.Mnemonic, Operands.Symbolic(yaml.Mnemonic, yaml.Opcodes)).Should().Equal("BIT b, r");
+        Operands.SubstituteInstruction(yaml.Instruction, Operands.Symbolic(yaml.Instruction, yaml.Opcodes)).Should().Equal("BIT b, r");
     }
 
     [Test]
@@ -74,7 +74,7 @@ public sealed class OperandsTests : TestFixture
     {
         var yaml = GetInstructionYaml(Z80Model, "RST N0");
 
-        Operands.SubstituteMnemonic(yaml.Mnemonic, Operands.Symbolic(yaml.Mnemonic, yaml.Opcodes)).Should().Equal("RST p");
+        Operands.SubstituteInstruction(yaml.Instruction, Operands.Symbolic(yaml.Instruction, yaml.Opcodes)).Should().Equal("RST p");
     }
 
     [Test]
@@ -82,7 +82,7 @@ public sealed class OperandsTests : TestFixture
     {
         var yaml = GetInstructionYaml(Z80Model, "CALL C0, nn");
 
-        Operands.SubstituteMnemonic(yaml.Mnemonic, Operands.Symbolic(yaml.Mnemonic, yaml.Opcodes)).Should().Equal("CALL cc, nn");
+        Operands.SubstituteInstruction(yaml.Instruction, Operands.Symbolic(yaml.Instruction, yaml.Opcodes)).Should().Equal("CALL cc, nn");
     }
 
     [Test]
@@ -90,7 +90,7 @@ public sealed class OperandsTests : TestFixture
     {
         var yaml = GetInstructionYaml(Z80Model, "LD R0, R1");
 
-        Operands.SubstituteMnemonic(yaml.Mnemonic, Operands.Symbolic(yaml.Mnemonic, yaml.Opcodes)).Should().Equal("LD r, r'");
+        Operands.SubstituteInstruction(yaml.Instruction, Operands.Symbolic(yaml.Instruction, yaml.Opcodes)).Should().Equal("LD r, r'");
     }
 
     [Test]

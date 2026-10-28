@@ -1,6 +1,6 @@
 instructions:
   - group: Store
-    mnemonic: STY zp
+    instruction: STY zp
     next_opcode: overlapped
     opcodes:
       - opcode: 0x84
@@ -10,7 +10,7 @@ instructions:
       -
 
   - group: Store
-    mnemonic: STY zp,X
+    instruction: STY zp,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x94
@@ -21,7 +21,7 @@ instructions:
       -
 
   - group: Store
-    mnemonic: STY abs
+    instruction: STY abs
     next_opcode: overlapped
     opcodes:
       - opcode: 0x8C

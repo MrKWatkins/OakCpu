@@ -1,6 +1,6 @@
 instructions:
   - group: Jump
-    mnemonic: DJNZ d
+    instruction: DJNZ d
     documentation: "Decrements B and, if it is not zero, jumps to the address d bytes from the next instruction."
     opcodes:
       - opcode: 0x10

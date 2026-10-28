@@ -1,48 +1,48 @@
 instructions:
   - group: Status
-    mnemonic: CLC
+    instruction: CLC
     opcodes:
       - opcode: 0x18
     steps:
       - P = P & 0xFE;
 
   - group: Status
-    mnemonic: SEC
+    instruction: SEC
     opcodes:
       - opcode: 0x38
     steps:
       - P = P | 0x01;
 
   - group: Status
-    mnemonic: CLI
+    instruction: CLI
     opcodes:
       - opcode: 0x58
     steps:
       - P = P & 0xFB;
 
   - group: Status
-    mnemonic: SEI
+    instruction: SEI
     opcodes:
       - opcode: 0x78
     steps:
       - P = P | 0x04;
 
   - group: Status
-    mnemonic: CLV
+    instruction: CLV
     opcodes:
       - opcode: 0xB8
     steps:
       - P = P & 0xBF;
 
   - group: Status
-    mnemonic: CLD
+    instruction: CLD
     opcodes:
       - opcode: 0xD8
     steps:
       - P = P & 0xF7;
 
   - group: Status
-    mnemonic: SED
+    instruction: SED
     opcodes:
       - opcode: 0xF8
     steps:

@@ -16,7 +16,7 @@ public static partial class CpuDocumentation
     private static partial Regex TokenRegex();
 
     /// <summary>
-    /// Builds the documentation for every instruction of the CPU, ordered by group then mnemonic. Instructions that only redirect
+    /// Builds the documentation for every instruction of the CPU, ordered by group then instruction. Instructions that only redirect
     /// to another opcode table are not documented.
     /// </summary>
     [Pure]
@@ -29,20 +29,20 @@ public static partial class CpuDocumentation
             .ToDictionary(x => x.Key, x => x.Instruction);
 
         var tStates = new TStateCalculator(model);
-        var encoding = new OpcodeEncoding(model);
+        var opcodeFormatter = new OpcodeFormatter(model);
 
         var documentation = model.Yaml.Instructions
             .Where(yaml => !TStateCalculator.IsRedirect(instructionsByOpcode[Key(yaml, yaml.Opcodes[0])]))
-            .GroupBy(yaml => yaml.Mnemonic, StringComparer.Ordinal)
-            .Select(form => Create(model, form.Key, form.ToList(), instructionsByOpcode, tStates, encoding))
+            .GroupBy(yaml => yaml.Instruction, StringComparer.Ordinal)
+            .Select(form => Create(model, form.Key, form.ToList(), instructionsByOpcode, tStates, opcodeFormatter))
             .OrderBy(d => d.Group, StringComparer.Ordinal)
-            .ThenBy(d => d.Form, StringComparer.Ordinal)
+            .ThenBy(d => d.Instruction, StringComparer.Ordinal)
             .ToList();
 
-        var duplicatePaths = documentation.GroupBy(d => d.Path, StringComparer.Ordinal).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+        var duplicatePaths = documentation.GroupBy(d => d.Page, StringComparer.Ordinal).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
         if (duplicatePaths.Count > 0)
         {
-            throw new InvalidOperationException($"Multiple instructions have the same documentation path: {string.Join(", ", duplicatePaths)}.");
+            throw new InvalidOperationException($"Multiple instructions have the same documentation page: {string.Join(", ", duplicatePaths)}.");
         }
 
         return documentation;
@@ -55,9 +55,9 @@ public static partial class CpuDocumentation
         IReadOnlyList<InstructionYaml> entries,
         IReadOnlyDictionary<(string? Table, byte? Prefix, byte Opcode), Instruction> instructionsByOpcode,
         TStateCalculator tStates,
-        OpcodeEncoding encoding)
+        OpcodeFormatter opcodeFormatter)
     {
-        // A form can have several entries when some opcodes behave differently internally, e.g. the Z80's prefixed SCF and
+        // An instruction can have several entries when some opcodes behave differently internally, e.g. the Z80's prefixed SCF and
         // CCF. The entry with an unprefixed opcode is the canonical one.
         var canonicalEntry = entries.FirstOrDefault(entry => entry.Opcodes.Any(opcode => opcode.PrefixByte == null)) ?? entries[0];
 
@@ -73,7 +73,7 @@ public static partial class CpuDocumentation
         var unknownPlaceholders = Operands.PlaceholdersInDocumentation(description).Except(placeholders, StringComparer.Ordinal).ToList();
         if (unknownPlaceholders.Count > 0)
         {
-            throw new InvalidOperationException($"The documentation for the instruction {form} uses placeholders that are not in its mnemonic: {string.Join(", ", unknownPlaceholders)}.");
+            throw new InvalidOperationException($"The documentation for the instruction {form} uses placeholders that are not in its instruction: {string.Join(", ", unknownPlaceholders)}.");
         }
 
         var opcodes = entries
@@ -93,8 +93,8 @@ public static partial class CpuDocumentation
                 var instruction = instructionsByOpcode[Key(x.Entry, x.Opcode)];
                 var operands = Operands.For(form, x.Opcode, hexNumbers);
                 return new OpcodeDocumentation(
-                    encoding.Format(form, instruction, x.Opcode.PrefixByte, x.Opcode.OpcodeByte),
-                    Operands.SubstituteMnemonic(form, operands),
+                    opcodeFormatter.Format(form, instruction, x.Opcode.PrefixByte, x.Opcode.OpcodeByte),
+                    Operands.SubstituteInstruction(form, operands),
                     operands,
                     tStates.Calculate(instruction),
                     undocumented[index]);
@@ -125,7 +125,7 @@ public static partial class CpuDocumentation
             model.Cpu.Name,
             definedBy,
             form,
-            Operands.SubstituteMnemonic(form, Operands.Symbolic(form, opcodes.Select(x => x.Opcode).ToList())),
+            Operands.Symbolic(form, opcodes.Select(x => x.Opcode).ToList()),
             canonicalEntry.Group,
             description,
             allUndocumented,
@@ -162,7 +162,7 @@ public static partial class CpuDocumentation
 
         return flags
             .Select(effect => overrides.TryGetValue(effect.Flag.Name, out var descriptions)
-                ? effect with { Kind = effect.Kind == FlagEffectKind.Unaffected ? FlagEffectKind.Changed : effect.Kind, Description = descriptions[0].Trim() }
+                ? effect with { Kind = effect.Kind == FlagEffectKind.Unaffected ? FlagEffectKind.Changed : effect.Kind, Documentation = descriptions[0].Trim() }
                 : effect)
             .ToList();
     }

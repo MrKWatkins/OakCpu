@@ -33,8 +33,8 @@ internal static class InstructionValidation
                      .ThenBy(group => group.Key.OpcodeByte))
         {
             var groupText = duplicate.Key.OpcodeTable != null ? $"in opcode table {duplicate.Key.OpcodeTable} " : "";
-            var mnemonics = ValidationHelpers.FormatNames(duplicate.Select(item => item.Instruction.Mnemonic));
-            var instructionText = duplicate.Select(item => item.Instruction.Mnemonic).Distinct(StringComparer.Ordinal).Count() == 1 ? "instruction" : "instructions";
+            var mnemonics = ValidationHelpers.FormatNames(duplicate.Select(item => item.Instruction.Instruction));
+            var instructionText = duplicate.Select(item => item.Instruction.Instruction).Distinct(StringComparer.Ordinal).Count() == 1 ? "instruction" : "instructions";
             yield return new ValidationError(
                 $"The opcodes {groupText}are defined multiple times by {instructionText} {mnemonics}: {(duplicate.Key.PrefixByte.HasValue ? $"0x{duplicate.Key.PrefixByte.Value:X2} " : "")}0x{duplicate.Key.OpcodeByte:X2}",
                 duplicate.Select(item => item.Path).OrderBy(path => path, StringComparer.Ordinal).ToArray());
@@ -51,14 +51,14 @@ internal static class InstructionValidation
             if (instruction.GetEffectiveNextOpcode(defaultNextOpcode) != NextOpcodeMode.Overlapped)
             {
                 yield return new ValidationError(
-                    $"Instruction {instruction.Mnemonic} specifies an overlapped sequence but does not use next_opcode: overlapped.",
+                    $"Instruction {instruction.Instruction} specifies an overlapped sequence but does not use next_opcode: overlapped.",
                     $"instructions[{index}].next_opcode");
             }
 
             if (instruction.OverlappedSequence != null && !availableSequenceNames.Contains(instruction.OverlappedSequence))
             {
                 yield return new ValidationError(
-                    $"Instruction {instruction.Mnemonic} references unknown overlapped sequence {instruction.OverlappedSequence}.",
+                    $"Instruction {instruction.Instruction} references unknown overlapped sequence {instruction.OverlappedSequence}.",
                     $"instructions[{index}].overlapped_sequence");
             }
         }

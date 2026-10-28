@@ -5,7 +5,7 @@
 #     DE <= D * E, unsigned, with the product's high byte in D and low byte in E. No flags are written.
 instructions:
   - group: Z80N Arithmetic
-    mnemonic: MUL D, E
+    instruction: MUL D, E
     documentation: "Multiplies D by E, storing the 16-bit result in DE."
     opcodes:
       - opcode: 0xED 0x30

@@ -1,6 +1,6 @@
 instructions:
   - group: 16-Bit Arithmetic
-    mnemonic: INC RP0
+    instruction: INC RP0
     documentation: "Increments {RP0}."
     opcodes:
       - opcode: 0x03

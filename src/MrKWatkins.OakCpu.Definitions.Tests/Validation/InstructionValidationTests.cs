@@ -14,7 +14,7 @@ public sealed class InstructionValidationTests
             interrupts: {}
             instructions:
               - group: test
-                mnemonic: FIRST
+                instruction: FIRST
                 opcode_table: prefixed
                 opcodes:
                   - opcode: 0xCB 0x10
@@ -22,7 +22,7 @@ public sealed class InstructionValidationTests
                 steps:
                   - first
               - group: test
-                mnemonic: SECOND
+                instruction: SECOND
                 opcode_table: prefixed
                 opcodes:
                   - opcode: 0xCB 0x10
@@ -49,7 +49,7 @@ public sealed class InstructionValidationTests
             interrupts: {}
             instructions:
               - group: test
-                mnemonic: OVERLAP
+                instruction: OVERLAP
                 opcodes:
                   - opcode: 0x10
                 next_opcode: custom

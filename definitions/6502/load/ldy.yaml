@@ -6,7 +6,7 @@ sequences:
 
 instructions:
   - group: Load
-    mnemonic: "LDY #n"
+    instruction: "LDY #n"
     opcodes:
       - opcode: 0xA0
     steps:
@@ -17,7 +17,7 @@ instructions:
       N: is_negative(Y)
 
   - group: Load
-    mnemonic: LDY zp
+    instruction: LDY zp
     opcodes:
       - opcode: 0xA4
     steps:
@@ -29,7 +29,7 @@ instructions:
       N: is_negative(Y)
 
   - group: Load
-    mnemonic: LDY zp,X
+    instruction: LDY zp,X
     opcodes:
       - opcode: 0xB4
     steps:
@@ -42,7 +42,7 @@ instructions:
       N: is_negative(Y)
 
   - group: Load
-    mnemonic: LDY abs
+    instruction: LDY abs
     opcodes:
       - opcode: 0xAC
     steps:
@@ -55,7 +55,7 @@ instructions:
       N: is_negative(Y)
 
   - group: Load
-    mnemonic: LDY abs,X
+    instruction: LDY abs,X
     next_opcode: custom
     opcodes:
       - opcode: 0xBC

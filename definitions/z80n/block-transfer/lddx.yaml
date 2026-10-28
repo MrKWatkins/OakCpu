@@ -16,7 +16,7 @@
 # block transfer are written.
 instructions:
   - group: Z80N Block Transfer
-    mnemonic: LDDX
+    instruction: LDDX
     documentation: "Copies the byte at (HL) to (DE) unless it equals A, then decrements HL, increments DE and decrements BC."
     opcodes:
       - opcode: 0xED 0xAC

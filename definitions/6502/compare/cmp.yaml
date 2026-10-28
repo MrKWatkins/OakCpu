@@ -6,7 +6,7 @@ sequences:
 
 instructions:
   - group: Compare
-    mnemonic: "CMP #n"
+    instruction: "CMP #n"
     opcodes:
       - opcode: 0xC9
     steps:
@@ -18,7 +18,7 @@ instructions:
       N: is_negative($result)
 
   - group: Compare
-    mnemonic: CMP zp
+    instruction: CMP zp
     opcodes:
       - opcode: 0xC5
     steps:
@@ -31,7 +31,7 @@ instructions:
       N: is_negative($result)
 
   - group: Compare
-    mnemonic: CMP zp,X
+    instruction: CMP zp,X
     opcodes:
       - opcode: 0xD5
     steps:
@@ -45,7 +45,7 @@ instructions:
       N: is_negative($result)
 
   - group: Compare
-    mnemonic: CMP abs
+    instruction: CMP abs
     opcodes:
       - opcode: 0xCD
     steps:
@@ -59,7 +59,7 @@ instructions:
       N: is_negative($result)
 
   - group: Compare
-    mnemonic: CMP abs,X
+    instruction: CMP abs,X
     next_opcode: custom
     opcodes:
       - opcode: 0xDD
@@ -70,7 +70,7 @@ instructions:
       - Address = AD + X; move_to_sequence(sequence.cmp_finish); request(action.memory_read);
 
   - group: Compare
-    mnemonic: CMP abs,Y
+    instruction: CMP abs,Y
     next_opcode: custom
     opcodes:
       - opcode: 0xD9
@@ -81,7 +81,7 @@ instructions:
       - Address = AD + Y; move_to_sequence(sequence.cmp_finish); request(action.memory_read);
 
   - group: Compare
-    mnemonic: "CMP (zp,X)"
+    instruction: "CMP (zp,X)"
     opcodes:
       - opcode: 0xC1
     steps:
@@ -97,7 +97,7 @@ instructions:
       N: is_negative($result)
 
   - group: Compare
-    mnemonic: "CMP (zp),Y"
+    instruction: "CMP (zp),Y"
     next_opcode: custom
     opcodes:
       - opcode: 0xD1

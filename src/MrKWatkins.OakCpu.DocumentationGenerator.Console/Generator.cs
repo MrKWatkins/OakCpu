@@ -26,7 +26,7 @@ public static class Generator
             {
                 var file = new FileInfo(Path.Join(outputDirectory.FullName, document.Path));
                 file.Directory!.Create();
-                await File.WriteAllTextAsync(file.FullName, document.Markdown);
+                await File.WriteAllTextAsync(file.FullName, document.Content);
             }
 
             System.Console.WriteLine($"Generation of {documents.Count} documents for {cpu} in {outputDirectory} complete.");

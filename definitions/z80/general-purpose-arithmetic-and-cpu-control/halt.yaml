@@ -1,6 +1,6 @@
 instructions:
   - group: General-Purpose Arithmetic and CPU Control
-    mnemonic: HALT
+    instruction: HALT
     documentation: "Suspends the CPU, which executes NOPs until an interrupt or a reset occurs."
     opcodes:
       - opcode: 0x76

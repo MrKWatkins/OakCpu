@@ -1,6 +1,6 @@
 instructions:
   - group: Input and Output
-    mnemonic: INIR
+    instruction: INIR
     documentation: "Reads a byte from the port addressed by BC into (HL), then increments HL and decrements B, repeating until B is zero."
     flag_documentation:
       H: "When the instruction completes, set if (the value read + ((C + 1) & 0xFF)) is greater than 0xFF, otherwise reset. When it repeats, reset if (the value read + ((C + 1) & 0xFF)) is not greater than 0xFF; otherwise set if the low nibble of B is zero when bit 7 of the value read is set, or 0x0F when it is reset, otherwise reset."

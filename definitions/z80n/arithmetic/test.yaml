@@ -7,7 +7,7 @@
 # flags are those of AND $n with the result discarded.
 instructions:
   - group: Z80N Arithmetic
-    mnemonic: TEST $n
+    instruction: TEST $n
     documentation: "Sets the flags from the bitwise AND of A and n, discarding the result."
     opcodes:
       - opcode: 0xED 0x27

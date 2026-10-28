@@ -1,0 +1,40 @@
+﻿# LD r, (rr + d)
+
+Loads the byte at (rr + d) into r.
+
+## Flags
+
+| Flag | Effect |
+| ---- | ------ |
+| S | Unaffected. |
+| Z | Unaffected. |
+| Y | Unaffected. |
+| H | Unaffected. |
+| X | Unaffected. |
+| PV | Unaffected. |
+| N | Unaffected. |
+| C | Unaffected. |
+
+## Opcodes
+
+| Instruction | Opcode | T-States | Notes |
+| ----------- | ------ | -------- | ----- |
+| `LD B, (IX + d)` | `DD 46 d` | 19 |  |
+| `LD C, (IX + d)` | `DD 4E d` | 19 |  |
+| `LD D, (IX + d)` | `DD 56 d` | 19 |  |
+| `LD E, (IX + d)` | `DD 5E d` | 19 |  |
+| `LD H, (IX + d)` | `DD 66 d` | 19 |  |
+| `LD L, (IX + d)` | `DD 6E d` | 19 |  |
+| `LD A, (IX + d)` | `DD 7E d` | 19 |  |
+| `LD B, (IY + d)` | `FD 46 d` | 19 |  |
+| `LD C, (IY + d)` | `FD 4E d` | 19 |  |
+| `LD D, (IY + d)` | `FD 56 d` | 19 |  |
+| `LD E, (IY + d)` | `FD 5E d` | 19 |  |
+| `LD H, (IY + d)` | `FD 66 d` | 19 |  |
+| `LD L, (IY + d)` | `FD 6E d` | 19 |  |
+| `LD A, (IY + d)` | `FD 7E d` | 19 |  |
+
+## References
+
+- [Zilog Z80 CPU User Manual](https://www.zilog.com/docs/z80/um0080.pdf)
+- [Z80 instruction set, MSX Assembly Page](https://map.grauw.nl/resources/z80instr.php)

@@ -1,6 +1,6 @@
 instructions:
   - group: General-Purpose Arithmetic and CPU Control
-    mnemonic: NEG
+    instruction: NEG
     documentation: "Negates A by subtracting it from zero."
     opcodes:
       - opcode: 0xED 0x44

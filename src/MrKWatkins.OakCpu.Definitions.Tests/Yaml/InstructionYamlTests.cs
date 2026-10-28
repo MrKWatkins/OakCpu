@@ -9,21 +9,21 @@ public sealed class InstructionYamlTests : TestFixture
     public async Task Load_NOP()
     {
         var instructionsYaml = await LoadZ80DefinitionFileAsync("general-purpose-arithmetic-and-cpu-control/nop.yaml");
-        instructionsYaml.Instructions.Should().ContainSingle(i => i.Mnemonic == "NOP");
+        instructionsYaml.Instructions.Should().ContainSingle(i => i.Instruction == "NOP");
     }
 
     [Test]
     public async Task Load_LD_R0_R1()
     {
         var instructionsYaml = await LoadZ80DefinitionFileAsync("8-bit-load/ld-8-bit-copy_register_register.yaml");
-        instructionsYaml.Instructions.Should().ContainSingle(i => i.Mnemonic == "LD R0, R1");
+        instructionsYaml.Instructions.Should().ContainSingle(i => i.Instruction == "LD R0, R1");
     }
 
     [Test]
     public async Task Load_LD_RP0_nn()
     {
         var instructionsYaml = await LoadZ80DefinitionFileAsync("16-bit-load/ld-16-bit-load_register-pair_immediate.yaml");
-        instructionsYaml.Instructions.Should().ContainSingle(i => i.Mnemonic == "LD RP0, nn");
+        instructionsYaml.Instructions.Should().ContainSingle(i => i.Instruction == "LD RP0, nn");
     }
 
     [Test]
@@ -51,7 +51,7 @@ public sealed class InstructionYamlTests : TestFixture
     {
         var yaml = """
                    group: Test
-                   mnemonic: SLL R0
+                   instruction: SLL R0
                    documentation: Shifts {R0} left.
                    undocumented: true
                    opcodes:
@@ -75,7 +75,7 @@ public sealed class InstructionYamlTests : TestFixture
     {
         var yaml = """
                    group: Test
-                   mnemonic: NOP
+                   instruction: NOP
                    opcodes:
                      - opcode: 0x00
                    steps:
@@ -94,7 +94,7 @@ public sealed class InstructionYamlTests : TestFixture
     {
         var yaml = """
                    group: Test
-                   mnemonic: SLL R0
+                   instruction: SLL R0
                    documentation: Shifts {R0} left.
                    undocumented: true
                    opcodes:

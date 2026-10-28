@@ -1,6 +1,6 @@
 instructions:
   - group: 8-Bit Arithmetic
-    mnemonic: INC R0
+    instruction: INC R0
     documentation: "Increments {R0}."
     opcodes:
       - opcode: 0x04
@@ -57,7 +57,7 @@ instructions:
       S: is_negative(R0)
     
   - group: 8-Bit Arithmetic
-    mnemonic: INC (HL)
+    instruction: INC (HL)
     documentation: "Increments the byte at (HL)."
     opcodes:
       - opcode: 0x34
@@ -80,7 +80,7 @@ instructions:
       S: is_negative(Data)
 
   - group: 8-Bit Arithmetic
-    mnemonic: INC (RP0 + d)
+    instruction: INC (RP0 + d)
     documentation: "Increments the byte at ({RP0} + d)."
     opcodes:
       - opcode: 0xDD 0x34

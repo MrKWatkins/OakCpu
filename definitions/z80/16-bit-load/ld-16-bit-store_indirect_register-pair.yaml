@@ -1,6 +1,6 @@
 instructions:
   - group: 16-Bit Load
-    mnemonic: LD (nn), RP0
+    instruction: LD (nn), RP0
     documentation: "Stores {RP0} at address nn, low byte first."
     opcodes:
       - opcode: 0x22

@@ -1,6 +1,6 @@
 instructions:
   - group: Input and Output
-    mnemonic: OUTD
+    instruction: OUTD
     documentation: "Decrements B, then writes the byte at (HL) to the port addressed by BC and decrements HL."
     opcodes:
       - opcode: 0xED 0xAB

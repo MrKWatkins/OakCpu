@@ -1,6 +1,6 @@
 instructions:       
   - group: Bit Set, Reset, and Test
-    mnemonic: RES N0, R0
+    instruction: RES N0, R0
     documentation: "Resets bit {N0} of {R0}."
     opcodes:
       - opcode: 0xCB 0x80
@@ -182,7 +182,7 @@ instructions:
       - R0 = R0 & ~(1 << N0);
     
   - group: Bit Set, Reset, and Test
-    mnemonic: RES N0, (HL)
+    instruction: RES N0, (HL)
     documentation: "Resets bit {N0} of the byte at (HL)."
     opcodes:
       - opcode: 0xCB 0x86
@@ -212,7 +212,7 @@ instructions:
 
       - 
   - group: Bit Set, Reset, and Test
-    mnemonic: RES N0, (IX + d)
+    instruction: RES N0, (IX + d)
     documentation: "Resets bit {N0} of the byte at (IX + d)."
     opcode_table: DDCB
     opcodes:
@@ -245,7 +245,7 @@ instructions:
   
       - 
   - group: Bit Set, Reset, and Test
-    mnemonic: RES N0, (IX + d), R0
+    instruction: RES N0, (IX + d), R0
     documentation: "Resets bit {N0} of the byte at (IX + d), storing the result in both the byte at (IX + d) and {R0}."
     undocumented: true
     opcode_table: DDCB
@@ -438,7 +438,7 @@ instructions:
   
       - 
   - group: Bit Set, Reset, and Test
-    mnemonic: RES N0, (IY + d), R0
+    instruction: RES N0, (IY + d), R0
     documentation: "Resets bit {N0} of the byte at (IY + d), storing the result in both the byte at (IY + d) and {R0}."
     undocumented: true
     opcode_table: FDCB
@@ -631,7 +631,7 @@ instructions:
 
       - 
   - group: Bit Set, Reset, and Test
-    mnemonic: RES N0, (IY + d)
+    instruction: RES N0, (IY + d)
     documentation: "Resets bit {N0} of the byte at (IY + d)."
     opcode_table: FDCB
     opcodes:

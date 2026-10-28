@@ -1,6 +1,6 @@
 instructions:
   - group: Rotate and Shift
-    mnemonic: RRC R0
+    instruction: RRC R0
     documentation: "Rotates {R0} right one bit; bit 0 is copied to both bit 7 and the carry flag."
     opcodes:
       - opcode: 0xCB 0x08
@@ -30,7 +30,7 @@ instructions:
       S: copy_from(R0)
 
   - group: Rotate and Shift
-    mnemonic: RRC (HL)
+    instruction: RRC (HL)
     documentation: "Rotates the byte at (HL) right one bit; bit 0 is copied to both bit 7 and the carry flag."
     opcodes:
       - opcode: 0xCB 0x0E
@@ -54,7 +54,7 @@ instructions:
       S: copy_from(Data)
 
   - group: Rotate and Shift
-    mnemonic: RRC (IX + d)
+    instruction: RRC (IX + d)
     documentation: "Rotates the byte at (IX + d) right one bit; bit 0 is copied to both bit 7 and the carry flag."
     opcode_table: DDCB
     opcodes:
@@ -81,7 +81,7 @@ instructions:
       S: copy_from(Data)
 
   - group: Rotate and Shift
-    mnemonic: RRC (IX + d), R0
+    instruction: RRC (IX + d), R0
     documentation: "Rotates the byte at (IX + d) right one bit, copying bit 0 to both bit 7 and the carry flag, and stores the result in both the byte at (IX + d) and {R0}."
     undocumented: true
     opcode_table: DDCB
@@ -122,7 +122,7 @@ instructions:
       S: copy_from(Data)
 
   - group: Rotate and Shift
-    mnemonic: RRC (IY + d)
+    instruction: RRC (IY + d)
     documentation: "Rotates the byte at (IY + d) right one bit; bit 0 is copied to both bit 7 and the carry flag."
     opcode_table: FDCB
     opcodes:
@@ -149,7 +149,7 @@ instructions:
       S: copy_from(Data)
 
   - group: Rotate and Shift
-    mnemonic: RRC (IY + d), R0
+    instruction: RRC (IY + d), R0
     documentation: "Rotates the byte at (IY + d) right one bit, copying bit 0 to both bit 7 and the carry flag, and stores the result in both the byte at (IY + d) and {R0}."
     undocumented: true
     opcode_table: FDCB

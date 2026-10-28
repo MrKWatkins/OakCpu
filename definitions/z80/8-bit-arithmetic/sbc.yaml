@@ -1,6 +1,6 @@
 instructions:
   - group: 8-Bit Arithmetic
-    mnemonic: SBC R0
+    instruction: SBC R0
     documentation: "Subtracts {R0} and the carry flag from A."
     opcodes:
       - opcode: 0x98
@@ -60,7 +60,7 @@ instructions:
       S: copy_from($result)
 
   - group: 8-Bit Arithmetic
-    mnemonic: SBC n
+    instruction: SBC n
     documentation: "Subtracts n and the carry flag from A."
     opcodes:
       - opcode: 0xDE
@@ -82,7 +82,7 @@ instructions:
       S: copy_from($result)
 
   - group: 8-Bit Arithmetic
-    mnemonic: SBC (HL)
+    instruction: SBC (HL)
     documentation: "Subtracts the byte at (HL) and the carry flag from A."
     opcodes:
       - opcode: 0x9E
@@ -102,7 +102,7 @@ instructions:
       S: copy_from($result)
 
   - group: 8-Bit Arithmetic
-    mnemonic: SBC (RP0 + n)
+    instruction: SBC (RP0 + n)
     documentation: "Subtracts the byte at ({RP0} + n) and the carry flag from A."
     opcodes:
       - opcode: 0xDD 0x9E

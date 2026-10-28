@@ -10,7 +10,7 @@
 # instructions "most probably always reset the carry flag", which agrees. No other flags are written.
 instructions:
   - group: Z80N Arithmetic
-    mnemonic: ADD RP0, A
+    instruction: ADD RP0, A
     documentation: "Adds A to {RP0}."
     opcodes:
       - opcode: 0xED 0x31

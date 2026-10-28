@@ -5,7 +5,7 @@
 #     DE <= shift_left(DE, B(4 downto 0)), so shifts of sixteen or more leave DE zero. No flags are written.
 instructions:
   - group: Z80N Barrel Shift
-    mnemonic: BSLA DE, B
+    instruction: BSLA DE, B
     documentation: "Shifts DE left by the number of bits in the low five bits of B."
     opcodes:
       - opcode: 0xED 0x28

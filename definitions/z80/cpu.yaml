@@ -80,7 +80,7 @@ on_instruction_complete: |
 
 instructions:    
   - group: Redirects
-    mnemonic: DDCB Redirect
+    instruction: DDCB Redirect
     opcodes:
       - opcode: 0xDD 0xCB
     steps:
@@ -93,21 +93,21 @@ instructions:
     next_opcode: custom
 
   - group: Redirects
-    mnemonic: DDED Redirect
+    instruction: DDED Redirect
     opcodes:
       - opcode: 0xDD 0xED
     steps:
       - set_opcode_step_table(0xED);
 
   - group: Redirects
-    mnemonic: DDFD Redirect
+    instruction: DDFD Redirect
     opcodes:
       - opcode: 0xDD 0xFD
     steps:
       - set_opcode_step_table(0xFD);
     
   - group: Redirects
-    mnemonic: FDCB Redirect
+    instruction: FDCB Redirect
     opcodes:
       - opcode: 0xFD 0xCB
     steps:
@@ -120,14 +120,14 @@ instructions:
     next_opcode: custom
 
   - group: Redirects
-    mnemonic: FDED Redirect
+    instruction: FDED Redirect
     opcodes:
       - opcode: 0xFD 0xED
     steps:
       - set_opcode_step_table(0xED);
 
   - group: Redirects
-    mnemonic: FDDD Redirect
+    instruction: FDDD Redirect
     opcodes:
       - opcode: 0xFD 0xDD
     steps:

@@ -8,7 +8,7 @@ public sealed class FlagEffectDescriberTests : TestFixture
         var effects = Describe(Z80Model, "LD B, C", new Dictionary<string, string> { ["B"] = "{R0}", ["C"] = "{R1}" });
 
         effects.Select(e => e.Flag.Name).Should().SequenceEqual("S", "Z", "Y", "H", "X", "PV", "N", "C");
-        effects.Should().OnlyContain(e => e.Kind == FlagEffectKind.Unaffected && e.Description == "Unaffected.");
+        effects.Should().OnlyContain(e => e.Kind == FlagEffectKind.Unaffected && e.Documentation == "Unaffected.");
     }
 
     [Test]
@@ -114,7 +114,7 @@ public sealed class FlagEffectDescriberTests : TestFixture
 
         describer.Fallbacks.Should().NotBeEmpty();
         describer.Fallbacks.Select(f => f.Key).Should().Contain("C");
-        effects.Single(e => e.Flag.Name == "C").Description.Should().Contain("`");
+        effects.Single(e => e.Flag.Name == "C").Documentation.Should().Contain("`");
     }
 
     [Pure]
@@ -131,6 +131,6 @@ public sealed class FlagEffectDescriberTests : TestFixture
     {
         var effect = effects.Single(e => e.Flag.Name == flag);
         effect.Kind.Should().Equal(kind);
-        effect.Description.Should().Equal(description);
+        effect.Documentation.Should().Equal(description);
     }
 }

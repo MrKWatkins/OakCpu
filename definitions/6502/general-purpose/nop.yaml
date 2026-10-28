@@ -11,56 +11,56 @@ sequences:
 
 instructions:
   - group: General Purpose
-    mnemonic: NOP
+    instruction: NOP
     opcodes:
       - opcode: 0xEA
     steps:
       -
 
   - group: General Purpose
-    mnemonic: NOP
+    instruction: NOP
     opcodes:
       - opcode: 0x1A
     steps:
       -
 
   - group: General Purpose
-    mnemonic: NOP
+    instruction: NOP
     opcodes:
       - opcode: 0x3A
     steps:
       -
 
   - group: General Purpose
-    mnemonic: NOP
+    instruction: NOP
     opcodes:
       - opcode: 0x5A
     steps:
       -
 
   - group: General Purpose
-    mnemonic: NOP
+    instruction: NOP
     opcodes:
       - opcode: 0x7A
     steps:
       -
 
   - group: General Purpose
-    mnemonic: NOP
+    instruction: NOP
     opcodes:
       - opcode: 0xDA
     steps:
       -
 
   - group: General Purpose
-    mnemonic: NOP
+    instruction: NOP
     opcodes:
       - opcode: 0xFA
     steps:
       -
 
   - group: General Purpose
-    mnemonic: "NOP #n"
+    instruction: "NOP #n"
     next_opcode: custom
     opcodes:
       - opcode: 0x80
@@ -68,7 +68,7 @@ instructions:
       - Address = PC; PC = PC + 1; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: "NOP #n"
+    instruction: "NOP #n"
     next_opcode: custom
     opcodes:
       - opcode: 0x82
@@ -76,7 +76,7 @@ instructions:
       - Address = PC; PC = PC + 1; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: "NOP #n"
+    instruction: "NOP #n"
     next_opcode: custom
     opcodes:
       - opcode: 0x89
@@ -84,7 +84,7 @@ instructions:
       - Address = PC; PC = PC + 1; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: "NOP #n"
+    instruction: "NOP #n"
     next_opcode: custom
     opcodes:
       - opcode: 0xC2
@@ -92,7 +92,7 @@ instructions:
       - Address = PC; PC = PC + 1; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: "NOP #n"
+    instruction: "NOP #n"
     next_opcode: custom
     opcodes:
       - opcode: 0xE2
@@ -100,7 +100,7 @@ instructions:
       - Address = PC; PC = PC + 1; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: NOP zp
+    instruction: NOP zp
     next_opcode: custom
     opcodes:
       - opcode: 0x04
@@ -109,7 +109,7 @@ instructions:
       - Address = Data; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: NOP zp
+    instruction: NOP zp
     next_opcode: custom
     opcodes:
       - opcode: 0x44
@@ -118,7 +118,7 @@ instructions:
       - Address = Data; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: NOP zp
+    instruction: NOP zp
     next_opcode: custom
     opcodes:
       - opcode: 0x64
@@ -127,7 +127,7 @@ instructions:
       - Address = Data; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: NOP zp,X
+    instruction: NOP zp,X
     next_opcode: custom
     opcodes:
       - opcode: 0x14
@@ -137,7 +137,7 @@ instructions:
       - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: NOP zp,X
+    instruction: NOP zp,X
     next_opcode: custom
     opcodes:
       - opcode: 0x34
@@ -147,7 +147,7 @@ instructions:
       - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: NOP zp,X
+    instruction: NOP zp,X
     next_opcode: custom
     opcodes:
       - opcode: 0x54
@@ -157,7 +157,7 @@ instructions:
       - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: NOP zp,X
+    instruction: NOP zp,X
     next_opcode: custom
     opcodes:
       - opcode: 0x74
@@ -167,7 +167,7 @@ instructions:
       - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: NOP zp,X
+    instruction: NOP zp,X
     next_opcode: custom
     opcodes:
       - opcode: 0xD4
@@ -177,7 +177,7 @@ instructions:
       - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: NOP zp,X
+    instruction: NOP zp,X
     next_opcode: custom
     opcodes:
       - opcode: 0xF4
@@ -187,7 +187,7 @@ instructions:
       - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: NOP abs
+    instruction: NOP abs
     next_opcode: custom
     opcodes:
       - opcode: 0x0C
@@ -197,7 +197,7 @@ instructions:
       - Address = (Data << 8) | AD; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: NOP abs,X
+    instruction: NOP abs,X
     next_opcode: custom
     opcodes:
       - opcode: 0x1C
@@ -208,7 +208,7 @@ instructions:
       - Address = AD + X; move_to_sequence(sequence.nop_read_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: NOP abs,X
+    instruction: NOP abs,X
     next_opcode: custom
     opcodes:
       - opcode: 0x3C
@@ -219,7 +219,7 @@ instructions:
       - Address = AD + X; move_to_sequence(sequence.nop_read_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: NOP abs,X
+    instruction: NOP abs,X
     next_opcode: custom
     opcodes:
       - opcode: 0x5C
@@ -230,7 +230,7 @@ instructions:
       - Address = AD + X; move_to_sequence(sequence.nop_read_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: NOP abs,X
+    instruction: NOP abs,X
     next_opcode: custom
     opcodes:
       - opcode: 0x7C
@@ -241,7 +241,7 @@ instructions:
       - Address = AD + X; move_to_sequence(sequence.nop_read_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: NOP abs,X
+    instruction: NOP abs,X
     next_opcode: custom
     opcodes:
       - opcode: 0xDC
@@ -252,7 +252,7 @@ instructions:
       - Address = AD + X; move_to_sequence(sequence.nop_read_finish); request(action.memory_read);
 
   - group: General Purpose
-    mnemonic: NOP abs,X
+    instruction: NOP abs,X
     next_opcode: custom
     opcodes:
       - opcode: 0xFC

@@ -13,10 +13,13 @@ public sealed partial class InstructionYaml
 
     public string Group { get; private init; } = null!;
 
-    public string Mnemonic { get; private init; } = null!;
+    /// <summary>
+    /// The instruction with placeholders for its operands, e.g. <c>LD R0, (RP0 + d)</c>.
+    /// </summary>
+    public string Instruction { get; private init; } = null!;
 
     /// <summary>
-    /// A description of what the instruction does for documentation. Placeholders in the mnemonic, e.g. <c>R0</c>, can be
+    /// A description of what the instruction does for documentation. Placeholders in the instruction, e.g. <c>R0</c>, can be
     /// used in braces, e.g. <c>{R0}</c>, and are replaced with the operand for each opcode.
     /// </summary>
     public string? Documentation { get; private init; }
@@ -79,7 +82,7 @@ public sealed partial class InstructionYaml
         new()
         {
             Group = Group,
-            Mnemonic = Mnemonic,
+            Instruction = Instruction,
             Documentation = Documentation,
             Undocumented = Undocumented,
             OpcodeTable = OpcodeTable,
@@ -92,5 +95,5 @@ public sealed partial class InstructionYaml
             OverrideStepPins = OverrideStepPins
         };
 
-    public override string ToString() => Mnemonic;
+    public override string ToString() => Instruction;
 }

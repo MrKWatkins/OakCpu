@@ -1,54 +1,3 @@
----
-cpu: Z80N
-defined_by: Z80
-form: ADD A, (RP0 + n)
-mnemonic: ADD A, (rr + n)
-group: 8-Bit Arithmetic
-description: "Adds the byte at ({RP0} + n) to A."
-undocumented: false
-flags:
-  - flag: S
-    effect: changed
-    description: Copied from bit 7 of the result.
-  - flag: Z
-    effect: changed
-    description: Set if A is zero, otherwise reset.
-  - flag: Y
-    effect: changed
-    description: Copied from bit 5 of the result.
-  - flag: H
-    effect: changed
-    description: Set if there was a carry from bit 3 to bit 4, otherwise reset.
-  - flag: X
-    effect: changed
-    description: Copied from bit 3 of the result.
-  - flag: PV
-    effect: changed
-    description: Set if the addition overflowed, otherwise reset.
-  - flag: N
-    effect: reset
-    description: Reset.
-  - flag: C
-    effect: changed
-    description: Set if bit 8 of the result is set, otherwise reset.
-opcodes:
-  - encoding: DD 86 n
-    mnemonic: ADD A, (IX + n)
-    operands: { RP0: IX }
-    tstates: [19]
-    undocumented: false
-  - encoding: FD 86 n
-    mnemonic: ADD A, (IY + n)
-    operands: { RP0: IY }
-    tstates: [19]
-    undocumented: false
-references:
-  - name: Zilog Z80 CPU User Manual
-    url: "https://www.zilog.com/docs/z80/um0080.pdf"
-  - name: Z80 instruction set, MSX Assembly Page
-    url: "https://map.grauw.nl/resources/z80instr.php"
----
-
 # ADD A, (rr + n)
 
 Adds the byte at (rr + n) to A.
@@ -68,8 +17,8 @@ Adds the byte at (rr + n) to A.
 
 ## Opcodes
 
-| Opcode | Encoding | T-states | Notes |
-| ------ | -------- | -------- | ----- |
+| Instruction | Opcode | T-States | Notes |
+| ----------- | ------ | -------- | ----- |
 | `ADD A, (IX + n)` | `DD 86 n` | 19 |  |
 | `ADD A, (IY + n)` | `FD 86 n` | 19 |  |
 

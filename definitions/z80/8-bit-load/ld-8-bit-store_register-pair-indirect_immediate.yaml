@@ -1,6 +1,6 @@
 instructions:
   - group: 8-Bit Load
-    mnemonic: LD (HL), n
+    instruction: LD (HL), n
     documentation: "Stores n at (HL)."
     opcodes:
       - opcode: 0x36
@@ -14,7 +14,7 @@ instructions:
   
       - 
   - group: 8-Bit Load
-    mnemonic: LD (RP0 + d), n
+    instruction: LD (RP0 + d), n
     documentation: "Stores n at ({RP0} + d)."
     opcodes:
       - opcode: 0xDD 0x36

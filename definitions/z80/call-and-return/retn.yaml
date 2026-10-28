@@ -1,6 +1,6 @@
 instructions:
   - group: Call and Return
-    mnemonic: RETN
+    instruction: RETN
     documentation: "Returns from a non-maskable interrupt handler, popping the return address from the stack into PC and copying IFF2 to IFF1 to restore the interrupt state from before the interrupt."
     opcodes:
       - opcode: 0xED 0x45

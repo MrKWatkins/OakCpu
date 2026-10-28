@@ -1,6 +1,6 @@
 instructions:
   - group: 16-Bit Load
-    mnemonic: LD RP0, (nn)
+    instruction: LD RP0, (nn)
     documentation: "Loads the word at address nn into {RP0}, low byte first."
     opcodes:
       - opcode: 0x2A

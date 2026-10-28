@@ -166,7 +166,7 @@ public sealed class FlagEffectDescriber
             effects.Add((Describe(flag, expression), callSite.Completes));
         }
 
-        var distinct = effects.DistinctBy(e => e.Effect.Description, StringComparer.Ordinal).ToList();
+        var distinct = effects.DistinctBy(e => e.Effect.Documentation, StringComparer.Ordinal).ToList();
         if (distinct.Count == 1)
         {
             return distinct[0].Effect;
@@ -178,10 +178,10 @@ public sealed class FlagEffectDescriber
         var repeating = distinct.FirstOrDefault(e => !e.Completes);
         if (distinct.Count == 2 && completing.Effect != null && repeating.Effect != null)
         {
-            return Changed(flag, $"When the instruction completes, {Lower(completing.Effect.Description)} When it repeats, {Lower(repeating.Effect.Description)}");
+            return Changed(flag, $"When the instruction completes, {Lower(completing.Effect.Documentation)} When it repeats, {Lower(repeating.Effect.Documentation)}");
         }
 
-        return Changed(flag, string.Join(" ", distinct.Select((e, index) => $"Path {index + 1}: {e.Effect.Description}")));
+        return Changed(flag, string.Join(" ", distinct.Select((e, index) => $"Path {index + 1}: {e.Effect.Documentation}")));
     }
 
     [Pure]

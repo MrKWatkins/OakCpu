@@ -1,6 +1,6 @@
 instructions:
   - group: Increment/Decrement
-    mnemonic: INC zp
+    instruction: INC zp
     next_opcode: overlapped
     opcodes:
       - opcode: 0xE6
@@ -12,7 +12,7 @@ instructions:
       -
 
   - group: Increment/Decrement
-    mnemonic: INC zp,X
+    instruction: INC zp,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0xF6
@@ -25,7 +25,7 @@ instructions:
       -
 
   - group: Increment/Decrement
-    mnemonic: INC abs
+    instruction: INC abs
     next_opcode: overlapped
     opcodes:
       - opcode: 0xEE
@@ -38,7 +38,7 @@ instructions:
       -
 
   - group: Increment/Decrement
-    mnemonic: INC abs,X
+    instruction: INC abs,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0xFE
@@ -52,7 +52,7 @@ instructions:
       -
 
   - group: Increment/Decrement
-    mnemonic: INX
+    instruction: INX
     next_opcode: overlapped
     opcodes:
       - opcode: 0xE8
@@ -63,7 +63,7 @@ instructions:
       N: is_negative(X)
 
   - group: Increment/Decrement
-    mnemonic: DEX
+    instruction: DEX
     next_opcode: overlapped
     opcodes:
       - opcode: 0xCA
@@ -74,7 +74,7 @@ instructions:
       N: is_negative(X)
 
   - group: Increment/Decrement
-    mnemonic: INY
+    instruction: INY
     next_opcode: overlapped
     opcodes:
       - opcode: 0xC8
@@ -85,7 +85,7 @@ instructions:
       N: is_negative(Y)
 
   - group: Increment/Decrement
-    mnemonic: DEC zp
+    instruction: DEC zp
     next_opcode: overlapped
     opcodes:
       - opcode: 0xC6
@@ -97,7 +97,7 @@ instructions:
       -
 
   - group: Increment/Decrement
-    mnemonic: DEC zp,X
+    instruction: DEC zp,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0xD6
@@ -110,7 +110,7 @@ instructions:
       -
 
   - group: Increment/Decrement
-    mnemonic: DEC abs
+    instruction: DEC abs
     next_opcode: overlapped
     opcodes:
       - opcode: 0xCE
@@ -123,7 +123,7 @@ instructions:
       -
 
   - group: Increment/Decrement
-    mnemonic: DEC abs,X
+    instruction: DEC abs,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0xDE
@@ -137,7 +137,7 @@ instructions:
       -
 
   - group: Increment/Decrement
-    mnemonic: DEY
+    instruction: DEY
     next_opcode: overlapped
     opcodes:
       - opcode: 0x88

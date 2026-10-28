@@ -11,7 +11,7 @@
 # given explicitly.
 instructions:
   - group: Z80N Miscellaneous
-    mnemonic: JP (C)
+    instruction: JP (C)
     documentation: "Jumps to the address formed from the top two bits of PC and the byte read from the port addressed by BC shifted left six bits."
     opcodes:
       - opcode: 0xED 0x98

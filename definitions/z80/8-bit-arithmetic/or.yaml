@@ -1,6 +1,6 @@
 instructions:
   - group: 8-Bit Arithmetic
-    mnemonic: OR R0
+    instruction: OR R0
     documentation: "Sets A to the bitwise OR of A and {R0}."
     opcodes:
       - opcode: 0xB0
@@ -60,7 +60,7 @@ instructions:
       S: copy_from(A)
 
   - group: 8-Bit Arithmetic
-    mnemonic: OR n
+    instruction: OR n
     documentation: "Sets A to the bitwise OR of A and n."
     opcodes:
       - opcode: 0xF6
@@ -82,7 +82,7 @@ instructions:
       S: copy_from(A)
     
   - group: 8-Bit Arithmetic
-    mnemonic: OR (HL)
+    instruction: OR (HL)
     documentation: "Sets A to the bitwise OR of A and the byte at (HL)."
     opcodes:
       - opcode: 0xB6
@@ -102,7 +102,7 @@ instructions:
       S: copy_from(A)
 
   - group: 8-Bit Arithmetic
-    mnemonic: OR (RP0 + n)
+    instruction: OR (RP0 + n)
     documentation: "Sets A to the bitwise OR of A and the byte at ({RP0} + n)."
     opcodes:
       - opcode: 0xDD 0xB6

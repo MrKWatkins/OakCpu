@@ -6,7 +6,7 @@
 #     No flags are written.
 instructions:
   - group: Z80N Barrel Shift
-    mnemonic: BRLC DE, B
+    instruction: BRLC DE, B
     documentation: "Rotates DE left by the number of bits in the low four bits of B."
     opcodes:
       - opcode: 0xED 0x2C

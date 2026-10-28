@@ -1,6 +1,6 @@
 instructions:
   - group: Jump
-    mnemonic: JP nn
+    instruction: JP nn
     documentation: "Jumps to nn."
     opcodes:
       - opcode: 0xC3
@@ -17,7 +17,7 @@ instructions:
 
       - 
   - group: Jump
-    mnemonic: JP C0, nn
+    instruction: JP C0, nn
     documentation: "Jumps to nn if condition {C0} is met; otherwise continues with the next instruction."
     opcodes:
       - opcode: 0xC2
@@ -81,7 +81,7 @@ instructions:
   
       - 
   - group: Jump
-    mnemonic: JP RP0
+    instruction: JP RP0
     documentation: "Jumps to the address in {RP0}."
     opcodes:
       - opcode: 0xE9

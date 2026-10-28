@@ -1,0 +1,123 @@
+﻿cpu: Z80
+instructions:
+  - instruction: LD R0, (RP0 + d)
+    defined_by: Z80
+    group: 8-Bit Load
+    documentation: "Loads the byte at ({RP0} + d) into {R0}."
+    undocumented: false
+    page: 8-bit-load/ld-r0-at-rp0-d.md
+    flags:
+      S:
+        effect: unaffected
+        documentation: Unaffected.
+      Z:
+        effect: unaffected
+        documentation: Unaffected.
+      Y:
+        effect: unaffected
+        documentation: Unaffected.
+      H:
+        effect: unaffected
+        documentation: Unaffected.
+      X:
+        effect: unaffected
+        documentation: Unaffected.
+      PV:
+        effect: unaffected
+        documentation: Unaffected.
+      N:
+        effect: unaffected
+        documentation: Unaffected.
+      C:
+        effect: unaffected
+        documentation: Unaffected.
+    opcodes:
+      - opcode: DD 46 d
+        instruction: LD B, (IX + d)
+        R0: B
+        RP0: IX
+        t_states: [19]
+        undocumented: false
+      - opcode: DD 4E d
+        instruction: LD C, (IX + d)
+        R0: C
+        RP0: IX
+        t_states: [19]
+        undocumented: false
+      - opcode: DD 56 d
+        instruction: LD D, (IX + d)
+        R0: D
+        RP0: IX
+        t_states: [19]
+        undocumented: false
+      - opcode: DD 5E d
+        instruction: LD E, (IX + d)
+        R0: E
+        RP0: IX
+        t_states: [19]
+        undocumented: false
+      - opcode: DD 66 d
+        instruction: LD H, (IX + d)
+        R0: H
+        RP0: IX
+        t_states: [19]
+        undocumented: false
+      - opcode: DD 6E d
+        instruction: LD L, (IX + d)
+        R0: L
+        RP0: IX
+        t_states: [19]
+        undocumented: false
+      - opcode: DD 7E d
+        instruction: LD A, (IX + d)
+        R0: A
+        RP0: IX
+        t_states: [19]
+        undocumented: false
+      - opcode: FD 46 d
+        instruction: LD B, (IY + d)
+        R0: B
+        RP0: IY
+        t_states: [19]
+        undocumented: false
+      - opcode: FD 4E d
+        instruction: LD C, (IY + d)
+        R0: C
+        RP0: IY
+        t_states: [19]
+        undocumented: false
+      - opcode: FD 56 d
+        instruction: LD D, (IY + d)
+        R0: D
+        RP0: IY
+        t_states: [19]
+        undocumented: false
+      - opcode: FD 5E d
+        instruction: LD E, (IY + d)
+        R0: E
+        RP0: IY
+        t_states: [19]
+        undocumented: false
+      - opcode: FD 66 d
+        instruction: LD H, (IY + d)
+        R0: H
+        RP0: IY
+        t_states: [19]
+        undocumented: false
+      - opcode: FD 6E d
+        instruction: LD L, (IY + d)
+        R0: L
+        RP0: IY
+        t_states: [19]
+        undocumented: false
+      - opcode: FD 7E d
+        instruction: LD A, (IY + d)
+        R0: A
+        RP0: IY
+        t_states: [19]
+        undocumented: false
+    references:
+      - name: Zilog Z80 CPU User Manual
+        url: "https://www.zilog.com/docs/z80/um0080.pdf"
+      - name: Z80 instruction set, MSX Assembly Page
+        url: "https://map.grauw.nl/resources/z80instr.php"

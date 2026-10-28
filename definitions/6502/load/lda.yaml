@@ -6,7 +6,7 @@ sequences:
 
 instructions:
   - group: Load
-    mnemonic: "LDA #n"
+    instruction: "LDA #n"
     opcodes:
       - opcode: 0xA9
     steps:
@@ -17,7 +17,7 @@ instructions:
       N: is_negative(A)
 
   - group: Load
-    mnemonic: LDA zp
+    instruction: LDA zp
     opcodes:
       - opcode: 0xA5
     steps:
@@ -29,7 +29,7 @@ instructions:
       N: is_negative(A)
 
   - group: Load
-    mnemonic: LDA zp,X
+    instruction: LDA zp,X
     opcodes:
       - opcode: 0xB5
     steps:
@@ -42,7 +42,7 @@ instructions:
       N: is_negative(A)
 
   - group: Load
-    mnemonic: LDA abs
+    instruction: LDA abs
     opcodes:
       - opcode: 0xAD
     steps:
@@ -55,7 +55,7 @@ instructions:
       N: is_negative(A)
 
   - group: Load
-    mnemonic: LDA abs,X
+    instruction: LDA abs,X
     next_opcode: custom
     opcodes:
       - opcode: 0xBD
@@ -66,7 +66,7 @@ instructions:
       - Address = AD + X; move_to_sequence(sequence.lda_finish); request(action.memory_read);
 
   - group: Load
-    mnemonic: LDA abs,Y
+    instruction: LDA abs,Y
     next_opcode: custom
     opcodes:
       - opcode: 0xB9
@@ -77,7 +77,7 @@ instructions:
       - Address = AD + Y; move_to_sequence(sequence.lda_finish); request(action.memory_read);
 
   - group: Load
-    mnemonic: "LDA (zp,X)"
+    instruction: "LDA (zp,X)"
     opcodes:
       - opcode: 0xA1
     steps:
@@ -92,7 +92,7 @@ instructions:
       N: is_negative(A)
 
   - group: Load
-    mnemonic: "LDA (zp),Y"
+    instruction: "LDA (zp),Y"
     next_opcode: custom
     opcodes:
       - opcode: 0xB1

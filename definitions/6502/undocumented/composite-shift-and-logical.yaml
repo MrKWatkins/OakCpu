@@ -1,6 +1,6 @@
 instructions:
   - group: Undocumented
-    mnemonic: SLO zp
+    instruction: SLO zp
     next_opcode: overlapped
     opcodes:
       - opcode: 0x07
@@ -12,7 +12,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: SLO zp,X
+    instruction: SLO zp,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x17
@@ -25,7 +25,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: SLO abs
+    instruction: SLO abs
     next_opcode: overlapped
     opcodes:
       - opcode: 0x0F
@@ -38,7 +38,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: SLO abs,X
+    instruction: SLO abs,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x1F
@@ -52,7 +52,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: SLO abs,Y
+    instruction: SLO abs,Y
     next_opcode: overlapped
     opcodes:
       - opcode: 0x1B
@@ -66,7 +66,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: "SLO (zp,X)"
+    instruction: "SLO (zp,X)"
     next_opcode: overlapped
     opcodes:
       - opcode: 0x03
@@ -81,7 +81,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: "SLO (zp),Y"
+    instruction: "SLO (zp),Y"
     next_opcode: overlapped
     opcodes:
       - opcode: 0x13
@@ -96,7 +96,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: RLA zp
+    instruction: RLA zp
     next_opcode: overlapped
     opcodes:
       - opcode: 0x27
@@ -108,7 +108,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: RLA zp,X
+    instruction: RLA zp,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x37
@@ -121,7 +121,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: RLA abs
+    instruction: RLA abs
     next_opcode: overlapped
     opcodes:
       - opcode: 0x2F
@@ -134,7 +134,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: RLA abs,X
+    instruction: RLA abs,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x3F
@@ -148,7 +148,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: RLA abs,Y
+    instruction: RLA abs,Y
     next_opcode: overlapped
     opcodes:
       - opcode: 0x3B
@@ -162,7 +162,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: "RLA (zp,X)"
+    instruction: "RLA (zp,X)"
     next_opcode: overlapped
     opcodes:
       - opcode: 0x23
@@ -177,7 +177,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: "RLA (zp),Y"
+    instruction: "RLA (zp),Y"
     next_opcode: overlapped
     opcodes:
       - opcode: 0x33
@@ -192,7 +192,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: SRE zp
+    instruction: SRE zp
     next_opcode: overlapped
     opcodes:
       - opcode: 0x47
@@ -204,7 +204,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: SRE zp,X
+    instruction: SRE zp,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x57
@@ -217,7 +217,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: SRE abs
+    instruction: SRE abs
     next_opcode: overlapped
     opcodes:
       - opcode: 0x4F
@@ -230,7 +230,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: SRE abs,X
+    instruction: SRE abs,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x5F
@@ -244,7 +244,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: SRE abs,Y
+    instruction: SRE abs,Y
     next_opcode: overlapped
     opcodes:
       - opcode: 0x5B
@@ -258,7 +258,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: "SRE (zp,X)"
+    instruction: "SRE (zp,X)"
     next_opcode: overlapped
     opcodes:
       - opcode: 0x43
@@ -273,7 +273,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: "SRE (zp),Y"
+    instruction: "SRE (zp),Y"
     next_opcode: overlapped
     opcodes:
       - opcode: 0x53
@@ -288,7 +288,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: RRA zp
+    instruction: RRA zp
     next_opcode: overlapped
     opcodes:
       - opcode: 0x67
@@ -300,7 +300,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: RRA zp,X
+    instruction: RRA zp,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x77
@@ -313,7 +313,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: RRA abs
+    instruction: RRA abs
     next_opcode: overlapped
     opcodes:
       - opcode: 0x6F
@@ -326,7 +326,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: RRA abs,X
+    instruction: RRA abs,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x7F
@@ -340,7 +340,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: RRA abs,Y
+    instruction: RRA abs,Y
     next_opcode: overlapped
     opcodes:
       - opcode: 0x7B
@@ -354,7 +354,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: "RRA (zp,X)"
+    instruction: "RRA (zp,X)"
     next_opcode: overlapped
     opcodes:
       - opcode: 0x63
@@ -369,7 +369,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: "RRA (zp),Y"
+    instruction: "RRA (zp),Y"
     next_opcode: overlapped
     opcodes:
       - opcode: 0x73

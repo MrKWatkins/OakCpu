@@ -1,46 +1,3 @@
----
-cpu: Z80N
-defined_by: Z80N
-form: SETAE
-mnemonic: SETAE
-group: Z80N Miscellaneous
-description: Sets A to a mask with the single bit selected by the low three bits of E set, with zero selecting bit 7.
-undocumented: false
-flags:
-  - flag: S
-    effect: unaffected
-    description: Unaffected.
-  - flag: Z
-    effect: unaffected
-    description: Unaffected.
-  - flag: Y
-    effect: unaffected
-    description: Unaffected.
-  - flag: H
-    effect: unaffected
-    description: Unaffected.
-  - flag: X
-    effect: unaffected
-    description: Unaffected.
-  - flag: PV
-    effect: unaffected
-    description: Unaffected.
-  - flag: N
-    effect: unaffected
-    description: Unaffected.
-  - flag: C
-    effect: unaffected
-    description: Unaffected.
-opcodes:
-  - encoding: ED 95
-    mnemonic: SETAE
-    tstates: [8]
-    undocumented: false
-references:
-  - name: Extended Z80 instruction set, ZX Spectrum Next wiki
-    url: "https://wiki.specnext.dev/Extended_Z80_instruction_set"
----
-
 # SETAE
 
 Sets A to a mask with the single bit selected by the low three bits of E set, with zero selecting bit 7.
@@ -60,8 +17,8 @@ Sets A to a mask with the single bit selected by the low three bits of E set, wi
 
 ## Opcodes
 
-| Opcode | Encoding | T-states | Notes |
-| ------ | -------- | -------- | ----- |
+| Instruction | Opcode | T-States | Notes |
+| ----------- | ------ | -------- | ----- |
 | `SETAE` | `ED 95` | 8 |  |
 
 ## References

@@ -1,6 +1,6 @@
 instructions:       
   - group: Bit Set, Reset, and Test
-    mnemonic: BIT N0, R0
+    instruction: BIT N0, R0
     documentation: "Tests bit {N0} of {R0}, setting the Z flag if it is zero."
     opcodes:
       - opcode: 0xCB 0x40
@@ -190,7 +190,7 @@ instructions:
       S: copy_from($comparison)
     
   - group: Bit Set, Reset, and Test
-    mnemonic: BIT N0, (HL)
+    instruction: BIT N0, (HL)
     documentation: "Tests bit {N0} of the byte at (HL), setting the Z flag if it is zero."
     opcodes:
       - opcode: 0xCB 0x46
@@ -225,7 +225,7 @@ instructions:
       S: copy_from($comparison)
 
   - group: Bit Set, Reset, and Test
-    mnemonic: BIT N0, (IX + d)
+    instruction: BIT N0, (IX + d)
     documentation: "Tests bit {N0} of the byte at (IX + d), setting the Z flag if it is zero."
     opcode_table: DDCB
     opcodes:
@@ -438,7 +438,7 @@ instructions:
       S: copy_from($comparison)
       
   - group: Bit Set, Reset, and Test
-    mnemonic: BIT N0, (IY + d)
+    instruction: BIT N0, (IY + d)
     documentation: "Tests bit {N0} of the byte at (IY + d), setting the Z flag if it is zero."
     opcode_table: FDCB
     opcodes:

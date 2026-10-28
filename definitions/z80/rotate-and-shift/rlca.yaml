@@ -1,6 +1,6 @@
 instructions:
   - group: Rotate and Shift
-    mnemonic: RLCA
+    instruction: RLCA
     documentation: "Rotates A left one bit; bit 7 is copied to both bit 0 and the carry flag."
     opcodes:
       - opcode: 0x07

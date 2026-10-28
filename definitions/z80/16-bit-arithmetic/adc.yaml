@@ -1,6 +1,6 @@
 instructions:
   - group: 16-Bit Arithmetic
-    mnemonic: ADC HL, RP0
+    instruction: ADC HL, RP0
     documentation: "Adds {RP0} and the carry flag to HL."
     opcodes:
       - opcode: 0xED 0x4A

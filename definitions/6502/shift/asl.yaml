@@ -1,6 +1,6 @@
 instructions:
   - group: Shift
-    mnemonic: ASL A
+    instruction: ASL A
     next_opcode: overlapped
     opcodes:
       - opcode: 0x0A
@@ -8,7 +8,7 @@ instructions:
       - $value = A; A = ($value << 1) & 0xFF; P = P & 0x7C; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; if is_negative($value); P = P | 0x01; endif;
 
   - group: Shift
-    mnemonic: ASL zp
+    instruction: ASL zp
     next_opcode: overlapped
     opcodes:
       - opcode: 0x06
@@ -20,7 +20,7 @@ instructions:
       -
 
   - group: Shift
-    mnemonic: ASL zp,X
+    instruction: ASL zp,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x16
@@ -33,7 +33,7 @@ instructions:
       -
 
   - group: Shift
-    mnemonic: ASL abs
+    instruction: ASL abs
     next_opcode: overlapped
     opcodes:
       - opcode: 0x0E
@@ -46,7 +46,7 @@ instructions:
       -
 
   - group: Shift
-    mnemonic: ASL abs,X
+    instruction: ASL abs,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x1E

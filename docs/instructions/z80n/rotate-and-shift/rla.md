@@ -1,56 +1,3 @@
----
-cpu: Z80N
-defined_by: Z80
-form: RLA
-mnemonic: RLA
-group: Rotate and Shift
-description: "Rotates A left one bit through the carry flag; the carry flag is copied to bit 0 and bit 7 to the carry flag."
-undocumented: false
-flags:
-  - flag: S
-    effect: unaffected
-    description: Unaffected.
-  - flag: Z
-    effect: unaffected
-    description: Unaffected.
-  - flag: Y
-    effect: changed
-    description: Copied from bit 5 of A.
-  - flag: H
-    effect: reset
-    description: Reset.
-  - flag: X
-    effect: changed
-    description: Copied from bit 3 of A.
-  - flag: PV
-    effect: unaffected
-    description: Unaffected.
-  - flag: N
-    effect: reset
-    description: Reset.
-  - flag: C
-    effect: changed
-    description: Set if bit 7 of the original value of A is set, otherwise reset.
-opcodes:
-  - encoding: 17
-    mnemonic: RLA
-    tstates: [4]
-    undocumented: false
-  - encoding: DD 17
-    mnemonic: RLA
-    tstates: [8]
-    undocumented: true
-  - encoding: FD 17
-    mnemonic: RLA
-    tstates: [8]
-    undocumented: true
-references:
-  - name: Zilog Z80 CPU User Manual
-    url: "https://www.zilog.com/docs/z80/um0080.pdf"
-  - name: Z80 instruction set, MSX Assembly Page
-    url: "https://map.grauw.nl/resources/z80instr.php"
----
-
 # RLA
 
 Rotates A left one bit through the carry flag; the carry flag is copied to bit 0 and bit 7 to the carry flag.
@@ -70,8 +17,8 @@ Rotates A left one bit through the carry flag; the carry flag is copied to bit 0
 
 ## Opcodes
 
-| Opcode | Encoding | T-states | Notes |
-| ------ | -------- | -------- | ----- |
+| Instruction | Opcode | T-States | Notes |
+| ----------- | ------ | -------- | ----- |
 | `RLA` | `17` | 4 |  |
 | `RLA` | `DD 17` | 8 | Undocumented. |
 | `RLA` | `FD 17` | 8 | Undocumented. |

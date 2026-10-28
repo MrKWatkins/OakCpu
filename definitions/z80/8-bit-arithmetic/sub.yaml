@@ -1,6 +1,6 @@
 instructions:
   - group: 8-Bit Arithmetic
-    mnemonic: SUB R0
+    instruction: SUB R0
     documentation: "Subtracts {R0} from A."
     opcodes:
       - opcode: 0x90
@@ -60,7 +60,7 @@ instructions:
       S: copy_from($result)
 
   - group: 8-Bit Arithmetic
-    mnemonic: SUB n
+    instruction: SUB n
     documentation: "Subtracts n from A."
     opcodes:
       - opcode: 0xD6
@@ -82,7 +82,7 @@ instructions:
       S: copy_from($result)
 
   - group: 8-Bit Arithmetic
-    mnemonic: SUB (HL)
+    instruction: SUB (HL)
     documentation: "Subtracts the byte at (HL) from A."
     opcodes:
       - opcode: 0x96
@@ -102,7 +102,7 @@ instructions:
       S: copy_from($result)
 
   - group: 8-Bit Arithmetic
-    mnemonic: SUB (RP0 + n)
+    instruction: SUB (RP0 + n)
     documentation: "Subtracts the byte at ({RP0} + n) from A."
     opcodes:
       - opcode: 0xDD 0x96

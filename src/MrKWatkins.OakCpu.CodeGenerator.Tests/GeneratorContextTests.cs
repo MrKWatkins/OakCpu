@@ -129,7 +129,7 @@ public sealed class GeneratorContextTests : TestFixture
                       sequence: missing_interrupt_sequence
                 instructions:
                   - group: test
-                    mnemonic: FIRST
+                    instruction: FIRST
                     opcodes:
                       - opcode: 0x00
                       - opcode: 0x00
@@ -137,7 +137,7 @@ public sealed class GeneratorContextTests : TestFixture
                     steps:
                       - request(action.opcode_read);
                   - group: test
-                    mnemonic: SECOND
+                    instruction: SECOND
                     opcodes:
                       - opcode: 0x01
                     next_opcode: custom

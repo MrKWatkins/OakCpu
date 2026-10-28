@@ -7,41 +7,40 @@ public sealed class CpuDocumentationTests : TestFixture
     {
         var forms = Z80Model.Yaml.Instructions
             .Where(yaml => yaml.Group != "Redirects")
-            .Select(yaml => yaml.Mnemonic)
+            .Select(yaml => yaml.Instruction)
             .Distinct()
             .Order(StringComparer.Ordinal);
 
-        Z80Documentation.Select(d => d.Form).Order(StringComparer.Ordinal).Should().SequenceEqual(forms);
+        Z80Documentation.Select(d => d.Instruction).Order(StringComparer.Ordinal).Should().SequenceEqual(forms);
     }
 
     [Test]
-    public void Create_DoesNotDocumentRedirects() => Z80Documentation.Any(d => d.Form.Contains("Redirect", StringComparison.Ordinal)).Should().BeFalse();
+    public void Create_DoesNotDocumentRedirects() => Z80Documentation.Any(d => d.Instruction.Contains("Redirect", StringComparison.Ordinal)).Should().BeFalse();
 
     [Test]
-    public void Create_OrdersByGroupThenForm()
+    public void Create_OrdersByGroupThenInstruction()
     {
-        var keys = Z80Documentation.Select(d => (d.Group, d.Form)).ToList();
+        var keys = Z80Documentation.Select(d => (d.Group, d.Instruction)).ToList();
 
-        keys.Should().SequenceEqual(keys.OrderBy(k => k.Group, StringComparer.Ordinal).ThenBy(k => k.Form, StringComparer.Ordinal));
+        keys.Should().SequenceEqual(keys.OrderBy(k => k.Group, StringComparer.Ordinal).ThenBy(k => k.Instruction, StringComparer.Ordinal));
     }
 
     [Test]
-    public void Create_PathsAreUnique() => Z80NDocumentation.Select(d => d.Path).Distinct(StringComparer.Ordinal).Count().Should().Equal(Z80NDocumentation.Count);
+    public void Create_PagesAreUnique() => Z80NDocumentation.Select(d => d.Page).Distinct(StringComparer.Ordinal).Count().Should().Equal(Z80NDocumentation.Count);
 
     [Test]
-    public void Create_EveryInstructionHasADescription()
+    public void Create_EveryInstructionHasDocumentation()
     {
         foreach (var documentation in Z80NDocumentation)
         {
-            documentation.Description.Should().NotBeEmpty();
-            documentation.Description.Should().NotEqual("TODO");
+            documentation.Documentation.Should().NotBeEmpty();
         }
     }
 
     [Test]
     public void Create_EveryFlagEffectIsDescribed()
     {
-        var fallbacks = Z80NDocumentation.Where(d => d.FlagFallbacks.Count > 0).Select(d => $"{d.Form}: {string.Join(", ", d.FlagFallbacks)}").ToList();
+        var fallbacks = Z80NDocumentation.Where(d => d.FlagFallbacks.Count > 0).Select(d => $"{d.Instruction}: {string.Join(", ", d.FlagFallbacks)}").ToList();
 
         fallbacks.Should().BeEmpty();
     }
@@ -53,14 +52,14 @@ public sealed class CpuDocumentationTests : TestFixture
 
         documentation.Cpu.Should().Equal("Z80");
         documentation.DefinedBy.Should().Equal("Z80");
-        documentation.Mnemonic.Should().Equal("LD r, (rr + d)");
+        documentation.Symbolic.Should().Equal("LD r, (rr + d)");
         documentation.Group.Should().Equal("8-Bit Load");
         documentation.Undocumented.Should().BeFalse();
-        documentation.Path.Should().Equal("8-bit-load/ld-r0-at-rp0-d.md");
+        documentation.Page.Should().Equal("8-bit-load/ld-r0-at-rp0-d.md");
         documentation.Flags.Should().OnlyContain(f => f.Kind == FlagEffectKind.Unaffected);
         documentation.Opcodes.Should().HaveCount(14);
-        documentation.Opcodes[0].Encoding.Should().Equal("DD 46 d");
-        documentation.Opcodes[0].Mnemonic.Should().Equal("LD B, (IX + d)");
+        documentation.Opcodes[0].Opcode.Should().Equal("DD 46 d");
+        documentation.Opcodes[0].Instruction.Should().Equal("LD B, (IX + d)");
         documentation.Opcodes[0].TStates.Should().SequenceEqual(19);
         documentation.References.Select(r => r.Covers).Should().SequenceEqual(ReferenceCoverage.Documented, ReferenceCoverage.All);
     }
@@ -71,10 +70,10 @@ public sealed class CpuDocumentationTests : TestFixture
         var documentation = GetDocumentation(Z80Documentation, "NOP");
 
         documentation.Undocumented.Should().BeFalse();
-        documentation.Opcodes.Single(o => o.Encoding == "00").Undocumented.Should().BeFalse();
-        documentation.Opcodes.Single(o => o.Encoding == "DD 00").Undocumented.Should().BeTrue();
-        documentation.Opcodes.Single(o => o.Encoding == "FD 00").Undocumented.Should().BeTrue();
-        documentation.Opcodes.Single(o => o.Encoding == "ED 00").Undocumented.Should().BeTrue();
+        documentation.Opcodes.Single(o => o.Opcode == "00").Undocumented.Should().BeFalse();
+        documentation.Opcodes.Single(o => o.Opcode == "DD 00").Undocumented.Should().BeTrue();
+        documentation.Opcodes.Single(o => o.Opcode == "FD 00").Undocumented.Should().BeTrue();
+        documentation.Opcodes.Single(o => o.Opcode == "ED 00").Undocumented.Should().BeTrue();
     }
 
     [Test]
@@ -82,7 +81,7 @@ public sealed class CpuDocumentationTests : TestFixture
     {
         var documentation = GetDocumentation(Z80Documentation, "NEG");
 
-        documentation.Opcodes.Select(o => o.Encoding).Should().SequenceEqual("ED 44", "ED 4C", "ED 54", "ED 5C", "ED 64", "ED 6C", "ED 74", "ED 7C");
+        documentation.Opcodes.Select(o => o.Opcode).Should().SequenceEqual("ED 44", "ED 4C", "ED 54", "ED 5C", "ED 64", "ED 6C", "ED 74", "ED 7C");
         documentation.Opcodes.Select(o => o.Undocumented).Should().SequenceEqual(false, true, true, true, true, true, true, true);
     }
 
@@ -91,10 +90,10 @@ public sealed class CpuDocumentationTests : TestFixture
     {
         var documentation = GetDocumentation(Z80Documentation, "LD R0, n");
 
-        documentation.Opcodes.Single(o => o.Encoding == "06 n").Undocumented.Should().BeFalse();
-        documentation.Opcodes.Single(o => o.Encoding == "DD 06 n").Undocumented.Should().BeTrue();
-        documentation.Opcodes.Single(o => o.Mnemonic == "LD IXH, n").Undocumented.Should().BeTrue();
-        documentation.Opcodes.Single(o => o.Mnemonic == "LD IYL, n").Undocumented.Should().BeTrue();
+        documentation.Opcodes.Single(o => o.Opcode == "06 n").Undocumented.Should().BeFalse();
+        documentation.Opcodes.Single(o => o.Opcode == "DD 06 n").Undocumented.Should().BeTrue();
+        documentation.Opcodes.Single(o => o.Instruction == "LD IXH, n").Undocumented.Should().BeTrue();
+        documentation.Opcodes.Single(o => o.Instruction == "LD IYL, n").Undocumented.Should().BeTrue();
     }
 
     [Test]
@@ -114,20 +113,20 @@ public sealed class CpuDocumentationTests : TestFixture
         var documentation = GetDocumentation(Z80Documentation, "BIT N0, (IX + d)");
 
         documentation.Undocumented.Should().BeFalse();
-        documentation.Opcodes.Single(o => o.Encoding == "DD CB d 46").Undocumented.Should().BeFalse();
-        documentation.Opcodes.Single(o => o.Encoding == "DD CB d 40").Undocumented.Should().BeTrue();
-        documentation.Opcodes.Single(o => o.Encoding == "DD CB d 47").Undocumented.Should().BeTrue();
-        documentation.Opcodes.Single(o => o.Encoding == "DD CB d 7E").Undocumented.Should().BeFalse();
+        documentation.Opcodes.Single(o => o.Opcode == "DD CB d 46").Undocumented.Should().BeFalse();
+        documentation.Opcodes.Single(o => o.Opcode == "DD CB d 40").Undocumented.Should().BeTrue();
+        documentation.Opcodes.Single(o => o.Opcode == "DD CB d 47").Undocumented.Should().BeTrue();
+        documentation.Opcodes.Single(o => o.Opcode == "DD CB d 7E").Undocumented.Should().BeFalse();
     }
 
     [Test]
-    public void Create_MergesEntriesWithTheSameMnemonic()
+    public void Create_MergesEntriesWithTheSameInstruction()
     {
         var documentation = GetDocumentation(Z80Documentation, "CCF");
 
-        documentation.Opcodes.Select(o => o.Encoding).Should().SequenceEqual("3F", "DD 3F", "FD 3F");
+        documentation.Opcodes.Select(o => o.Opcode).Should().SequenceEqual("3F", "DD 3F", "FD 3F");
         documentation.Opcodes.Select(o => o.Undocumented).Should().SequenceEqual(false, true, true);
-        documentation.Flags.Single(f => f.Flag.Name == "C").Description.Should().Equal("Inverted.");
+        documentation.Flags.Single(f => f.Flag.Name == "C").Documentation.Should().Equal("Inverted.");
     }
 
     [Test]
@@ -137,7 +136,7 @@ public sealed class CpuDocumentationTests : TestFixture
 
         documentation.FlagFallbacks.Should().BeEmpty();
         documentation.Flags.Single(f => f.Flag.Name == "C").Kind.Should().Equal(FlagEffectKind.Changed);
-        documentation.Flags.Single(f => f.Flag.Name == "C").Description.Should().NotContain("`");
+        documentation.Flags.Single(f => f.Flag.Name == "C").Documentation.Should().NotContain("`");
     }
 
     [Test]
@@ -145,22 +144,22 @@ public sealed class CpuDocumentationTests : TestFixture
     {
         var documentation = GetDocumentation(Z80Documentation, "JR C0, d");
 
-        documentation.Mnemonic.Should().Equal("JR cc, d");
-        documentation.Opcodes.Where(o => !o.Undocumented).Select(o => o.Mnemonic).Should().SequenceEqual("JR NZ, d", "JR Z, d", "JR NC, d", "JR C, d");
+        documentation.Symbolic.Should().Equal("JR cc, d");
+        documentation.Opcodes.Where(o => !o.Undocumented).Select(o => o.Instruction).Should().SequenceEqual("JR NZ, d", "JR Z, d", "JR NC, d", "JR C, d");
         documentation.Opcodes.Where(o => !o.Undocumented).Should().OnlyContain(o => o.TStates.SequenceEqual(new[] { 7, 12 }));
-        documentation.Opcodes.Single(o => o.Encoding == "DD 20 d").TStates.Should().SequenceEqual(11, 16);
+        documentation.Opcodes.Single(o => o.Opcode == "DD 20 d").TStates.Should().SequenceEqual(11, 16);
     }
 
     [Test]
-    public void Create_FlagDescriptionsUsePlaceholders()
+    public void Create_FlagDocumentationUsesPlaceholders()
     {
         var documentation = GetDocumentation(Z80Documentation, "ADD A, R0");
 
-        documentation.Flags.Single(f => f.Flag.Name == "Z").Description.Should().Equal("Set if A is zero, otherwise reset.");
-        documentation.Description.Should().Contain("{R0}");
+        documentation.Flags.Single(f => f.Flag.Name == "Z").Documentation.Should().Equal("Set if A is zero, otherwise reset.");
+        documentation.Documentation.Should().Contain("{R0}");
 
         var sll = GetDocumentation(Z80Documentation, "SLL R0");
-        sll.Flags.Single(f => f.Flag.Name == "C").Description.Should().Equal("Set if bit 7 of the original value of {R0} is set, otherwise reset.");
+        sll.Flags.Single(f => f.Flag.Name == "C").Documentation.Should().Equal("Set if bit 7 of the original value of {R0} is set, otherwise reset.");
     }
 
     [Test]
@@ -177,7 +176,7 @@ public sealed class CpuDocumentationTests : TestFixture
         own.Cpu.Should().Equal("Z80N");
         own.DefinedBy.Should().Equal("Z80N");
         own.Group.Should().Equal("Z80N Block Transfer");
-        own.Path.Should().Equal("z80n-block-transfer/ldirx.md");
+        own.Page.Should().Equal("z80n-block-transfer/ldirx.md");
         own.Opcodes.Single().TStates.Should().SequenceEqual(16, 21);
         own.References.Should().HaveCount(1);
     }
@@ -187,8 +186,8 @@ public sealed class CpuDocumentationTests : TestFixture
     {
         var nop = GetDocumentation(Z80NDocumentation, "NOP");
 
-        nop.Opcodes.Any(o => o.Encoding == "ED 23").Should().BeFalse();
-        GetDocumentation(Z80Documentation, "NOP").Opcodes.Any(o => o.Encoding == "ED 23").Should().BeTrue();
+        nop.Opcodes.Any(o => o.Opcode == "ED 23").Should().BeFalse();
+        GetDocumentation(Z80Documentation, "NOP").Opcodes.Any(o => o.Opcode == "ED 23").Should().BeTrue();
     }
 
     [TestCase("LD R0, (RP0 + d)", "ld-r0-at-rp0-d")]

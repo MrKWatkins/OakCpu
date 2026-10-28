@@ -1,6 +1,6 @@
 instructions:
   - group: 16-Bit Load
-    mnemonic: PUSH RP0
+    instruction: PUSH RP0
     documentation: "Pushes {RP0} onto the stack, subtracting two from SP and then storing its high byte at (SP + 1) and its low byte at (SP)."
     opcodes:
       - opcode: 0xC5

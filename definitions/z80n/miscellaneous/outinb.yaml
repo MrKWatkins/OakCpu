@@ -12,7 +12,7 @@
 # The first step is the fifth T-state of the opcode fetch, which the four T-state opcode read cannot express.
 instructions:
   - group: Z80N Miscellaneous
-    mnemonic: OUTINB
+    instruction: OUTINB
     documentation: "Writes the byte at (HL) to the port addressed by BC, then increments HL, leaving B unchanged."
     opcodes:
       - opcode: 0xED 0x90

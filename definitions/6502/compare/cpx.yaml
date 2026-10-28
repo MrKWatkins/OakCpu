@@ -1,6 +1,6 @@
 instructions:
   - group: Compare
-    mnemonic: "CPX #n"
+    instruction: "CPX #n"
     opcodes:
       - opcode: 0xE0
     steps:
@@ -12,7 +12,7 @@ instructions:
       N: is_negative($result)
 
   - group: Compare
-    mnemonic: CPX zp
+    instruction: CPX zp
     opcodes:
       - opcode: 0xE4
     steps:
@@ -25,7 +25,7 @@ instructions:
       N: is_negative($result)
 
   - group: Compare
-    mnemonic: CPX abs
+    instruction: CPX abs
     opcodes:
       - opcode: 0xEC
     steps:

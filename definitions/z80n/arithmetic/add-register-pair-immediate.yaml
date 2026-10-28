@@ -9,7 +9,7 @@
 # are given explicitly.
 instructions:
   - group: Z80N Arithmetic
-    mnemonic: ADD RP0, $nn
+    instruction: ADD RP0, $nn
     documentation: "Adds nn to {RP0}."
     opcodes:
       - opcode: 0xED 0x34

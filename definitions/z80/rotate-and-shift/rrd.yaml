@@ -1,6 +1,6 @@
 instructions:
   - group: Rotate and Shift
-    mnemonic: RRD
+    instruction: RRD
     documentation: "Rotates the low nibble of A and the two nibbles of the byte at (HL) right one nibble as a twelve bit value: the low nibble of (HL) moves to the low nibble of A, the high nibble of (HL) to its low nibble, and the low nibble of A to the high nibble of (HL)."
     opcodes:
       - opcode: 0xED 0x67

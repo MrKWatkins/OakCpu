@@ -1,6 +1,6 @@
 instructions:
   - group: Shift
-    mnemonic: LSR A
+    instruction: LSR A
     next_opcode: overlapped
     opcodes:
       - opcode: 0x4A
@@ -8,7 +8,7 @@ instructions:
       - $value = A; A = $value >> 1; P = P & 0x7C; if is_zero(A); P = P | 0x02; endif; if ($value & 0x01) != 0; P = P | 0x01; endif;
 
   - group: Shift
-    mnemonic: LSR zp
+    instruction: LSR zp
     next_opcode: overlapped
     opcodes:
       - opcode: 0x46
@@ -20,7 +20,7 @@ instructions:
       -
 
   - group: Shift
-    mnemonic: LSR zp,X
+    instruction: LSR zp,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x56
@@ -33,7 +33,7 @@ instructions:
       -
 
   - group: Shift
-    mnemonic: LSR abs
+    instruction: LSR abs
     next_opcode: overlapped
     opcodes:
       - opcode: 0x4E
@@ -46,7 +46,7 @@ instructions:
       -
 
   - group: Shift
-    mnemonic: LSR abs,X
+    instruction: LSR abs,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x5E

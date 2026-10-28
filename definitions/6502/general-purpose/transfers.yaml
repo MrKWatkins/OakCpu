@@ -1,6 +1,6 @@
 instructions:
   - group: Transfer
-    mnemonic: TAX
+    instruction: TAX
     opcodes:
       - opcode: 0xAA
     steps:
@@ -10,7 +10,7 @@ instructions:
       N: is_negative(X)
 
   - group: Transfer
-    mnemonic: TXA
+    instruction: TXA
     opcodes:
       - opcode: 0x8A
     steps:
@@ -20,7 +20,7 @@ instructions:
       N: is_negative(A)
 
   - group: Transfer
-    mnemonic: TAY
+    instruction: TAY
     opcodes:
       - opcode: 0xA8
     steps:
@@ -30,7 +30,7 @@ instructions:
       N: is_negative(Y)
 
   - group: Transfer
-    mnemonic: TYA
+    instruction: TYA
     opcodes:
       - opcode: 0x98
     steps:
@@ -40,7 +40,7 @@ instructions:
       N: is_negative(A)
 
   - group: Transfer
-    mnemonic: TSX
+    instruction: TSX
     opcodes:
       - opcode: 0xBA
     steps:
@@ -50,7 +50,7 @@ instructions:
       N: is_negative(X)
 
   - group: Transfer
-    mnemonic: TXS
+    instruction: TXS
     opcodes:
       - opcode: 0x9A
     steps:

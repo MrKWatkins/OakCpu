@@ -1,6 +1,6 @@
 instructions:
   - group: Exchange, Block Transfer, and Search
-    mnemonic: EX AF, AF'
+    instruction: EX AF, AF'
     documentation: "Exchanges AF with its shadow register AF'."
     opcodes:
       - opcode: 0x08
@@ -10,7 +10,7 @@ instructions:
       - $temp = AF'; AF' = AF; AF = $temp;
     
   - group: Exchange, Block Transfer, and Search
-    mnemonic: EX DE, HL
+    instruction: EX DE, HL
     documentation: "Exchanges DE and HL."
     opcodes:
       - opcode: 0xEB
@@ -20,7 +20,7 @@ instructions:
       - $temp = DE; DE = HL; HL = $temp;
     
   - group: Exchange, Block Transfer, and Search
-    mnemonic: EX (SP), RP0
+    instruction: EX (SP), RP0
     documentation: "Exchanges {RP0} with the word at the top of the stack, its low byte with (SP) and its high byte with (SP + 1)."
     opcodes:
       - opcode: 0xE3

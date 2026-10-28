@@ -56,7 +56,7 @@ sequences:
 
 instructions:
   - group: Undocumented
-    mnemonic: JAM
+    instruction: JAM
     next_opcode: custom
     opcodes:
       - opcode: 0x02
@@ -64,7 +64,7 @@ instructions:
       - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
 
   - group: Undocumented
-    mnemonic: JAM
+    instruction: JAM
     next_opcode: custom
     opcodes:
       - opcode: 0x12
@@ -72,7 +72,7 @@ instructions:
       - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
 
   - group: Undocumented
-    mnemonic: JAM
+    instruction: JAM
     next_opcode: custom
     opcodes:
       - opcode: 0x22
@@ -80,7 +80,7 @@ instructions:
       - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
 
   - group: Undocumented
-    mnemonic: JAM
+    instruction: JAM
     next_opcode: custom
     opcodes:
       - opcode: 0x32
@@ -88,7 +88,7 @@ instructions:
       - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
 
   - group: Undocumented
-    mnemonic: JAM
+    instruction: JAM
     next_opcode: custom
     opcodes:
       - opcode: 0x42
@@ -96,7 +96,7 @@ instructions:
       - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
 
   - group: Undocumented
-    mnemonic: JAM
+    instruction: JAM
     next_opcode: custom
     opcodes:
       - opcode: 0x52
@@ -104,7 +104,7 @@ instructions:
       - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
 
   - group: Undocumented
-    mnemonic: JAM
+    instruction: JAM
     next_opcode: custom
     opcodes:
       - opcode: 0x62
@@ -112,7 +112,7 @@ instructions:
       - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
 
   - group: Undocumented
-    mnemonic: JAM
+    instruction: JAM
     next_opcode: custom
     opcodes:
       - opcode: 0x72
@@ -120,7 +120,7 @@ instructions:
       - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
 
   - group: Undocumented
-    mnemonic: JAM
+    instruction: JAM
     next_opcode: custom
     opcodes:
       - opcode: 0x92
@@ -128,7 +128,7 @@ instructions:
       - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
 
   - group: Undocumented
-    mnemonic: JAM
+    instruction: JAM
     next_opcode: custom
     opcodes:
       - opcode: 0xB2
@@ -136,7 +136,7 @@ instructions:
       - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
 
   - group: Undocumented
-    mnemonic: JAM
+    instruction: JAM
     next_opcode: custom
     opcodes:
       - opcode: 0xD2
@@ -144,7 +144,7 @@ instructions:
       - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
 
   - group: Undocumented
-    mnemonic: JAM
+    instruction: JAM
     next_opcode: custom
     opcodes:
       - opcode: 0xF2
@@ -152,7 +152,7 @@ instructions:
       - Address = PC; move_to_sequence(sequence.jam_read_ffff); request(action.memory_read);
 
   - group: Undocumented
-    mnemonic: "XAA #n"
+    instruction: "XAA #n"
     opcodes:
       - opcode: 0x8B
     steps:
@@ -163,7 +163,7 @@ instructions:
       N: is_negative(A)
 
   - group: Undocumented
-    mnemonic: LAS abs,Y
+    instruction: LAS abs,Y
     next_opcode: custom
     opcodes:
       - opcode: 0xBB
@@ -174,7 +174,7 @@ instructions:
       - Address = AD + Y; move_to_sequence(sequence.las_finish); request(action.memory_read);
 
   - group: Undocumented
-    mnemonic: "AHX (zp),Y"
+    instruction: "AHX (zp),Y"
     next_opcode: overlapped
     opcodes:
       - opcode: 0x93
@@ -187,7 +187,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: TAS abs,Y
+    instruction: TAS abs,Y
     next_opcode: overlapped
     opcodes:
       - opcode: 0x9B
@@ -199,7 +199,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: SHY abs,X
+    instruction: SHY abs,X
     next_opcode: overlapped
     opcodes:
       - opcode: 0x9C
@@ -211,7 +211,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: SHX abs,Y
+    instruction: SHX abs,Y
     next_opcode: overlapped
     opcodes:
       - opcode: 0x9E
@@ -223,7 +223,7 @@ instructions:
       -
 
   - group: Undocumented
-    mnemonic: AHX abs,Y
+    instruction: AHX abs,Y
     next_opcode: overlapped
     opcodes:
       - opcode: 0x9F

@@ -1,79 +1,3 @@
----
-cpu: Z80
-defined_by: Z80
-form: RLC (IY + d), R0
-mnemonic: RLC (IY + d), r
-group: Rotate and Shift
-description: "Rotates the byte at (IY + d) left one bit, copying bit 7 to both bit 0 and the carry flag, and stores the result in both the byte at (IY + d) and {R0}."
-undocumented: true
-flags:
-  - flag: S
-    effect: changed
-    description: Copied from bit 7 of the result.
-  - flag: Z
-    effect: changed
-    description: Set if the result is zero, otherwise reset.
-  - flag: Y
-    effect: changed
-    description: Copied from bit 5 of the result.
-  - flag: H
-    effect: reset
-    description: Reset.
-  - flag: X
-    effect: changed
-    description: Copied from bit 3 of the result.
-  - flag: PV
-    effect: changed
-    description: Set if the result has even parity, otherwise reset.
-  - flag: N
-    effect: reset
-    description: Reset.
-  - flag: C
-    effect: changed
-    description: Set if bit 7 of the value read is set, otherwise reset.
-opcodes:
-  - encoding: FD CB d 00
-    mnemonic: RLC (IY + d), B
-    operands: { R0: B }
-    tstates: [23]
-    undocumented: true
-  - encoding: FD CB d 01
-    mnemonic: RLC (IY + d), C
-    operands: { R0: C }
-    tstates: [23]
-    undocumented: true
-  - encoding: FD CB d 02
-    mnemonic: RLC (IY + d), D
-    operands: { R0: D }
-    tstates: [23]
-    undocumented: true
-  - encoding: FD CB d 03
-    mnemonic: RLC (IY + d), E
-    operands: { R0: E }
-    tstates: [23]
-    undocumented: true
-  - encoding: FD CB d 04
-    mnemonic: RLC (IY + d), H
-    operands: { R0: H }
-    tstates: [23]
-    undocumented: true
-  - encoding: FD CB d 05
-    mnemonic: RLC (IY + d), L
-    operands: { R0: L }
-    tstates: [23]
-    undocumented: true
-  - encoding: FD CB d 07
-    mnemonic: RLC (IY + d), A
-    operands: { R0: A }
-    tstates: [23]
-    undocumented: true
-references:
-  - name: Z80 instruction set, MSX Assembly Page
-    url: "https://map.grauw.nl/resources/z80instr.php"
-  - name: The Undocumented Z80 Documented
-    url: "http://www.z80.info/zip/z80-documented.pdf"
----
-
 # RLC (IY + d), r
 
 Rotates the byte at (IY + d) left one bit, copying bit 7 to both bit 0 and the carry flag, and stores the result in both the byte at (IY + d) and r.
@@ -95,8 +19,8 @@ This instruction is undocumented.
 
 ## Opcodes
 
-| Opcode | Encoding | T-states | Notes |
-| ------ | -------- | -------- | ----- |
+| Instruction | Opcode | T-States | Notes |
+| ----------- | ------ | -------- | ----- |
 | `RLC (IY + d), B` | `FD CB d 00` | 23 |  |
 | `RLC (IY + d), C` | `FD CB d 01` | 23 |  |
 | `RLC (IY + d), D` | `FD CB d 02` | 23 |  |

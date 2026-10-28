@@ -1,6 +1,6 @@
 instructions:
   - group: Call and Return
-    mnemonic: RETI
+    instruction: RETI
     documentation: "Returns from a maskable interrupt handler, popping the return address from the stack into PC and copying IFF2 to IFF1. Z80 peripherals recognise the instruction as the end of the interrupt."
     opcodes:
       - opcode: 0xED 0x4D

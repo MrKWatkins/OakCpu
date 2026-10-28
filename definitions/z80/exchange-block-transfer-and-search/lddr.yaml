@@ -1,6 +1,6 @@
 instructions:
   - group: Exchange, Block Transfer, and Search
-    mnemonic: LDDR
+    instruction: LDDR
     documentation: "Copies the byte at (HL) to (DE), then decrements HL, DE and BC, repeating until BC is zero."
     opcodes:
       - opcode: 0xED 0xB8

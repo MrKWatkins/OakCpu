@@ -1,0 +1,51 @@
+﻿cpu: Z80
+instructions:
+  - instruction: DAA
+    defined_by: Z80
+    group: General-Purpose Arithmetic and CPU Control
+    documentation: Adjusts A to binary coded decimal after an addition or subtraction of binary coded decimal values, using the N, H and C flags to choose the adjustment.
+    undocumented: false
+    page: general-purpose-arithmetic-and-cpu-control/daa.md
+    flags:
+      S:
+        effect: changed
+        documentation: Copied from bit 7 of A.
+      Z:
+        effect: changed
+        documentation: Set if A is zero, otherwise reset.
+      Y:
+        effect: changed
+        documentation: Copied from bit 5 of A.
+      H:
+        effect: changed
+        documentation: After an addition, i.e. with the N flag reset, set if the low nibble of A was greater than 9 before the adjustment, otherwise reset. After a subtraction, i.e. with the N flag set, set if the H flag was set and the low nibble of A was less than 6 before the adjustment, otherwise reset.
+      X:
+        effect: changed
+        documentation: Copied from bit 3 of A.
+      PV:
+        effect: changed
+        documentation: Set if A has even parity, otherwise reset.
+      N:
+        effect: unaffected
+        documentation: Unaffected.
+      C:
+        effect: changed
+        documentation: Set if the C flag was set or A was greater than 0x99 before the adjustment, otherwise reset.
+    opcodes:
+      - opcode: 27
+        instruction: DAA
+        t_states: [4]
+        undocumented: false
+      - opcode: DD 27
+        instruction: DAA
+        t_states: [8]
+        undocumented: true
+      - opcode: FD 27
+        instruction: DAA
+        t_states: [8]
+        undocumented: true
+    references:
+      - name: Zilog Z80 CPU User Manual
+        url: "https://www.zilog.com/docs/z80/um0080.pdf"
+      - name: Z80 instruction set, MSX Assembly Page
+        url: "https://map.grauw.nl/resources/z80instr.php"

@@ -1,0 +1,26 @@
+﻿# NEXTREG $n, $n
+
+Writes the second n to the ZX Spectrum Next register numbered by the first n.
+
+## Flags
+
+| Flag | Effect |
+| ---- | ------ |
+| S | Unaffected. |
+| Z | Unaffected. |
+| Y | Unaffected. |
+| H | Unaffected. |
+| X | Unaffected. |
+| PV | Unaffected. |
+| N | Unaffected. |
+| C | Unaffected. |
+
+## Opcodes
+
+| Instruction | Opcode | T-States | Notes |
+| ----------- | ------ | -------- | ----- |
+| `NEXTREG $n, $n` | `ED 91 n n` | 20 |  |
+
+## References
+
+- [Extended Z80 instruction set, ZX Spectrum Next wiki](https://wiki.specnext.dev/Extended_Z80_instruction_set)

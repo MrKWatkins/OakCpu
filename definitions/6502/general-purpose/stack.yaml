@@ -1,6 +1,6 @@
 instructions:
   - group: Stack
-    mnemonic: PHA
+    instruction: PHA
     opcodes:
       - opcode: 0x48
     steps:
@@ -10,7 +10,7 @@ instructions:
     next_opcode: overlapped
 
   - group: Stack
-    mnemonic: PHP
+    instruction: PHP
     opcodes:
       - opcode: 0x08
     steps:
@@ -20,7 +20,7 @@ instructions:
     next_opcode: overlapped
 
   - group: Stack
-    mnemonic: PLA
+    instruction: PLA
     opcodes:
       - opcode: 0x68
     steps:
@@ -33,7 +33,7 @@ instructions:
       N: is_negative(A)
 
   - group: Stack
-    mnemonic: PLP
+    instruction: PLP
     opcodes:
       - opcode: 0x28
     steps:

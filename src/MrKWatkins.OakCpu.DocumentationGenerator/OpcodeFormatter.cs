@@ -5,13 +5,13 @@ using MrKWatkins.OakCpu.Definitions.Language.Ast;
 namespace MrKWatkins.OakCpu.DocumentationGenerator;
 
 /// <summary>
-/// Formats the bytes of an opcode, e.g. <c>DD 46 d</c>, naming the operand bytes after the operands in the mnemonic.
+/// Formats the bytes of an opcode, e.g. <c>DD 46 d</c>, naming the operand bytes after the operands in the instruction.
 /// </summary>
-public sealed partial class OpcodeEncoding
+public sealed partial class OpcodeFormatter
 {
     private readonly IReadOnlyDictionary<string, Instruction> redirects;
 
-    public OpcodeEncoding(CpuModel model)
+    public OpcodeFormatter(CpuModel model)
     {
         redirects = model.Instructions
             .Where(TStateCalculator.IsRedirect)
@@ -24,16 +24,16 @@ public sealed partial class OpcodeEncoding
     private static partial Regex OperandTokenRegex();
 
     /// <summary>
-    /// Gets the operand bytes named in a mnemonic, e.g. <c>d</c> and <c>n</c> for <c>LD (IX + d), n</c>, in order.
+    /// Gets the operand bytes named in a instruction, e.g. <c>d</c> and <c>n</c> for <c>LD (IX + d), n</c>, in order.
     /// </summary>
     [Pure]
-    public static IReadOnlyList<string> OperandTokens(string mnemonic) => OperandTokenRegex().Matches(mnemonic).Select(match => match.Groups[1].Value).ToList();
+    public static IReadOnlyList<string> OperandTokens(string instruction) => OperandTokenRegex().Matches(instruction).Select(match => match.Groups[1].Value).ToList();
 
     /// <summary>
     /// Formats the encoding of an opcode: its prefix and opcode bytes in hex with the operand bytes, named after the operands
-    /// in the mnemonic, in the positions the instruction reads them.
+    /// in the instruction, in the positions the instruction reads them.
     /// </summary>
-    /// <param name="form">The instruction's mnemonic with placeholders, e.g. <c>LD (RP0 + d), n</c>.</param>
+    /// <param name="form">The instruction's instruction with placeholders, e.g. <c>LD (RP0 + d), n</c>.</param>
     /// <param name="instruction">The instruction for the opcode, which supplies the operand reads.</param>
     /// <param name="prefix">The opcode's prefix byte, if any. Duplicate opcodes share an instruction but have their own bytes.</param>
     /// <param name="opcode">The opcode byte.</param>
@@ -70,7 +70,7 @@ public sealed partial class OpcodeEncoding
         var instructionReads = CountOperandReads(instruction);
         if (redirectReads + instructionReads != expectedBytes)
         {
-            throw new InvalidOperationException($"The mnemonic {form} names {expectedBytes} operand byte(s) but the instruction {instruction.Mnemonic} reads {redirectReads + instructionReads}.");
+            throw new InvalidOperationException($"The instruction {form} names {expectedBytes} operand byte(s) but the instruction {instruction.Mnemonic} reads {redirectReads + instructionReads}.");
         }
 
         var tokenIndex = 0;

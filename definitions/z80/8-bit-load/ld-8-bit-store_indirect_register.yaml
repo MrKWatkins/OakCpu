@@ -1,6 +1,6 @@
 instructions:
   - group: 8-Bit Load
-    mnemonic: LD (nn), A
+    instruction: LD (nn), A
     documentation: "Stores A at address nn."
     opcodes:
       - opcode: 0x32

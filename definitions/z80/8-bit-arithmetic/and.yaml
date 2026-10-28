@@ -1,6 +1,6 @@
 instructions:
   - group: 8-Bit Arithmetic
-    mnemonic: AND R0
+    instruction: AND R0
     documentation: "Sets A to the bitwise AND of A and {R0}."
     opcodes:
       - opcode: 0xA0
@@ -60,7 +60,7 @@ instructions:
       S: copy_from(A)
 
   - group: 8-Bit Arithmetic
-    mnemonic: AND n
+    instruction: AND n
     documentation: "Sets A to the bitwise AND of A and n."
     opcodes:
       - opcode: 0xE6
@@ -82,7 +82,7 @@ instructions:
       S: copy_from(A)
 
   - group: 8-Bit Arithmetic
-    mnemonic: AND (HL)
+    instruction: AND (HL)
     documentation: "Sets A to the bitwise AND of A and the byte at (HL)."
     opcodes:
       - opcode: 0xA6
@@ -102,7 +102,7 @@ instructions:
       S: copy_from(A)
 
   - group: 8-Bit Arithmetic
-    mnemonic: AND (RP0 + n)
+    instruction: AND (RP0 + n)
     documentation: "Sets A to the bitwise AND of A and the byte at ({RP0} + n)."
     opcodes:
       - opcode: 0xDD 0xA6

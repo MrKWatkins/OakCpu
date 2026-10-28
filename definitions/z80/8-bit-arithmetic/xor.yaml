@@ -1,6 +1,6 @@
 instructions:
   - group: 8-Bit Arithmetic
-    mnemonic: XOR R0
+    instruction: XOR R0
     documentation: "Sets A to the bitwise exclusive OR of A and {R0}."
     opcodes:
       - opcode: 0xA8
@@ -60,7 +60,7 @@ instructions:
       S: copy_from(A)
 
   - group: 8-Bit Arithmetic
-    mnemonic: XOR n
+    instruction: XOR n
     documentation: "Sets A to the bitwise exclusive OR of A and n."
     opcodes:
       - opcode: 0xEE
@@ -82,7 +82,7 @@ instructions:
       S: copy_from(A)
 
   - group: 8-Bit Arithmetic
-    mnemonic: XOR (HL)
+    instruction: XOR (HL)
     documentation: "Sets A to the bitwise exclusive OR of A and the byte at (HL)."
     opcodes:
       - opcode: 0xAE
@@ -102,7 +102,7 @@ instructions:
       S: copy_from(A)
 
   - group: 8-Bit Arithmetic
-    mnemonic: XOR (RP0 + n)
+    instruction: XOR (RP0 + n)
     documentation: "Sets A to the bitwise exclusive OR of A and the byte at ({RP0} + n)."
     opcodes:
       - opcode: 0xDD 0xAE

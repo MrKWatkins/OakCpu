@@ -6,7 +6,7 @@
 #     zero for 0xED 0x2A, so the shift fills with zeroes. Shifts of sixteen or more leave DE zero. No flags are written.
 instructions:
   - group: Z80N Barrel Shift
-    mnemonic: BSRL DE, B
+    instruction: BSRL DE, B
     documentation: "Shifts DE right by the number of bits in the low five bits of B, filling with zeroes."
     opcodes:
       - opcode: 0xED 0x2A

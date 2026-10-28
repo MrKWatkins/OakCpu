@@ -1,6 +1,6 @@
 instructions:
   - group: 8-Bit Arithmetic
-    mnemonic: CP R0
+    instruction: CP R0
     documentation: "Compares A with {R0} by subtracting {R0} from A, setting the flags from the result and leaving A unchanged."
     opcodes:
       - opcode: 0xB8
@@ -60,7 +60,7 @@ instructions:
       S: copy_from($result)
 
   - group: 8-Bit Arithmetic
-    mnemonic: CP n
+    instruction: CP n
     documentation: "Compares A with n by subtracting n from A, setting the flags from the result and leaving A unchanged."
     opcodes:
       - opcode: 0xFE
@@ -82,7 +82,7 @@ instructions:
       S: copy_from($result)
 
   - group: 8-Bit Arithmetic
-    mnemonic: CP (HL)
+    instruction: CP (HL)
     documentation: "Compares A with the byte at (HL) by subtracting it from A, setting the flags from the result and leaving A unchanged."
     opcodes:
       - opcode: 0xBE
@@ -102,7 +102,7 @@ instructions:
       S: copy_from($result)
 
   - group: 8-Bit Arithmetic
-    mnemonic: CP (RP0 + n)
+    instruction: CP (RP0 + n)
     documentation: "Compares A with the byte at ({RP0} + n) by subtracting it from A, setting the flags from the result and leaving A unchanged."
     opcodes:
       - opcode: 0xDD 0xBE

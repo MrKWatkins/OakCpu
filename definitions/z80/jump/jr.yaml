@@ -1,6 +1,6 @@
 instructions:
   - group: Jump
-    mnemonic: JR d
+    instruction: JR d
     documentation: "Jumps to the address d bytes from the next instruction."
     opcodes:
       - opcode: 0x18
@@ -18,7 +18,7 @@ instructions:
     
       - 
   - group: Jump
-    mnemonic: JR C0, d
+    instruction: JR C0, d
     documentation: "Jumps to the address d bytes from the next instruction if condition {C0} is met; otherwise continues with the next instruction."
     opcodes:
       - opcode: 0x20

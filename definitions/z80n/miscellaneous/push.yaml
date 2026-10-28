@@ -11,7 +11,7 @@
 #     the usual little endian order. No flags are written.
 instructions:
   - group: Z80N Miscellaneous
-    mnemonic: PUSH $nn
+    instruction: PUSH $nn
     documentation: "Pushes nn onto the stack. Unlike other instructions the high byte of nn comes first in the encoding."
     opcodes:
       - opcode: 0xED 0x8A

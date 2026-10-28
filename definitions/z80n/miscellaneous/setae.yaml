@@ -6,7 +6,7 @@
 #     zero down to 00000001 for seven. No flags are written.
 instructions:
   - group: Z80N Miscellaneous
-    mnemonic: SETAE
+    instruction: SETAE
     documentation: "Sets A to a mask with the single bit selected by the low three bits of E set, with zero selecting bit 7."
     opcodes:
       - opcode: 0xED 0x95

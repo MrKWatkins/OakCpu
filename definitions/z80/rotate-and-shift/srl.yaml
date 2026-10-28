@@ -1,6 +1,6 @@
 instructions:
   - group: Rotate and Shift
-    mnemonic: SRL R0
+    instruction: SRL R0
     documentation: "Shifts {R0} right one bit; bit 0 is copied to the carry flag and bit 7 is reset."
     opcodes:
       - opcode: 0xCB 0x38
@@ -30,7 +30,7 @@ instructions:
       S: copy_from(R0)
 
   - group: Rotate and Shift
-    mnemonic: SRL (HL)
+    instruction: SRL (HL)
     documentation: "Shifts the byte at (HL) right one bit; bit 0 is copied to the carry flag and bit 7 is reset."
     opcodes:
       - opcode: 0xCB 0x3E
@@ -54,7 +54,7 @@ instructions:
       S: copy_from(Data)
 
   - group: Rotate and Shift
-    mnemonic: SRL (IX + d)
+    instruction: SRL (IX + d)
     documentation: "Shifts the byte at (IX + d) right one bit; bit 0 is copied to the carry flag and bit 7 is reset."
     opcode_table: DDCB
     opcodes:
@@ -81,7 +81,7 @@ instructions:
       S: copy_from(Data)
 
   - group: Rotate and Shift
-    mnemonic: SRL (IX + d), R0
+    instruction: SRL (IX + d), R0
     documentation: "Shifts the byte at (IX + d) right one bit, copying bit 0 to the carry flag and resetting bit 7, and stores the result in both the byte at (IX + d) and {R0}."
     undocumented: true
     opcode_table: DDCB
@@ -122,7 +122,7 @@ instructions:
       S: copy_from(Data)
       
   - group: Rotate and Shift
-    mnemonic: SRL (IY + d)
+    instruction: SRL (IY + d)
     documentation: "Shifts the byte at (IY + d) right one bit; bit 0 is copied to the carry flag and bit 7 is reset."
     opcode_table: FDCB
     opcodes:
@@ -149,7 +149,7 @@ instructions:
       S: copy_from(Data)
 
   - group: Rotate and Shift
-    mnemonic: SRL (IY + d), R0
+    instruction: SRL (IY + d), R0
     documentation: "Shifts the byte at (IY + d) right one bit, copying bit 0 to the carry flag and resetting bit 7, and stores the result in both the byte at (IY + d) and {R0}."
     undocumented: true
     opcode_table: FDCB

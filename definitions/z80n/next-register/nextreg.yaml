@@ -10,7 +10,7 @@
 # register number in Address and the value in Data. No flags are written.
 instructions:
   - group: Z80N Next Register
-    mnemonic: NEXTREG $n, $n
+    instruction: NEXTREG $n, $n
     documentation: "Writes the second n to the ZX Spectrum Next register numbered by the first n."
     opcodes:
       - opcode: 0xED 0x91
@@ -30,7 +30,7 @@ instructions:
       -
 
   - group: Z80N Next Register
-    mnemonic: NEXTREG $n, A
+    instruction: NEXTREG $n, A
     documentation: "Writes A to the ZX Spectrum Next register numbered n."
     opcodes:
       - opcode: 0xED 0x92

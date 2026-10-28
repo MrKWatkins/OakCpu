@@ -1,6 +1,6 @@
 instructions:
   - group: General-Purpose Arithmetic and CPU Control
-    mnemonic: SCF
+    instruction: SCF
     documentation: "Sets the carry flag."
     opcodes:
       - opcode: 0x37
@@ -14,7 +14,7 @@ instructions:
       Y: copy_from($xy)
 
   - group: General-Purpose Arithmetic and CPU Control
-    mnemonic: SCF
+    instruction: SCF
     documentation: "Sets the carry flag."
     # DD/FD act as the previous instruction for SCF's undocumented X/Y flag behaviour.
     # They do not modify flags, so X/Y are copied from F | A rather than (Q ^ F) | A.

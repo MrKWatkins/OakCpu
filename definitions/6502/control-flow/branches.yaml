@@ -16,7 +16,7 @@ sequences:
 
 instructions:
   - group: Branch
-    mnemonic: BPL
+    instruction: BPL
     next_opcode: custom
     opcodes:
       - opcode: 0x10
@@ -25,7 +25,7 @@ instructions:
       - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
 
   - group: Branch
-    mnemonic: BMI
+    instruction: BMI
     next_opcode: custom
     opcodes:
       - opcode: 0x30
@@ -34,7 +34,7 @@ instructions:
       - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
 
   - group: Branch
-    mnemonic: BVC
+    instruction: BVC
     next_opcode: custom
     opcodes:
       - opcode: 0x50
@@ -43,7 +43,7 @@ instructions:
       - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
 
   - group: Branch
-    mnemonic: BVS
+    instruction: BVS
     next_opcode: custom
     opcodes:
       - opcode: 0x70
@@ -52,7 +52,7 @@ instructions:
       - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
 
   - group: Branch
-    mnemonic: BCC
+    instruction: BCC
     next_opcode: custom
     opcodes:
       - opcode: 0x90
@@ -61,7 +61,7 @@ instructions:
       - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
 
   - group: Branch
-    mnemonic: BCS
+    instruction: BCS
     next_opcode: custom
     opcodes:
       - opcode: 0xB0
@@ -70,7 +70,7 @@ instructions:
       - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
 
   - group: Branch
-    mnemonic: BNE
+    instruction: BNE
     next_opcode: custom
     opcodes:
       - opcode: 0xD0
@@ -79,7 +79,7 @@ instructions:
       - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
 
   - group: Branch
-    mnemonic: BEQ
+    instruction: BEQ
     next_opcode: custom
     opcodes:
       - opcode: 0xF0
