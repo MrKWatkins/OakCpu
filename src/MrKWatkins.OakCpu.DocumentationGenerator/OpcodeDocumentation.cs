@@ -18,4 +18,18 @@ public sealed record OpcodeDocumentation(
     string Instruction,
     IReadOnlyList<KeyValuePair<string, string>> Operands,
     IReadOnlyList<int> TStates,
-    bool Undocumented);
+    bool Undocumented)
+{
+    /// <summary>
+    /// The prefix bytes of the opcode, e.g. <c>DD CB</c>, or an empty string if it has none. Opcodes with the same prefix share
+    /// an opcode table.
+    /// </summary>
+    public string Prefix => string.Join(' ', HexBytes[..^1]);
+
+    /// <summary>
+    /// The opcode byte itself, i.e. the byte that selects the instruction within its opcode table.
+    /// </summary>
+    public byte OpcodeByte => Convert.ToByte(HexBytes[^1], 16);
+
+    private string[] HexBytes => Opcode.Split(' ').Where(token => token.Length == 2 && token.All(Uri.IsHexDigit) && token.ToUpperInvariant() == token).ToArray();
+}

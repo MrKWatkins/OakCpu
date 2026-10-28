@@ -59,6 +59,8 @@ public sealed class CpuDocumentationTests : TestFixture
         documentation.Flags.Should().OnlyContain(f => f.Kind == FlagEffectKind.Unaffected);
         documentation.Opcodes.Should().HaveCount(14);
         documentation.Opcodes[0].Opcode.Should().Equal("DD 46 d");
+        documentation.Opcodes[0].Prefix.Should().Equal("DD");
+        documentation.Opcodes[0].OpcodeByte.Should().Equal(0x46);
         documentation.Opcodes[0].Instruction.Should().Equal("LD B, (IX + d)");
         documentation.Opcodes[0].TStates.Should().SequenceEqual(19);
         documentation.References.Select(r => r.Covers).Should().SequenceEqual(ReferenceCoverage.Documented, ReferenceCoverage.All);
@@ -114,6 +116,8 @@ public sealed class CpuDocumentationTests : TestFixture
 
         documentation.Undocumented.Should().BeFalse();
         documentation.Opcodes.Single(o => o.Opcode == "DD CB d 46").Undocumented.Should().BeFalse();
+        documentation.Opcodes.Single(o => o.Opcode == "DD CB d 46").Prefix.Should().Equal("DD CB");
+        documentation.Opcodes.Single(o => o.Opcode == "DD CB d 46").OpcodeByte.Should().Equal(0x46);
         documentation.Opcodes.Single(o => o.Opcode == "DD CB d 40").Undocumented.Should().BeTrue();
         documentation.Opcodes.Single(o => o.Opcode == "DD CB d 47").Undocumented.Should().BeTrue();
         documentation.Opcodes.Single(o => o.Opcode == "DD CB d 7E").Undocumented.Should().BeFalse();

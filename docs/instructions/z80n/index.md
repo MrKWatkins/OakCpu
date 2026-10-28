@@ -1,0 +1,260 @@
+# Z80N Instructions
+
+The instructions by group. See [the opcode tables](opcodes.md) for the instructions by opcode.
+
+## 16-Bit Arithmetic
+
+- [ADC HL, rr](16-bit-arithmetic/adc-hl-rp0.md): Adds rr and the carry flag to HL.
+- [DEC rr](16-bit-arithmetic/dec-rp0.md): Decrements rr.
+- [INC rr](16-bit-arithmetic/inc-rp0.md): Increments rr.
+- [SBC HL, rr](16-bit-arithmetic/sbc-hl-rp0.md): Subtracts rr and the carry flag from HL.
+
+## 16-Bit Load
+
+- [LD (nn), rr](16-bit-load/ld-at-nn-rp0.md): Stores rr at address nn, low byte first.
+- [LD rr, (nn)](16-bit-load/ld-rp0-at-nn.md): Loads the word at address nn into rr, low byte first.
+- [LD rr, rr'](16-bit-load/ld-rp0-rp1.md): Copies rr' into rr.
+- [LD rr, nn](16-bit-load/ld-rp0-nn.md): Loads nn into rr.
+- [POP rr](16-bit-load/pop-rp0.md): Pops rr from the stack, loading its low byte from (SP) and its high byte from (SP + 1) and then adding two to SP.
+- [PUSH rr](16-bit-load/push-rp0.md): Pushes rr onto the stack, subtracting two from SP and then storing its high byte at (SP + 1) and its low byte at (SP).
+
+## 8-Bit Arithmetic
+
+- [ADC A, (HL)](8-bit-arithmetic/adc-a-at-hl.md): Adds the byte at (HL) and the carry flag to A.
+- [ADC A, (rr + n)](8-bit-arithmetic/adc-a-at-rp0-n.md): Adds the byte at (rr + n) and the carry flag to A.
+- [ADC A, r](8-bit-arithmetic/adc-a-r0.md): Adds r and the carry flag to A.
+- [ADC A, n](8-bit-arithmetic/adc-a-n.md): Adds n and the carry flag to A.
+- [ADD A, (HL)](8-bit-arithmetic/add-a-at-hl.md): Adds the byte at (HL) to A.
+- [ADD A, (rr + n)](8-bit-arithmetic/add-a-at-rp0-n.md): Adds the byte at (rr + n) to A.
+- [ADD A, r](8-bit-arithmetic/add-a-r0.md): Adds r to A.
+- [ADD A, n](8-bit-arithmetic/add-a-n.md): Adds n to A.
+- [ADD rr, rr'](8-bit-arithmetic/add-rp0-rp1.md): Adds rr' to rr.
+- [AND (HL)](8-bit-arithmetic/and-at-hl.md): Sets A to the bitwise AND of A and the byte at (HL).
+- [AND (rr + n)](8-bit-arithmetic/and-at-rp0-n.md): Sets A to the bitwise AND of A and the byte at (rr + n).
+- [AND r](8-bit-arithmetic/and-r0.md): Sets A to the bitwise AND of A and r.
+- [AND n](8-bit-arithmetic/and-n.md): Sets A to the bitwise AND of A and n.
+- [CP (HL)](8-bit-arithmetic/cp-at-hl.md): Compares A with the byte at (HL) by subtracting it from A, setting the flags from the result and leaving A unchanged.
+- [CP (rr + n)](8-bit-arithmetic/cp-at-rp0-n.md): Compares A with the byte at (rr + n) by subtracting it from A, setting the flags from the result and leaving A unchanged.
+- [CP r](8-bit-arithmetic/cp-r0.md): Compares A with r by subtracting r from A, setting the flags from the result and leaving A unchanged.
+- [CP n](8-bit-arithmetic/cp-n.md): Compares A with n by subtracting n from A, setting the flags from the result and leaving A unchanged.
+- [DEC (HL)](8-bit-arithmetic/dec-at-hl.md): Decrements the byte at (HL).
+- [DEC (rr + d)](8-bit-arithmetic/dec-at-rp0-d.md): Decrements the byte at (rr + d).
+- [DEC r](8-bit-arithmetic/dec-r0.md): Decrements r.
+- [INC (HL)](8-bit-arithmetic/inc-at-hl.md): Increments the byte at (HL).
+- [INC (rr + d)](8-bit-arithmetic/inc-at-rp0-d.md): Increments the byte at (rr + d).
+- [INC r](8-bit-arithmetic/inc-r0.md): Increments r.
+- [OR (HL)](8-bit-arithmetic/or-at-hl.md): Sets A to the bitwise OR of A and the byte at (HL).
+- [OR (rr + n)](8-bit-arithmetic/or-at-rp0-n.md): Sets A to the bitwise OR of A and the byte at (rr + n).
+- [OR r](8-bit-arithmetic/or-r0.md): Sets A to the bitwise OR of A and r.
+- [OR n](8-bit-arithmetic/or-n.md): Sets A to the bitwise OR of A and n.
+- [SBC (HL)](8-bit-arithmetic/sbc-at-hl.md): Subtracts the byte at (HL) and the carry flag from A.
+- [SBC (rr + n)](8-bit-arithmetic/sbc-at-rp0-n.md): Subtracts the byte at (rr + n) and the carry flag from A.
+- [SBC r](8-bit-arithmetic/sbc-r0.md): Subtracts r and the carry flag from A.
+- [SBC n](8-bit-arithmetic/sbc-n.md): Subtracts n and the carry flag from A.
+- [SUB (HL)](8-bit-arithmetic/sub-at-hl.md): Subtracts the byte at (HL) from A.
+- [SUB (rr + n)](8-bit-arithmetic/sub-at-rp0-n.md): Subtracts the byte at (rr + n) from A.
+- [SUB r](8-bit-arithmetic/sub-r0.md): Subtracts r from A.
+- [SUB n](8-bit-arithmetic/sub-n.md): Subtracts n from A.
+- [XOR (HL)](8-bit-arithmetic/xor-at-hl.md): Sets A to the bitwise exclusive OR of A and the byte at (HL).
+- [XOR (rr + n)](8-bit-arithmetic/xor-at-rp0-n.md): Sets A to the bitwise exclusive OR of A and the byte at (rr + n).
+- [XOR r](8-bit-arithmetic/xor-r0.md): Sets A to the bitwise exclusive OR of A and r.
+- [XOR n](8-bit-arithmetic/xor-n.md): Sets A to the bitwise exclusive OR of A and n.
+
+## 8-Bit Load
+
+- [LD (HL), r](8-bit-load/ld-at-hl-r0.md): Stores r at (HL).
+- [LD (HL), n](8-bit-load/ld-at-hl-n.md): Stores n at (HL).
+- [LD (rr + d), r](8-bit-load/ld-at-rp0-d-r0.md): Stores r at (rr + d).
+- [LD (rr + d), n](8-bit-load/ld-at-rp0-d-n.md): Stores n at (rr + d).
+- [LD (rr), A](8-bit-load/ld-at-rp0-a.md): Stores A at (rr).
+- [LD (nn), A](8-bit-load/ld-at-nn-a.md): Stores A at address nn.
+- [LD A, (rr)](8-bit-load/ld-a-at-rp0.md): Loads the byte at (rr) into A.
+- [LD A, (nn)](8-bit-load/ld-a-at-nn.md): Loads the byte at address nn into A.
+- [LD A, r](8-bit-load/ld-a-r0.md): Copies r into A.
+- [LD r, (rr + d)](8-bit-load/ld-r0-at-rp0-d.md): Loads the byte at (rr + d) into r.
+- [LD r, (rr)](8-bit-load/ld-r0-at-rp0.md): Loads the byte at (rr) into r.
+- [LD r, A](8-bit-load/ld-r0-a.md): Copies A into r.
+- [LD r, r'](8-bit-load/ld-r0-r1.md): Copies r' into r.
+- [LD r, n](8-bit-load/ld-r0-n.md): Loads n into r.
+
+## Bit Set, Reset, and Test
+
+- [BIT b, (HL)](bit-set-reset-and-test/bit-n0-at-hl.md): Tests bit b of the byte at (HL), setting the Z flag if it is zero.
+- [BIT b, (IX + d)](bit-set-reset-and-test/bit-n0-at-ix-d.md): Tests bit b of the byte at (IX + d), setting the Z flag if it is zero.
+- [BIT b, (IY + d)](bit-set-reset-and-test/bit-n0-at-iy-d.md): Tests bit b of the byte at (IY + d), setting the Z flag if it is zero.
+- [BIT b, r](bit-set-reset-and-test/bit-n0-r0.md): Tests bit b of r, setting the Z flag if it is zero.
+- [RES b, (HL)](bit-set-reset-and-test/res-n0-at-hl.md): Resets bit b of the byte at (HL).
+- [RES b, (IX + d)](bit-set-reset-and-test/res-n0-at-ix-d.md): Resets bit b of the byte at (IX + d).
+- *[RES b, (IX + d), r](bit-set-reset-and-test/res-n0-at-ix-d-r0.md)*: Resets bit b of the byte at (IX + d), storing the result in both the byte at (IX + d) and r.
+- [RES b, (IY + d)](bit-set-reset-and-test/res-n0-at-iy-d.md): Resets bit b of the byte at (IY + d).
+- *[RES b, (IY + d), r](bit-set-reset-and-test/res-n0-at-iy-d-r0.md)*: Resets bit b of the byte at (IY + d), storing the result in both the byte at (IY + d) and r.
+- [RES b, r](bit-set-reset-and-test/res-n0-r0.md): Resets bit b of r.
+- [SET b, (HL)](bit-set-reset-and-test/set-n0-at-hl.md): Sets bit b of the byte at (HL).
+- [SET b, (IX + d)](bit-set-reset-and-test/set-n0-at-ix-d.md): Sets bit b of the byte at (IX + d).
+- *[SET b, (IX + d), r](bit-set-reset-and-test/set-n0-at-ix-d-r0.md)*: Sets bit b of the byte at (IX + d), storing the result in both the byte at (IX + d) and r.
+- [SET b, (IY + d)](bit-set-reset-and-test/set-n0-at-iy-d.md): Sets bit b of the byte at (IY + d).
+- *[SET b, (IY + d), r](bit-set-reset-and-test/set-n0-at-iy-d-r0.md)*: Sets bit b of the byte at (IY + d), storing the result in both the byte at (IY + d) and r.
+- [SET b, r](bit-set-reset-and-test/set-n0-r0.md): Sets bit b of r.
+
+## Call and Return
+
+- [CALL cc, nn](call-and-return/call-c0-nn.md): If condition cc is met, pushes the address of the next instruction onto the stack and jumps to nn; otherwise continues with the next instruction.
+- [CALL nn](call-and-return/call-nn.md): Pushes the address of the next instruction onto the stack, then jumps to nn.
+- [RET](call-and-return/ret.md): Pops the return address from the stack into PC.
+- [RET cc](call-and-return/ret-c0.md): If condition cc is met, pops the return address from the stack into PC; otherwise continues with the next instruction.
+- [RETI](call-and-return/reti.md): Returns from a maskable interrupt handler, popping the return address from the stack into PC and copying IFF2 to IFF1. Z80 peripherals recognise the instruction as the end of the interrupt.
+- [RETN](call-and-return/retn.md): Returns from a non-maskable interrupt handler, popping the return address from the stack into PC and copying IFF2 to IFF1 to restore the interrupt state from before the interrupt.
+- [RST p](call-and-return/rst-n0.md): Pushes the address of the next instruction onto the stack, then jumps to address p.
+
+## Exchange, Block Transfer, and Search
+
+- [CPD](exchange-block-transfer-and-search/cpd.md): Compares A with the byte at (HL) by subtraction, setting the flags from the result, then decrements HL and BC.
+- [CPDR](exchange-block-transfer-and-search/cpdr.md): Compares A with the byte at (HL) by subtraction, setting the flags from the result, then decrements HL and BC, repeating until A matches the byte or BC is zero.
+- [CPI](exchange-block-transfer-and-search/cpi.md): Compares A with the byte at (HL) by subtraction, setting the flags from the result, then increments HL and decrements BC.
+- [CPIR](exchange-block-transfer-and-search/cpir.md): Compares A with the byte at (HL) by subtraction, setting the flags from the result, then increments HL and decrements BC, repeating until A matches the byte or BC is zero.
+- [EX (SP), rr](exchange-block-transfer-and-search/ex-at-sp-rp0.md): Exchanges rr with the word at the top of the stack, its low byte with (SP) and its high byte with (SP + 1).
+- [EX AF, AF'](exchange-block-transfer-and-search/ex-af-af-shadow.md): Exchanges AF with its shadow register AF'.
+- [EX DE, HL](exchange-block-transfer-and-search/ex-de-hl.md): Exchanges DE and HL.
+- [EXX](exchange-block-transfer-and-search/exx.md): Exchanges BC, DE and HL with their shadow registers BC', DE' and HL'.
+- [LDD](exchange-block-transfer-and-search/ldd.md): Copies the byte at (HL) to (DE), then decrements HL, DE and BC.
+- [LDDR](exchange-block-transfer-and-search/lddr.md): Copies the byte at (HL) to (DE), then decrements HL, DE and BC, repeating until BC is zero.
+- [LDI](exchange-block-transfer-and-search/ldi.md): Copies the byte at (HL) to (DE), then increments HL and DE and decrements BC.
+- [LDIR](exchange-block-transfer-and-search/ldir.md): Copies the byte at (HL) to (DE), then increments HL and DE and decrements BC, repeating until BC is zero.
+
+## General-Purpose Arithmetic and CPU Control
+
+- [CCF](general-purpose-arithmetic-and-cpu-control/ccf.md): Inverts the carry flag.
+- [CPL](general-purpose-arithmetic-and-cpu-control/cpl.md): Inverts every bit of A.
+- [DAA](general-purpose-arithmetic-and-cpu-control/daa.md): Adjusts A to binary coded decimal after an addition or subtraction of binary coded decimal values, using the N, H and C flags to choose the adjustment.
+- [DI](general-purpose-arithmetic-and-cpu-control/di.md): Disables maskable interrupts by resetting IFF1 and IFF2.
+- [EI](general-purpose-arithmetic-and-cpu-control/ei.md): Enables maskable interrupts by setting IFF1 and IFF2. An interrupt is not accepted until after the following instruction.
+- [HALT](general-purpose-arithmetic-and-cpu-control/halt.md): Suspends the CPU, which executes NOPs until an interrupt or a reset occurs.
+- [IM 0](general-purpose-arithmetic-and-cpu-control/im-0.md): Selects interrupt mode 0, in which the interrupting device supplies an instruction on the data bus for the CPU to execute.
+- [IM 1](general-purpose-arithmetic-and-cpu-control/im-1.md): Selects interrupt mode 1, in which a maskable interrupt calls address 0x0038.
+- [IM 2](general-purpose-arithmetic-and-cpu-control/im-2.md): Selects interrupt mode 2, in which a maskable interrupt calls the address read from the vector table whose high byte is I and whose low byte is supplied by the interrupting device.
+- [NEG](general-purpose-arithmetic-and-cpu-control/neg.md): Negates A by subtracting it from zero.
+- [NOP](general-purpose-arithmetic-and-cpu-control/nop.md): Does nothing.
+- [SCF](general-purpose-arithmetic-and-cpu-control/scf.md): Sets the carry flag.
+
+## Input and Output
+
+- *[IN (C)](input-and-output/in-at-c.md)*: Reads a byte from the port addressed by BC, setting the flags from it and discarding the value.
+- [IN A, (n)](input-and-output/in-a-at-n.md): Reads a byte from port n into A, with A on the high half of the address bus.
+- [IN r, (C)](input-and-output/in-r0-at-c.md): Reads a byte from the port addressed by BC into r.
+- [IND](input-and-output/ind.md): Reads a byte from the port addressed by BC into (HL), then decrements HL and B.
+- [INDR](input-and-output/indr.md): Reads a byte from the port addressed by BC into (HL), then decrements HL and B, repeating until B is zero.
+- [INI](input-and-output/ini.md): Reads a byte from the port addressed by BC into (HL), then increments HL and decrements B.
+- [INIR](input-and-output/inir.md): Reads a byte from the port addressed by BC into (HL), then increments HL and decrements B, repeating until B is zero.
+- [OTDR](input-and-output/otdr.md): Decrements B, then writes the byte at (HL) to the port addressed by BC and decrements HL, repeating until B is zero.
+- [OTIR](input-and-output/otir.md): Decrements B, then writes the byte at (HL) to the port addressed by BC and increments HL, repeating until B is zero.
+- *[OUT (C), 0](input-and-output/out-at-c-0.md)*: Writes zero to the port addressed by BC.
+- [OUT (C), r](input-and-output/out-at-c-r0.md): Writes r to the port addressed by BC.
+- [OUT (n), A](input-and-output/out-at-n-a.md): Writes A to port n, with A on the high half of the address bus.
+- [OUTD](input-and-output/outd.md): Decrements B, then writes the byte at (HL) to the port addressed by BC and decrements HL.
+- [OUTI](input-and-output/outi.md): Decrements B, then writes the byte at (HL) to the port addressed by BC and increments HL.
+
+## Jump
+
+- [DJNZ d](jump/djnz-d.md): Decrements B and, if it is not zero, jumps to the address d bytes from the next instruction.
+- [JP cc, nn](jump/jp-c0-nn.md): Jumps to nn if condition cc is met; otherwise continues with the next instruction.
+- [JP rr](jump/jp-rp0.md): Jumps to the address in rr.
+- [JP nn](jump/jp-nn.md): Jumps to nn.
+- [JR cc, d](jump/jr-c0-d.md): Jumps to the address d bytes from the next instruction if condition cc is met; otherwise continues with the next instruction.
+- [JR d](jump/jr-d.md): Jumps to the address d bytes from the next instruction.
+
+## Rotate and Shift
+
+- [RL (HL)](rotate-and-shift/rl-at-hl.md): Rotates the byte at (HL) left one bit through the carry flag; the carry flag is copied to bit 0 and bit 7 to the carry flag.
+- [RL (IX + d)](rotate-and-shift/rl-at-ix-d.md): Rotates the byte at (IX + d) left one bit through the carry flag; the carry flag is copied to bit 0 and bit 7 to the carry flag.
+- *[RL (IX + d), r](rotate-and-shift/rl-at-ix-d-r0.md)*: Rotates the byte at (IX + d) left one bit through the carry flag, copying the carry flag to bit 0 and bit 7 to the carry flag, and stores the result in both the byte at (IX + d) and r.
+- [RL (IY + d)](rotate-and-shift/rl-at-iy-d.md): Rotates the byte at (IY + d) left one bit through the carry flag; the carry flag is copied to bit 0 and bit 7 to the carry flag.
+- *[RL (IY + d), r](rotate-and-shift/rl-at-iy-d-r0.md)*: Rotates the byte at (IY + d) left one bit through the carry flag, copying the carry flag to bit 0 and bit 7 to the carry flag, and stores the result in both the byte at (IY + d) and r.
+- [RL r](rotate-and-shift/rl-r0.md): Rotates r left one bit through the carry flag; the carry flag is copied to bit 0 and bit 7 to the carry flag.
+- [RLA](rotate-and-shift/rla.md): Rotates A left one bit through the carry flag; the carry flag is copied to bit 0 and bit 7 to the carry flag.
+- [RLC (HL)](rotate-and-shift/rlc-at-hl.md): Rotates the byte at (HL) left one bit; bit 7 is copied to both bit 0 and the carry flag.
+- [RLC (IX + d)](rotate-and-shift/rlc-at-ix-d.md): Rotates the byte at (IX + d) left one bit; bit 7 is copied to both bit 0 and the carry flag.
+- *[RLC (IX + d), r](rotate-and-shift/rlc-at-ix-d-r0.md)*: Rotates the byte at (IX + d) left one bit, copying bit 7 to both bit 0 and the carry flag, and stores the result in both the byte at (IX + d) and r.
+- [RLC (IY + d)](rotate-and-shift/rlc-at-iy-d.md): Rotates the byte at (IY + d) left one bit; bit 7 is copied to both bit 0 and the carry flag.
+- *[RLC (IY + d), r](rotate-and-shift/rlc-at-iy-d-r0.md)*: Rotates the byte at (IY + d) left one bit, copying bit 7 to both bit 0 and the carry flag, and stores the result in both the byte at (IY + d) and r.
+- [RLC r](rotate-and-shift/rlc-r0.md): Rotates r left one bit; bit 7 is copied to both bit 0 and the carry flag.
+- [RLCA](rotate-and-shift/rlca.md): Rotates A left one bit; bit 7 is copied to both bit 0 and the carry flag.
+- [RLD](rotate-and-shift/rld.md): Rotates the low nibble of A and the two nibbles of the byte at (HL) left one nibble as a twelve bit value: the low nibble of A moves to the low nibble of (HL), the low nibble of (HL) to its high nibble, and the high nibble of (HL) to the low nibble of A.
+- [RR (HL)](rotate-and-shift/rr-at-hl.md): Rotates the byte at (HL) right one bit through the carry flag; the carry flag is copied to bit 7 and bit 0 to the carry flag.
+- [RR (IX + d)](rotate-and-shift/rr-at-ix-d.md): Rotates the byte at (IX + d) right one bit through the carry flag; the carry flag is copied to bit 7 and bit 0 to the carry flag.
+- *[RR (IX + d), r](rotate-and-shift/rr-at-ix-d-r0.md)*: Rotates the byte at (IX + d) right one bit through the carry flag, copying the carry flag to bit 7 and bit 0 to the carry flag, and stores the result in both the byte at (IX + d) and r.
+- [RR (IY + d)](rotate-and-shift/rr-at-iy-d.md): Rotates the byte at (IY + d) right one bit through the carry flag; the carry flag is copied to bit 7 and bit 0 to the carry flag.
+- *[RR (IY + d), r](rotate-and-shift/rr-at-iy-d-r0.md)*: Rotates the byte at (IY + d) right one bit through the carry flag, copying the carry flag to bit 7 and bit 0 to the carry flag, and stores the result in both the byte at (IY + d) and r.
+- [RR r](rotate-and-shift/rr-r0.md): Rotates r right one bit through the carry flag; the carry flag is copied to bit 7 and bit 0 to the carry flag.
+- [RRA](rotate-and-shift/rra.md): Rotates A right one bit through the carry flag; the carry flag is copied to bit 7 and bit 0 to the carry flag.
+- [RRC (HL)](rotate-and-shift/rrc-at-hl.md): Rotates the byte at (HL) right one bit; bit 0 is copied to both bit 7 and the carry flag.
+- [RRC (IX + d)](rotate-and-shift/rrc-at-ix-d.md): Rotates the byte at (IX + d) right one bit; bit 0 is copied to both bit 7 and the carry flag.
+- *[RRC (IX + d), r](rotate-and-shift/rrc-at-ix-d-r0.md)*: Rotates the byte at (IX + d) right one bit, copying bit 0 to both bit 7 and the carry flag, and stores the result in both the byte at (IX + d) and r.
+- [RRC (IY + d)](rotate-and-shift/rrc-at-iy-d.md): Rotates the byte at (IY + d) right one bit; bit 0 is copied to both bit 7 and the carry flag.
+- *[RRC (IY + d), r](rotate-and-shift/rrc-at-iy-d-r0.md)*: Rotates the byte at (IY + d) right one bit, copying bit 0 to both bit 7 and the carry flag, and stores the result in both the byte at (IY + d) and r.
+- [RRC r](rotate-and-shift/rrc-r0.md): Rotates r right one bit; bit 0 is copied to both bit 7 and the carry flag.
+- [RRCA](rotate-and-shift/rrca.md): Rotates A right one bit; bit 0 is copied to both bit 7 and the carry flag.
+- [RRD](rotate-and-shift/rrd.md): Rotates the low nibble of A and the two nibbles of the byte at (HL) right one nibble as a twelve bit value: the low nibble of (HL) moves to the low nibble of A, the high nibble of (HL) to its low nibble, and the low nibble of A to the high nibble of (HL).
+- [SLA (HL)](rotate-and-shift/sla-at-hl.md): Shifts the byte at (HL) left one bit; bit 7 is copied to the carry flag and bit 0 is reset.
+- [SLA (IX + d)](rotate-and-shift/sla-at-ix-d.md): Shifts the byte at (IX + d) left one bit; bit 7 is copied to the carry flag and bit 0 is reset.
+- *[SLA (IX + d), r](rotate-and-shift/sla-at-ix-d-r0.md)*: Shifts the byte at (IX + d) left one bit, copying bit 7 to the carry flag and resetting bit 0, and stores the result in both the byte at (IX + d) and r.
+- [SLA (IY + d)](rotate-and-shift/sla-at-iy-d.md): Shifts the byte at (IY + d) left one bit; bit 7 is copied to the carry flag and bit 0 is reset.
+- *[SLA (IY + d), r](rotate-and-shift/sla-at-iy-d-r0.md)*: Shifts the byte at (IY + d) left one bit, copying bit 7 to the carry flag and resetting bit 0, and stores the result in both the byte at (IY + d) and r.
+- [SLA r](rotate-and-shift/sla-r0.md): Shifts r left one bit; bit 7 is copied to the carry flag and bit 0 is reset.
+- *[SLL (HL)](rotate-and-shift/sll-at-hl.md)*: Shifts the byte at (HL) left one bit; bit 7 is copied to the carry flag and bit 0 is set.
+- *[SLL (IX + d)](rotate-and-shift/sll-at-ix-d.md)*: Shifts the byte at (IX + d) left one bit; bit 7 is copied to the carry flag and bit 0 is set.
+- *[SLL (IX + d), r](rotate-and-shift/sll-at-ix-d-r0.md)*: Shifts the byte at (IX + d) left one bit, copying bit 7 to the carry flag and setting bit 0, and stores the result in both the byte at (IX + d) and r.
+- *[SLL (IY + d)](rotate-and-shift/sll-at-iy-d.md)*: Shifts the byte at (IY + d) left one bit; bit 7 is copied to the carry flag and bit 0 is set.
+- *[SLL (IY + d), r](rotate-and-shift/sll-at-iy-d-r0.md)*: Shifts the byte at (IY + d) left one bit, copying bit 7 to the carry flag and setting bit 0, and stores the result in both the byte at (IY + d) and r.
+- *[SLL r](rotate-and-shift/sll-r0.md)*: Shifts r left one bit; bit 7 is copied to the carry flag and bit 0 is set.
+- [SRA (HL)](rotate-and-shift/sra-at-hl.md): Shifts the byte at (HL) right one bit; bit 0 is copied to the carry flag and bit 7 keeps its value, preserving the sign.
+- [SRA (IX + d)](rotate-and-shift/sra-at-ix-d.md): Shifts the byte at (IX + d) right one bit; bit 0 is copied to the carry flag and bit 7 keeps its value, preserving the sign.
+- *[SRA (IX + d), r](rotate-and-shift/sra-at-ix-d-r0.md)*: Shifts the byte at (IX + d) right one bit, copying bit 0 to the carry flag and keeping bit 7 to preserve the sign, and stores the result in both the byte at (IX + d) and r.
+- [SRA (IY + d)](rotate-and-shift/sra-at-iy-d.md): Shifts the byte at (IY + d) right one bit; bit 0 is copied to the carry flag and bit 7 keeps its value, preserving the sign.
+- *[SRA (IY + d), r](rotate-and-shift/sra-at-iy-d-r0.md)*: Shifts the byte at (IY + d) right one bit, copying bit 0 to the carry flag and keeping bit 7 to preserve the sign, and stores the result in both the byte at (IY + d) and r.
+- [SRA r](rotate-and-shift/sra-r0.md): Shifts r right one bit; bit 0 is copied to the carry flag and bit 7 keeps its value, preserving the sign.
+- [SRL (HL)](rotate-and-shift/srl-at-hl.md): Shifts the byte at (HL) right one bit; bit 0 is copied to the carry flag and bit 7 is reset.
+- [SRL (IX + d)](rotate-and-shift/srl-at-ix-d.md): Shifts the byte at (IX + d) right one bit; bit 0 is copied to the carry flag and bit 7 is reset.
+- *[SRL (IX + d), r](rotate-and-shift/srl-at-ix-d-r0.md)*: Shifts the byte at (IX + d) right one bit, copying bit 0 to the carry flag and resetting bit 7, and stores the result in both the byte at (IX + d) and r.
+- [SRL (IY + d)](rotate-and-shift/srl-at-iy-d.md): Shifts the byte at (IY + d) right one bit; bit 0 is copied to the carry flag and bit 7 is reset.
+- *[SRL (IY + d), r](rotate-and-shift/srl-at-iy-d-r0.md)*: Shifts the byte at (IY + d) right one bit, copying bit 0 to the carry flag and resetting bit 7, and stores the result in both the byte at (IY + d) and r.
+- [SRL r](rotate-and-shift/srl-r0.md): Shifts r right one bit; bit 0 is copied to the carry flag and bit 7 is reset.
+
+## Z80N Arithmetic
+
+- [ADD rr, $nn](z80n-arithmetic/add-rp0-nn.md): Adds nn to rr.
+- [ADD rr, A](z80n-arithmetic/add-rp0-a.md): Adds A to rr.
+- [MUL D, E](z80n-arithmetic/mul-d-e.md): Multiplies D by E, storing the 16-bit result in DE.
+- [TEST $n](z80n-arithmetic/test-n.md): Sets the flags from the bitwise AND of A and n, discarding the result.
+
+## Z80N Barrel Shift
+
+- [BRLC DE, B](z80n-barrel-shift/brlc-de-b.md): Rotates DE left by the number of bits in the low four bits of B.
+- [BSLA DE, B](z80n-barrel-shift/bsla-de-b.md): Shifts DE left by the number of bits in the low five bits of B.
+- [BSRA DE, B](z80n-barrel-shift/bsra-de-b.md): Shifts DE right by the number of bits in the low five bits of B, preserving the sign bit.
+- [BSRF DE, B](z80n-barrel-shift/bsrf-de-b.md): Shifts DE right by the number of bits in the low five bits of B, filling with ones.
+- [BSRL DE, B](z80n-barrel-shift/bsrl-de-b.md): Shifts DE right by the number of bits in the low five bits of B, filling with zeroes.
+
+## Z80N Block Transfer
+
+- [LDDRX](z80n-block-transfer/lddrx.md): Copies the byte at (HL) to (DE) unless it equals A, then decrements HL, increments DE and decrements BC, repeating until BC is zero.
+- [LDDX](z80n-block-transfer/lddx.md): Copies the byte at (HL) to (DE) unless it equals A, then decrements HL, increments DE and decrements BC.
+- [LDIRX](z80n-block-transfer/ldirx.md): Copies the byte at (HL) to (DE) unless it equals A, then increments HL and DE and decrements BC, repeating until BC is zero.
+- [LDIX](z80n-block-transfer/ldix.md): Copies the byte at (HL) to (DE) unless it equals A, then increments HL and DE and decrements BC.
+- [LDPIRX](z80n-block-transfer/ldpirx.md): Copies the byte at ((HL & 0xFFF8) + (E & 7)), i.e. from the eight byte aligned pattern at HL, to (DE) unless it equals A, then increments DE and decrements BC, repeating until BC is zero.
+- [LDWS](z80n-block-transfer/ldws.md): Copies the byte at (HL) to (DE), then increments L and D, stepping down a column of ZX Spectrum screen memory.
+
+## Z80N Miscellaneous
+
+- [JP (C)](z80n-miscellaneous/jp-at-c.md): Jumps to the address formed from the top two bits of PC and the byte read from the port addressed by BC shifted left six bits.
+- [MIRROR A](z80n-miscellaneous/mirror-a.md): Reverses the order of the bits in A.
+- [OUTINB](z80n-miscellaneous/outinb.md): Writes the byte at (HL) to the port addressed by BC, then increments HL, leaving B unchanged.
+- [PIXELAD](z80n-miscellaneous/pixelad.md): Sets HL to the ZX Spectrum screen address of the pixel at coordinates D (y) and E (x).
+- [PIXELDN](z80n-miscellaneous/pixeldn.md): Updates HL from a ZX Spectrum screen address to the address of the pixel on the line below.
+- [PUSH $nn](z80n-miscellaneous/push-nn.md): Pushes nn onto the stack. Unlike other instructions the high byte of nn comes first in the encoding.
+- [SETAE](z80n-miscellaneous/setae.md): Sets A to a mask with the single bit selected by the low three bits of E set, with zero selecting bit 7.
+- [SWAPNIB](z80n-miscellaneous/swapnib.md): Swaps the high and low nibbles of A.
+
+## Z80N Next Register
+
+- [NEXTREG $n, $n](z80n-next-register/nextreg-n-n.md): Writes the second n to the ZX Spectrum Next register numbered by the first n.
+- [NEXTREG $n, A](z80n-next-register/nextreg-n-a.md): Writes A to the ZX Spectrum Next register numbered n.
