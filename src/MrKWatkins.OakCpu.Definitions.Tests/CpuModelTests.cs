@@ -1,3 +1,5 @@
+using MrKWatkins.OakCpu.Definitions.Yaml;
+
 namespace MrKWatkins.OakCpu.Definitions.Tests;
 
 public sealed class CpuModelTests : TestFixture
@@ -8,9 +10,20 @@ public sealed class CpuModelTests : TestFixture
         var model = CpuModel.Create(Z80Yaml);
 
         model.Cpu.Name.Should().Equal("Z80");
+        model.Cpu.DisplayName.Should().Equal("Z80");
+        model.Cpu.Cycles.Should().Equal(new Cycles("T-States", CycleCount.Steps, 1));
+        model.Cpu.Cycles.Key.Should().Equal("t_states");
+        model.Cpu.Operands.Select(operand => $"{operand.Name}={operand.Bytes}").Should().SequenceEqual("n=1", "nn=2", "d=1");
+        model.Cpu.References.Select(reference => reference.Covers).Should().SequenceEqual(ReferenceCoverage.Documented, ReferenceCoverage.All, ReferenceCoverage.Undocumented);
+        model.Cpu.Temporaries["result"].Should().Equal("the result");
+        model.Cpu.Base.Should().BeNull();
+        model.Cpu.GetCpu("Z80").Should().BeTheSameInstanceAs(model.Cpu);
+        model.Configuration.UserDefinedFunctions["is_negative"].Documentation.Should().Equal("bit 7 of {value} is set");
+        model.Configuration.UserDefinedFunctions["is_negative"].NotDocumentation.Should().Equal("bit 7 of {value} is reset");
+        model.Configuration.UserDefinedFunctions["did_8_bit_addition_half_carry"].ValueDocumentation.Should().Equal("the half carry");
         model.OpcodeRead.Should().HaveCount(4);
         model.Instructions.Should().NotBeEmpty();
-        model.PrefixJumps.Keys.Should().SequenceEqual([(byte)0xCB, (byte)0xDD, (byte)0xED, (byte)0xFD]);
+        model.PrefixJumps.Keys.Should().SequenceEqual(0xCB, 0xDD, 0xED, 0xFD);
     }
 
     [Test]
@@ -29,6 +42,13 @@ public sealed class CpuModelTests : TestFixture
         var model = await CpuModel.LoadAsync(new DirectoryInfo(GetDefinitionsDirectory("z80n")));
 
         model.Cpu.Name.Should().Equal("Z80N");
+        model.Cpu.DisplayName.Should().Equal("Z80N");
+        model.Cpu.Cycles.Should().Equal(Z80Model.Cpu.Cycles);
+        model.Cpu.Operands.Select(operand => operand.Name).Should().SequenceEqual("n", "nn", "d");
+        model.Cpu.References.Should().HaveCount(1);
+        model.Cpu.Base!.Name.Should().Equal("Z80");
+        model.Cpu.GetCpu("Z80").References.Should().HaveCount(3);
+        AssertThat.Invoking(() => model.Cpu.GetCpu("6502")).Should().Throw<InvalidOperationException>();
         model.Instructions.Count.Should().Equal(Z80NModel.Instructions.Count);
         model.Instructions.Any(i => i.Mnemonic == "LDIX").Should().BeTrue();
         model.Instructions.Any(i => i.Mnemonic == "NOP").Should().BeTrue();

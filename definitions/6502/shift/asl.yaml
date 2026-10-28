@@ -1,6 +1,7 @@
 instructions:
   - group: Shift
     instruction: ASL A
+    documentation: "Shifts A left one bit, moving bit 7 into the carry flag and resetting bit 0."
     next_opcode: overlapped
     opcodes:
       - opcode: 0x0A
@@ -9,6 +10,7 @@ instructions:
 
   - group: Shift
     instruction: ASL zp
+    documentation: "Shifts the byte at zero page address zp left one bit, moving bit 7 into the carry flag and resetting bit 0."
     next_opcode: overlapped
     opcodes:
       - opcode: 0x06
@@ -20,7 +22,8 @@ instructions:
       -
 
   - group: Shift
-    instruction: ASL zp,X
+    instruction: "ASL zp,X"
+    documentation: "Shifts the byte at zero page address zp + X left one bit, moving bit 7 into the carry flag and resetting bit 0. The zero page address wraps within page zero."
     next_opcode: overlapped
     opcodes:
       - opcode: 0x16
@@ -34,6 +37,7 @@ instructions:
 
   - group: Shift
     instruction: ASL abs
+    documentation: "Shifts the byte at address abs left one bit, moving bit 7 into the carry flag and resetting bit 0."
     next_opcode: overlapped
     opcodes:
       - opcode: 0x0E
@@ -46,7 +50,8 @@ instructions:
       -
 
   - group: Shift
-    instruction: ASL abs,X
+    instruction: "ASL abs,X"
+    documentation: "Shifts the byte at address abs + X left one bit, moving bit 7 into the carry flag and resetting bit 0."
     next_opcode: overlapped
     opcodes:
       - opcode: 0x1E

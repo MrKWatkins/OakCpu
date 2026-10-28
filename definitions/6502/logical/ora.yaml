@@ -7,6 +7,7 @@ sequences:
 instructions:
   - group: Logical
     instruction: "ORA #n"
+    documentation: Bitwise ORs A with n.
     opcodes:
       - opcode: 0x09
     steps:
@@ -18,6 +19,7 @@ instructions:
 
   - group: Logical
     instruction: ORA zp
+    documentation: Bitwise ORs A with the byte at zero page address zp.
     opcodes:
       - opcode: 0x05
     steps:
@@ -29,7 +31,8 @@ instructions:
       N: is_negative(A)
 
   - group: Logical
-    instruction: ORA zp,X
+    instruction: "ORA zp,X"
+    documentation: Bitwise ORs A with the byte at zero page address zp + X. The zero page address wraps within page zero.
     opcodes:
       - opcode: 0x15
     steps:
@@ -43,6 +46,7 @@ instructions:
 
   - group: Logical
     instruction: ORA abs
+    documentation: Bitwise ORs A with the byte at address abs.
     opcodes:
       - opcode: 0x0D
     steps:
@@ -55,7 +59,8 @@ instructions:
       N: is_negative(A)
 
   - group: Logical
-    instruction: ORA abs,X
+    instruction: "ORA abs,X"
+    documentation: Bitwise ORs A with the byte at address abs + X. Takes an extra cycle if adding X crosses a page.
     next_opcode: custom
     opcodes:
       - opcode: 0x1D
@@ -66,7 +71,8 @@ instructions:
       - Address = AD + X; move_to_sequence(sequence.ora_finish); request(action.memory_read);
 
   - group: Logical
-    instruction: ORA abs,Y
+    instruction: "ORA abs,Y"
+    documentation: Bitwise ORs A with the byte at address abs + Y. Takes an extra cycle if adding Y crosses a page.
     next_opcode: custom
     opcodes:
       - opcode: 0x19
@@ -78,6 +84,7 @@ instructions:
 
   - group: Logical
     instruction: "ORA (zp,X)"
+    documentation: Bitwise ORs A with the byte at the address stored at zero page address zp + X. The zero page address wraps within page zero.
     opcodes:
       - opcode: 0x01
     steps:
@@ -93,6 +100,7 @@ instructions:
 
   - group: Logical
     instruction: "ORA (zp),Y"
+    documentation: Bitwise ORs A with the byte at Y plus the address stored at zero page address zp. Takes an extra cycle if adding Y crosses a page.
     next_opcode: custom
     opcodes:
       - opcode: 0x11

@@ -1,6 +1,7 @@
 instructions:
   - group: Store
     instruction: STX zp
+    documentation: Stores X at zero page address zp.
     next_opcode: overlapped
     opcodes:
       - opcode: 0x86
@@ -10,7 +11,8 @@ instructions:
       -
 
   - group: Store
-    instruction: STX zp,Y
+    instruction: "STX zp,Y"
+    documentation: Stores X at zero page address zp + Y. The zero page address wraps within page zero.
     next_opcode: overlapped
     opcodes:
       - opcode: 0x96
@@ -22,6 +24,7 @@ instructions:
 
   - group: Store
     instruction: STX abs
+    documentation: Stores X at address abs.
     next_opcode: overlapped
     opcodes:
       - opcode: 0x8E

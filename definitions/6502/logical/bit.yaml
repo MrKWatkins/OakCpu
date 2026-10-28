@@ -1,6 +1,7 @@
 instructions:
   - group: Logical
     instruction: BIT zp
+    documentation: "Tests A against the byte at zero page address zp: the Z flag is set from A AND the byte, and the N and V flags are copied from bits 7 and 6 of the byte."
     opcodes:
       - opcode: 0x24
     steps:
@@ -14,6 +15,7 @@ instructions:
 
   - group: Logical
     instruction: BIT abs
+    documentation: "Tests A against the byte at address abs: the Z flag is set from A AND the byte, and the N and V flags are copied from bits 7 and 6 of the byte."
     opcodes:
       - opcode: 0x2C
     steps:

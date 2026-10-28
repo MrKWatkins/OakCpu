@@ -74,177 +74,8 @@ public sealed unsafe partial class M6502StepEmulator
         }
     }
 
-    // nop finish [0]
-    // branch not taken finish [0]
-    // jam finish [0]
-    private static void Step2(M6502StepEmulator emulator, ref ActionRequired actionRequired)
-    {
-        // Finish instruction.
-        emulator.currentStep = 0;
-    }
-
-    // nop read finish [0]
-    private static void Step3(M6502StepEmulator emulator, ref ActionRequired actionRequired)
-    {
-        // Finish instruction.
-        emulator.currentStep = 0;
-    }
-
-    // branch taken finish [0]
-    private static void Step4(M6502StepEmulator emulator, ref ActionRequired actionRequired)
-    {
-        emulator.PC = emulator.ad;
-        // Finish instruction.
-        emulator.currentStep = 0;
-    }
-
-    // branch page cross [0]
-    private static void Step5(M6502StepEmulator emulator, ref ActionRequired actionRequired)
-    {
-        emulator.address = (ushort)(emulator.PC & 0xFF00 | emulator.ad & 0b11111111);
-        emulator.currentStep = 5;
-    }
-
-    // ora finish [0]
-    private static void Step6(M6502StepEmulator emulator, ref ActionRequired actionRequired)
-    {
-        emulator.A |= emulator.data;
-        emulator.P &= 0x5D;
-        if (emulator.A == 0)
-        {
-            emulator.P |= 0x02;
-        }
-
-        if (((emulator.A & 0b10000000) != 0x00))
-        {
-            emulator.P |= 0x80;
-        }
-
-        // Finish instruction.
-        emulator.currentStep = 0;
-    }
-
-    // and finish [0]
-    private static void Step7(M6502StepEmulator emulator, ref ActionRequired actionRequired)
-    {
-        emulator.A &= emulator.data;
-        emulator.P &= 0x5D;
-        if (emulator.A == 0)
-        {
-            emulator.P |= 0x02;
-        }
-
-        if (((emulator.A & 0b10000000) != 0x00))
-        {
-            emulator.P |= 0x80;
-        }
-
-        // Finish instruction.
-        emulator.currentStep = 0;
-    }
-
-    // eor finish [0]
-    private static void Step8(M6502StepEmulator emulator, ref ActionRequired actionRequired)
-    {
-        emulator.A ^= emulator.data;
-        emulator.P &= 0x5D;
-        if (emulator.A == 0)
-        {
-            emulator.P |= 0x02;
-        }
-
-        if (((emulator.A & 0b10000000) != 0x00))
-        {
-            emulator.P |= 0x80;
-        }
-
-        // Finish instruction.
-        emulator.currentStep = 0;
-    }
-
-    // ldx finish [0]
-    private static void Step9(M6502StepEmulator emulator, ref ActionRequired actionRequired)
-    {
-        emulator.X = emulator.data;
-        emulator.P &= 0x5D;
-        if (emulator.X == 0)
-        {
-            emulator.P |= 0x02;
-        }
-
-        if (((emulator.X & 0b10000000) != 0x00))
-        {
-            emulator.P |= 0x80;
-        }
-
-        // Finish instruction.
-        emulator.currentStep = 0;
-    }
-
-    // lda finish [0]
-    private static void Step10(M6502StepEmulator emulator, ref ActionRequired actionRequired)
-    {
-        emulator.A = emulator.data;
-        emulator.P &= 0x5D;
-        if (emulator.A == 0)
-        {
-            emulator.P |= 0x02;
-        }
-
-        if (((emulator.A & 0b10000000) != 0x00))
-        {
-            emulator.P |= 0x80;
-        }
-
-        // Finish instruction.
-        emulator.currentStep = 0;
-    }
-
-    // ldy finish [0]
-    private static void Step11(M6502StepEmulator emulator, ref ActionRequired actionRequired)
-    {
-        emulator.Y = emulator.data;
-        emulator.P &= 0x5D;
-        if (emulator.Y == 0)
-        {
-            emulator.P |= 0x02;
-        }
-
-        if (((emulator.Y & 0b10000000) != 0x00))
-        {
-            emulator.P |= 0x80;
-        }
-
-        // Finish instruction.
-        emulator.currentStep = 0;
-    }
-
-    // cmp finish [0]
-    private static void Step12(M6502StepEmulator emulator, ref ActionRequired actionRequired)
-    {
-        emulator.P &= 0x5C;
-        if (emulator.A >= emulator.data)
-        {
-            emulator.P |= 0x01;
-        }
-
-        var result = emulator.A - emulator.data;
-        if (result == 0)
-        {
-            emulator.P |= 0x02;
-        }
-
-        if (((result & 0b10000000) != 0x00))
-        {
-            emulator.P |= 0x80;
-        }
-
-        // Finish instruction.
-        emulator.currentStep = 0;
-    }
-
     // adc finish [0]
-    private static void Step13(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    private static void Step2(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var carry = emulator.P & 0b00000001;
         var left = emulator.A;
@@ -318,7 +149,7 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // sbc finish [0]
-    private static void Step14(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    private static void Step3(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         var borrow = 0x01 - (emulator.P & 0b00000001);
         var left = emulator.A;
@@ -391,11 +222,160 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.currentStep = 0;
     }
 
-    // lax finish [0]
-    private static void Step15(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    // cmp finish [0]
+    private static void Step4(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.P &= 0x5C;
+        if (emulator.A >= emulator.data)
+        {
+            emulator.P |= 0x01;
+        }
+
+        var result = emulator.A - emulator.data;
+        if (result == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((result & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // branch not taken finish [0]
+    // nop finish [0]
+    // jam finish [0]
+    private static void Step5(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // branch taken finish [0]
+    private static void Step6(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.PC = emulator.ad;
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // branch page cross [0]
+    private static void Step7(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = (ushort)(emulator.PC & 0xFF00 | emulator.ad & 0b11111111);
+        emulator.currentStep = 6;
+    }
+
+    // nop read finish [0]
+    private static void Step8(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // lda finish [0]
+    private static void Step9(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.A = emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.A == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // ldx finish [0]
+    private static void Step10(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
         emulator.X = emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.X == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.X & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // ldy finish [0]
+    private static void Step11(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.Y = emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.Y == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.Y & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // and finish [0]
+    private static void Step12(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.A &= emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.A == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // eor finish [0]
+    private static void Step13(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.A ^= emulator.data;
+        emulator.P &= 0x5D;
+        if (emulator.A == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // ora finish [0]
+    private static void Step14(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.A |= emulator.data;
         emulator.P &= 0x5D;
         if (emulator.A == 0)
         {
@@ -412,74 +392,94 @@ public sealed unsafe partial class M6502StepEmulator
     }
 
     // jam read ffff [0]
-    private static void Step16(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    private static void Step15(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = 0xFFFF;
-        emulator.currentStep = 18;
+        emulator.currentStep = 17;
     }
 
     // jam read fffe [0]
+    private static void Step16(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.address = 0xFFFE;
+        emulator.currentStep = 18;
+    }
+
+    // jam read fffe again [0]
     private static void Step17(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = 0xFFFE;
         emulator.currentStep = 19;
     }
 
-    // jam read fffe again [0]
+    // jam spin 1 [0]
     private static void Step18(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
-        emulator.address = 0xFFFE;
+        emulator.address = 0xFFFF;
         emulator.currentStep = 20;
     }
 
-    // jam spin 1 [0]
+    // jam spin 2 [0]
     private static void Step19(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = 0xFFFF;
         emulator.currentStep = 21;
     }
 
-    // jam spin 2 [0]
+    // jam spin 3 [0]
     private static void Step20(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = 0xFFFF;
         emulator.currentStep = 22;
     }
 
-    // jam spin 3 [0]
+    // jam spin 4 [0]
     private static void Step21(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = 0xFFFF;
         emulator.currentStep = 23;
     }
 
-    // jam spin 4 [0]
+    // jam spin 5 [0]
     private static void Step22(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = 0xFFFF;
         emulator.currentStep = 24;
     }
 
-    // jam spin 5 [0]
+    // jam spin 6 [0]
     private static void Step23(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = 0xFFFF;
         emulator.currentStep = 25;
     }
 
-    // jam spin 6 [0]
-    private static void Step24(M6502StepEmulator emulator, ref ActionRequired actionRequired)
-    {
-        emulator.address = 0xFFFF;
-        emulator.currentStep = 26;
-    }
-
     // las finish [0]
-    private static void Step25(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    private static void Step24(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.A = (byte)(emulator.data & emulator.S);
         emulator.X = emulator.A;
         emulator.S = emulator.A;
+        emulator.P &= 0x5D;
+        if (emulator.A == 0)
+        {
+            emulator.P |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            emulator.P |= 0x80;
+        }
+
+        // Finish instruction.
+        emulator.currentStep = 0;
+    }
+
+    // lax finish [0]
+    private static void Step25(M6502StepEmulator emulator, ref ActionRequired actionRequired)
+    {
+        emulator.A = emulator.data;
+        emulator.X = emulator.data;
         emulator.P &= 0x5D;
         if (emulator.A == 0)
         {
@@ -848,7 +848,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step46(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.PC;
-        emulator.currentStep = 17;
+        emulator.currentStep = 16;
     }
 
     // 0x03: SLO (zp,X) [1]
@@ -1086,7 +1086,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step54(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)emulator.data;
-        emulator.currentStep = 2;
+        emulator.currentStep = 8;
     }
 
     // 0x05: ORA zp [1]
@@ -1260,7 +1260,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step65(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
-        emulator.currentStep = 2;
+        emulator.currentStep = 8;
     }
 
     // 0x0D: ORA abs [1]
@@ -1281,36 +1281,36 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.ad = (ushort)emulator.data;
     }
 
-    // 0x10: BPL [0]
+    // 0x10: BPL rel [0]
     private static void Step67(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         if (((emulator.P & 0b10000000) == 0b10000000 /* flag.N */))
         {
-            emulator.currentStep = 4;
+            emulator.currentStep = 5;
         }
     }
 
-    // 0x10: BPL [1]
-    // 0x30: BMI [1]
-    // 0x50: BVC [1]
-    // 0x70: BVS [1]
-    // 0x90: BCC [1]
-    // 0xB0: BCS [1]
-    // 0xD0: BNE [1]
-    // 0xF0: BEQ [1]
+    // 0x10: BPL rel [1]
+    // 0x30: BMI rel [1]
+    // 0x50: BVC rel [1]
+    // 0x70: BVS rel [1]
+    // 0x90: BCC rel [1]
+    // 0xB0: BCS rel [1]
+    // 0xD0: BNE rel [1]
+    // 0xF0: BEQ rel [1]
     private static void Step68(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.ad = (ushort)(emulator.PC + (sbyte)emulator.data);
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            emulator.currentStep = 6;
+            emulator.currentStep = 7;
         }
         else
         {
-            emulator.currentStep = 5;
+            emulator.currentStep = 6;
         }
     }
 
@@ -1321,7 +1321,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 7;
+            emulator.currentStep = 15;
         }
     }
 
@@ -1330,7 +1330,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step70(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        emulator.currentStep = 7;
+        emulator.currentStep = 15;
     }
 
     // 0x13: SLO (zp),Y [3]
@@ -1373,7 +1373,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step73(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
-        emulator.currentStep = 2;
+        emulator.currentStep = 8;
     }
 
     // 0x15: ORA zp,X [2]
@@ -1408,7 +1408,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 7;
+            emulator.currentStep = 15;
         }
     }
 
@@ -1440,7 +1440,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            emulator.currentStep = 3;
+            emulator.currentStep = 9;
         }
     }
 
@@ -1453,7 +1453,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step80(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        emulator.currentStep = 3;
+        emulator.currentStep = 9;
     }
 
     // 0x1D: ORA abs,X [2]
@@ -1463,7 +1463,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            emulator.currentStep = 7;
+            emulator.currentStep = 15;
         }
     }
 
@@ -1471,7 +1471,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step82(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        emulator.currentStep = 7;
+        emulator.currentStep = 15;
     }
 
     // 0x1E: ASL abs,X [2]
@@ -1647,14 +1647,14 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.overlapPipeline = &Overlap7;
     }
 
-    // 0x30: BMI [0]
+    // 0x30: BMI rel [0]
     private static void Step100(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         if (!((emulator.P & 0b10000000) == 0b10000000 /* flag.N */))
         {
-            emulator.currentStep = 4;
+            emulator.currentStep = 5;
         }
     }
 
@@ -1665,7 +1665,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 8;
+            emulator.currentStep = 13;
         }
     }
 
@@ -1674,7 +1674,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step102(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        emulator.currentStep = 8;
+        emulator.currentStep = 13;
     }
 
     // 0x35: AND zp,X [2]
@@ -1692,7 +1692,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 8;
+            emulator.currentStep = 13;
         }
     }
 
@@ -1703,7 +1703,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            emulator.currentStep = 8;
+            emulator.currentStep = 13;
         }
     }
 
@@ -1711,7 +1711,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step107(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        emulator.currentStep = 8;
+        emulator.currentStep = 13;
     }
 
     // 0x40: RTI [2]
@@ -1850,14 +1850,14 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.overlapPipeline = &Overlap0;
     }
 
-    // 0x50: BVC [0]
+    // 0x50: BVC rel [0]
     private static void Step122(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         if (((emulator.P & 0b01000000) == 0b01000000 /* flag.V */))
         {
-            emulator.currentStep = 4;
+            emulator.currentStep = 5;
         }
     }
 
@@ -1868,7 +1868,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 9;
+            emulator.currentStep = 14;
         }
     }
 
@@ -1877,7 +1877,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step124(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        emulator.currentStep = 9;
+        emulator.currentStep = 14;
     }
 
     // 0x55: EOR zp,X [2]
@@ -1895,7 +1895,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 9;
+            emulator.currentStep = 14;
         }
     }
 
@@ -1906,7 +1906,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            emulator.currentStep = 9;
+            emulator.currentStep = 14;
         }
     }
 
@@ -1914,7 +1914,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step129(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        emulator.currentStep = 9;
+        emulator.currentStep = 14;
     }
 
     // 0x60: RTS [3]
@@ -2118,14 +2118,14 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.overlapPipeline = &Overlap0;
     }
 
-    // 0x70: BVS [0]
+    // 0x70: BVS rel [0]
     private static void Step148(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         if (!((emulator.P & 0b01000000) == 0b01000000 /* flag.V */))
         {
-            emulator.currentStep = 4;
+            emulator.currentStep = 5;
         }
     }
 
@@ -2136,7 +2136,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 14;
+            emulator.currentStep = 2;
         }
     }
 
@@ -2145,7 +2145,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step150(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        emulator.currentStep = 14;
+        emulator.currentStep = 2;
     }
 
     // 0x75: ADC zp,X [2]
@@ -2163,7 +2163,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 14;
+            emulator.currentStep = 2;
         }
     }
 
@@ -2174,7 +2174,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            emulator.currentStep = 14;
+            emulator.currentStep = 2;
         }
     }
 
@@ -2182,7 +2182,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step155(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        emulator.currentStep = 14;
+        emulator.currentStep = 2;
     }
 
     // 0x80: NOP #n [0]
@@ -2194,7 +2194,7 @@ public sealed unsafe partial class M6502StepEmulator
     {
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
-        emulator.currentStep = 2;
+        emulator.currentStep = 8;
     }
 
     // 0x81: STA (zp,X) [4]
@@ -2280,14 +2280,14 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.overlapPipeline = &Overlap2;
     }
 
-    // 0x90: BCC [0]
+    // 0x90: BCC rel [0]
     private static void Step169(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         if (((emulator.P & 0b00000001) == 0b00000001 /* flag.C */))
         {
-            emulator.currentStep = 4;
+            emulator.currentStep = 5;
         }
     }
 
@@ -2514,14 +2514,14 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.overlapPipeline = &Overlap27;
     }
 
-    // 0xB0: BCS [0]
+    // 0xB0: BCS rel [0]
     private static void Step200(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         if (!((emulator.P & 0b00000001) == 0b00000001 /* flag.C */))
         {
-            emulator.currentStep = 4;
+            emulator.currentStep = 5;
         }
     }
 
@@ -2532,7 +2532,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 11;
+            emulator.currentStep = 10;
         }
     }
 
@@ -2541,7 +2541,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step202(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        emulator.currentStep = 11;
+        emulator.currentStep = 10;
     }
 
     // 0xB3: LAX (zp),Y [3]
@@ -2551,7 +2551,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 16;
+            emulator.currentStep = 27;
         }
     }
 
@@ -2560,7 +2560,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step204(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        emulator.currentStep = 16;
+        emulator.currentStep = 27;
     }
 
     // 0xB4: LDY zp,X [2]
@@ -2602,7 +2602,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 11;
+            emulator.currentStep = 10;
         }
     }
 
@@ -2613,7 +2613,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 27;
+            emulator.currentStep = 26;
         }
     }
 
@@ -2621,7 +2621,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step213(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        emulator.currentStep = 27;
+        emulator.currentStep = 26;
     }
 
     // 0xBC: LDY abs,X [2]
@@ -2649,7 +2649,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            emulator.currentStep = 11;
+            emulator.currentStep = 10;
         }
     }
 
@@ -2657,7 +2657,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step217(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        emulator.currentStep = 11;
+        emulator.currentStep = 10;
     }
 
     // 0xBE: LDX abs,Y [2]
@@ -2667,7 +2667,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 10;
+            emulator.currentStep = 11;
         }
     }
 
@@ -2675,7 +2675,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step219(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        emulator.currentStep = 10;
+        emulator.currentStep = 11;
     }
 
     // 0xBF: LAX abs,Y [2]
@@ -2685,7 +2685,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 16;
+            emulator.currentStep = 27;
         }
     }
 
@@ -2802,14 +2802,14 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.overlapPipeline = &Overlap34;
     }
 
-    // 0xD0: BNE [0]
+    // 0xD0: BNE rel [0]
     private static void Step235(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         if (((emulator.P & 0b00000010) == 0b00000010 /* flag.Z */))
         {
-            emulator.currentStep = 4;
+            emulator.currentStep = 5;
         }
     }
 
@@ -2820,7 +2820,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 13;
+            emulator.currentStep = 4;
         }
     }
 
@@ -2829,7 +2829,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step237(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        emulator.currentStep = 13;
+        emulator.currentStep = 4;
     }
 
     // 0xD5: CMP zp,X [2]
@@ -2847,7 +2847,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 13;
+            emulator.currentStep = 4;
         }
     }
 
@@ -2858,7 +2858,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            emulator.currentStep = 13;
+            emulator.currentStep = 4;
         }
     }
 
@@ -2866,7 +2866,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step242(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        emulator.currentStep = 13;
+        emulator.currentStep = 4;
     }
 
     // 0xE0: CPX #n [0]
@@ -3024,14 +3024,14 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.overlapPipeline = &Overlap40;
     }
 
-    // 0xF0: BEQ [0]
+    // 0xF0: BEQ rel [0]
     private static void Step254(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
         if (!((emulator.P & 0b00000010) == 0b00000010 /* flag.Z */))
         {
-            emulator.currentStep = 4;
+            emulator.currentStep = 5;
         }
     }
 
@@ -3042,7 +3042,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 15;
+            emulator.currentStep = 3;
         }
     }
 
@@ -3051,7 +3051,7 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step256(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        emulator.currentStep = 15;
+        emulator.currentStep = 3;
     }
 
     // 0xF5: SBC zp,X [2]
@@ -3069,7 +3069,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            emulator.currentStep = 15;
+            emulator.currentStep = 3;
         }
     }
 
@@ -3080,7 +3080,7 @@ public sealed unsafe partial class M6502StepEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            emulator.currentStep = 15;
+            emulator.currentStep = 3;
         }
     }
 
@@ -3088,6 +3088,6 @@ public sealed unsafe partial class M6502StepEmulator
     private static void Step261(M6502StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        emulator.currentStep = 15;
+        emulator.currentStep = 3;
     }
 }

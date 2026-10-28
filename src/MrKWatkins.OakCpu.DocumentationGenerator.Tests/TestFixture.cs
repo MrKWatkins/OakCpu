@@ -6,16 +6,25 @@ public abstract class TestFixture
 {
     private static readonly Lazy<CpuModel> LazyZ80Model = new(() => CpuModel.LoadAsync(new DirectoryInfo(GetDefinitionsDirectory("z80"))).Result);
     private static readonly Lazy<CpuModel> LazyZ80NModel = new(() => CpuModel.LoadAsync(new DirectoryInfo(GetDefinitionsDirectory("z80n"))).Result);
+    private static readonly Lazy<CpuModel> LazyM6502Model = new(() => CpuModel.LoadAsync(new DirectoryInfo(GetDefinitionsDirectory("6502"))).Result);
     private static readonly Lazy<IReadOnlyList<InstructionDocumentation>> LazyZ80Documentation = new(() => CpuDocumentation.Create(Z80Model));
     private static readonly Lazy<IReadOnlyList<InstructionDocumentation>> LazyZ80NDocumentation = new(() => CpuDocumentation.Create(Z80NModel));
+    private static readonly Lazy<IReadOnlyList<InstructionDocumentation>> LazyM6502Documentation = new(() => CpuDocumentation.Create(M6502Model));
 
     protected static CpuModel Z80Model => LazyZ80Model.Value;
 
     protected static CpuModel Z80NModel => LazyZ80NModel.Value;
 
+    /// <summary>
+    /// The 6502 model; named after the identifier its definitions use for the CPU.
+    /// </summary>
+    protected static CpuModel M6502Model => LazyM6502Model.Value;
+
     protected static IReadOnlyList<InstructionDocumentation> Z80Documentation => LazyZ80Documentation.Value;
 
     protected static IReadOnlyList<InstructionDocumentation> Z80NDocumentation => LazyZ80NDocumentation.Value;
+
+    protected static IReadOnlyList<InstructionDocumentation> M6502Documentation => LazyM6502Documentation.Value;
 
     /// <summary>
     /// Gets the instruction with the given mnemonic, preferring an unprefixed opcode when the mnemonic has prefixed duplicates.

@@ -1,6 +1,7 @@
 instructions:
   - group: Transfer
     instruction: TAX
+    documentation: Copies A into X.
     opcodes:
       - opcode: 0xAA
     steps:
@@ -11,6 +12,7 @@ instructions:
 
   - group: Transfer
     instruction: TXA
+    documentation: Copies X into A.
     opcodes:
       - opcode: 0x8A
     steps:
@@ -21,6 +23,7 @@ instructions:
 
   - group: Transfer
     instruction: TAY
+    documentation: Copies A into Y.
     opcodes:
       - opcode: 0xA8
     steps:
@@ -31,6 +34,7 @@ instructions:
 
   - group: Transfer
     instruction: TYA
+    documentation: Copies Y into A.
     opcodes:
       - opcode: 0x98
     steps:
@@ -41,6 +45,7 @@ instructions:
 
   - group: Transfer
     instruction: TSX
+    documentation: Copies S into X.
     opcodes:
       - opcode: 0xBA
     steps:
@@ -51,6 +56,7 @@ instructions:
 
   - group: Transfer
     instruction: TXS
+    documentation: Copies X into S.
     opcodes:
       - opcode: 0x9A
     steps:

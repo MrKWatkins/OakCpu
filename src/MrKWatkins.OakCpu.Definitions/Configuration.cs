@@ -1,5 +1,3 @@
-using Action = MrKWatkins.OakCpu.Definitions.Action;
-
 namespace MrKWatkins.OakCpu.Definitions;
 
 [SuppressMessage("ReSharper", "ParameterHidesMember")]

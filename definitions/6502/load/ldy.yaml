@@ -7,6 +7,7 @@ sequences:
 instructions:
   - group: Load
     instruction: "LDY #n"
+    documentation: Loads Y with n.
     opcodes:
       - opcode: 0xA0
     steps:
@@ -18,6 +19,7 @@ instructions:
 
   - group: Load
     instruction: LDY zp
+    documentation: Loads Y with the byte at zero page address zp.
     opcodes:
       - opcode: 0xA4
     steps:
@@ -29,7 +31,8 @@ instructions:
       N: is_negative(Y)
 
   - group: Load
-    instruction: LDY zp,X
+    instruction: "LDY zp,X"
+    documentation: Loads Y with the byte at zero page address zp + X. The zero page address wraps within page zero.
     opcodes:
       - opcode: 0xB4
     steps:
@@ -43,6 +46,7 @@ instructions:
 
   - group: Load
     instruction: LDY abs
+    documentation: Loads Y with the byte at address abs.
     opcodes:
       - opcode: 0xAC
     steps:
@@ -55,7 +59,8 @@ instructions:
       N: is_negative(Y)
 
   - group: Load
-    instruction: LDY abs,X
+    instruction: "LDY abs,X"
+    documentation: Loads Y with the byte at address abs + X. Takes an extra cycle if adding X crosses a page.
     next_opcode: custom
     opcodes:
       - opcode: 0xBC

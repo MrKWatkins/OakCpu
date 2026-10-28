@@ -1,0 +1,26 @@
+# CPY #n
+
+Compares Y with n by subtracting the byte from Y, setting the flags from the result and discarding it.
+
+## Flags
+
+| Flag | Effect |
+| ---- | ------ |
+| N | Set if bit 7 of the result is set, otherwise reset. |
+| V | Unaffected. |
+| B | Unaffected. |
+| D | Unaffected. |
+| I | Unaffected. |
+| Z | Set if the result is zero, otherwise reset. |
+| C | Set if Y is greater than or equal to the value read, otherwise reset. |
+
+## Opcodes
+
+| Instruction | Opcode | Cycles | Notes |
+| ----------- | ------ | ------ | ----- |
+| `CPY #n` | `C0 n` | 2 |  |
+
+## References
+
+- [MCS6500 Microcomputer Family Programming Manual](http://archive.6502.org/books/mcs6500_family_programming_manual.pdf)
+- [6502 Instruction Set, mass:werk](https://www.masswerk.at/6502/6502_instruction_set.html)

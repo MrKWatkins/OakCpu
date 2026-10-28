@@ -1,6 +1,7 @@
 instructions:
   - group: System
     instruction: BRK
+    documentation: "Pushes the address of the byte after the padding byte following the opcode, then the processor status with the B flag set, onto the stack, sets the interrupt disable flag and jumps to the address at the IRQ vector, 0xFFFE."
     opcodes:
       - opcode: 0x00
     steps:
@@ -14,6 +15,7 @@ instructions:
 
   - group: System
     instruction: RTI
+    documentation: "Pops the processor status and then the return address from the stack, returning from an interrupt."
     opcodes:
       - opcode: 0x40
     steps:

@@ -10,7 +10,8 @@ internal static class FlagValidation
                 flags.Indexed().Select(item => (item.Item.Name, $"flags[{item.Index}].name")),
                 "flag")
             .Concat(ValidateDuplicateIndexes(flags))
-            .Concat(ValidateDuplicateConditions(flags));
+            .Concat(ValidateDuplicateConditions(flags))
+            .Concat(ValidateModes(flags));
 
     [Pure]
     private static IEnumerable<ValidationError> ValidateDuplicateIndexes(IReadOnlyList<FlagYaml> flags)
@@ -55,6 +56,28 @@ internal static class FlagValidation
         if (flag.NotCondition != null)
         {
             yield return (flag.NotCondition, flag.Name, $"flags[{index}].not_condition");
+        }
+    }
+
+    [Pure]
+    private static IEnumerable<ValidationError> ValidateModes(IReadOnlyList<FlagYaml> flags)
+    {
+        foreach (var (flag, index) in flags.Indexed())
+        {
+            if (flag.Mode == null)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(flag.Mode.Set))
+            {
+                yield return new ValidationError($"The flag {flag.Name} has a mode with no name for when it is set.", $"flags[{index}].mode.set");
+            }
+
+            if (string.IsNullOrWhiteSpace(flag.Mode.Reset))
+            {
+                yield return new ValidationError($"The flag {flag.Name} has a mode with no name for when it is reset.", $"flags[{index}].mode.reset");
+            }
         }
     }
 }

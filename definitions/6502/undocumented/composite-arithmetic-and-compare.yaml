@@ -1,6 +1,8 @@
 instructions:
   - group: Undocumented
     instruction: DCP zp
+    documentation: "Decrements the byte at zero page address zp, then compares A with the result as CMP does."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0xC7
@@ -12,7 +14,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: DCP zp,X
+    instruction: "DCP zp,X"
+    documentation: "Decrements the byte at zero page address zp + X, then compares A with the result as CMP does. The zero page address wraps within page zero."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0xD7
@@ -26,6 +30,8 @@ instructions:
 
   - group: Undocumented
     instruction: DCP abs
+    documentation: "Decrements the byte at address abs, then compares A with the result as CMP does."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0xCF
@@ -38,7 +44,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: DCP abs,X
+    instruction: "DCP abs,X"
+    documentation: "Decrements the byte at address abs + X, then compares A with the result as CMP does."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0xDF
@@ -52,7 +60,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: DCP abs,Y
+    instruction: "DCP abs,Y"
+    documentation: "Decrements the byte at address abs + Y, then compares A with the result as CMP does."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0xDB
@@ -67,6 +77,8 @@ instructions:
 
   - group: Undocumented
     instruction: "DCP (zp,X)"
+    documentation: "Decrements the byte at the address stored at zero page address zp + X, then compares A with the result as CMP does. The zero page address wraps within page zero."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0xC3
@@ -82,6 +94,8 @@ instructions:
 
   - group: Undocumented
     instruction: "DCP (zp),Y"
+    documentation: "Decrements the byte at Y plus the address stored at zero page address zp, then compares A with the result as CMP does."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0xD3
@@ -97,6 +111,8 @@ instructions:
 
   - group: Undocumented
     instruction: ISC zp
+    documentation: "Increments the byte at zero page address zp, then subtracts the result and the borrow from A as SBC does."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0xE7
@@ -108,7 +124,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: ISC zp,X
+    instruction: "ISC zp,X"
+    documentation: "Increments the byte at zero page address zp + X, then subtracts the result and the borrow from A as SBC does. The zero page address wraps within page zero."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0xF7
@@ -122,6 +140,8 @@ instructions:
 
   - group: Undocumented
     instruction: ISC abs
+    documentation: "Increments the byte at address abs, then subtracts the result and the borrow from A as SBC does."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0xEF
@@ -134,7 +154,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: ISC abs,X
+    instruction: "ISC abs,X"
+    documentation: "Increments the byte at address abs + X, then subtracts the result and the borrow from A as SBC does."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0xFF
@@ -148,7 +170,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: ISC abs,Y
+    instruction: "ISC abs,Y"
+    documentation: "Increments the byte at address abs + Y, then subtracts the result and the borrow from A as SBC does."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0xFB
@@ -163,6 +187,8 @@ instructions:
 
   - group: Undocumented
     instruction: "ISC (zp,X)"
+    documentation: "Increments the byte at the address stored at zero page address zp + X, then subtracts the result and the borrow from A as SBC does. The zero page address wraps within page zero."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0xE3
@@ -178,6 +204,8 @@ instructions:
 
   - group: Undocumented
     instruction: "ISC (zp),Y"
+    documentation: "Increments the byte at Y plus the address stored at zero page address zp, then subtracts the result and the borrow from A as SBC does."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0xF3

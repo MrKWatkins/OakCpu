@@ -1,0 +1,40 @@
+﻿cpu: 6502
+instructions:
+  - instruction: LDA abs,X
+    defined_by: 6502
+    group: Load
+    documentation: Loads A with the byte at address abs + X. Takes an extra cycle if adding X crosses a page.
+    undocumented: false
+    page: load/lda-abs-x.md
+    flags:
+      N:
+        effect: changed
+        documentation: Set if bit 7 of A is set, otherwise reset.
+      V:
+        effect: unaffected
+        documentation: Unaffected.
+      B:
+        effect: unaffected
+        documentation: Unaffected.
+      D:
+        effect: unaffected
+        documentation: Unaffected.
+      I:
+        effect: unaffected
+        documentation: Unaffected.
+      Z:
+        effect: changed
+        documentation: Set if A is zero, otherwise reset.
+      C:
+        effect: unaffected
+        documentation: Unaffected.
+    opcodes:
+      - opcode: BD abs
+        instruction: LDA abs,X
+        cycles: [4, 5]
+        undocumented: false
+    references:
+      - name: MCS6500 Microcomputer Family Programming Manual
+        url: "http://archive.6502.org/books/mcs6500_family_programming_manual.pdf"
+      - name: "6502 Instruction Set, mass:werk"
+        url: "https://www.masswerk.at/6502/6502_instruction_set.html"

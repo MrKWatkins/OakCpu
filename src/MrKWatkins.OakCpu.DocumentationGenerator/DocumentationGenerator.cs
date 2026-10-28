@@ -28,9 +28,9 @@ public static class DocumentationGenerator
 
         return documentation
             .Select(instruction => new GeneratedDocument(instruction.Page, MarkdownWriter.Write(instruction)))
-            .Prepend(new GeneratedDocument(OpcodesFileName, ContentsWriter.WriteOpcodeTables(model.Cpu.Name, documentation)))
-            .Prepend(new GeneratedDocument(IndexFileName, ContentsWriter.WriteIndex(model.Cpu.Name, documentation)))
-            .Prepend(new GeneratedDocument(YamlFileName, YamlWriter.Write(model.Cpu.Name, documentation)))
+            .Prepend(new GeneratedDocument(OpcodesFileName, ContentsWriter.WriteOpcodeTables(model.Cpu, documentation)))
+            .Prepend(new GeneratedDocument(IndexFileName, ContentsWriter.WriteIndex(model.Cpu, documentation)))
+            .Prepend(new GeneratedDocument(YamlFileName, YamlWriter.Write(model.Cpu, documentation)))
             .ToList();
     }
 }

@@ -1,6 +1,7 @@
 instructions:
   - group: Stack
     instruction: PHA
+    documentation: Pushes A onto the stack.
     opcodes:
       - opcode: 0x48
     steps:
@@ -11,6 +12,7 @@ instructions:
 
   - group: Stack
     instruction: PHP
+    documentation: Pushes the processor status onto the stack with the B flag set.
     opcodes:
       - opcode: 0x08
     steps:
@@ -21,6 +23,7 @@ instructions:
 
   - group: Stack
     instruction: PLA
+    documentation: Pops A from the stack.
     opcodes:
       - opcode: 0x68
     steps:
@@ -34,6 +37,7 @@ instructions:
 
   - group: Stack
     instruction: PLP
+    documentation: Pops the processor status from the stack.
     opcodes:
       - opcode: 0x28
     steps:

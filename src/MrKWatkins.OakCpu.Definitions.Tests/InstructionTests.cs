@@ -2,7 +2,6 @@ using System.Text;
 using MrKWatkins.OakCpu.Definitions.Language.Parsing;
 using MrKWatkins.OakCpu.Definitions.Yaml;
 using VYaml.Serialization;
-using Action = MrKWatkins.OakCpu.Definitions.Action;
 
 namespace MrKWatkins.OakCpu.Definitions.Tests;
 

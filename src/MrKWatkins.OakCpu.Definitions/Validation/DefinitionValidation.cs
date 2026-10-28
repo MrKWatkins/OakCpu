@@ -6,7 +6,8 @@ internal static class DefinitionValidation
 {
     public static void Validate(YamlFile yaml)
     {
-        var errors = ActionValidation.Validate(yaml.Cpu.Actions)
+        var errors = CpuValidation.Validate(yaml.Cpu)
+            .Concat(ActionValidation.Validate(yaml.Cpu.Actions))
             .Concat(FunctionValidation.Validate(yaml.Functions))
             .Concat(DataMemberValidation.Validate(yaml.Cpu.Fields, yaml.Interrupts!.Properties))
             .Concat(RegisterValidation.Validate(yaml.Registers))

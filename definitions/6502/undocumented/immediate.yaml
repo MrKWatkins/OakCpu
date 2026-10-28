@@ -1,6 +1,8 @@
 instructions:
   - group: Undocumented
     instruction: "ANC #n"
+    documentation: "Bitwise ANDs A with n, then copies bit 7 of the result into the carry flag."
+    undocumented: true
     opcodes:
       - opcode: 0x0B
     steps:
@@ -9,6 +11,8 @@ instructions:
 
   - group: Undocumented
     instruction: "ANC #n"
+    documentation: "Bitwise ANDs A with n, then copies bit 7 of the result into the carry flag."
+    undocumented: true
     opcodes:
       - opcode: 0x2B
     steps:
@@ -17,6 +21,10 @@ instructions:
 
   - group: Undocumented
     instruction: "ALR #n"
+    documentation: "Bitwise ANDs A with n, then shifts the result right one bit, moving bit 0 into the carry flag."
+    flag_documentation:
+      C: "Set if bit 0 of A AND n is set, otherwise reset."
+    undocumented: true
     opcodes:
       - opcode: 0x4B
     steps:
@@ -25,6 +33,11 @@ instructions:
 
   - group: Undocumented
     instruction: "ARR #n"
+    documentation: "Bitwise ANDs A with n, then rotates the result right one bit through the carry flag. The carry and overflow flags are set from bits 6 and 5 of the result as if by an addition, and in decimal mode the result is adjusted as it would be by ADC."
+    flag_documentation:
+      V: "Set if bits 6 and 5 of the result differ, otherwise reset."
+      C: "In decimal mode, set if the high nibble of A AND n, plus 0x10 if bit 4 of A AND n is set, is greater than 0x50, otherwise reset. In binary mode, set if bit 6 of the result is set, otherwise reset."
+    undocumented: true
     opcodes:
       - opcode: 0x6B
     steps:
@@ -33,6 +46,10 @@ instructions:
 
   - group: Undocumented
     instruction: "SBX #n"
+    documentation: "Subtracts n from A AND X, without the borrow, and stores the result in X."
+    flag_documentation:
+      C: "Set if A AND X is greater than or equal to n, otherwise reset."
+    undocumented: true
     opcodes:
       - opcode: 0xCB
     steps:
@@ -41,6 +58,8 @@ instructions:
 
   - group: Undocumented
     instruction: "USBC #n"
+    documentation: "Subtracts n and the borrow, the inverse of the carry flag, from A, exactly as SBC #n does."
+    undocumented: true
     opcodes:
       - opcode: 0xEB
     steps:

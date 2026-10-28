@@ -1,7 +1,44 @@
 cpu:
   name: M6502
+  display_name: 6502
   documentation: Provides generated MOS 6502 CPU emulators.
   default_next_opcode: overlapped
+  # The 6502 accesses the bus on every cycle, so only steps that request an action take a cycle; steps that only compute
+  # happen within the cycle before them. Every instruction reads the byte after its opcode, so takes at least two cycles: for
+  # implied instructions that read is the fetch of the next opcode, which is not a step of the instruction itself.
+  cycles:
+    name: Cycles
+    count: actions
+    minimum: 2
+  # The operand bytes named in instructions.
+  operands:
+    - name: n
+      bytes: 1
+      documentation: An immediate byte.
+    - name: zp
+      bytes: 1
+      documentation: A zero page address.
+    - name: abs
+      bytes: 2
+      documentation: A 16-bit address, low byte first.
+    - name: rel
+      bytes: 1
+      documentation: A signed displacement byte, relative to the address of the next instruction.
+  # How the temporaries the instruction steps use are named in documentation.
+  temporaries:
+    result: the result
+    binary_result: the binary result
+  # External documentation for the instructions.
+  references:
+    - name: MCS6500 Microcomputer Family Programming Manual
+      url: http://archive.6502.org/books/mcs6500_family_programming_manual.pdf
+      covers: documented
+    - name: 6502 Instruction Set, mass:werk
+      url: https://www.masswerk.at/6502/6502_instruction_set.html
+      covers: all
+    - name: CPU unofficial opcodes, NESdev Wiki
+      url: https://www.nesdev.org/wiki/CPU_unofficial_opcodes
+      covers: undocumented
   actions:
     - name: opcode_read
       documentation: The host must read an opcode byte from memory.

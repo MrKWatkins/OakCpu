@@ -28,13 +28,13 @@ public static partial class CpuDocumentation
                 .Prepend((Key: (instruction.OpcodeTable, instruction.Prefix, instruction.Opcode), Instruction: instruction)))
             .ToDictionary(x => x.Key, x => x.Instruction);
 
-        var tStates = new TStateCalculator(model);
+        var cycles = new CycleCalculator(model);
         var opcodeFormatter = new OpcodeFormatter(model);
 
         var documentation = model.Yaml.Instructions
-            .Where(yaml => !TStateCalculator.IsRedirect(instructionsByOpcode[Key(yaml, yaml.Opcodes[0])]))
+            .Where(yaml => !CycleCalculator.IsRedirect(instructionsByOpcode[Key(yaml, yaml.Opcodes[0])]))
             .GroupBy(yaml => yaml.Instruction, StringComparer.Ordinal)
-            .Select(form => Create(model, form.Key, form.ToList(), instructionsByOpcode, tStates, opcodeFormatter))
+            .Select(form => Create(model, form.Key, form.ToList(), instructionsByOpcode, cycles, opcodeFormatter))
             .OrderBy(d => d.Group, StringComparer.Ordinal)
             .ThenBy(d => d.Instruction, StringComparer.Ordinal)
             .ToList();
@@ -54,7 +54,7 @@ public static partial class CpuDocumentation
         string form,
         IReadOnlyList<InstructionYaml> entries,
         IReadOnlyDictionary<(string? Table, byte? Prefix, byte Opcode), Instruction> instructionsByOpcode,
-        TStateCalculator tStates,
+        CycleCalculator cycles,
         OpcodeFormatter opcodeFormatter)
     {
         // An instruction can have several entries when some opcodes behave differently internally, e.g. the Z80's prefixed SCF and
@@ -96,7 +96,7 @@ public static partial class CpuDocumentation
                     opcodeFormatter.Format(form, instruction, x.Opcode.PrefixByte, x.Opcode.OpcodeByte),
                     Operands.SubstituteInstruction(form, operands),
                     operands,
-                    tStates.Calculate(instruction),
+                    cycles.Calculate(instruction),
                     undocumented[index]);
             })
             .ToList();
@@ -107,7 +107,7 @@ public static partial class CpuDocumentation
             .Where(operand => operand.Key != "N0")
             .DistinctBy(operand => operand.Value, StringComparer.Ordinal)
             .ToDictionary(operand => operand.Value, operand => $"{{{operand.Key}}}", StringComparer.Ordinal);
-        var describer = new FlagEffectDescriber(model.Configuration, canonicalInstruction, operandPlaceholders);
+        var describer = new FlagEffectDescriber(model, canonicalInstruction, operandPlaceholders);
         var flags = ApplyFlagDocumentation(form, describer.Describe(), entries, model.Configuration);
 
         // Flags documented by hand do not need their expressions describing.
@@ -118,12 +118,12 @@ public static partial class CpuDocumentation
             .Distinct(StringComparer.Ordinal)
             .ToList();
 
-        var definedBy = model.Yaml.InheritedFrom.GetValueOrDefault(canonicalEntry) ?? model.Cpu.Name;
+        var definedBy = model.Cpu.GetCpu(model.Yaml.InheritedFrom.GetValueOrDefault(canonicalEntry) ?? model.Cpu.Name);
         var allUndocumented = undocumented.All(u => u);
 
         return new InstructionDocumentation(
-            model.Cpu.Name,
-            definedBy,
+            model.Cpu,
+            definedBy.DisplayName,
             form,
             Operands.Symbolic(form, opcodes.Select(x => x.Opcode).ToList()),
             canonicalEntry.Group,
@@ -131,7 +131,7 @@ public static partial class CpuDocumentation
             allUndocumented,
             flags,
             opcodeDocumentation,
-            References.For(definedBy, allUndocumented),
+            References(definedBy, allUndocumented),
             $"{Slug(canonicalEntry.Group)}/{Slug(form)}.md",
             fallbacks);
     }
@@ -166,6 +166,16 @@ public static partial class CpuDocumentation
                 : effect)
             .ToList();
     }
+
+    /// <summary>
+    /// Gets the references that cover an instruction: those covering every instruction, plus those covering only documented or
+    /// only undocumented instructions as appropriate.
+    /// </summary>
+    [Pure]
+    private static IReadOnlyList<Reference> References(Cpu cpu, bool undocumented) =>
+        cpu.References
+            .Where(reference => reference.Covers == ReferenceCoverage.All || reference.Covers == (undocumented ? ReferenceCoverage.Undocumented : ReferenceCoverage.Documented))
+            .ToList();
 
     [Pure]
     private static (string? Table, byte? Prefix, byte Opcode) Key(InstructionYaml entry, OpcodeYaml opcode) => (entry.OpcodeTable, opcode.PrefixByte, opcode.OpcodeByte);

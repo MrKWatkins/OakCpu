@@ -1,6 +1,7 @@
 instructions:
   - group: Shift
     instruction: ROL A
+    documentation: "Rotates A left one bit through the carry flag, moving bit 7 into the carry flag and the previous carry flag into bit 0."
     next_opcode: overlapped
     opcodes:
       - opcode: 0x2A
@@ -9,6 +10,7 @@ instructions:
 
   - group: Shift
     instruction: ROL zp
+    documentation: "Rotates the byte at zero page address zp left one bit through the carry flag, moving bit 7 into the carry flag and the previous carry flag into bit 0."
     next_opcode: overlapped
     opcodes:
       - opcode: 0x26
@@ -20,7 +22,8 @@ instructions:
       -
 
   - group: Shift
-    instruction: ROL zp,X
+    instruction: "ROL zp,X"
+    documentation: "Rotates the byte at zero page address zp + X left one bit through the carry flag, moving bit 7 into the carry flag and the previous carry flag into bit 0. The zero page address wraps within page zero."
     next_opcode: overlapped
     opcodes:
       - opcode: 0x36
@@ -34,6 +37,7 @@ instructions:
 
   - group: Shift
     instruction: ROL abs
+    documentation: "Rotates the byte at address abs left one bit through the carry flag, moving bit 7 into the carry flag and the previous carry flag into bit 0."
     next_opcode: overlapped
     opcodes:
       - opcode: 0x2E
@@ -46,7 +50,8 @@ instructions:
       -
 
   - group: Shift
-    instruction: ROL abs,X
+    instruction: "ROL abs,X"
+    documentation: "Rotates the byte at address abs + X left one bit through the carry flag, moving bit 7 into the carry flag and the previous carry flag into bit 0."
     next_opcode: overlapped
     opcodes:
       - opcode: 0x3E

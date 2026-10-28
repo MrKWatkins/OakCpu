@@ -14,6 +14,9 @@ flags:
   - name: D
     index: 3
     documentation: Gets or sets the decimal flag.
+    mode:
+      set: decimal
+      reset: binary
 
   - name: B
     index: 4

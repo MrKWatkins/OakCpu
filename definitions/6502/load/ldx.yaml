@@ -7,6 +7,7 @@ sequences:
 instructions:
   - group: Load
     instruction: "LDX #n"
+    documentation: Loads X with n.
     opcodes:
       - opcode: 0xA2
     steps:
@@ -18,6 +19,7 @@ instructions:
 
   - group: Load
     instruction: LDX zp
+    documentation: Loads X with the byte at zero page address zp.
     opcodes:
       - opcode: 0xA6
     steps:
@@ -29,7 +31,8 @@ instructions:
       N: is_negative(X)
 
   - group: Load
-    instruction: LDX zp,Y
+    instruction: "LDX zp,Y"
+    documentation: Loads X with the byte at zero page address zp + Y. The zero page address wraps within page zero.
     opcodes:
       - opcode: 0xB6
     steps:
@@ -43,6 +46,7 @@ instructions:
 
   - group: Load
     instruction: LDX abs
+    documentation: Loads X with the byte at address abs.
     opcodes:
       - opcode: 0xAE
     steps:
@@ -55,7 +59,8 @@ instructions:
       N: is_negative(X)
 
   - group: Load
-    instruction: LDX abs,Y
+    instruction: "LDX abs,Y"
+    documentation: Loads X with the byte at address abs + Y. Takes an extra cycle if adding Y crosses a page.
     next_opcode: custom
     opcodes:
       - opcode: 0xBE

@@ -1,6 +1,8 @@
 instructions:
   - group: Undocumented
     instruction: SLO zp
+    documentation: "Shifts the byte at zero page address zp left one bit, moving bit 7 into the carry flag, then bitwise ORs A with the result."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x07
@@ -12,7 +14,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: SLO zp,X
+    instruction: "SLO zp,X"
+    documentation: "Shifts the byte at zero page address zp + X left one bit, moving bit 7 into the carry flag, then bitwise ORs A with the result. The zero page address wraps within page zero."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x17
@@ -26,6 +30,8 @@ instructions:
 
   - group: Undocumented
     instruction: SLO abs
+    documentation: "Shifts the byte at address abs left one bit, moving bit 7 into the carry flag, then bitwise ORs A with the result."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x0F
@@ -38,7 +44,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: SLO abs,X
+    instruction: "SLO abs,X"
+    documentation: "Shifts the byte at address abs + X left one bit, moving bit 7 into the carry flag, then bitwise ORs A with the result."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x1F
@@ -52,7 +60,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: SLO abs,Y
+    instruction: "SLO abs,Y"
+    documentation: "Shifts the byte at address abs + Y left one bit, moving bit 7 into the carry flag, then bitwise ORs A with the result."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x1B
@@ -67,6 +77,8 @@ instructions:
 
   - group: Undocumented
     instruction: "SLO (zp,X)"
+    documentation: "Shifts the byte at the address stored at zero page address zp + X left one bit, moving bit 7 into the carry flag, then bitwise ORs A with the result. The zero page address wraps within page zero."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x03
@@ -82,6 +94,8 @@ instructions:
 
   - group: Undocumented
     instruction: "SLO (zp),Y"
+    documentation: "Shifts the byte at Y plus the address stored at zero page address zp left one bit, moving bit 7 into the carry flag, then bitwise ORs A with the result."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x13
@@ -97,6 +111,8 @@ instructions:
 
   - group: Undocumented
     instruction: RLA zp
+    documentation: "Rotates the byte at zero page address zp left one bit through the carry flag, then bitwise ANDs A with the result."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x27
@@ -108,7 +124,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: RLA zp,X
+    instruction: "RLA zp,X"
+    documentation: "Rotates the byte at zero page address zp + X left one bit through the carry flag, then bitwise ANDs A with the result. The zero page address wraps within page zero."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x37
@@ -122,6 +140,8 @@ instructions:
 
   - group: Undocumented
     instruction: RLA abs
+    documentation: "Rotates the byte at address abs left one bit through the carry flag, then bitwise ANDs A with the result."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x2F
@@ -134,7 +154,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: RLA abs,X
+    instruction: "RLA abs,X"
+    documentation: "Rotates the byte at address abs + X left one bit through the carry flag, then bitwise ANDs A with the result."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x3F
@@ -148,7 +170,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: RLA abs,Y
+    instruction: "RLA abs,Y"
+    documentation: "Rotates the byte at address abs + Y left one bit through the carry flag, then bitwise ANDs A with the result."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x3B
@@ -163,6 +187,8 @@ instructions:
 
   - group: Undocumented
     instruction: "RLA (zp,X)"
+    documentation: "Rotates the byte at the address stored at zero page address zp + X left one bit through the carry flag, then bitwise ANDs A with the result. The zero page address wraps within page zero."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x23
@@ -178,6 +204,8 @@ instructions:
 
   - group: Undocumented
     instruction: "RLA (zp),Y"
+    documentation: "Rotates the byte at Y plus the address stored at zero page address zp left one bit through the carry flag, then bitwise ANDs A with the result."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x33
@@ -193,6 +221,8 @@ instructions:
 
   - group: Undocumented
     instruction: SRE zp
+    documentation: "Shifts the byte at zero page address zp right one bit, moving bit 0 into the carry flag, then bitwise exclusive ORs A with the result."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x47
@@ -204,7 +234,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: SRE zp,X
+    instruction: "SRE zp,X"
+    documentation: "Shifts the byte at zero page address zp + X right one bit, moving bit 0 into the carry flag, then bitwise exclusive ORs A with the result. The zero page address wraps within page zero."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x57
@@ -218,6 +250,8 @@ instructions:
 
   - group: Undocumented
     instruction: SRE abs
+    documentation: "Shifts the byte at address abs right one bit, moving bit 0 into the carry flag, then bitwise exclusive ORs A with the result."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x4F
@@ -230,7 +264,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: SRE abs,X
+    instruction: "SRE abs,X"
+    documentation: "Shifts the byte at address abs + X right one bit, moving bit 0 into the carry flag, then bitwise exclusive ORs A with the result."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x5F
@@ -244,7 +280,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: SRE abs,Y
+    instruction: "SRE abs,Y"
+    documentation: "Shifts the byte at address abs + Y right one bit, moving bit 0 into the carry flag, then bitwise exclusive ORs A with the result."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x5B
@@ -259,6 +297,8 @@ instructions:
 
   - group: Undocumented
     instruction: "SRE (zp,X)"
+    documentation: "Shifts the byte at the address stored at zero page address zp + X right one bit, moving bit 0 into the carry flag, then bitwise exclusive ORs A with the result. The zero page address wraps within page zero."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x43
@@ -274,6 +314,8 @@ instructions:
 
   - group: Undocumented
     instruction: "SRE (zp),Y"
+    documentation: "Shifts the byte at Y plus the address stored at zero page address zp right one bit, moving bit 0 into the carry flag, then bitwise exclusive ORs A with the result."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x53
@@ -289,6 +331,11 @@ instructions:
 
   - group: Undocumented
     instruction: RRA zp
+    documentation: "Rotates the byte at zero page address zp right one bit through the carry flag, then adds the result and the new carry flag to A as ADC does."
+    flag_documentation:
+      N: "In decimal mode, set if bit 7 of the sum of the high nibbles, including any carry from the low nibbles but before the decimal adjustment, is set, otherwise reset. In binary mode, set if bit 7 of A is set, otherwise reset."
+      C: "In decimal mode, set if the decimal result is greater than 99, otherwise reset. In binary mode, set if bit 8 of the binary result is set, otherwise reset."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x67
@@ -300,7 +347,12 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: RRA zp,X
+    instruction: "RRA zp,X"
+    documentation: "Rotates the byte at zero page address zp + X right one bit through the carry flag, then adds the result and the new carry flag to A as ADC does. The zero page address wraps within page zero."
+    flag_documentation:
+      N: "In decimal mode, set if bit 7 of the sum of the high nibbles, including any carry from the low nibbles but before the decimal adjustment, is set, otherwise reset. In binary mode, set if bit 7 of A is set, otherwise reset."
+      C: "In decimal mode, set if the decimal result is greater than 99, otherwise reset. In binary mode, set if bit 8 of the binary result is set, otherwise reset."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x77
@@ -314,6 +366,11 @@ instructions:
 
   - group: Undocumented
     instruction: RRA abs
+    documentation: "Rotates the byte at address abs right one bit through the carry flag, then adds the result and the new carry flag to A as ADC does."
+    flag_documentation:
+      N: "In decimal mode, set if bit 7 of the sum of the high nibbles, including any carry from the low nibbles but before the decimal adjustment, is set, otherwise reset. In binary mode, set if bit 7 of A is set, otherwise reset."
+      C: "In decimal mode, set if the decimal result is greater than 99, otherwise reset. In binary mode, set if bit 8 of the binary result is set, otherwise reset."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x6F
@@ -326,7 +383,12 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: RRA abs,X
+    instruction: "RRA abs,X"
+    documentation: "Rotates the byte at address abs + X right one bit through the carry flag, then adds the result and the new carry flag to A as ADC does."
+    flag_documentation:
+      N: "In decimal mode, set if bit 7 of the sum of the high nibbles, including any carry from the low nibbles but before the decimal adjustment, is set, otherwise reset. In binary mode, set if bit 7 of A is set, otherwise reset."
+      C: "In decimal mode, set if the decimal result is greater than 99, otherwise reset. In binary mode, set if bit 8 of the binary result is set, otherwise reset."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x7F
@@ -340,7 +402,12 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: RRA abs,Y
+    instruction: "RRA abs,Y"
+    documentation: "Rotates the byte at address abs + Y right one bit through the carry flag, then adds the result and the new carry flag to A as ADC does."
+    flag_documentation:
+      N: "In decimal mode, set if bit 7 of the sum of the high nibbles, including any carry from the low nibbles but before the decimal adjustment, is set, otherwise reset. In binary mode, set if bit 7 of A is set, otherwise reset."
+      C: "In decimal mode, set if the decimal result is greater than 99, otherwise reset. In binary mode, set if bit 8 of the binary result is set, otherwise reset."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x7B
@@ -355,6 +422,11 @@ instructions:
 
   - group: Undocumented
     instruction: "RRA (zp,X)"
+    documentation: "Rotates the byte at the address stored at zero page address zp + X right one bit through the carry flag, then adds the result and the new carry flag to A as ADC does. The zero page address wraps within page zero."
+    flag_documentation:
+      N: "In decimal mode, set if bit 7 of the sum of the high nibbles, including any carry from the low nibbles but before the decimal adjustment, is set, otherwise reset. In binary mode, set if bit 7 of A is set, otherwise reset."
+      C: "In decimal mode, set if the decimal result is greater than 99, otherwise reset. In binary mode, set if bit 8 of the binary result is set, otherwise reset."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x63
@@ -370,6 +442,11 @@ instructions:
 
   - group: Undocumented
     instruction: "RRA (zp),Y"
+    documentation: "Rotates the byte at Y plus the address stored at zero page address zp right one bit through the carry flag, then adds the result and the new carry flag to A as ADC does."
+    flag_documentation:
+      N: "In decimal mode, set if bit 7 of the sum of the high nibbles, including any carry from the low nibbles but before the decimal adjustment, is set, otherwise reset. In binary mode, set if bit 7 of A is set, otherwise reset."
+      C: "In decimal mode, set if the decimal result is greater than 99, otherwise reset. In binary mode, set if bit 8 of the binary result is set, otherwise reset."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x73

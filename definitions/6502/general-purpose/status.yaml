@@ -1,6 +1,7 @@
 instructions:
   - group: Status
     instruction: CLC
+    documentation: Resets the carry flag.
     opcodes:
       - opcode: 0x18
     steps:
@@ -8,6 +9,7 @@ instructions:
 
   - group: Status
     instruction: SEC
+    documentation: Sets the carry flag.
     opcodes:
       - opcode: 0x38
     steps:
@@ -15,6 +17,7 @@ instructions:
 
   - group: Status
     instruction: CLI
+    documentation: "Resets the interrupt disable flag, enabling IRQ interrupts."
     opcodes:
       - opcode: 0x58
     steps:
@@ -22,6 +25,7 @@ instructions:
 
   - group: Status
     instruction: SEI
+    documentation: "Sets the interrupt disable flag, disabling IRQ interrupts."
     opcodes:
       - opcode: 0x78
     steps:
@@ -29,6 +33,7 @@ instructions:
 
   - group: Status
     instruction: CLV
+    documentation: Resets the overflow flag.
     opcodes:
       - opcode: 0xB8
     steps:
@@ -36,6 +41,7 @@ instructions:
 
   - group: Status
     instruction: CLD
+    documentation: "Resets the decimal flag, so that ADC and SBC work in binary."
     opcodes:
       - opcode: 0xD8
     steps:
@@ -43,6 +49,7 @@ instructions:
 
   - group: Status
     instruction: SED
+    documentation: "Sets the decimal flag, so that ADC and SBC work in binary coded decimal."
     opcodes:
       - opcode: 0xF8
     steps:

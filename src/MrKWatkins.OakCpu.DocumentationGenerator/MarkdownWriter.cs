@@ -37,12 +37,13 @@ public static class MarkdownWriter
         markdown.Append('\n');
         markdown.Append("## Opcodes\n");
         markdown.Append('\n');
-        markdown.Append("| Instruction | Opcode | T-States | Notes |\n");
-        markdown.Append("| ----------- | ------ | -------- | ----- |\n");
+        var cycles = documentation.Cpu.Cycles.Name;
+        markdown.Append("| Instruction | Opcode | ").Append(cycles).Append(" | Notes |\n");
+        markdown.Append("| ----------- | ------ | ").Append(new string('-', cycles.Length)).Append(" | ----- |\n");
         foreach (var opcode in documentation.Opcodes)
         {
             markdown.Append("| `").Append(opcode.Instruction).Append("` | `").Append(opcode.Opcode).Append("` | ")
-                .Append(string.Join(" or ", opcode.TStates.Select(t => t.ToString(NumberFormatInfo.InvariantInfo))))
+                .Append(string.Join(" or ", opcode.Cycles.Select(t => t.ToString(NumberFormatInfo.InvariantInfo))))
                 .Append(" | ").Append(opcode.Undocumented && !documentation.Undocumented ? "Undocumented." : "").Append(" |\n");
         }
 

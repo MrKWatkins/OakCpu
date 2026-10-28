@@ -15,20 +15,20 @@ public static partial class YamlWriter
     private static partial Regex PlainScalarRegex();
 
     [Pure]
-    public static string Write(string cpu, IReadOnlyList<InstructionDocumentation> instructions)
+    public static string Write(Cpu cpu, IReadOnlyList<InstructionDocumentation> instructions)
     {
         var yaml = new StringBuilder();
-        yaml.Append("cpu: ").Append(Scalar(cpu)).Append('\n');
+        yaml.Append("cpu: ").Append(Scalar(cpu.DisplayName)).Append('\n');
         yaml.Append("instructions:\n");
         foreach (var instruction in instructions)
         {
-            Write(yaml, instruction);
+            Write(yaml, cpu, instruction);
         }
 
         return yaml.ToString();
     }
 
-    private static void Write(StringBuilder yaml, InstructionDocumentation documentation)
+    private static void Write(StringBuilder yaml, Cpu cpu, InstructionDocumentation documentation)
     {
         yaml.Append("  - instruction: ").Append(Scalar(documentation.Instruction)).Append('\n');
         yaml.Append("    defined_by: ").Append(Scalar(documentation.DefinedBy)).Append('\n');
@@ -54,7 +54,7 @@ public static partial class YamlWriter
             {
                 yaml.Append("        ").Append(operand.Key).Append(": ").Append(Scalar(operand.Value)).Append('\n');
             }
-            yaml.Append("        t_states: [").Append(string.Join(", ", opcode.TStates.Select(t => t.ToString(NumberFormatInfo.InvariantInfo)))).Append("]\n");
+            yaml.Append("        ").Append(cpu.Cycles.Key).Append(": [").Append(string.Join(", ", opcode.Cycles.Select(t => t.ToString(NumberFormatInfo.InvariantInfo)))).Append("]\n");
             yaml.Append("        undocumented: ").Append(Bool(opcode.Undocumented)).Append('\n');
         }
 

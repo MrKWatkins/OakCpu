@@ -16,6 +16,21 @@ public sealed class MarkdownWriterTests : TestFixture
     [TestCase("NEXTREG $n, $n")]
     public Task Write_Z80N(string instruction) => Verify(MarkdownWriter.Write(GetDocumentation(Z80NDocumentation, instruction))).UseParameters(CpuDocumentation.Slug(instruction));
 
+    [TestCase("ADC #n")]
+    [TestCase("BPL rel")]
+    [TestCase("PLP")]
+    [TestCase("NOP")]
+    [TestCase("LAX #n")]
+    public Task Write_M6502(string instruction) => Verify(MarkdownWriter.Write(GetDocumentation(M6502Documentation, instruction))).UseParameters(CpuDocumentation.Slug(instruction));
+
+    [Test]
+    public void Write_NamesTheCyclesAfterTheCpu()
+    {
+        var markdown = MarkdownWriter.Write(GetDocumentation(M6502Documentation, "LDA abs,X"));
+
+        markdown.Should().Contain("| Instruction | Opcode | Cycles | Notes |\n| ----------- | ------ | ------ | ----- |\n| `LDA abs,X` | `BD abs` | 4 or 5 |  |\n");
+    }
+
     [Test]
     public void Write_SubstitutesSymbolicOperands()
     {

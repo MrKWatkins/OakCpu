@@ -1,6 +1,7 @@
 instructions:
   - group: Increment/Decrement
     instruction: INC zp
+    documentation: Increments the byte at zero page address zp.
     next_opcode: overlapped
     opcodes:
       - opcode: 0xE6
@@ -12,7 +13,8 @@ instructions:
       -
 
   - group: Increment/Decrement
-    instruction: INC zp,X
+    instruction: "INC zp,X"
+    documentation: Increments the byte at zero page address zp + X. The zero page address wraps within page zero.
     next_opcode: overlapped
     opcodes:
       - opcode: 0xF6
@@ -26,6 +28,7 @@ instructions:
 
   - group: Increment/Decrement
     instruction: INC abs
+    documentation: Increments the byte at address abs.
     next_opcode: overlapped
     opcodes:
       - opcode: 0xEE
@@ -38,7 +41,8 @@ instructions:
       -
 
   - group: Increment/Decrement
-    instruction: INC abs,X
+    instruction: "INC abs,X"
+    documentation: Increments the byte at address abs + X.
     next_opcode: overlapped
     opcodes:
       - opcode: 0xFE
@@ -53,6 +57,7 @@ instructions:
 
   - group: Increment/Decrement
     instruction: INX
+    documentation: Increments X.
     next_opcode: overlapped
     opcodes:
       - opcode: 0xE8
@@ -64,6 +69,7 @@ instructions:
 
   - group: Increment/Decrement
     instruction: DEX
+    documentation: Decrements X.
     next_opcode: overlapped
     opcodes:
       - opcode: 0xCA
@@ -75,6 +81,7 @@ instructions:
 
   - group: Increment/Decrement
     instruction: INY
+    documentation: Increments Y.
     next_opcode: overlapped
     opcodes:
       - opcode: 0xC8
@@ -86,6 +93,7 @@ instructions:
 
   - group: Increment/Decrement
     instruction: DEC zp
+    documentation: Decrements the byte at zero page address zp.
     next_opcode: overlapped
     opcodes:
       - opcode: 0xC6
@@ -97,7 +105,8 @@ instructions:
       -
 
   - group: Increment/Decrement
-    instruction: DEC zp,X
+    instruction: "DEC zp,X"
+    documentation: Decrements the byte at zero page address zp + X. The zero page address wraps within page zero.
     next_opcode: overlapped
     opcodes:
       - opcode: 0xD6
@@ -111,6 +120,7 @@ instructions:
 
   - group: Increment/Decrement
     instruction: DEC abs
+    documentation: Decrements the byte at address abs.
     next_opcode: overlapped
     opcodes:
       - opcode: 0xCE
@@ -123,7 +133,8 @@ instructions:
       -
 
   - group: Increment/Decrement
-    instruction: DEC abs,X
+    instruction: "DEC abs,X"
+    documentation: Decrements the byte at address abs + X.
     next_opcode: overlapped
     opcodes:
       - opcode: 0xDE
@@ -138,6 +149,7 @@ instructions:
 
   - group: Increment/Decrement
     instruction: DEY
+    documentation: Decrements Y.
     next_opcode: overlapped
     opcodes:
       - opcode: 0x88

@@ -1,6 +1,7 @@
 instructions:
   - group: Shift
     instruction: LSR A
+    documentation: "Shifts A right one bit, moving bit 0 into the carry flag and resetting bit 7."
     next_opcode: overlapped
     opcodes:
       - opcode: 0x4A
@@ -9,6 +10,7 @@ instructions:
 
   - group: Shift
     instruction: LSR zp
+    documentation: "Shifts the byte at zero page address zp right one bit, moving bit 0 into the carry flag and resetting bit 7."
     next_opcode: overlapped
     opcodes:
       - opcode: 0x46
@@ -20,7 +22,8 @@ instructions:
       -
 
   - group: Shift
-    instruction: LSR zp,X
+    instruction: "LSR zp,X"
+    documentation: "Shifts the byte at zero page address zp + X right one bit, moving bit 0 into the carry flag and resetting bit 7. The zero page address wraps within page zero."
     next_opcode: overlapped
     opcodes:
       - opcode: 0x56
@@ -34,6 +37,7 @@ instructions:
 
   - group: Shift
     instruction: LSR abs
+    documentation: "Shifts the byte at address abs right one bit, moving bit 0 into the carry flag and resetting bit 7."
     next_opcode: overlapped
     opcodes:
       - opcode: 0x4E
@@ -46,7 +50,8 @@ instructions:
       -
 
   - group: Shift
-    instruction: LSR abs,X
+    instruction: "LSR abs,X"
+    documentation: "Shifts the byte at address abs + X right one bit, moving bit 0 into the carry flag and resetting bit 7."
     next_opcode: overlapped
     opcodes:
       - opcode: 0x5E

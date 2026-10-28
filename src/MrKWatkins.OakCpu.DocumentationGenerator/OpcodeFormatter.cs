@@ -7,33 +7,44 @@ namespace MrKWatkins.OakCpu.DocumentationGenerator;
 /// <summary>
 /// Formats the bytes of an opcode, e.g. <c>DD 46 d</c>, naming the operand bytes after the operands in the instruction.
 /// </summary>
-public sealed partial class OpcodeFormatter
+public sealed class OpcodeFormatter
 {
+    private readonly IReadOnlyDictionary<string, Operand> operands;
+    private readonly Regex operandTokenRegex;
     private readonly IReadOnlyDictionary<string, Instruction> redirects;
 
     public OpcodeFormatter(CpuModel model)
     {
+        operands = model.Cpu.Operands.ToDictionary(operand => operand.Name, StringComparer.Ordinal);
+
+        // Longest names first so that nn is not matched as n.
+        var names = model.Cpu.Operands.OrderByDescending(operand => operand.Name.Length).Select(operand => Regex.Escape(operand.Name));
+        operandTokenRegex = new Regex($@"\$?\b({string.Join('|', names)})\b", RegexOptions.CultureInvariant);
         redirects = model.Instructions
-            .Where(TStateCalculator.IsRedirect)
+            .Where(CycleCalculator.IsRedirect)
             .Select(instruction => (Instruction: instruction, Table: RedirectTable(instruction)))
             .Where(x => x.Table != null)
             .ToDictionary(x => x.Table!, x => x.Instruction, StringComparer.Ordinal);
     }
 
-    [GeneratedRegex(@"\$?\b(nn|n|d)\b")]
-    private static partial Regex OperandTokenRegex();
-
     /// <summary>
-    /// Gets the operand bytes named in a instruction, e.g. <c>d</c> and <c>n</c> for <c>LD (IX + d), n</c>, in order.
+    /// Gets the operand bytes named in an instruction, e.g. <c>d</c> and <c>n</c> for <c>LD (IX + d), n</c>, in order. The
+    /// operands are those the CPU defines, e.g. <c>n</c>, <c>nn</c> and <c>d</c> for the Z80.
     /// </summary>
     [Pure]
-    public static IReadOnlyList<string> OperandTokens(string instruction) => OperandTokenRegex().Matches(instruction).Select(match => match.Groups[1].Value).ToList();
+    public IReadOnlyList<string> OperandTokens(string instruction) => operandTokenRegex.Matches(instruction).Select(match => match.Groups[1].Value).ToList();
+
+    /// <summary>
+    /// The number of bytes an operand token names.
+    /// </summary>
+    [Pure]
+    public int TokenBytes(string token) => operands[token].Bytes;
 
     /// <summary>
     /// Formats the encoding of an opcode: its prefix and opcode bytes in hex with the operand bytes, named after the operands
     /// in the instruction, in the positions the instruction reads them.
     /// </summary>
-    /// <param name="form">The instruction's instruction with placeholders, e.g. <c>LD (RP0 + d), n</c>.</param>
+    /// <param name="form">The instruction with placeholders, e.g. <c>LD (RP0 + d), n</c>.</param>
     /// <param name="instruction">The instruction for the opcode, which supplies the operand reads.</param>
     /// <param name="prefix">The opcode's prefix byte, if any. Duplicate opcodes share an instruction but have their own bytes.</param>
     /// <param name="opcode">The opcode byte.</param>
@@ -41,7 +52,7 @@ public sealed partial class OpcodeFormatter
     public string Format(string form, Instruction instruction, byte? prefix, byte opcode)
     {
         var tokens = OperandTokens(form);
-        var expectedBytes = tokens.Sum(token => token == "nn" ? 2 : 1);
+        var expectedBytes = tokens.Sum(TokenBytes);
 
         var bytes = new List<string>();
         var redirectReads = 0;
@@ -60,24 +71,26 @@ public sealed partial class OpcodeFormatter
             bytes.Add(FormatByte(redirect.Opcode));
 
             // The redirect reads the opcode byte itself as well as any operands that come before it.
-            redirectReads = CountOperandReads(redirect) - 1;
+            redirectReads = CountOperandReads(redirect, true) - 1;
         }
         else if (prefix.HasValue)
         {
             bytes.Add(FormatByte(prefix.Value));
         }
 
-        var instructionReads = CountOperandReads(instruction);
-        if (redirectReads + instructionReads != expectedBytes)
+        // The 6502 also reads at the program counter without incrementing it, both for dummy reads and for an operand that JSR
+        // reads after pushing the return address, and BRK skips a byte it does not name, so the reads only bound the operands.
+        var reads = redirectReads + CountOperandReads(instruction, false);
+        if (reads < expectedBytes)
         {
-            throw new InvalidOperationException($"The instruction {form} names {expectedBytes} operand byte(s) but the instruction {instruction.Mnemonic} reads {redirectReads + instructionReads}.");
+            throw new InvalidOperationException($"The instruction {form} names {expectedBytes} operand byte(s) but {instruction.Mnemonic} only reads {reads} from the program counter.");
         }
 
         var tokenIndex = 0;
         for (var read = 0; read < redirectReads; tokenIndex++)
         {
             bytes.Add(tokens[tokenIndex]);
-            read += tokens[tokenIndex] == "nn" ? 2 : 1;
+            read += TokenBytes(tokens[tokenIndex]);
         }
 
         bytes.Add(FormatByte(opcode));
@@ -102,13 +115,20 @@ public sealed partial class OpcodeFormatter
     /// <summary>
     /// Counts the bytes an instruction reads from the program counter, i.e. its operand bytes.
     /// </summary>
+    /// <param name="instruction">The instruction.</param>
+    /// <param name="consumed">Whether to count only reads that increment the program counter.</param>
     [Pure]
-    private static int CountOperandReads(Instruction instruction) =>
+    private static int CountOperandReads(Instruction instruction, bool consumed) =>
         instruction.Steps.Count(step =>
             step.SpecifiedAction?.Name == "memory_read" &&
             step.Statements.Any(statement => statement is Assignment
             {
                 Target: DataMemberAccess { DataMember: var member },
                 Value: RegisterAccess { Register.ProgramCounter: true }
-            } && member == PreDefinedDataMember.Address));
+            } && member == PreDefinedDataMember.Address) &&
+            (!consumed || step.Statements.Any(statement => statement is Assignment
+            {
+                Target: RegisterAccess { Register.ProgramCounter: true },
+                Value: BinaryOperation { Left: RegisterAccess { Register.ProgramCounter: true }, Right: Number { Value: 1 } } binary
+            } && binary.Operator == Operator.Add)));
 }

@@ -1,6 +1,7 @@
 instructions:
   - group: Store
     instruction: STY zp
+    documentation: Stores Y at zero page address zp.
     next_opcode: overlapped
     opcodes:
       - opcode: 0x84
@@ -10,7 +11,8 @@ instructions:
       -
 
   - group: Store
-    instruction: STY zp,X
+    instruction: "STY zp,X"
+    documentation: Stores Y at zero page address zp + X. The zero page address wraps within page zero.
     next_opcode: overlapped
     opcodes:
       - opcode: 0x94
@@ -22,6 +24,7 @@ instructions:
 
   - group: Store
     instruction: STY abs
+    documentation: Stores Y at address abs.
     next_opcode: overlapped
     opcodes:
       - opcode: 0x8C

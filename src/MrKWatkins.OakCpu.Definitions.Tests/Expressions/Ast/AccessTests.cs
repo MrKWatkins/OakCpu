@@ -1,5 +1,4 @@
 using MrKWatkins.OakCpu.Definitions.Language.Ast;
-using Action = MrKWatkins.OakCpu.Definitions.Action;
 
 namespace MrKWatkins.OakCpu.Definitions.Tests.Expressions.Ast;
 

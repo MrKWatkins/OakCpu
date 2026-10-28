@@ -1,3 +1,5 @@
+using MrKWatkins.OakCpu.Definitions.Yaml;
+
 namespace MrKWatkins.OakCpu.DocumentationGenerator.Tests;
 
 public sealed class CpuDocumentationTests : TestFixture
@@ -50,7 +52,7 @@ public sealed class CpuDocumentationTests : TestFixture
     {
         var documentation = GetDocumentation(Z80Documentation, "LD R0, (RP0 + d)");
 
-        documentation.Cpu.Should().Equal("Z80");
+        documentation.Cpu.DisplayName.Should().Equal("Z80");
         documentation.DefinedBy.Should().Equal("Z80");
         documentation.Symbolic.Should().Equal("LD r, (rr + d)");
         documentation.Group.Should().Equal("8-Bit Load");
@@ -62,7 +64,7 @@ public sealed class CpuDocumentationTests : TestFixture
         documentation.Opcodes[0].Prefix.Should().Equal("DD");
         documentation.Opcodes[0].OpcodeByte.Should().Equal(0x46);
         documentation.Opcodes[0].Instruction.Should().Equal("LD B, (IX + d)");
-        documentation.Opcodes[0].TStates.Should().SequenceEqual(19);
+        documentation.Opcodes[0].Cycles.Should().SequenceEqual(19);
         documentation.References.Select(r => r.Covers).Should().SequenceEqual(ReferenceCoverage.Documented, ReferenceCoverage.All);
     }
 
@@ -150,8 +152,8 @@ public sealed class CpuDocumentationTests : TestFixture
 
         documentation.Symbolic.Should().Equal("JR cc, d");
         documentation.Opcodes.Where(o => !o.Undocumented).Select(o => o.Instruction).Should().SequenceEqual("JR NZ, d", "JR Z, d", "JR NC, d", "JR C, d");
-        documentation.Opcodes.Where(o => !o.Undocumented).Should().OnlyContain(o => o.TStates.SequenceEqual(new[] { 7, 12 }));
-        documentation.Opcodes.Single(o => o.Opcode == "DD 20 d").TStates.Should().SequenceEqual(11, 16);
+        documentation.Opcodes.Where(o => !o.Undocumented).Should().OnlyContain(o => o.Cycles.SequenceEqual(new[] { 7, 12 }));
+        documentation.Opcodes.Single(o => o.Opcode == "DD 20 d").Cycles.Should().SequenceEqual(11, 16);
     }
 
     [Test]
@@ -172,16 +174,16 @@ public sealed class CpuDocumentationTests : TestFixture
         Z80NDocumentation.Count.Should().BeGreaterThan(Z80Documentation.Count);
 
         var inherited = GetDocumentation(Z80NDocumentation, "LD R0, (RP0 + d)");
-        inherited.Cpu.Should().Equal("Z80N");
+        inherited.Cpu.DisplayName.Should().Equal("Z80N");
         inherited.DefinedBy.Should().Equal("Z80");
         inherited.References.Select(r => r.Covers).Should().SequenceEqual(ReferenceCoverage.Documented, ReferenceCoverage.All);
 
         var own = GetDocumentation(Z80NDocumentation, "LDIRX");
-        own.Cpu.Should().Equal("Z80N");
+        own.Cpu.DisplayName.Should().Equal("Z80N");
         own.DefinedBy.Should().Equal("Z80N");
         own.Group.Should().Equal("Z80N Block Transfer");
         own.Page.Should().Equal("z80n-block-transfer/ldirx.md");
-        own.Opcodes.Single().TStates.Should().SequenceEqual(16, 21);
+        own.Opcodes.Single().Cycles.Should().SequenceEqual(16, 21);
         own.References.Should().HaveCount(1);
     }
 
@@ -194,11 +196,58 @@ public sealed class CpuDocumentationTests : TestFixture
         GetDocumentation(Z80Documentation, "NOP").Opcodes.Any(o => o.Opcode == "ED 23").Should().BeTrue();
     }
 
+    [Test]
+    public void Create_M6502()
+    {
+        M6502Documentation.Should().HaveCount(M6502Model.Yaml.Instructions.Select(yaml => yaml.Instruction).Distinct().Count());
+
+        var lda = GetDocumentation(M6502Documentation, "LDA abs,X");
+        lda.Cpu.DisplayName.Should().Equal("6502");
+        lda.DefinedBy.Should().Equal("6502");
+        lda.Symbolic.Should().Equal("LDA abs,X");
+        lda.Group.Should().Equal("Load");
+        lda.Page.Should().Equal("load/lda-abs-x.md");
+        lda.Undocumented.Should().BeFalse();
+        lda.Opcodes.Single().Opcode.Should().Equal("BD abs");
+        lda.Opcodes.Single().Prefix.Should().Equal("");
+        lda.Opcodes.Single().OpcodeByte.Should().Equal(0xBD);
+        lda.Opcodes.Single().Cycles.Should().SequenceEqual(4, 5);
+        lda.References.Select(r => r.Covers).Should().SequenceEqual(ReferenceCoverage.Documented, ReferenceCoverage.All);
+
+        var branch = GetDocumentation(M6502Documentation, "BPL rel");
+        branch.Opcodes.Single().Opcode.Should().Equal("10 rel");
+        branch.Opcodes.Single().Cycles.Should().SequenceEqual(2, 3, 4);
+    }
+
+    [Test]
+    public void Create_M6502_EveryFlagEffectIsDescribed()
+    {
+        var fallbacks = M6502Documentation.Where(d => d.FlagFallbacks.Count > 0).Select(d => $"{d.Instruction}: {string.Join(", ", d.FlagFallbacks)}").ToList();
+
+        fallbacks.Should().BeEmpty();
+    }
+
+    [Test]
+    public void Create_M6502_UndocumentedOpcodes()
+    {
+        var nop = GetDocumentation(M6502Documentation, "NOP");
+        nop.Undocumented.Should().BeFalse();
+        nop.Opcodes.Single(o => o.Opcode == "EA").Undocumented.Should().BeFalse();
+        nop.Opcodes.Where(o => o.Opcode != "EA").Should().OnlyContain(o => o.Undocumented);
+
+        var lax = GetDocumentation(M6502Documentation, "LAX zp");
+        lax.Undocumented.Should().BeTrue();
+        lax.Group.Should().Equal("Undocumented");
+        lax.References.Select(r => r.Covers).Should().SequenceEqual(ReferenceCoverage.All, ReferenceCoverage.Undocumented);
+    }
+
     [TestCase("LD R0, (RP0 + d)", "ld-r0-at-rp0-d")]
     [TestCase("LD RP0, (nn)", "ld-rp0-at-nn")]
     [TestCase("EX AF, AF'", "ex-af-af-shadow")]
     [TestCase("NEXTREG $n, $n", "nextreg-n-n")]
     [TestCase("8-Bit Load", "8-bit-load")]
     [TestCase("Bit Set, Reset, and Test", "bit-set-reset-and-test")]
+    [TestCase("LDA (zp),Y", "lda-at-zp-y")]
+    [TestCase("NOP #n", "nop-n")]
     public void Slug(string text, string expected) => CpuDocumentation.Slug(text).Should().Equal(expected);
 }

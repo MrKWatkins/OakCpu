@@ -61,4 +61,27 @@ public sealed class FlagValidationTests
         errors[2].Paths[0].Should().Equal("flags[0].condition");
         errors[2].Paths[1].Should().Equal("flags[1].not_condition");
     }
+
+    [Test]
+    public void Validate_ReturnsErrorsForModesWithoutNames()
+    {
+        var yaml = ValidationTestHelper.DeserializeYamlFile(
+            """
+            cpu:
+              name: TestCpu
+            interrupts: {}
+            flags:
+              - name: D
+                index: 3
+                mode:
+                  set: " "
+                  reset: ""
+            """);
+
+        var errors = FlagValidation.Validate(yaml.Flags).ToArray();
+
+        errors.Select(error => error.ToString()).Should().SequenceEqual(
+            "flags[0].mode.set: The flag D has a mode with no name for when it is set.",
+            "flags[0].mode.reset: The flag D has a mode with no name for when it is reset.");
+    }
 }

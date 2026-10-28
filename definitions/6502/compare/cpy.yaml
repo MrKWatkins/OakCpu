@@ -1,6 +1,7 @@
 instructions:
   - group: Compare
     instruction: "CPY #n"
+    documentation: "Compares Y with n by subtracting the byte from Y, setting the flags from the result and discarding it."
     opcodes:
       - opcode: 0xC0
     steps:
@@ -13,6 +14,7 @@ instructions:
 
   - group: Compare
     instruction: CPY zp
+    documentation: "Compares Y with the byte at zero page address zp by subtracting the byte from Y, setting the flags from the result and discarding it."
     opcodes:
       - opcode: 0xC4
     steps:
@@ -26,6 +28,7 @@ instructions:
 
   - group: Compare
     instruction: CPY abs
+    documentation: "Compares Y with the byte at address abs by subtracting the byte from Y, setting the flags from the result and discarding it."
     opcodes:
       - opcode: 0xCC
     steps:

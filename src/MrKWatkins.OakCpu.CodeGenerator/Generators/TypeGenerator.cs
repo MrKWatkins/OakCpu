@@ -135,7 +135,7 @@ public abstract class TypeGenerator
         WithInheritDoc(CreateGetSetProperty(context, type, propertyName, getExpression, setExpression, TokenList(Public, Override)));
 
     [Pure]
-    protected static T WithXmlDocumentation<T>(T node, Definitions.Documentation documentation)
+    protected static T WithXmlDocumentation<T>(T node, Documentation documentation)
         where T : SyntaxNode =>
         documentation.IsEmpty ? node : WithXmlDocumentation(node, documentation.Summary);
 

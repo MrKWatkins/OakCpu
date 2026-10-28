@@ -92,6 +92,56 @@ public sealed class YamlFileTests : TestFixture
     }
 
     [Test]
+    public void Merge_InheritsCyclesOperandsReferencesAndTemporaries()
+    {
+        var variant = DeserializeYamlFile(
+            """
+            cpu:
+              name: TestCpuVariant
+              base: TestCpu
+              temporaries:
+                variant: the variant temporary
+                shared: renamed by the variant
+            """);
+
+        var merged = YamlFile.Merge(Base, variant);
+
+        merged.Cpu.EffectiveDisplayName.Should().Equal("TestCpuVariant");
+        merged.Cpu.Cycles!.EffectiveName.Should().Equal("Base Cycles");
+        merged.Cpu.Operands.Select(operand => operand.Name).Should().SequenceEqual("n");
+        merged.Cpu.References.Select(reference => reference.Name).Should().SequenceEqual("Base Reference");
+        merged.Cpu.Temporaries.OrderBy(kvp => kvp.Key, StringComparer.Ordinal).Select(kvp => $"{kvp.Key}={kvp.Value}").Should().SequenceEqual("base=the base temporary", "shared=renamed by the variant", "variant=the variant temporary");
+        merged.Cpu.BaseCpu!.Name.Should().Equal("TestCpu");
+    }
+
+    [Test]
+    public void Merge_VariantOverridesCyclesOperandsAndReferences()
+    {
+        var variant = DeserializeYamlFile(
+            """
+            cpu:
+              name: TestCpuVariant
+              display_name: Variant
+              base: TestCpu
+              cycles:
+                name: Variant Cycles
+                count: actions
+              operands:
+                - name: v
+              references:
+                - name: Variant Reference
+                  url: https://example.com/variant
+            """);
+
+        var merged = YamlFile.Merge(Base, variant);
+
+        merged.Cpu.EffectiveDisplayName.Should().Equal("Variant");
+        merged.Cpu.Cycles!.EffectiveName.Should().Equal("Variant Cycles");
+        merged.Cpu.Operands.Select(operand => operand.Name).Should().SequenceEqual("v");
+        merged.Cpu.References.Select(reference => reference.Name).Should().SequenceEqual("Variant Reference");
+    }
+
+    [Test]
     public void Merge_UsesVariantDocumentationFallbackAndHooks()
     {
         var variant = DeserializeYamlFile(
@@ -257,6 +307,17 @@ public sealed class YamlFileTests : TestFixture
               name: TestCpu
               documentation: The base.
               default_next_opcode: overlapped
+              cycles:
+                name: Base Cycles
+                count: steps
+              operands:
+                - name: n
+              references:
+                - name: Base Reference
+                  url: https://example.com/base
+              temporaries:
+                base: the base temporary
+                shared: named by the base
               pins:
                 - name: BASE_PIN
               actions:

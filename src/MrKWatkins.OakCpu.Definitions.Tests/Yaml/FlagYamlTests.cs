@@ -13,6 +13,9 @@ public sealed class FlagYamlTests : TestFixture
                    index: 0
                    condition: $carry
                    not_condition: $not_carry
+                   mode:
+                     set: carrying
+                     reset: not carrying
                    """;
 
         var flag = YamlSerializer.Deserialize<FlagYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
@@ -21,6 +24,8 @@ public sealed class FlagYamlTests : TestFixture
         flag.Index.Should().Equal(0);
         flag.Condition.Should().Equal("$carry");
         flag.NotCondition.Should().Equal("$not_carry");
+        flag.Mode!.Set.Should().Equal("carrying");
+        flag.Mode.Reset.Should().Equal("not carrying");
 
         // Verify round-trip serialization
         var serializedBytes = YamlSerializer.Serialize(flag, YamlOptions.Instance);

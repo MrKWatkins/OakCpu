@@ -1,5 +1,3 @@
-using MrKWatkins.OakCpu.Definitions.Yaml;
-
 namespace MrKWatkins.OakCpu.DocumentationGenerator.Tests;
 
 public sealed class OperandsTests : TestFixture
@@ -21,7 +19,7 @@ public sealed class OperandsTests : TestFixture
     public void For()
     {
         var yaml = GetInstructionYaml(Z80Model, "LD R0, (RP0 + d)");
-        var opcode = yaml.Opcodes.Single(o => o.PrefixByte == 0xFD && o.OpcodeByte == 0x4E);
+        var opcode = yaml.Opcodes.Single(o => o is { PrefixByte: 0xFD, OpcodeByte: 0x4E });
 
         var operands = Operands.For(yaml.Instruction, opcode);
 

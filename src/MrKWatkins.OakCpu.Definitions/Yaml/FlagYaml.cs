@@ -19,5 +19,10 @@ public sealed partial class FlagYaml
 
     public string? NotCondition { get; private init; }
 
+    /// <summary>
+    /// The modes the flag selects, if it selects a mode of operation rather than recording a result.
+    /// </summary>
+    public FlagModeYaml? Mode { get; private init; }
+
     public override string ToString() => Name;
 }

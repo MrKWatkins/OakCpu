@@ -7,6 +7,7 @@ sequences:
 instructions:
   - group: Arithmetic
     instruction: "SBC #n"
+    documentation: "Subtracts n and the borrow, the inverse of the carry flag, from A. In decimal mode the subtraction is binary coded decimal."
     opcodes:
       - opcode: 0xE9
     steps:
@@ -15,6 +16,7 @@ instructions:
 
   - group: Arithmetic
     instruction: SBC zp
+    documentation: "Subtracts the byte at zero page address zp and the borrow, the inverse of the carry flag, from A. In decimal mode the subtraction is binary coded decimal."
     opcodes:
       - opcode: 0xE5
     steps:
@@ -23,7 +25,8 @@ instructions:
       - $borrow = 1 - (P & 0x01); $left = A; $right = Data; $binary_result = $left - $right - $borrow; if flag.D; $low = ($left & 0x0F) - ($right & 0x0F) - $borrow; $high = ($left & 0xF0) - ($right & 0xF0); P = P & 0x1C; if ($low & 0x10) != 0; $low = $low - 0x06; $high = $high - 0x10; endif; if did_8_bit_subtraction_overflow($left, $right, $binary_result); P = P | 0x40; endif; if ($binary_result & 0x0100) == 0; P = P | 0x01; endif; if ($binary_result & 0xFF) == 0; P = P | 0x02; endif; if is_negative($binary_result); P = P | 0x80; endif; if ($high & 0x0100) != 0; $high = $high - 0x60; endif; A = ($low & 0x0F) | ($high & 0xF0); else; A = $binary_result; P = P & 0x1C; if did_8_bit_subtraction_overflow($left, $right, $binary_result); P = P | 0x40; endif; if ($binary_result & 0x0100) == 0; P = P | 0x01; endif; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; endif;
 
   - group: Arithmetic
-    instruction: SBC zp,X
+    instruction: "SBC zp,X"
+    documentation: "Subtracts the byte at zero page address zp + X and the borrow, the inverse of the carry flag, from A. In decimal mode the subtraction is binary coded decimal. The zero page address wraps within page zero."
     opcodes:
       - opcode: 0xF5
     steps:
@@ -34,6 +37,7 @@ instructions:
 
   - group: Arithmetic
     instruction: SBC abs
+    documentation: "Subtracts the byte at address abs and the borrow, the inverse of the carry flag, from A. In decimal mode the subtraction is binary coded decimal."
     opcodes:
       - opcode: 0xED
     steps:
@@ -43,7 +47,8 @@ instructions:
       - $borrow = 1 - (P & 0x01); $left = A; $right = Data; $binary_result = $left - $right - $borrow; if flag.D; $low = ($left & 0x0F) - ($right & 0x0F) - $borrow; $high = ($left & 0xF0) - ($right & 0xF0); P = P & 0x1C; if ($low & 0x10) != 0; $low = $low - 0x06; $high = $high - 0x10; endif; if did_8_bit_subtraction_overflow($left, $right, $binary_result); P = P | 0x40; endif; if ($binary_result & 0x0100) == 0; P = P | 0x01; endif; if ($binary_result & 0xFF) == 0; P = P | 0x02; endif; if is_negative($binary_result); P = P | 0x80; endif; if ($high & 0x0100) != 0; $high = $high - 0x60; endif; A = ($low & 0x0F) | ($high & 0xF0); else; A = $binary_result; P = P & 0x1C; if did_8_bit_subtraction_overflow($left, $right, $binary_result); P = P | 0x40; endif; if ($binary_result & 0x0100) == 0; P = P | 0x01; endif; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; endif;
 
   - group: Arithmetic
-    instruction: SBC abs,X
+    instruction: "SBC abs,X"
+    documentation: "Subtracts the byte at address abs + X and the borrow, the inverse of the carry flag, from A. In decimal mode the subtraction is binary coded decimal. Takes an extra cycle if adding X crosses a page."
     next_opcode: custom
     opcodes:
       - opcode: 0xFD
@@ -54,7 +59,8 @@ instructions:
       - Address = AD + X; move_to_sequence(sequence.sbc_finish); request(action.memory_read);
 
   - group: Arithmetic
-    instruction: SBC abs,Y
+    instruction: "SBC abs,Y"
+    documentation: "Subtracts the byte at address abs + Y and the borrow, the inverse of the carry flag, from A. In decimal mode the subtraction is binary coded decimal. Takes an extra cycle if adding Y crosses a page."
     next_opcode: custom
     opcodes:
       - opcode: 0xF9
@@ -66,6 +72,7 @@ instructions:
 
   - group: Arithmetic
     instruction: "SBC (zp,X)"
+    documentation: "Subtracts the byte at the address stored at zero page address zp + X and the borrow, the inverse of the carry flag, from A. In decimal mode the subtraction is binary coded decimal. The zero page address wraps within page zero."
     opcodes:
       - opcode: 0xE1
     steps:
@@ -78,6 +85,7 @@ instructions:
 
   - group: Arithmetic
     instruction: "SBC (zp),Y"
+    documentation: "Subtracts the byte at Y plus the address stored at zero page address zp and the borrow, the inverse of the carry flag, from A. In decimal mode the subtraction is binary coded decimal. Takes an extra cycle if adding Y crosses a page."
     next_opcode: custom
     opcodes:
       - opcode: 0xF1

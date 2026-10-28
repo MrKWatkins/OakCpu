@@ -12,6 +12,7 @@ sequences:
 instructions:
   - group: General Purpose
     instruction: NOP
+    documentation: Does nothing.
     opcodes:
       - opcode: 0xEA
     steps:
@@ -19,6 +20,8 @@ instructions:
 
   - group: General Purpose
     instruction: NOP
+    documentation: Does nothing.
+    undocumented: true
     opcodes:
       - opcode: 0x1A
     steps:
@@ -26,6 +29,8 @@ instructions:
 
   - group: General Purpose
     instruction: NOP
+    documentation: Does nothing.
+    undocumented: true
     opcodes:
       - opcode: 0x3A
     steps:
@@ -33,6 +38,8 @@ instructions:
 
   - group: General Purpose
     instruction: NOP
+    documentation: Does nothing.
+    undocumented: true
     opcodes:
       - opcode: 0x5A
     steps:
@@ -40,6 +47,8 @@ instructions:
 
   - group: General Purpose
     instruction: NOP
+    documentation: Does nothing.
+    undocumented: true
     opcodes:
       - opcode: 0x7A
     steps:
@@ -47,6 +56,8 @@ instructions:
 
   - group: General Purpose
     instruction: NOP
+    documentation: Does nothing.
+    undocumented: true
     opcodes:
       - opcode: 0xDA
     steps:
@@ -54,6 +65,8 @@ instructions:
 
   - group: General Purpose
     instruction: NOP
+    documentation: Does nothing.
+    undocumented: true
     opcodes:
       - opcode: 0xFA
     steps:
@@ -61,6 +74,8 @@ instructions:
 
   - group: General Purpose
     instruction: "NOP #n"
+    documentation: Does nothing; the operand byte is read and ignored.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x80
@@ -69,6 +84,8 @@ instructions:
 
   - group: General Purpose
     instruction: "NOP #n"
+    documentation: Does nothing; the operand byte is read and ignored.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x82
@@ -77,6 +94,8 @@ instructions:
 
   - group: General Purpose
     instruction: "NOP #n"
+    documentation: Does nothing; the operand byte is read and ignored.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x89
@@ -85,6 +104,8 @@ instructions:
 
   - group: General Purpose
     instruction: "NOP #n"
+    documentation: Does nothing; the operand byte is read and ignored.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0xC2
@@ -93,6 +114,8 @@ instructions:
 
   - group: General Purpose
     instruction: "NOP #n"
+    documentation: Does nothing; the operand byte is read and ignored.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0xE2
@@ -101,6 +124,8 @@ instructions:
 
   - group: General Purpose
     instruction: NOP zp
+    documentation: Does nothing; the byte at zero page address zp is read and ignored.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x04
@@ -110,6 +135,8 @@ instructions:
 
   - group: General Purpose
     instruction: NOP zp
+    documentation: Does nothing; the byte at zero page address zp is read and ignored.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x44
@@ -119,6 +146,8 @@ instructions:
 
   - group: General Purpose
     instruction: NOP zp
+    documentation: Does nothing; the byte at zero page address zp is read and ignored.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x64
@@ -127,7 +156,9 @@ instructions:
       - Address = Data; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    instruction: NOP zp,X
+    instruction: "NOP zp,X"
+    documentation: Does nothing; the byte at zero page address zp + X is read and ignored. The zero page address wraps within page zero.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x14
@@ -137,7 +168,9 @@ instructions:
       - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    instruction: NOP zp,X
+    instruction: "NOP zp,X"
+    documentation: Does nothing; the byte at zero page address zp + X is read and ignored. The zero page address wraps within page zero.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x34
@@ -147,7 +180,9 @@ instructions:
       - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    instruction: NOP zp,X
+    instruction: "NOP zp,X"
+    documentation: Does nothing; the byte at zero page address zp + X is read and ignored. The zero page address wraps within page zero.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x54
@@ -157,7 +192,9 @@ instructions:
       - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    instruction: NOP zp,X
+    instruction: "NOP zp,X"
+    documentation: Does nothing; the byte at zero page address zp + X is read and ignored. The zero page address wraps within page zero.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x74
@@ -167,7 +204,9 @@ instructions:
       - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    instruction: NOP zp,X
+    instruction: "NOP zp,X"
+    documentation: Does nothing; the byte at zero page address zp + X is read and ignored. The zero page address wraps within page zero.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0xD4
@@ -177,7 +216,9 @@ instructions:
       - Address = (AD + X) & 0x00FF; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    instruction: NOP zp,X
+    instruction: "NOP zp,X"
+    documentation: Does nothing; the byte at zero page address zp + X is read and ignored. The zero page address wraps within page zero.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0xF4
@@ -188,6 +229,8 @@ instructions:
 
   - group: General Purpose
     instruction: NOP abs
+    documentation: Does nothing; the byte at address abs is read and ignored.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x0C
@@ -197,7 +240,9 @@ instructions:
       - Address = (Data << 8) | AD; move_to_sequence(sequence.nop_finish); request(action.memory_read);
 
   - group: General Purpose
-    instruction: NOP abs,X
+    instruction: "NOP abs,X"
+    documentation: Does nothing; the byte at address abs + X is read and ignored. Takes an extra cycle if adding X crosses a page.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x1C
@@ -208,7 +253,9 @@ instructions:
       - Address = AD + X; move_to_sequence(sequence.nop_read_finish); request(action.memory_read);
 
   - group: General Purpose
-    instruction: NOP abs,X
+    instruction: "NOP abs,X"
+    documentation: Does nothing; the byte at address abs + X is read and ignored. Takes an extra cycle if adding X crosses a page.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x3C
@@ -219,7 +266,9 @@ instructions:
       - Address = AD + X; move_to_sequence(sequence.nop_read_finish); request(action.memory_read);
 
   - group: General Purpose
-    instruction: NOP abs,X
+    instruction: "NOP abs,X"
+    documentation: Does nothing; the byte at address abs + X is read and ignored. Takes an extra cycle if adding X crosses a page.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x5C
@@ -230,7 +279,9 @@ instructions:
       - Address = AD + X; move_to_sequence(sequence.nop_read_finish); request(action.memory_read);
 
   - group: General Purpose
-    instruction: NOP abs,X
+    instruction: "NOP abs,X"
+    documentation: Does nothing; the byte at address abs + X is read and ignored. Takes an extra cycle if adding X crosses a page.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x7C
@@ -241,7 +292,9 @@ instructions:
       - Address = AD + X; move_to_sequence(sequence.nop_read_finish); request(action.memory_read);
 
   - group: General Purpose
-    instruction: NOP abs,X
+    instruction: "NOP abs,X"
+    documentation: Does nothing; the byte at address abs + X is read and ignored. Takes an extra cycle if adding X crosses a page.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0xDC
@@ -252,7 +305,9 @@ instructions:
       - Address = AD + X; move_to_sequence(sequence.nop_read_finish); request(action.memory_read);
 
   - group: General Purpose
-    instruction: NOP abs,X
+    instruction: "NOP abs,X"
+    documentation: Does nothing; the byte at address abs + X is read and ignored. Takes an extra cycle if adding X crosses a page.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0xFC

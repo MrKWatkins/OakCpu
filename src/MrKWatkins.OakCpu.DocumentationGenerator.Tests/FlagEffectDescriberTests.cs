@@ -8,7 +8,7 @@ public sealed class FlagEffectDescriberTests : TestFixture
         var effects = Describe(Z80Model, "LD B, C", new Dictionary<string, string> { ["B"] = "{R0}", ["C"] = "{R1}" });
 
         effects.Select(e => e.Flag.Name).Should().SequenceEqual("S", "Z", "Y", "H", "X", "PV", "N", "C");
-        effects.Should().OnlyContain(e => e.Kind == FlagEffectKind.Unaffected && e.Documentation == "Unaffected.");
+        effects.Should().OnlyContain(e => e is { Kind: FlagEffectKind.Unaffected, Documentation: "Unaffected." });
     }
 
     [Test]
@@ -104,11 +104,96 @@ public sealed class FlagEffectDescriberTests : TestFixture
     }
 
     [Test]
+    public void Describe_StatusRegisterWrites()
+    {
+        var effects = Describe(M6502Model, "CLC", new Dictionary<string, string>());
+        effects.Select(e => e.Flag.Name).Should().SequenceEqual("N", "V", "B", "D", "I", "Z", "C");
+        AssertEffect(effects, "C", FlagEffectKind.Reset, "Reset.");
+        AssertEffect(effects, "Z", FlagEffectKind.Unaffected, "Unaffected.");
+
+        effects = Describe(M6502Model, "SEI", new Dictionary<string, string>());
+        AssertEffect(effects, "I", FlagEffectKind.Set, "Set.");
+
+        effects = Describe(M6502Model, "ASL A", new Dictionary<string, string>());
+        AssertEffect(effects, "C", FlagEffectKind.Changed, "Set if bit 7 of the original value of A is set, otherwise reset.");
+        AssertEffect(effects, "Z", FlagEffectKind.Changed, "Set if A is zero, otherwise reset.");
+        AssertEffect(effects, "N", FlagEffectKind.Changed, "Set if bit 7 of A is set, otherwise reset.");
+        AssertEffect(effects, "V", FlagEffectKind.Unaffected, "Unaffected.");
+
+        effects = Describe(M6502Model, "INC zp", new Dictionary<string, string>());
+        AssertEffect(effects, "Z", FlagEffectKind.Changed, "Set if the result is zero, otherwise reset.");
+    }
+
+    [Test]
+    public void Describe_StatusRegisterLoad()
+    {
+        var effects = Describe(M6502Model, "PLP", new Dictionary<string, string>());
+
+        AssertEffect(effects, "N", FlagEffectKind.Changed, "Copied from bit 7 of the value read.");
+        AssertEffect(effects, "B", FlagEffectKind.Reset, "Reset.");
+        AssertEffect(effects, "C", FlagEffectKind.Changed, "Copied from bit 0 of the value read.");
+    }
+
+    [Test]
+    public void Describe_FollowsSequences()
+    {
+        // LDA abs,X finishes in a named sequence shared by its paths.
+        var effects = Describe(M6502Model, "LDA abs,X", new Dictionary<string, string>());
+
+        AssertEffect(effects, "Z", FlagEffectKind.Changed, "Set if A is zero, otherwise reset.");
+        AssertEffect(effects, "N", FlagEffectKind.Changed, "Set if bit 7 of A is set, otherwise reset.");
+        AssertEffect(effects, "C", FlagEffectKind.Unaffected, "Unaffected.");
+    }
+
+    [Test]
+    public void Describe_Modes()
+    {
+        var effects = Describe(M6502Model, "SBC #n", new Dictionary<string, string>());
+
+        AssertEffect(effects, "Z", FlagEffectKind.Changed, "In decimal mode, set if the low byte of the binary result is zero, otherwise reset. In binary mode, set if A is zero, otherwise reset.");
+        AssertEffect(effects, "V", FlagEffectKind.Changed, "Set if the subtraction overflowed, otherwise reset.");
+        AssertEffect(effects, "C", FlagEffectKind.Changed, "Set if bit 8 of the binary result is reset, otherwise reset.");
+    }
+
+    [Test]
+    public void Describe_UserDefinedFunctions()
+    {
+        var effects = Describe(M6502Model, "CMP zp", new Dictionary<string, string>());
+
+        AssertEffect(effects, "C", FlagEffectKind.Changed, "Set if A is greater than or equal to the value read, otherwise reset.");
+        AssertEffect(effects, "N", FlagEffectKind.Changed, "Set if bit 7 of the result is set, otherwise reset.");
+    }
+
+    [Test]
+    public void Describe_SetsFlagsTogether()
+    {
+        // ANC sets C with N in one write.
+        var effects = Describe(M6502Model, "ANC #n", new Dictionary<string, string>());
+
+        AssertEffect(effects, "N", FlagEffectKind.Changed, "Set if bit 7 of A is set, otherwise reset.");
+        AssertEffect(effects, "C", FlagEffectKind.Changed, "Set if bit 7 of A is set, otherwise reset.");
+    }
+
+    [Test]
+    public void Describe_FallsBackToTheExpression_M6502()
+    {
+        // ADC's decimal mode adjusts its temporaries in several branches, which cannot be described.
+        var instruction = GetInstruction(M6502Model, "ADC #n");
+        var describer = new FlagEffectDescriber(M6502Model, instruction, new Dictionary<string, string>());
+
+        var effects = describer.Describe();
+
+        describer.Fallbacks.Select(f => f.Key).Distinct().Order().Should().SequenceEqual("C", "N");
+        effects.Single(e => e.Flag.Name == "N").Documentation.Should().Contain("`");
+        effects.Single(e => e.Flag.Name == "Z").Documentation.Should().NotContain("`");
+    }
+
+    [Test]
     public void Describe_FallsBackToTheExpression()
     {
         // DAA assigns its temporaries in several branches, which cannot be described.
         var instruction = GetInstruction(Z80Model, "DAA");
-        var describer = new FlagEffectDescriber(Z80Model.Configuration, instruction, new Dictionary<string, string>());
+        var describer = new FlagEffectDescriber(Z80Model, instruction, new Dictionary<string, string>());
 
         var effects = describer.Describe();
 
@@ -121,7 +206,7 @@ public sealed class FlagEffectDescriberTests : TestFixture
     private static IReadOnlyList<FlagEffect> Describe(CpuModel model, string mnemonic, IReadOnlyDictionary<string, string> placeholders)
     {
         var instruction = GetInstruction(model, mnemonic);
-        var describer = new FlagEffectDescriber(model.Configuration, instruction, placeholders);
+        var describer = new FlagEffectDescriber(model, instruction, placeholders);
         var effects = describer.Describe();
         describer.Fallbacks.Should().BeEmpty();
         return effects;

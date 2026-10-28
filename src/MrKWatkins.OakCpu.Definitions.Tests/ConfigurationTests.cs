@@ -1,5 +1,4 @@
 using MrKWatkins.OakCpu.Definitions.Yaml;
-using Action = MrKWatkins.OakCpu.Definitions.Action;
 using VYaml.Serialization;
 
 namespace MrKWatkins.OakCpu.Definitions.Tests;

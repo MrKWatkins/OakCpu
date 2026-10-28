@@ -15,6 +15,9 @@ public sealed class FunctionYamlTests : TestFixture
                      - a
                      - b
                    expression: $a + $b
+                   documentation: "{a} plus {b}"
+                   not_documentation: "{a} not plus {b}"
+                   value_documentation: the sum
                    """;
 
         var function = YamlSerializer.Deserialize<FunctionYaml>(System.Text.Encoding.UTF8.GetBytes(yaml), YamlOptions.Instance);
@@ -25,6 +28,9 @@ public sealed class FunctionYamlTests : TestFixture
         function.Parameters[0].Should().Equal("a");
         function.Parameters[1].Should().Equal("b");
         function.Expression.Should().Equal("$a + $b");
+        function.Documentation.Should().Equal("{a} plus {b}");
+        function.NotDocumentation.Should().Equal("{a} not plus {b}");
+        function.ValueDocumentation.Should().Equal("the sum");
 
         // Verify round-trip serialization
         var serializedBytes = YamlSerializer.Serialize(function, YamlOptions.Instance);

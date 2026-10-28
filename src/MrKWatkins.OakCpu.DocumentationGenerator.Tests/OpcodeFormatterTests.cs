@@ -11,7 +11,29 @@ public sealed class OpcodeFormatterTests : TestFixture
     [TestCase("PUSH $nn", "nn")]
     [TestCase("DJNZ d", "d")]
     public void OperandTokens(string instruction, string expected) =>
-        string.Join(' ', OpcodeFormatter.OperandTokens(instruction)).Should().Equal(instruction == "NOP" ? "" : expected);
+        string.Join(' ', new OpcodeFormatter(Z80Model).OperandTokens(instruction)).Should().Equal(instruction == "NOP" ? "" : expected);
+
+    [TestCase("NOP", "")]
+    [TestCase("LDA #n", "n")]
+    [TestCase("STA (zp),Y", "zp")]
+    [TestCase("JMP (abs)", "abs")]
+    [TestCase("BPL rel", "rel")]
+    [TestCase("ASL A", "")]
+    public void OperandTokens_M6502(string instruction, string expected) =>
+        string.Join(' ', new OpcodeFormatter(M6502Model).OperandTokens(instruction)).Should().Equal(expected);
+
+    [Test]
+    public void TokenBytes()
+    {
+        var z80 = new OpcodeFormatter(Z80Model);
+        z80.TokenBytes("n").Should().Equal(1);
+        z80.TokenBytes("nn").Should().Equal(2);
+        z80.TokenBytes("d").Should().Equal(1);
+
+        var m6502 = new OpcodeFormatter(M6502Model);
+        m6502.TokenBytes("abs").Should().Equal(2);
+        m6502.TokenBytes("rel").Should().Equal(1);
+    }
 
     [TestCase("NOP", null, 0x00, "00")]
     [TestCase("LD R0, n", null, 0x06, "06 n")]
@@ -55,12 +77,28 @@ public sealed class OpcodeFormatterTests : TestFixture
         encoding.Format(form, instruction, 0xED, (byte)opcode).Should().Equal(expected);
     }
 
+    [TestCase("LDA #n", 0xA9, "A9 n")]
+    [TestCase("LDA (zp),Y", 0xB1, "B1 zp")]
+    [TestCase("JMP abs", 0x4C, "4C abs")]
+    [TestCase("JSR abs", 0x20, "20 abs")]
+    [TestCase("BPL rel", 0x10, "10 rel")]
+    [TestCase("BRK", 0x00, "00")]
+    [TestCase("RTS", 0x60, "60")]
+    [TestCase("NOP", 0x1A, "1A")]
+    public void Format_M6502(string form, int opcode, string expected)
+    {
+        var encoding = new OpcodeFormatter(M6502Model);
+        var instruction = GetInstruction(M6502Model, null, (byte)opcode);
+
+        encoding.Format(form, instruction, null, (byte)opcode).Should().Equal(expected);
+    }
+
     [Test]
     public void Format_ThrowsIfTheInstructionDoesNotNameTheOperandBytes()
     {
         var encoding = new OpcodeFormatter(Z80Model);
         var instruction = GetInstruction(Z80Model, null, 0x06);
 
-        encoding.Invoking(e => e.Format("LD R0", instruction, null, 0x06)).Should().Throw<InvalidOperationException>();
+        encoding.Invoking(e => e.Format("LD R0, nn", instruction, null, 0x06)).Should().Throw<InvalidOperationException>();
     }
 }

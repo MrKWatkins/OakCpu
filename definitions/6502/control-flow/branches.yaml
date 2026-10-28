@@ -16,7 +16,8 @@ sequences:
 
 instructions:
   - group: Branch
-    instruction: BPL
+    instruction: BPL rel
+    documentation: "Branches to the address of the next instruction plus the signed displacement rel if the N flag is reset. Takes an extra cycle if the branch is taken, and another if it crosses a page."
     next_opcode: custom
     opcodes:
       - opcode: 0x10
@@ -25,7 +26,8 @@ instructions:
       - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
 
   - group: Branch
-    instruction: BMI
+    instruction: BMI rel
+    documentation: "Branches to the address of the next instruction plus the signed displacement rel if the N flag is set. Takes an extra cycle if the branch is taken, and another if it crosses a page."
     next_opcode: custom
     opcodes:
       - opcode: 0x30
@@ -34,7 +36,8 @@ instructions:
       - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
 
   - group: Branch
-    instruction: BVC
+    instruction: BVC rel
+    documentation: "Branches to the address of the next instruction plus the signed displacement rel if the V flag is reset. Takes an extra cycle if the branch is taken, and another if it crosses a page."
     next_opcode: custom
     opcodes:
       - opcode: 0x50
@@ -43,7 +46,8 @@ instructions:
       - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
 
   - group: Branch
-    instruction: BVS
+    instruction: BVS rel
+    documentation: "Branches to the address of the next instruction plus the signed displacement rel if the V flag is set. Takes an extra cycle if the branch is taken, and another if it crosses a page."
     next_opcode: custom
     opcodes:
       - opcode: 0x70
@@ -52,7 +56,8 @@ instructions:
       - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
 
   - group: Branch
-    instruction: BCC
+    instruction: BCC rel
+    documentation: "Branches to the address of the next instruction plus the signed displacement rel if the C flag is reset. Takes an extra cycle if the branch is taken, and another if it crosses a page."
     next_opcode: custom
     opcodes:
       - opcode: 0x90
@@ -61,7 +66,8 @@ instructions:
       - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
 
   - group: Branch
-    instruction: BCS
+    instruction: BCS rel
+    documentation: "Branches to the address of the next instruction plus the signed displacement rel if the C flag is set. Takes an extra cycle if the branch is taken, and another if it crosses a page."
     next_opcode: custom
     opcodes:
       - opcode: 0xB0
@@ -70,7 +76,8 @@ instructions:
       - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
 
   - group: Branch
-    instruction: BNE
+    instruction: BNE rel
+    documentation: "Branches to the address of the next instruction plus the signed displacement rel if the Z flag is reset. Takes an extra cycle if the branch is taken, and another if it crosses a page."
     next_opcode: custom
     opcodes:
       - opcode: 0xD0
@@ -79,7 +86,8 @@ instructions:
       - AD = PC + signed(Data); Address = PC; if (AD & 0xFF00) != (PC & 0xFF00); move_to_sequence(sequence.branch_page_cross); else; move_to_sequence(sequence.branch_taken_finish); endif; request(action.memory_read);
 
   - group: Branch
-    instruction: BEQ
+    instruction: BEQ rel
+    documentation: "Branches to the address of the next instruction plus the signed displacement rel if the Z flag is set. Takes an extra cycle if the branch is taken, and another if it crosses a page."
     next_opcode: custom
     opcodes:
       - opcode: 0xF0

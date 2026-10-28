@@ -13,5 +13,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\MrKWatkins.OakCpu.DocumentationGenerator\MrKWatkins.OakCpu.DocumentationGenerator.csproj" />
+      <ProjectReference Include="..\MrKWatkins.OakCpu.M6502\MrKWatkins.OakCpu.M6502.csproj" />
     </ItemGroup>
 </Project>

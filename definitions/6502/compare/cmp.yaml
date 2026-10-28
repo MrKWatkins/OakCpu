@@ -7,6 +7,7 @@ sequences:
 instructions:
   - group: Compare
     instruction: "CMP #n"
+    documentation: "Compares A with n by subtracting the byte from A, setting the flags from the result and discarding it."
     opcodes:
       - opcode: 0xC9
     steps:
@@ -19,6 +20,7 @@ instructions:
 
   - group: Compare
     instruction: CMP zp
+    documentation: "Compares A with the byte at zero page address zp by subtracting the byte from A, setting the flags from the result and discarding it."
     opcodes:
       - opcode: 0xC5
     steps:
@@ -31,7 +33,8 @@ instructions:
       N: is_negative($result)
 
   - group: Compare
-    instruction: CMP zp,X
+    instruction: "CMP zp,X"
+    documentation: "Compares A with the byte at zero page address zp + X by subtracting the byte from A, setting the flags from the result and discarding it. The zero page address wraps within page zero."
     opcodes:
       - opcode: 0xD5
     steps:
@@ -46,6 +49,7 @@ instructions:
 
   - group: Compare
     instruction: CMP abs
+    documentation: "Compares A with the byte at address abs by subtracting the byte from A, setting the flags from the result and discarding it."
     opcodes:
       - opcode: 0xCD
     steps:
@@ -59,7 +63,8 @@ instructions:
       N: is_negative($result)
 
   - group: Compare
-    instruction: CMP abs,X
+    instruction: "CMP abs,X"
+    documentation: "Compares A with the byte at address abs + X by subtracting the byte from A, setting the flags from the result and discarding it. Takes an extra cycle if adding X crosses a page."
     next_opcode: custom
     opcodes:
       - opcode: 0xDD
@@ -70,7 +75,8 @@ instructions:
       - Address = AD + X; move_to_sequence(sequence.cmp_finish); request(action.memory_read);
 
   - group: Compare
-    instruction: CMP abs,Y
+    instruction: "CMP abs,Y"
+    documentation: "Compares A with the byte at address abs + Y by subtracting the byte from A, setting the flags from the result and discarding it. Takes an extra cycle if adding Y crosses a page."
     next_opcode: custom
     opcodes:
       - opcode: 0xD9
@@ -82,6 +88,7 @@ instructions:
 
   - group: Compare
     instruction: "CMP (zp,X)"
+    documentation: "Compares A with the byte at the address stored at zero page address zp + X by subtracting the byte from A, setting the flags from the result and discarding it. The zero page address wraps within page zero."
     opcodes:
       - opcode: 0xC1
     steps:
@@ -98,6 +105,7 @@ instructions:
 
   - group: Compare
     instruction: "CMP (zp),Y"
+    documentation: "Compares A with the byte at Y plus the address stored at zero page address zp by subtracting the byte from A, setting the flags from the result and discarding it. Takes an extra cycle if adding Y crosses a page."
     next_opcode: custom
     opcodes:
       - opcode: 0xD1

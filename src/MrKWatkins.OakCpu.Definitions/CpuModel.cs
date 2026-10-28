@@ -3,7 +3,6 @@ using MrKWatkins.OakCpu.Definitions.Language.Parsing;
 using MrKWatkins.OakCpu.Definitions.Validation;
 using MrKWatkins.OakCpu.Definitions.Yaml;
 using VYaml.Serialization;
-using Action = MrKWatkins.OakCpu.Definitions.Action;
 
 namespace MrKWatkins.OakCpu.Definitions;
 
@@ -134,8 +133,9 @@ public sealed class CpuModel
     [Pure]
     public static async Task<YamlFile> LoadDirectoryAsync(DirectoryInfo definitionsDirectory)
     {
+        // Ordered so that the model, and the code generated from it, is the same on every file system.
         var yamls = new List<YamlFile>();
-        foreach (var file in definitionsDirectory.GetFiles("*.yaml", SearchOption.AllDirectories))
+        foreach (var file in definitionsDirectory.GetFiles("*.yaml", SearchOption.AllDirectories).OrderBy(file => file.FullName, StringComparer.Ordinal))
         {
             yamls.Add(await DeserializeYamlAsync<YamlFile>(file));
         }

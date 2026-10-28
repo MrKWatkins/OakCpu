@@ -13,10 +13,10 @@ public static class ContentsWriter
     /// Writes the instructions as a list, grouped by their groups.
     /// </summary>
     [Pure]
-    public static string WriteIndex(string cpu, IReadOnlyList<InstructionDocumentation> instructions)
+    public static string WriteIndex(Cpu cpu, IReadOnlyList<InstructionDocumentation> instructions)
     {
         var markdown = new StringBuilder();
-        markdown.Append("# ").Append(cpu).Append(" Instructions\n");
+        markdown.Append("# ").Append(cpu.DisplayName).Append(" Instructions\n");
         markdown.Append('\n');
         markdown.Append("The instructions by group. See [the opcode tables](").Append(DocumentationGenerator.OpcodesFileName).Append(") for the instructions by opcode.\n");
 
@@ -37,13 +37,14 @@ public static class ContentsWriter
 
     /// <summary>
     /// Writes the opcodes as a table per opcode table, i.e. one for the unprefixed opcodes and one for each prefix, with the
-    /// high nibble of the opcode byte selecting the row and the low nibble the column.
+    /// high nibble of the opcode byte selecting the row and the low nibble the column. A CPU without prefixes, such as the 6502,
+    /// gets a single table without a heading.
     /// </summary>
     [Pure]
-    public static string WriteOpcodeTables(string cpu, IReadOnlyList<InstructionDocumentation> instructions)
+    public static string WriteOpcodeTables(Cpu cpu, IReadOnlyList<InstructionDocumentation> instructions)
     {
         var markdown = new StringBuilder();
-        markdown.Append("# ").Append(cpu).Append(" Opcodes\n");
+        markdown.Append("# ").Append(cpu.DisplayName).Append(" Opcodes\n");
         markdown.Append('\n');
         markdown.Append("The instructions by opcode, with the high nibble of the opcode byte down the side and the low nibble along the top. Undocumented opcodes are in italics. See [the instructions](")
             .Append(DocumentationGenerator.IndexFileName).Append(") for the instructions by group.\n");
@@ -65,8 +66,12 @@ public static class ContentsWriter
             var cells = table.ToDictionary(x => x.Opcode.OpcodeByte, x => x);
 
             markdown.Append('\n');
-            markdown.Append("## ").Append(PrefixTitle(table.Key)).Append('\n');
-            markdown.Append('\n');
+            if (prefixes.Count > 1)
+            {
+                markdown.Append("## ").Append(PrefixTitle(table.Key)).Append('\n');
+                markdown.Append('\n');
+            }
+
             markdown.Append("| |");
             for (var low = 0; low < 16; low++)
             {

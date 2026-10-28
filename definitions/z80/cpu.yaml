@@ -4,6 +4,40 @@ cpu:
   name: Z80
   documentation: Provides generated Z80 CPU emulators.
   default_next_opcode: overlapped
+  # Every step is a T-state.
+  cycles:
+    name: T-States
+    count: steps
+  # The operand bytes named in instructions.
+  operands:
+    - name: n
+      bytes: 1
+      documentation: An immediate byte.
+    - name: nn
+      bytes: 2
+      documentation: An immediate word, or a 16-bit address, low byte first.
+    - name: d
+      bytes: 1
+      documentation: A signed displacement byte.
+  # How the temporaries the instruction steps use are named in documentation.
+  temporaries:
+    result: the result
+    result16: the 16-bit result
+    high: the high byte of the result
+    comparison: the tested bit
+    sum: the sum
+    difference: the difference
+  # External documentation for the instructions.
+  references:
+    - name: Zilog Z80 CPU User Manual
+      url: https://www.zilog.com/docs/z80/um0080.pdf
+      covers: documented
+    - name: Z80 instruction set, MSX Assembly Page
+      url: https://map.grauw.nl/resources/z80instr.php
+      covers: all
+    - name: The Undocumented Z80 Documented
+      url: http://www.z80.info/zip/z80-documented.pdf
+      covers: undocumented
   # The bus control pins visible to external hardware, sampled at the rising edge of each T-state's clock. Active-low pins are
   # represented as active-high flags.
   pins:

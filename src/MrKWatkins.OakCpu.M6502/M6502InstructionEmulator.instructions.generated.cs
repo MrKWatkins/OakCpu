@@ -40,196 +40,6 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 2;
     }
 
-    // nop finish
-    private static int nop_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
-        where THandler : IM6502BusHandler, allows ref struct
-    {
-        return emulator.CompleteInstruction(false, 1);
-    }
-
-    // nop read finish
-    private static int nop_read_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
-        where THandler : IM6502BusHandler, allows ref struct
-    {
-        return emulator.CompleteInstruction(true, 1);
-    }
-
-    // branch not taken finish
-    private static int branch_not_taken_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
-        where THandler : IM6502BusHandler, allows ref struct
-    {
-        return emulator.CompleteInstruction(false, 1);
-    }
-
-    // branch taken finish
-    private static int branch_taken_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
-        where THandler : IM6502BusHandler, allows ref struct
-    {
-        emulator.PC = emulator.ad;
-        return emulator.CompleteInstruction(false, 1);
-    }
-
-    // branch page cross
-    private static int branch_page_cross<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
-        where THandler : IM6502BusHandler, allows ref struct
-    {
-        ushort nextInstruction6 = 65535;
-        emulator.address = (ushort)(emulator.PC & 0xFF00 | emulator.ad & 0b11111111);
-        nextInstruction6 = 4;
-        handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction6 != 65535)
-        {
-            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction6, ref handler);
-        }
-
-        return 1;
-    }
-
-    // ora finish
-    private static int ora_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
-        where THandler : IM6502BusHandler, allows ref struct
-    {
-        emulator.A |= emulator.data;
-        byte p = (byte)((emulator.P) & 0x5D);
-        if (emulator.A == 0)
-        {
-            p |= 0x02;
-        }
-
-        if (((emulator.A & 0b10000000) != 0x00))
-        {
-            p |= 0x80;
-        }
-
-        emulator.P = p;
-        return emulator.CompleteInstruction(true, 1);
-    }
-
-    // and finish
-    private static int and_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
-        where THandler : IM6502BusHandler, allows ref struct
-    {
-        emulator.A &= emulator.data;
-        byte p = (byte)((emulator.P) & 0x5D);
-        if (emulator.A == 0)
-        {
-            p |= 0x02;
-        }
-
-        if (((emulator.A & 0b10000000) != 0x00))
-        {
-            p |= 0x80;
-        }
-
-        emulator.P = p;
-        return emulator.CompleteInstruction(true, 1);
-    }
-
-    // eor finish
-    private static int eor_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
-        where THandler : IM6502BusHandler, allows ref struct
-    {
-        emulator.A ^= emulator.data;
-        byte p = (byte)((emulator.P) & 0x5D);
-        if (emulator.A == 0)
-        {
-            p |= 0x02;
-        }
-
-        if (((emulator.A & 0b10000000) != 0x00))
-        {
-            p |= 0x80;
-        }
-
-        emulator.P = p;
-        return emulator.CompleteInstruction(true, 1);
-    }
-
-    // ldx finish
-    private static int ldx_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
-        where THandler : IM6502BusHandler, allows ref struct
-    {
-        emulator.X = emulator.data;
-        byte p = (byte)((emulator.P) & 0x5D);
-        if (emulator.X == 0)
-        {
-            p |= 0x02;
-        }
-
-        if (((emulator.X & 0b10000000) != 0x00))
-        {
-            p |= 0x80;
-        }
-
-        emulator.P = p;
-        return emulator.CompleteInstruction(true, 1);
-    }
-
-    // lda finish
-    private static int lda_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
-        where THandler : IM6502BusHandler, allows ref struct
-    {
-        emulator.A = emulator.data;
-        byte p = (byte)((emulator.P) & 0x5D);
-        if (emulator.A == 0)
-        {
-            p |= 0x02;
-        }
-
-        if (((emulator.A & 0b10000000) != 0x00))
-        {
-            p |= 0x80;
-        }
-
-        emulator.P = p;
-        return emulator.CompleteInstruction(true, 1);
-    }
-
-    // ldy finish
-    private static int ldy_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
-        where THandler : IM6502BusHandler, allows ref struct
-    {
-        emulator.Y = emulator.data;
-        byte p = (byte)((emulator.P) & 0x5D);
-        if (emulator.Y == 0)
-        {
-            p |= 0x02;
-        }
-
-        if (((emulator.Y & 0b10000000) != 0x00))
-        {
-            p |= 0x80;
-        }
-
-        emulator.P = p;
-        return emulator.CompleteInstruction(true, 1);
-    }
-
-    // cmp finish
-    private static int cmp_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
-        where THandler : IM6502BusHandler, allows ref struct
-    {
-        byte p = (byte)((emulator.P) & 0x5C);
-        if (emulator.A >= emulator.data)
-        {
-            p |= 0x01;
-        }
-
-        var result = emulator.A - emulator.data;
-        if (result == 0)
-        {
-            p |= 0x02;
-        }
-
-        if (((result & 0b10000000) != 0x00))
-        {
-            p |= 0x80;
-        }
-
-        emulator.P = p;
-        return emulator.CompleteInstruction(true, 1);
-    }
-
     // adc finish
     private static int adc_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
@@ -378,12 +188,181 @@ public sealed unsafe partial class M6502InstructionEmulator
         return emulator.CompleteInstruction(true, 1);
     }
 
-    // lax finish
-    private static int lax_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+    // cmp finish
+    private static int cmp_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+        where THandler : IM6502BusHandler, allows ref struct
+    {
+        byte p = (byte)((emulator.P) & 0x5C);
+        if (emulator.A >= emulator.data)
+        {
+            p |= 0x01;
+        }
+
+        var result = emulator.A - emulator.data;
+        if (result == 0)
+        {
+            p |= 0x02;
+        }
+
+        if (((result & 0b10000000) != 0x00))
+        {
+            p |= 0x80;
+        }
+
+        emulator.P = p;
+        return emulator.CompleteInstruction(true, 1);
+    }
+
+    // branch not taken finish
+    private static int branch_not_taken_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+        where THandler : IM6502BusHandler, allows ref struct
+    {
+        return emulator.CompleteInstruction(false, 1);
+    }
+
+    // branch taken finish
+    private static int branch_taken_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+        where THandler : IM6502BusHandler, allows ref struct
+    {
+        emulator.PC = emulator.ad;
+        return emulator.CompleteInstruction(false, 1);
+    }
+
+    // branch page cross
+    private static int branch_page_cross<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+        where THandler : IM6502BusHandler, allows ref struct
+    {
+        ushort nextInstruction7 = 65535;
+        emulator.address = (ushort)(emulator.PC & 0xFF00 | emulator.ad & 0b11111111);
+        nextInstruction7 = 5;
+        handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction7 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction7, ref handler);
+        }
+
+        return 1;
+    }
+
+    // nop finish
+    private static int nop_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+        where THandler : IM6502BusHandler, allows ref struct
+    {
+        return emulator.CompleteInstruction(false, 1);
+    }
+
+    // nop read finish
+    private static int nop_read_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+        where THandler : IM6502BusHandler, allows ref struct
+    {
+        return emulator.CompleteInstruction(true, 1);
+    }
+
+    // lda finish
+    private static int lda_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
         emulator.A = emulator.data;
+        byte p = (byte)((emulator.P) & 0x5D);
+        if (emulator.A == 0)
+        {
+            p |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            p |= 0x80;
+        }
+
+        emulator.P = p;
+        return emulator.CompleteInstruction(true, 1);
+    }
+
+    // ldx finish
+    private static int ldx_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+        where THandler : IM6502BusHandler, allows ref struct
+    {
         emulator.X = emulator.data;
+        byte p = (byte)((emulator.P) & 0x5D);
+        if (emulator.X == 0)
+        {
+            p |= 0x02;
+        }
+
+        if (((emulator.X & 0b10000000) != 0x00))
+        {
+            p |= 0x80;
+        }
+
+        emulator.P = p;
+        return emulator.CompleteInstruction(true, 1);
+    }
+
+    // ldy finish
+    private static int ldy_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+        where THandler : IM6502BusHandler, allows ref struct
+    {
+        emulator.Y = emulator.data;
+        byte p = (byte)((emulator.P) & 0x5D);
+        if (emulator.Y == 0)
+        {
+            p |= 0x02;
+        }
+
+        if (((emulator.Y & 0b10000000) != 0x00))
+        {
+            p |= 0x80;
+        }
+
+        emulator.P = p;
+        return emulator.CompleteInstruction(true, 1);
+    }
+
+    // and finish
+    private static int and_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+        where THandler : IM6502BusHandler, allows ref struct
+    {
+        emulator.A &= emulator.data;
+        byte p = (byte)((emulator.P) & 0x5D);
+        if (emulator.A == 0)
+        {
+            p |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            p |= 0x80;
+        }
+
+        emulator.P = p;
+        return emulator.CompleteInstruction(true, 1);
+    }
+
+    // eor finish
+    private static int eor_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+        where THandler : IM6502BusHandler, allows ref struct
+    {
+        emulator.A ^= emulator.data;
+        byte p = (byte)((emulator.P) & 0x5D);
+        if (emulator.A == 0)
+        {
+            p |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            p |= 0x80;
+        }
+
+        emulator.P = p;
+        return emulator.CompleteInstruction(true, 1);
+    }
+
+    // ora finish
+    private static int ora_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+        where THandler : IM6502BusHandler, allows ref struct
+    {
+        emulator.A |= emulator.data;
         byte p = (byte)((emulator.P) & 0x5D);
         if (emulator.A == 0)
         {
@@ -403,8 +382,24 @@ public sealed unsafe partial class M6502InstructionEmulator
     private static int jam_read_ffff<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
-        ushort nextInstruction17 = 65535;
+        ushort nextInstruction16 = 65535;
         emulator.address = 0xFFFF;
+        nextInstruction16 = 16;
+        handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
+        if (nextInstruction16 != 65535)
+        {
+            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction16, ref handler);
+        }
+
+        return 1;
+    }
+
+    // jam read fffe
+    private static int jam_read_fffe<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+        where THandler : IM6502BusHandler, allows ref struct
+    {
+        ushort nextInstruction17 = 65535;
+        emulator.address = 0xFFFE;
         nextInstruction17 = 17;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction17 != 65535)
@@ -415,8 +410,8 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 1;
     }
 
-    // jam read fffe
-    private static int jam_read_fffe<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+    // jam read fffe again
+    private static int jam_read_fffe_again<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
         ushort nextInstruction18 = 65535;
@@ -431,12 +426,12 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 1;
     }
 
-    // jam read fffe again
-    private static int jam_read_fffe_again<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+    // jam spin 1
+    private static int jam_spin_1<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
         ushort nextInstruction19 = 65535;
-        emulator.address = 0xFFFE;
+        emulator.address = 0xFFFF;
         nextInstruction19 = 19;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction19 != 65535)
@@ -447,8 +442,8 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 1;
     }
 
-    // jam spin 1
-    private static int jam_spin_1<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+    // jam spin 2
+    private static int jam_spin_2<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
         ushort nextInstruction20 = 65535;
@@ -463,8 +458,8 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 1;
     }
 
-    // jam spin 2
-    private static int jam_spin_2<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+    // jam spin 3
+    private static int jam_spin_3<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
         ushort nextInstruction21 = 65535;
@@ -479,8 +474,8 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 1;
     }
 
-    // jam spin 3
-    private static int jam_spin_3<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+    // jam spin 4
+    private static int jam_spin_4<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
         ushort nextInstruction22 = 65535;
@@ -495,8 +490,8 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 1;
     }
 
-    // jam spin 4
-    private static int jam_spin_4<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+    // jam spin 5
+    private static int jam_spin_5<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
         ushort nextInstruction23 = 65535;
@@ -511,8 +506,8 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 1;
     }
 
-    // jam spin 5
-    private static int jam_spin_5<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+    // jam spin 6
+    private static int jam_spin_6<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
         ushort nextInstruction24 = 65535;
@@ -522,22 +517,6 @@ public sealed unsafe partial class M6502InstructionEmulator
         if (nextInstruction24 != 65535)
         {
             return 1 + emulator.ExecuteDecodedInstruction(nextInstruction24, ref handler);
-        }
-
-        return 1;
-    }
-
-    // jam spin 6
-    private static int jam_spin_6<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
-        where THandler : IM6502BusHandler, allows ref struct
-    {
-        ushort nextInstruction25 = 65535;
-        emulator.address = 0xFFFF;
-        nextInstruction25 = 25;
-        handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
-        if (nextInstruction25 != 65535)
-        {
-            return 1 + emulator.ExecuteDecodedInstruction(nextInstruction25, ref handler);
         }
 
         return 1;
@@ -557,6 +536,27 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.A = (byte)(emulator.data & emulator.S);
         emulator.X = emulator.A;
         emulator.S = emulator.A;
+        byte p = (byte)((emulator.P) & 0x5D);
+        if (emulator.A == 0)
+        {
+            p |= 0x02;
+        }
+
+        if (((emulator.A & 0b10000000) != 0x00))
+        {
+            p |= 0x80;
+        }
+
+        emulator.P = p;
+        return emulator.CompleteInstruction(true, 1);
+    }
+
+    // lax finish
+    private static int lax_finish<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+        where THandler : IM6502BusHandler, allows ref struct
+    {
+        emulator.A = emulator.data;
+        emulator.X = emulator.data;
         byte p = (byte)((emulator.P) & 0x5D);
         if (emulator.A == 0)
         {
@@ -666,7 +666,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     {
         ushort nextInstruction48 = 65535;
         emulator.address = emulator.PC;
-        nextInstruction48 = 16;
+        nextInstruction48 = 15;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction48 != 65535)
         {
@@ -728,7 +728,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         ushort nextInstruction58 = 65535;
         emulator.address = (ushort)emulator.data;
-        nextInstruction58 = 1;
+        nextInstruction58 = 7;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction58 != 65535)
         {
@@ -916,7 +916,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         ushort nextInstruction82 = 65535;
         emulator.address = (ushort)(emulator.data << 0x08 | emulator.ad);
-        nextInstruction82 = 1;
+        nextInstruction82 = 7;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction82 != 65535)
         {
@@ -1029,8 +1029,8 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 5;
     }
 
-    // BPL
-    private static int BPL<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+    // BPL rel
+    private static int BPL_rel<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
         ushort nextInstruction99 = 65535;
@@ -1038,7 +1038,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         if (((emulator.P & 0b10000000) == 0b10000000 /* flag.N */))
         {
-            nextInstruction99 = 3;
+            nextInstruction99 = 4;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -1052,11 +1052,11 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            nextInstruction100 = 5;
+            nextInstruction100 = 6;
         }
         else
         {
-            nextInstruction100 = 4;
+            nextInstruction100 = 5;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -1086,7 +1086,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction104 = 6;
+            nextInstruction104 = 14;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -1097,7 +1097,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction105 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction105 = 6;
+        nextInstruction105 = 14;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction105 != 65535)
         {
@@ -1113,7 +1113,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     {
         ushort nextInstruction106 = 65535;
         emulator.address = emulator.PC;
-        nextInstruction106 = 16;
+        nextInstruction106 = 15;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction106 != 65535)
         {
@@ -1178,7 +1178,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         ushort nextInstruction117 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
-        nextInstruction117 = 1;
+        nextInstruction117 = 7;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction117 != 65535)
         {
@@ -1307,7 +1307,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction137 = 6;
+            nextInstruction137 = 14;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -1319,7 +1319,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction138 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction138 = 6;
+        nextInstruction138 = 14;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction138 != 65535)
         {
@@ -1396,7 +1396,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction149 = 2;
+            nextInstruction149 = 8;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -1408,7 +1408,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction150 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction150 = 2;
+        nextInstruction150 = 8;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction150 != 65535)
         {
@@ -1436,7 +1436,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction153 = 6;
+            nextInstruction153 = 14;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -1448,7 +1448,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction154 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction154 = 6;
+        nextInstruction154 = 14;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction154 != 65535)
         {
@@ -1603,7 +1603,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     {
         ushort nextInstruction181 = 65535;
         emulator.address = emulator.PC;
-        nextInstruction181 = 16;
+        nextInstruction181 = 15;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction181 != 65535)
         {
@@ -1975,8 +1975,8 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 5;
     }
 
-    // BMI
-    private static int BMI<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+    // BMI rel
+    private static int BMI_rel<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
         ushort nextInstruction235 = 65535;
@@ -1984,7 +1984,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         if (!((emulator.P & 0b10000000) == 0b10000000 /* flag.N */))
         {
-            nextInstruction235 = 3;
+            nextInstruction235 = 4;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -1998,11 +1998,11 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            nextInstruction236 = 5;
+            nextInstruction236 = 6;
         }
         else
         {
-            nextInstruction236 = 4;
+            nextInstruction236 = 5;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -2032,7 +2032,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction240 = 7;
+            nextInstruction240 = 12;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -2043,7 +2043,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction241 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction241 = 7;
+        nextInstruction241 = 12;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction241 != 65535)
         {
@@ -2059,7 +2059,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     {
         ushort nextInstruction242 = 65535;
         emulator.address = emulator.PC;
-        nextInstruction242 = 16;
+        nextInstruction242 = 15;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction242 != 65535)
         {
@@ -2125,7 +2125,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         ushort nextInstruction253 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
-        nextInstruction253 = 1;
+        nextInstruction253 = 7;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction253 != 65535)
         {
@@ -2256,7 +2256,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction273 = 7;
+            nextInstruction273 = 12;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -2268,7 +2268,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction274 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction274 = 7;
+        nextInstruction274 = 12;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction274 != 65535)
         {
@@ -2346,7 +2346,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction285 = 2;
+            nextInstruction285 = 8;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -2358,7 +2358,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction286 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction286 = 2;
+        nextInstruction286 = 8;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction286 != 65535)
         {
@@ -2386,7 +2386,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction289 = 7;
+            nextInstruction289 = 12;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -2398,7 +2398,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction290 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction290 = 7;
+        nextInstruction290 = 12;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction290 != 65535)
         {
@@ -2553,7 +2553,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     {
         ushort nextInstruction317 = 65535;
         emulator.address = emulator.PC;
-        nextInstruction317 = 16;
+        nextInstruction317 = 15;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction317 != 65535)
         {
@@ -2615,7 +2615,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         ushort nextInstruction327 = 65535;
         emulator.address = (ushort)emulator.data;
-        nextInstruction327 = 1;
+        nextInstruction327 = 7;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction327 != 65535)
         {
@@ -2893,8 +2893,8 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 5;
     }
 
-    // BVC
-    private static int BVC<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+    // BVC rel
+    private static int BVC_rel<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
         ushort nextInstruction368 = 65535;
@@ -2902,7 +2902,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         if (((emulator.P & 0b01000000) == 0b01000000 /* flag.V */))
         {
-            nextInstruction368 = 3;
+            nextInstruction368 = 4;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -2916,11 +2916,11 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            nextInstruction369 = 5;
+            nextInstruction369 = 6;
         }
         else
         {
-            nextInstruction369 = 4;
+            nextInstruction369 = 5;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -2950,7 +2950,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction373 = 8;
+            nextInstruction373 = 13;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -2961,7 +2961,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction374 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction374 = 8;
+        nextInstruction374 = 13;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction374 != 65535)
         {
@@ -2977,7 +2977,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     {
         ushort nextInstruction375 = 65535;
         emulator.address = emulator.PC;
-        nextInstruction375 = 16;
+        nextInstruction375 = 15;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction375 != 65535)
         {
@@ -3042,7 +3042,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         ushort nextInstruction386 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
-        nextInstruction386 = 1;
+        nextInstruction386 = 7;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction386 != 65535)
         {
@@ -3166,7 +3166,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction406 = 8;
+            nextInstruction406 = 13;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -3178,7 +3178,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction407 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction407 = 8;
+        nextInstruction407 = 13;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction407 != 65535)
         {
@@ -3255,7 +3255,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction418 = 2;
+            nextInstruction418 = 8;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -3267,7 +3267,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction419 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction419 = 2;
+        nextInstruction419 = 8;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction419 != 65535)
         {
@@ -3295,7 +3295,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction422 = 8;
+            nextInstruction422 = 13;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -3307,7 +3307,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction423 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction423 = 8;
+        nextInstruction423 = 13;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction423 != 65535)
         {
@@ -3514,7 +3514,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     {
         ushort nextInstruction450 = 65535;
         emulator.address = emulator.PC;
-        nextInstruction450 = 16;
+        nextInstruction450 = 15;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction450 != 65535)
         {
@@ -3626,7 +3626,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         ushort nextInstruction460 = 65535;
         emulator.address = (ushort)emulator.data;
-        nextInstruction460 = 1;
+        nextInstruction460 = 7;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction460 != 65535)
         {
@@ -4243,8 +4243,8 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 5;
     }
 
-    // BVS
-    private static int BVS<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+    // BVS rel
+    private static int BVS_rel<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
         ushort nextInstruction504 = 65535;
@@ -4252,7 +4252,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         if (!((emulator.P & 0b01000000) == 0b01000000 /* flag.V */))
         {
-            nextInstruction504 = 3;
+            nextInstruction504 = 4;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -4266,11 +4266,11 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            nextInstruction505 = 5;
+            nextInstruction505 = 6;
         }
         else
         {
-            nextInstruction505 = 4;
+            nextInstruction505 = 5;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -4300,7 +4300,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction509 = 13;
+            nextInstruction509 = 1;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -4311,7 +4311,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction510 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction510 = 13;
+        nextInstruction510 = 1;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction510 != 65535)
         {
@@ -4327,7 +4327,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     {
         ushort nextInstruction511 = 65535;
         emulator.address = emulator.PC;
-        nextInstruction511 = 16;
+        nextInstruction511 = 15;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction511 != 65535)
         {
@@ -4442,7 +4442,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         ushort nextInstruction522 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
-        nextInstruction522 = 1;
+        nextInstruction522 = 7;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction522 != 65535)
         {
@@ -4682,7 +4682,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction542 = 13;
+            nextInstruction542 = 1;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -4694,7 +4694,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction543 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction543 = 13;
+        nextInstruction543 = 1;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction543 != 65535)
         {
@@ -4821,7 +4821,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction554 = 2;
+            nextInstruction554 = 8;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -4833,7 +4833,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction555 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction555 = 2;
+        nextInstruction555 = 8;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction555 != 65535)
         {
@@ -4861,7 +4861,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction558 = 13;
+            nextInstruction558 = 1;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -4873,7 +4873,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction559 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction559 = 13;
+        nextInstruction559 = 1;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction559 != 65535)
         {
@@ -5026,7 +5026,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         ushort nextInstruction574 = 65535;
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
-        nextInstruction574 = 1;
+        nextInstruction574 = 7;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction574 != 65535)
         {
@@ -5065,7 +5065,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         ushort nextInstruction581 = 65535;
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
-        nextInstruction581 = 1;
+        nextInstruction581 = 7;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction581 != 65535)
         {
@@ -5170,7 +5170,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         ushort nextInstruction601 = 65535;
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
-        nextInstruction601 = 1;
+        nextInstruction601 = 7;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction601 != 65535)
         {
@@ -5283,8 +5283,8 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 3;
     }
 
-    // BCC
-    private static int BCC<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+    // BCC rel
+    private static int BCC_rel<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
         ushort nextInstruction621 = 65535;
@@ -5292,7 +5292,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         if (((emulator.P & 0b00000001) == 0b00000001 /* flag.C */))
         {
-            nextInstruction621 = 3;
+            nextInstruction621 = 4;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -5306,11 +5306,11 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            nextInstruction622 = 5;
+            nextInstruction622 = 6;
         }
         else
         {
-            nextInstruction622 = 4;
+            nextInstruction622 = 5;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -5350,7 +5350,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     {
         ushort nextInstruction629 = 65535;
         emulator.address = emulator.PC;
-        nextInstruction629 = 16;
+        nextInstruction629 = 15;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction629 != 65535)
         {
@@ -5959,8 +5959,8 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 3;
     }
 
-    // BCS
-    private static int BCS<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+    // BCS rel
+    private static int BCS_rel<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
         ushort nextInstruction734 = 65535;
@@ -5968,7 +5968,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         if (!((emulator.P & 0b00000001) == 0b00000001 /* flag.C */))
         {
-            nextInstruction734 = 3;
+            nextInstruction734 = 4;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -5982,11 +5982,11 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            nextInstruction735 = 5;
+            nextInstruction735 = 6;
         }
         else
         {
-            nextInstruction735 = 4;
+            nextInstruction735 = 5;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -6016,7 +6016,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction739 = 10;
+            nextInstruction739 = 9;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -6027,7 +6027,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction740 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction740 = 10;
+        nextInstruction740 = 9;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction740 != 65535)
         {
@@ -6043,7 +6043,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     {
         ushort nextInstruction741 = 65535;
         emulator.address = emulator.PC;
-        nextInstruction741 = 16;
+        nextInstruction741 = 15;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction741 != 65535)
         {
@@ -6071,7 +6071,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction745 = 15;
+            nextInstruction745 = 26;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -6082,7 +6082,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction746 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction746 = 15;
+        nextInstruction746 = 26;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction746 != 65535)
         {
@@ -6205,7 +6205,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction766 = 10;
+            nextInstruction766 = 9;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -6217,7 +6217,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction767 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction767 = 10;
+        nextInstruction767 = 9;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction767 != 65535)
         {
@@ -6259,7 +6259,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction771 = 26;
+            nextInstruction771 = 25;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -6271,7 +6271,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction772 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction772 = 26;
+        nextInstruction772 = 25;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction772 != 65535)
         {
@@ -6339,7 +6339,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction779 = 10;
+            nextInstruction779 = 9;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -6351,7 +6351,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction780 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction780 = 10;
+        nextInstruction780 = 9;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction780 != 65535)
         {
@@ -6379,7 +6379,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction783 = 9;
+            nextInstruction783 = 10;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -6391,7 +6391,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction784 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction784 = 9;
+        nextInstruction784 = 10;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction784 != 65535)
         {
@@ -6419,7 +6419,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction787 = 15;
+            nextInstruction787 = 26;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -6431,7 +6431,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction788 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction788 = 15;
+        nextInstruction788 = 26;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction788 != 65535)
         {
@@ -6497,7 +6497,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         ushort nextInstruction797 = 65535;
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
-        nextInstruction797 = 1;
+        nextInstruction797 = 7;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction797 != 65535)
         {
@@ -6844,8 +6844,8 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 5;
     }
 
-    // BNE
-    private static int BNE<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+    // BNE rel
+    private static int BNE_rel<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
         ushort nextInstruction848 = 65535;
@@ -6853,7 +6853,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         if (((emulator.P & 0b00000010) == 0b00000010 /* flag.Z */))
         {
-            nextInstruction848 = 3;
+            nextInstruction848 = 4;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -6867,11 +6867,11 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            nextInstruction849 = 5;
+            nextInstruction849 = 6;
         }
         else
         {
-            nextInstruction849 = 4;
+            nextInstruction849 = 5;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -6901,7 +6901,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction853 = 12;
+            nextInstruction853 = 3;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -6912,7 +6912,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction854 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction854 = 12;
+        nextInstruction854 = 3;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction854 != 65535)
         {
@@ -6928,7 +6928,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     {
         ushort nextInstruction855 = 65535;
         emulator.address = emulator.PC;
-        nextInstruction855 = 16;
+        nextInstruction855 = 15;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction855 != 65535)
         {
@@ -6992,7 +6992,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         ushort nextInstruction866 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
-        nextInstruction866 = 1;
+        nextInstruction866 = 7;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction866 != 65535)
         {
@@ -7115,7 +7115,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction886 = 12;
+            nextInstruction886 = 3;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -7127,7 +7127,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction887 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction887 = 12;
+        nextInstruction887 = 3;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction887 != 65535)
         {
@@ -7203,7 +7203,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction898 = 2;
+            nextInstruction898 = 8;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -7215,7 +7215,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction899 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction899 = 2;
+        nextInstruction899 = 8;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction899 != 65535)
         {
@@ -7243,7 +7243,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction902 = 12;
+            nextInstruction902 = 3;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -7255,7 +7255,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction903 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction903 = 12;
+        nextInstruction903 = 3;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction903 != 65535)
         {
@@ -7456,7 +7456,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         ushort nextInstruction926 = 65535;
         emulator.address = emulator.PC;
         emulator.PC += 0x01;
-        nextInstruction926 = 1;
+        nextInstruction926 = 7;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction926 != 65535)
         {
@@ -8168,8 +8168,8 @@ public sealed unsafe partial class M6502InstructionEmulator
         return 5;
     }
 
-    // BEQ
-    private static int BEQ<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
+    // BEQ rel
+    private static int BEQ_rel<THandler>(M6502InstructionEmulator emulator, ref THandler handler)
         where THandler : IM6502BusHandler, allows ref struct
     {
         ushort nextInstruction977 = 65535;
@@ -8177,7 +8177,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.PC += 0x01;
         if (!((emulator.P & 0b00000010) == 0b00000010 /* flag.Z */))
         {
-            nextInstruction977 = 3;
+            nextInstruction977 = 4;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -8191,11 +8191,11 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = emulator.PC;
         if ((emulator.ad & 0xFF00) != (emulator.PC & 0xFF00))
         {
-            nextInstruction978 = 5;
+            nextInstruction978 = 6;
         }
         else
         {
-            nextInstruction978 = 4;
+            nextInstruction978 = 5;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -8225,7 +8225,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction982 = 14;
+            nextInstruction982 = 2;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -8236,7 +8236,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction983 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction983 = 14;
+        nextInstruction983 = 2;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction983 != 65535)
         {
@@ -8252,7 +8252,7 @@ public sealed unsafe partial class M6502InstructionEmulator
     {
         ushort nextInstruction984 = 65535;
         emulator.address = emulator.PC;
-        nextInstruction984 = 16;
+        nextInstruction984 = 15;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction984 != 65535)
         {
@@ -8365,7 +8365,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         ushort nextInstruction995 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X & 0b11111111);
-        nextInstruction995 = 1;
+        nextInstruction995 = 7;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction995 != 65535)
         {
@@ -8596,7 +8596,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.Y & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.Y > 0xFF))
         {
-            nextInstruction1015 = 14;
+            nextInstruction1015 = 2;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -8608,7 +8608,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction1016 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.Y);
-        nextInstruction1016 = 14;
+        nextInstruction1016 = 2;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction1016 != 65535)
         {
@@ -8733,7 +8733,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction1027 = 2;
+            nextInstruction1027 = 8;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -8745,7 +8745,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction1028 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction1028 = 2;
+        nextInstruction1028 = 8;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction1028 != 65535)
         {
@@ -8773,7 +8773,7 @@ public sealed unsafe partial class M6502InstructionEmulator
         emulator.address = (ushort)(emulator.ad & 0xFF00 | emulator.ad + emulator.X & 0b11111111);
         if (!((emulator.ad & 0b11111111) + emulator.X > 0xFF))
         {
-            nextInstruction1031 = 14;
+            nextInstruction1031 = 2;
         }
 
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
@@ -8785,7 +8785,7 @@ public sealed unsafe partial class M6502InstructionEmulator
 
         ushort nextInstruction1032 = 65535;
         emulator.address = (ushort)(emulator.ad + emulator.X);
-        nextInstruction1032 = 14;
+        nextInstruction1032 = 2;
         handler.OnActionRequired(ActionRequired.MemoryRead, emulator.address, emulator.data);
         if (nextInstruction1032 != 65535)
         {

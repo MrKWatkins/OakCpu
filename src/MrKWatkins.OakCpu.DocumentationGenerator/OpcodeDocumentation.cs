@@ -8,16 +8,16 @@ namespace MrKWatkins.OakCpu.DocumentationGenerator;
 /// </param>
 /// <param name="Instruction">The instruction with the operands for the opcode, e.g. <c>LD B, (IX + d)</c>.</param>
 /// <param name="Operands">The operands for the opcode's placeholders in the instruction, e.g. <c>R0</c> = <c>B</c>.</param>
-/// <param name="TStates">
-/// The T-states the opcode takes for each of the paths through it, shortest first. Conditional and repeating instructions have
-/// one entry for when they finish early and one for when they do not; everything else has a single entry.
+/// <param name="Cycles">
+/// The cycles the opcode takes for each of the paths through it, shortest first; T-states on the Z80. Conditional and repeating
+/// instructions have one entry for when they finish early and one for when they do not; everything else has a single entry.
 /// </param>
 /// <param name="Undocumented">Whether the opcode is undocumented, i.e. not in the manufacturer's documentation for the CPU.</param>
 public sealed record OpcodeDocumentation(
     string Opcode,
     string Instruction,
     IReadOnlyList<KeyValuePair<string, string>> Operands,
-    IReadOnlyList<int> TStates,
+    IReadOnlyList<int> Cycles,
     bool Undocumented)
 {
     /// <summary>

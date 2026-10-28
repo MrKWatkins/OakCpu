@@ -7,6 +7,10 @@ sequences:
 instructions:
   - group: Arithmetic
     instruction: "ADC #n"
+    documentation: Adds n and the carry flag to A. In decimal mode the addition is binary coded decimal.
+    flag_documentation:
+      N: "In decimal mode, set if bit 7 of the sum of the high nibbles, including any carry from the low nibbles but before the decimal adjustment, is set, otherwise reset. In binary mode, set if bit 7 of A is set, otherwise reset."
+      C: "In decimal mode, set if the decimal result is greater than 99, otherwise reset. In binary mode, set if bit 8 of the binary result is set, otherwise reset."
     opcodes:
       - opcode: 0x69
     steps:
@@ -15,6 +19,10 @@ instructions:
 
   - group: Arithmetic
     instruction: ADC zp
+    documentation: Adds the byte at zero page address zp and the carry flag to A. In decimal mode the addition is binary coded decimal.
+    flag_documentation:
+      N: "In decimal mode, set if bit 7 of the sum of the high nibbles, including any carry from the low nibbles but before the decimal adjustment, is set, otherwise reset. In binary mode, set if bit 7 of A is set, otherwise reset."
+      C: "In decimal mode, set if the decimal result is greater than 99, otherwise reset. In binary mode, set if bit 8 of the binary result is set, otherwise reset."
     opcodes:
       - opcode: 0x65
     steps:
@@ -23,7 +31,11 @@ instructions:
       - $carry = P & 0x01; $left = A; $right = Data; $binary_result = $left + $right + $carry; if flag.D; $low = ($left & 0x0F) + ($right & 0x0F) + $carry; $high = ($left & 0xF0) + ($right & 0xF0); P = P & 0x1C; if ($binary_result & 0xFF) == 0; P = P | 0x02; endif; if $low > 0x09; $high = $high + 0x10; $low = $low + 0x06; endif; if is_negative($high); P = P | 0x80; endif; if did_8_bit_addition_overflow($left, $right, $high); P = P | 0x40; endif; if $high > 0x90; $high = $high + 0x60; endif; if $high > 0xFF; P = P | 0x01; endif; A = ($low & 0x0F) | ($high & 0xF0); else; A = $binary_result; P = P & 0x1C; if did_8_bit_addition_overflow($left, $right, $binary_result); P = P | 0x40; endif; if ($binary_result & 0x0100) != 0; P = P | 0x01; endif; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; endif;
 
   - group: Arithmetic
-    instruction: ADC zp,X
+    instruction: "ADC zp,X"
+    documentation: Adds the byte at zero page address zp + X and the carry flag to A. In decimal mode the addition is binary coded decimal. The zero page address wraps within page zero.
+    flag_documentation:
+      N: "In decimal mode, set if bit 7 of the sum of the high nibbles, including any carry from the low nibbles but before the decimal adjustment, is set, otherwise reset. In binary mode, set if bit 7 of A is set, otherwise reset."
+      C: "In decimal mode, set if the decimal result is greater than 99, otherwise reset. In binary mode, set if bit 8 of the binary result is set, otherwise reset."
     opcodes:
       - opcode: 0x75
     steps:
@@ -34,6 +46,10 @@ instructions:
 
   - group: Arithmetic
     instruction: ADC abs
+    documentation: Adds the byte at address abs and the carry flag to A. In decimal mode the addition is binary coded decimal.
+    flag_documentation:
+      N: "In decimal mode, set if bit 7 of the sum of the high nibbles, including any carry from the low nibbles but before the decimal adjustment, is set, otherwise reset. In binary mode, set if bit 7 of A is set, otherwise reset."
+      C: "In decimal mode, set if the decimal result is greater than 99, otherwise reset. In binary mode, set if bit 8 of the binary result is set, otherwise reset."
     opcodes:
       - opcode: 0x6D
     steps:
@@ -43,7 +59,11 @@ instructions:
       - $carry = P & 0x01; $left = A; $right = Data; $binary_result = $left + $right + $carry; if flag.D; $low = ($left & 0x0F) + ($right & 0x0F) + $carry; $high = ($left & 0xF0) + ($right & 0xF0); P = P & 0x1C; if ($binary_result & 0xFF) == 0; P = P | 0x02; endif; if $low > 0x09; $high = $high + 0x10; $low = $low + 0x06; endif; if is_negative($high); P = P | 0x80; endif; if did_8_bit_addition_overflow($left, $right, $high); P = P | 0x40; endif; if $high > 0x90; $high = $high + 0x60; endif; if $high > 0xFF; P = P | 0x01; endif; A = ($low & 0x0F) | ($high & 0xF0); else; A = $binary_result; P = P & 0x1C; if did_8_bit_addition_overflow($left, $right, $binary_result); P = P | 0x40; endif; if ($binary_result & 0x0100) != 0; P = P | 0x01; endif; if is_zero(A); P = P | 0x02; endif; if is_negative(A); P = P | 0x80; endif; endif;
 
   - group: Arithmetic
-    instruction: ADC abs,X
+    instruction: "ADC abs,X"
+    documentation: Adds the byte at address abs + X and the carry flag to A. In decimal mode the addition is binary coded decimal. Takes an extra cycle if adding X crosses a page.
+    flag_documentation:
+      N: "In decimal mode, set if bit 7 of the sum of the high nibbles, including any carry from the low nibbles but before the decimal adjustment, is set, otherwise reset. In binary mode, set if bit 7 of A is set, otherwise reset."
+      C: "In decimal mode, set if the decimal result is greater than 99, otherwise reset. In binary mode, set if bit 8 of the binary result is set, otherwise reset."
     next_opcode: custom
     opcodes:
       - opcode: 0x7D
@@ -54,7 +74,11 @@ instructions:
       - Address = AD + X; move_to_sequence(sequence.adc_finish); request(action.memory_read);
 
   - group: Arithmetic
-    instruction: ADC abs,Y
+    instruction: "ADC abs,Y"
+    documentation: Adds the byte at address abs + Y and the carry flag to A. In decimal mode the addition is binary coded decimal. Takes an extra cycle if adding Y crosses a page.
+    flag_documentation:
+      N: "In decimal mode, set if bit 7 of the sum of the high nibbles, including any carry from the low nibbles but before the decimal adjustment, is set, otherwise reset. In binary mode, set if bit 7 of A is set, otherwise reset."
+      C: "In decimal mode, set if the decimal result is greater than 99, otherwise reset. In binary mode, set if bit 8 of the binary result is set, otherwise reset."
     next_opcode: custom
     opcodes:
       - opcode: 0x79
@@ -66,6 +90,10 @@ instructions:
 
   - group: Arithmetic
     instruction: "ADC (zp,X)"
+    documentation: Adds the byte at the address stored at zero page address zp + X and the carry flag to A. In decimal mode the addition is binary coded decimal. The zero page address wraps within page zero.
+    flag_documentation:
+      N: "In decimal mode, set if bit 7 of the sum of the high nibbles, including any carry from the low nibbles but before the decimal adjustment, is set, otherwise reset. In binary mode, set if bit 7 of A is set, otherwise reset."
+      C: "In decimal mode, set if the decimal result is greater than 99, otherwise reset. In binary mode, set if bit 8 of the binary result is set, otherwise reset."
     opcodes:
       - opcode: 0x61
     steps:
@@ -78,6 +106,10 @@ instructions:
 
   - group: Arithmetic
     instruction: "ADC (zp),Y"
+    documentation: Adds the byte at Y plus the address stored at zero page address zp and the carry flag to A. In decimal mode the addition is binary coded decimal. Takes an extra cycle if adding Y crosses a page.
+    flag_documentation:
+      N: "In decimal mode, set if bit 7 of the sum of the high nibbles, including any carry from the low nibbles but before the decimal adjustment, is set, otherwise reset. In binary mode, set if bit 7 of A is set, otherwise reset."
+      C: "In decimal mode, set if the decimal result is greater than 99, otherwise reset. In binary mode, set if bit 8 of the binary result is set, otherwise reset."
     next_opcode: custom
     opcodes:
       - opcode: 0x71

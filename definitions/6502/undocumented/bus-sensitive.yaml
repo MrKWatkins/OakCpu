@@ -57,6 +57,8 @@ sequences:
 instructions:
   - group: Undocumented
     instruction: JAM
+    documentation: "Jams the CPU: it reads from 0xFFFF and 0xFFFE and then does nothing until it is reset."
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x02
@@ -65,6 +67,8 @@ instructions:
 
   - group: Undocumented
     instruction: JAM
+    documentation: "Jams the CPU: it reads from 0xFFFF and 0xFFFE and then does nothing until it is reset."
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x12
@@ -73,6 +77,8 @@ instructions:
 
   - group: Undocumented
     instruction: JAM
+    documentation: "Jams the CPU: it reads from 0xFFFF and 0xFFFE and then does nothing until it is reset."
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x22
@@ -81,6 +87,8 @@ instructions:
 
   - group: Undocumented
     instruction: JAM
+    documentation: "Jams the CPU: it reads from 0xFFFF and 0xFFFE and then does nothing until it is reset."
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x32
@@ -89,6 +97,8 @@ instructions:
 
   - group: Undocumented
     instruction: JAM
+    documentation: "Jams the CPU: it reads from 0xFFFF and 0xFFFE and then does nothing until it is reset."
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x42
@@ -97,6 +107,8 @@ instructions:
 
   - group: Undocumented
     instruction: JAM
+    documentation: "Jams the CPU: it reads from 0xFFFF and 0xFFFE and then does nothing until it is reset."
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x52
@@ -105,6 +117,8 @@ instructions:
 
   - group: Undocumented
     instruction: JAM
+    documentation: "Jams the CPU: it reads from 0xFFFF and 0xFFFE and then does nothing until it is reset."
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x62
@@ -113,6 +127,8 @@ instructions:
 
   - group: Undocumented
     instruction: JAM
+    documentation: "Jams the CPU: it reads from 0xFFFF and 0xFFFE and then does nothing until it is reset."
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x72
@@ -121,6 +137,8 @@ instructions:
 
   - group: Undocumented
     instruction: JAM
+    documentation: "Jams the CPU: it reads from 0xFFFF and 0xFFFE and then does nothing until it is reset."
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0x92
@@ -129,6 +147,8 @@ instructions:
 
   - group: Undocumented
     instruction: JAM
+    documentation: "Jams the CPU: it reads from 0xFFFF and 0xFFFE and then does nothing until it is reset."
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0xB2
@@ -137,6 +157,8 @@ instructions:
 
   - group: Undocumented
     instruction: JAM
+    documentation: "Jams the CPU: it reads from 0xFFFF and 0xFFFE and then does nothing until it is reset."
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0xD2
@@ -145,6 +167,8 @@ instructions:
 
   - group: Undocumented
     instruction: JAM
+    documentation: "Jams the CPU: it reads from 0xFFFF and 0xFFFE and then does nothing until it is reset."
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0xF2
@@ -153,6 +177,8 @@ instructions:
 
   - group: Undocumented
     instruction: "XAA #n"
+    documentation: "Loads A with (A OR 0xEE) AND X AND n. The 0xEE varies between chips, so the result is unreliable."
+    undocumented: true
     opcodes:
       - opcode: 0x8B
     steps:
@@ -163,7 +189,9 @@ instructions:
       N: is_negative(A)
 
   - group: Undocumented
-    instruction: LAS abs,Y
+    instruction: "LAS abs,Y"
+    documentation: "Loads A, X and S with the byte at address abs + Y AND S. Takes an extra cycle if adding Y crosses a page."
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0xBB
@@ -175,6 +203,8 @@ instructions:
 
   - group: Undocumented
     instruction: "AHX (zp),Y"
+    documentation: "Stores A AND X AND the high byte of the address stored at zp plus one at Y plus the address stored at zero page address zp. If adding Y crosses a page, the high byte of the address written is replaced by the value stored."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x93
@@ -187,7 +217,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: TAS abs,Y
+    instruction: "TAS abs,Y"
+    documentation: "Stores A AND X in S, then stores S AND the high byte of abs plus one at address abs + Y. If adding Y crosses a page, the high byte of the address written is replaced by the value stored."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x9B
@@ -199,7 +231,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: SHY abs,X
+    instruction: "SHY abs,X"
+    documentation: "Stores Y AND the high byte of abs plus one at address abs + X. If adding X crosses a page, the high byte of the address written is replaced by the value stored."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x9C
@@ -211,7 +245,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: SHX abs,Y
+    instruction: "SHX abs,Y"
+    documentation: "Stores X AND the high byte of abs plus one at address abs + Y. If adding Y crosses a page, the high byte of the address written is replaced by the value stored."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x9E
@@ -223,7 +259,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: AHX abs,Y
+    instruction: "AHX abs,Y"
+    documentation: "Stores A AND X AND the high byte of abs plus one at address abs + Y. If adding Y crosses a page, the high byte of the address written is replaced by the value stored."
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x9F

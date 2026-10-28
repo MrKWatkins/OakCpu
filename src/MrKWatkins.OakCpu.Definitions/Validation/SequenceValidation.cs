@@ -21,7 +21,7 @@ internal static class SequenceValidation
     [Pure]
     private static IEnumerable<ValidationError> ValidateOpcodeRead(YamlFile yaml)
     {
-        if (!yaml.OpcodeRead.Any() && !yaml.Sequences.Any(sequence => sequence.Name == "opcode_read"))
+        if (!yaml.OpcodeRead.Any() && yaml.Sequences.All(sequence => sequence.Name != "opcode_read"))
         {
             yield return new ValidationError("No opcode_read sequence has been defined.");
         }

@@ -1,5 +1,3 @@
-using Microsoft.CodeAnalysis;
-
 namespace MrKWatkins.OakCpu.CodeGenerator.Tests;
 
 public sealed class DataTypeSyntaxExtensionsTests

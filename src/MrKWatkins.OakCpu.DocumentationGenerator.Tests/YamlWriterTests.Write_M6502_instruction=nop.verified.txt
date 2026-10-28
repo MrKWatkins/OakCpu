@@ -1,0 +1,64 @@
+﻿cpu: 6502
+instructions:
+  - instruction: NOP
+    defined_by: 6502
+    group: General Purpose
+    documentation: Does nothing.
+    undocumented: false
+    page: general-purpose/nop.md
+    flags:
+      N:
+        effect: unaffected
+        documentation: Unaffected.
+      V:
+        effect: unaffected
+        documentation: Unaffected.
+      B:
+        effect: unaffected
+        documentation: Unaffected.
+      D:
+        effect: unaffected
+        documentation: Unaffected.
+      I:
+        effect: unaffected
+        documentation: Unaffected.
+      Z:
+        effect: unaffected
+        documentation: Unaffected.
+      C:
+        effect: unaffected
+        documentation: Unaffected.
+    opcodes:
+      - opcode: 1A
+        instruction: NOP
+        cycles: [2]
+        undocumented: true
+      - opcode: 3A
+        instruction: NOP
+        cycles: [2]
+        undocumented: true
+      - opcode: 5A
+        instruction: NOP
+        cycles: [2]
+        undocumented: true
+      - opcode: 7A
+        instruction: NOP
+        cycles: [2]
+        undocumented: true
+      - opcode: DA
+        instruction: NOP
+        cycles: [2]
+        undocumented: true
+      - opcode: EA
+        instruction: NOP
+        cycles: [2]
+        undocumented: false
+      - opcode: FA
+        instruction: NOP
+        cycles: [2]
+        undocumented: true
+    references:
+      - name: MCS6500 Microcomputer Family Programming Manual
+        url: "http://archive.6502.org/books/mcs6500_family_programming_manual.pdf"
+      - name: "6502 Instruction Set, mass:werk"
+        url: "https://www.masswerk.at/6502/6502_instruction_set.html"

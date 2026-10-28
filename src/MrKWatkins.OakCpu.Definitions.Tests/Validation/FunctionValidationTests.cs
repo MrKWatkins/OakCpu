@@ -29,4 +29,29 @@ public sealed class FunctionValidationTests
         errors[0].Paths[0].Should().Equal("functions[0].name");
         errors[0].Paths[1].Should().Equal("functions[1].name");
     }
+
+    [Test]
+    public void Validate_ReturnsErrorsForUnknownDocumentationPlaceholders()
+    {
+        var yaml = ValidationTestHelper.DeserializeYamlFile(
+            """
+            cpu:
+              name: TestCpu
+            interrupts: {}
+            functions:
+              - name: is_negative
+                type: bool
+                parameters: [value]
+                expression: (value & 0x80) != 0
+                documentation: "bit 7 of {value} is set"
+                not_documentation: "bit 7 of {val} is reset"
+                value_documentation: "whether {value} is {negative}"
+            """);
+
+        var errors = FunctionValidation.Validate(yaml.Functions).ToArray();
+
+        errors.Select(error => error.ToString()).Should().SequenceEqual(
+            "functions[0].not_documentation: The not_documentation of the function is_negative uses placeholders that are not its parameters: val.",
+            "functions[0].value_documentation: The value_documentation of the function is_negative uses placeholders that are not its parameters: negative.");
+    }
 }

@@ -1,6 +1,7 @@
 instructions:
   - group: Jump
     instruction: JMP abs
+    documentation: Jumps to address abs.
     opcodes:
       - opcode: 0x4C
     steps:
@@ -9,7 +10,8 @@ instructions:
       - PC = (Data << 8) | AD;
 
   - group: Jump
-    instruction: "JMP (abs)"
+    instruction: JMP (abs)
+    documentation: "Jumps to the address stored at address abs. If abs is the last byte of a page, the high byte of the address is read from the first byte of the same page rather than the next one."
     opcodes:
       - opcode: 0x6C
     steps:
@@ -21,6 +23,7 @@ instructions:
 
   - group: Call and Return
     instruction: JSR abs
+    documentation: Pushes the address of the last byte of the instruction onto the stack and jumps to address abs.
     opcodes:
       - opcode: 0x20
     steps:
@@ -33,6 +36,7 @@ instructions:
 
   - group: Call and Return
     instruction: RTS
+    documentation: Pops the return address pushed by JSR from the stack and jumps to the byte after it.
     opcodes:
       - opcode: 0x60
     steps:

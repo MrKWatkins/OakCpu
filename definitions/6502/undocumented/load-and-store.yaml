@@ -7,6 +7,8 @@ sequences:
 instructions:
   - group: Undocumented
     instruction: "LAX #n"
+    documentation: "Loads both A and X with n AND (A OR 0xEE). The 0xEE varies between chips, so the result is unreliable."
+    undocumented: true
     opcodes:
       - opcode: 0xAB
     steps:
@@ -18,6 +20,8 @@ instructions:
 
   - group: Undocumented
     instruction: LAX zp
+    documentation: Loads both A and X with the byte at zero page address zp.
+    undocumented: true
     opcodes:
       - opcode: 0xA7
     steps:
@@ -29,7 +33,9 @@ instructions:
       N: is_negative(A)
 
   - group: Undocumented
-    instruction: LAX zp,Y
+    instruction: "LAX zp,Y"
+    documentation: Loads both A and X with the byte at zero page address zp + Y. The zero page address wraps within page zero.
+    undocumented: true
     opcodes:
       - opcode: 0xB7
     steps:
@@ -43,6 +49,8 @@ instructions:
 
   - group: Undocumented
     instruction: LAX abs
+    documentation: Loads both A and X with the byte at address abs.
+    undocumented: true
     opcodes:
       - opcode: 0xAF
     steps:
@@ -55,7 +63,9 @@ instructions:
       N: is_negative(A)
 
   - group: Undocumented
-    instruction: LAX abs,Y
+    instruction: "LAX abs,Y"
+    documentation: Loads both A and X with the byte at address abs + Y. Takes an extra cycle if adding Y crosses a page.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0xBF
@@ -67,6 +77,8 @@ instructions:
 
   - group: Undocumented
     instruction: "LAX (zp,X)"
+    documentation: Loads both A and X with the byte at the address stored at zero page address zp + X. The zero page address wraps within page zero.
+    undocumented: true
     opcodes:
       - opcode: 0xA3
     steps:
@@ -82,6 +94,8 @@ instructions:
 
   - group: Undocumented
     instruction: "LAX (zp),Y"
+    documentation: Loads both A and X with the byte at Y plus the address stored at zero page address zp. Takes an extra cycle if adding Y crosses a page.
+    undocumented: true
     next_opcode: custom
     opcodes:
       - opcode: 0xB3
@@ -94,6 +108,8 @@ instructions:
 
   - group: Undocumented
     instruction: SAX zp
+    documentation: Stores A AND X at zero page address zp.
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x87
@@ -103,7 +119,9 @@ instructions:
       -
 
   - group: Undocumented
-    instruction: SAX zp,Y
+    instruction: "SAX zp,Y"
+    documentation: Stores A AND X at zero page address zp + Y. The zero page address wraps within page zero.
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x97
@@ -115,6 +133,8 @@ instructions:
 
   - group: Undocumented
     instruction: SAX abs
+    documentation: Stores A AND X at address abs.
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x8F
@@ -126,6 +146,8 @@ instructions:
 
   - group: Undocumented
     instruction: "SAX (zp,X)"
+    documentation: Stores A AND X at the address stored at zero page address zp + X. The zero page address wraps within page zero.
+    undocumented: true
     next_opcode: overlapped
     opcodes:
       - opcode: 0x83

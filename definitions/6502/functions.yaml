@@ -3,23 +3,35 @@ functions:
     type: bool
     parameters: [value]
     expression: (value & 0x80) != 0
+    documentation: "bit 7 of {value} is set"
+    not_documentation: "bit 7 of {value} is reset"
+    value_documentation: "whether {value} is negative"
 
   - name: did_8_bit_addition_overflow
     type: bool
     parameters: [left, right, sum]
     expression: ((sum ^ left) & (sum ^ right) & 0x80) != 0
+    documentation: the addition overflowed
+    not_documentation: the addition did not overflow
+    value_documentation: the overflow
 
   - name: did_8_bit_subtraction_overflow
     type: bool
     parameters: [left, right, difference]
     expression: ((left ^ right) & (difference ^ left) & 0x80) != 0
+    documentation: the subtraction overflowed
+    not_documentation: the subtraction did not overflow
+    value_documentation: the overflow
 
   - name: did_indexed_address_page_cross
     type: bool
     parameters: [address, index]
     expression: ((address & 0xFF) + index) > 0xFF
+    documentation: "adding {index} to {address} crosses a page"
+    not_documentation: "adding {index} to {address} does not cross a page"
 
   - name: high_byte_plus_one
     type: u16
     parameters: [address]
     expression: ((address >> 8) + 1) & 0xFF
+    documentation: "the high byte of {address} plus one"

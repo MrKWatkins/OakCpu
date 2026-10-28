@@ -21,6 +21,11 @@ cpu:
   name: Z80N
   base: z80
   documentation: Provides generated Z80N CPU emulators. The Z80N is the Z80 variant used in the ZX Spectrum Next.
+  # External documentation for the Z80N's own instructions; inherited instructions link the Z80's references.
+  references:
+    - name: Extended Z80 instruction set, ZX Spectrum Next wiki
+      url: https://wiki.specnext.dev/Extended_Z80_instruction_set
+      covers: all
 
   # Appended to the pins inherited from the Z80, so the values generated for the Z80's pins do not change.
   pins:

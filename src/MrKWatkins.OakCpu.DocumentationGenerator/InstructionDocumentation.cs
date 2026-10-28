@@ -3,7 +3,7 @@ namespace MrKWatkins.OakCpu.DocumentationGenerator;
 /// <summary>
 /// Documentation for an instruction, i.e. one form such as <c>LD R0, (RP0 + d)</c> covering every opcode that form has.
 /// </summary>
-/// <param name="Cpu">The name of the CPU the documentation is for.</param>
+/// <param name="Cpu">The CPU the documentation is for.</param>
 /// <param name="DefinedBy">The name of the CPU that defines the instruction; a base CPU if the instruction is inherited.</param>
 /// <param name="Instruction">The instruction with its operand placeholders, e.g. <c>LD R0, (RP0 + d)</c>.</param>
 /// <param name="SymbolicOperands">
@@ -24,7 +24,7 @@ namespace MrKWatkins.OakCpu.DocumentationGenerator;
 /// The flag expressions that could not be described in prose and so appear as expressions in <paramref name="Flags" />.
 /// </param>
 public sealed record InstructionDocumentation(
-    string Cpu,
+    Cpu Cpu,
     string DefinedBy,
     string Instruction,
     IReadOnlyList<KeyValuePair<string, string>> SymbolicOperands,
