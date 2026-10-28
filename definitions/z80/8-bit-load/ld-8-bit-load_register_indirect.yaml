@@ -1,6 +1,7 @@
 instructions:
   - group: 8-Bit Load
     mnemonic: LD A, (nn)
+    documentation: "Loads the byte at address nn into A."
     opcodes:
       - opcode: 0x3A
       - opcode: 0xDD 0x3A
@@ -19,6 +20,7 @@ instructions:
       - 
   - group: 8-Bit Load
     mnemonic: LD R0, (RP0 + d)
+    documentation: "Loads the byte at ({RP0} + d) into {R0}."
     opcodes:
       - opcode: 0xDD 0x46
         R0: B

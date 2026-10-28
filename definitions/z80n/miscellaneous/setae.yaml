@@ -7,6 +7,7 @@
 instructions:
   - group: Z80N Miscellaneous
     mnemonic: SETAE
+    documentation: "Sets A to a mask with the single bit selected by the low three bits of E set, with zero selecting bit 7."
     opcodes:
       - opcode: 0xED 0x95
     steps:

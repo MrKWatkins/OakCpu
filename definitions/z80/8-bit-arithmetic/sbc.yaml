@@ -1,6 +1,7 @@
 instructions:
   - group: 8-Bit Arithmetic
     mnemonic: SBC R0
+    documentation: "Subtracts {R0} and the carry flag from A."
     opcodes:
       - opcode: 0x98
         R0: B
@@ -60,6 +61,7 @@ instructions:
 
   - group: 8-Bit Arithmetic
     mnemonic: SBC n
+    documentation: "Subtracts n and the carry flag from A."
     opcodes:
       - opcode: 0xDE
       - opcode: 0xDD 0xDE
@@ -81,6 +83,7 @@ instructions:
 
   - group: 8-Bit Arithmetic
     mnemonic: SBC (HL)
+    documentation: "Subtracts the byte at (HL) and the carry flag from A."
     opcodes:
       - opcode: 0x9E
     steps:
@@ -100,6 +103,7 @@ instructions:
 
   - group: 8-Bit Arithmetic
     mnemonic: SBC (RP0 + n)
+    documentation: "Subtracts the byte at ({RP0} + n) and the carry flag from A."
     opcodes:
       - opcode: 0xDD 0x9E
         RP0: IX

@@ -1,6 +1,7 @@
 instructions:
   - group: General-Purpose Arithmetic and CPU Control
     mnemonic: DI
+    documentation: "Disables maskable interrupts by resetting IFF1 and IFF2."
     opcodes:
       - opcode: 0xF3
       - opcode: 0xDD 0xF3

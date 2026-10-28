@@ -55,10 +55,12 @@ registers:
       name: IXH
       type: u8
       documentation: Gets or sets the high byte of the IX index register.
+      undocumented: true
     low:
       name: IXL
       type: u8
       documentation: Gets or sets the low byte of the IX index register.
+      undocumented: true
 
   - name: IY
     type: u16
@@ -67,10 +69,12 @@ registers:
       name: IYH
       type: u8
       documentation: Gets or sets the high byte of the IY index register.
+      undocumented: true
     low:
       name: IYL
       type: u8
       documentation: Gets or sets the low byte of the IY index register.
+      undocumented: true
 
   - name: IR
     type: u16

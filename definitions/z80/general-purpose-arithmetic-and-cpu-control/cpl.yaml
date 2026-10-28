@@ -1,6 +1,7 @@
 instructions:
   - group: General-Purpose Arithmetic and CPU Control
     mnemonic: CPL
+    documentation: "Inverts every bit of A."
     opcodes:
       - opcode: 0x2F
       - opcode: 0xDD 0x2F

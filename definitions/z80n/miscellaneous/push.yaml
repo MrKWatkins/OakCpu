@@ -12,6 +12,7 @@
 instructions:
   - group: Z80N Miscellaneous
     mnemonic: PUSH $nn
+    documentation: "Pushes nn onto the stack. Unlike other instructions the high byte of nn comes first in the encoding."
     opcodes:
       - opcode: 0xED 0x8A
     steps:

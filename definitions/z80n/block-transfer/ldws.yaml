@@ -9,6 +9,7 @@
 instructions:
   - group: Z80N Block Transfer
     mnemonic: LDWS
+    documentation: "Copies the byte at (HL) to (DE), then increments L and D, stepping down a column of ZX Spectrum screen memory."
     opcodes:
       - opcode: 0xED 0xA5
     steps:

@@ -1,6 +1,7 @@
 instructions:
   - group: General-Purpose Arithmetic and CPU Control
     mnemonic: CCF
+    documentation: "Inverts the carry flag."
     opcodes:
       - opcode: 0x3F
     steps:
@@ -14,6 +15,7 @@ instructions:
 
   - group: General-Purpose Arithmetic and CPU Control
     mnemonic: CCF
+    documentation: "Inverts the carry flag."
     # DD/FD act as the previous instruction for CCF's undocumented X/Y flag behaviour.
     # They do not modify flags, so X/Y are copied from F | A rather than (Q ^ F) | A.
     # See https://stardot.org.uk/forums/viewtopic.php?p=481595#p481595.

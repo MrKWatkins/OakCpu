@@ -9,6 +9,7 @@
 instructions:
   - group: Z80N Barrel Shift
     mnemonic: BSRF DE, B
+    documentation: "Shifts DE right by the number of bits in the low five bits of B, filling with ones."
     opcodes:
       - opcode: 0xED 0x2B
     steps:

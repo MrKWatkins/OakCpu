@@ -296,7 +296,7 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(true, 0);
     }
 
-    // EX AF; AF'
+    // EX AF, AF'
     private static int EX_AF_AF_shadow<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
@@ -2967,8 +2967,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // JP NZ
-    private static int JP_NZ<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP NZ, nn
+    private static int JP_NZ_nn<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.address = emulator.PC;
@@ -2990,8 +2990,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // JP
-    private static int JP<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP nn
+    private static int JP_nn<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.address = emulator.PC;
@@ -3145,8 +3145,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // JP Z
-    private static int JP_Z<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP Z, nn
+    private static int JP_Z_nn<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.address = emulator.PC;
@@ -3314,8 +3314,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // JP NC
-    private static int JP_NC<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP NC, nn
+    private static int JP_NC_nn<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.address = emulator.PC;
@@ -3488,8 +3488,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 0);
     }
 
-    // JP C
-    private static int JP_C<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP C, nn
+    private static int JP_C_nn<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.address = emulator.PC;
@@ -3647,8 +3647,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // JP PO
-    private static int JP_PO<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP PO, nn
+    private static int JP_PO_nn<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.address = emulator.PC;
@@ -3670,7 +3670,7 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // EX (SP); HL
+    // EX (SP), HL
     private static int EX_SP_HL<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
@@ -3811,8 +3811,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 0);
     }
 
-    // JP PE
-    private static int JP_PE<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP PE, nn
+    private static int JP_PE_nn<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.address = emulator.PC;
@@ -3834,7 +3834,7 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // EX DE; HL
+    // EX DE, HL
     private static int EX_DE_HL<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
@@ -3956,8 +3956,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // JP P
-    private static int JP_P<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP P, nn
+    private static int JP_P_nn<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.address = emulator.PC;
@@ -4108,8 +4108,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 2);
     }
 
-    // JP M
-    private static int JP_M<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP M, nn
+    private static int JP_M_nn<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.address = emulator.PC;
@@ -7880,7 +7880,7 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(true, 0);
     }
 
-    // EX AF; AF'
+    // EX AF, AF'
     private static int EX_AF_AF_shadow_DD_08<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
@@ -10843,8 +10843,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // JP NZ
-    private static int JP_NZ_DD_C2<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP NZ, nn
+    private static int JP_NZ_nn_DD_C2<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -10867,8 +10867,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // JP
-    private static int JP_DD_C3<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP nn
+    private static int JP_nn_DD_C3<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -11029,8 +11029,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // JP Z
-    private static int JP_Z_DD_CA<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP Z, nn
+    private static int JP_Z_nn_DD_CA<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -11239,8 +11239,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // JP NC
-    private static int JP_NC_DD_D2<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP NC, nn
+    private static int JP_NC_nn_DD_D2<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -11421,8 +11421,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 0);
     }
 
-    // JP C
-    private static int JP_C_DD_DA<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP C, nn
+    private static int JP_C_nn_DD_DA<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -11587,8 +11587,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // JP PO
-    private static int JP_PO_DD_E2<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP PO, nn
+    private static int JP_PO_nn_DD_E2<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -11611,7 +11611,7 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // EX (SP); IX
+    // EX (SP), IX
     private static int EX_SP_IX<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
@@ -11759,8 +11759,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 0);
     }
 
-    // JP PE
-    private static int JP_PE_DD_EA<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP PE, nn
+    private static int JP_PE_nn_DD_EA<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -11783,7 +11783,7 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // EX DE; HL
+    // EX DE, HL
     private static int EX_DE_HL_DD_EB<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
@@ -11920,8 +11920,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // JP P
-    private static int JP_P_DD_F2<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP P, nn
+    private static int JP_P_nn_DD_F2<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -12080,8 +12080,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 2);
     }
 
-    // JP M
-    private static int JP_M_DD_FA<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // JP M, nn
+    private static int JP_M_nn_DD_FA<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -12428,8 +12428,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(true, 4);
     }
 
-    // OUT B, (C)
-    private static int OUT_B_C<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // OUT (C), B
+    private static int OUT_C_B<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -12567,7 +12567,7 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(true, 4);
     }
 
-    // OUT C, (C)
+    // OUT (C), C
     private static int OUT_C_C<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
@@ -12679,8 +12679,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(true, 4);
     }
 
-    // OUT D, (C)
-    private static int OUT_D_C<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // OUT (C), D
+    private static int OUT_C_D<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -12786,8 +12786,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(true, 4);
     }
 
-    // OUT E, (C)
-    private static int OUT_E_C<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // OUT (C), E
+    private static int OUT_C_E<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -12894,8 +12894,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(true, 4);
     }
 
-    // OUT H, (C)
-    private static int OUT_H_C<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // OUT (C), H
+    private static int OUT_C_H<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -12999,8 +12999,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(true, 4);
     }
 
-    // OUT L, (C)
-    private static int OUT_L_C<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // OUT (C), L
+    private static int OUT_C_L<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -13104,8 +13104,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(true, 4);
     }
 
-    // OUT (C)
-    private static int OUT_C<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // OUT (C), 0
+    private static int OUT_C_0<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -13185,8 +13185,8 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(true, 4);
     }
 
-    // OUT A, (C)
-    private static int OUT_A_C<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    // OUT (C), A
+    private static int OUT_C_A<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -13350,7 +13350,7 @@ public sealed unsafe partial class Z80NInstructionEmulator
     }
 
     // JP (C)
-    private static int JP_C_ED_98<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
+    private static int JP_C<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -15729,7 +15729,7 @@ public sealed unsafe partial class Z80NInstructionEmulator
         return emulator.CompleteInstruction(false, 6);
     }
 
-    // EX (SP); IY
+    // EX (SP), IY
     private static int EX_SP_IY<THandler>(Z80NInstructionEmulator emulator, ref THandler handler)
         where THandler : IZ80NBusHandler, allows ref struct
     {

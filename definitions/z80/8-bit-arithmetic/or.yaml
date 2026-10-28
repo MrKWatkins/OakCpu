@@ -1,6 +1,7 @@
 instructions:
   - group: 8-Bit Arithmetic
     mnemonic: OR R0
+    documentation: "Sets A to the bitwise OR of A and {R0}."
     opcodes:
       - opcode: 0xB0
         R0: B
@@ -60,6 +61,7 @@ instructions:
 
   - group: 8-Bit Arithmetic
     mnemonic: OR n
+    documentation: "Sets A to the bitwise OR of A and n."
     opcodes:
       - opcode: 0xF6
       - opcode: 0xDD 0xF6
@@ -81,6 +83,7 @@ instructions:
     
   - group: 8-Bit Arithmetic
     mnemonic: OR (HL)
+    documentation: "Sets A to the bitwise OR of A and the byte at (HL)."
     opcodes:
       - opcode: 0xB6
     steps:
@@ -100,6 +103,7 @@ instructions:
 
   - group: 8-Bit Arithmetic
     mnemonic: OR (RP0 + n)
+    documentation: "Sets A to the bitwise OR of A and the byte at ({RP0} + n)."
     opcodes:
       - opcode: 0xDD 0xB6
         RP0: IX

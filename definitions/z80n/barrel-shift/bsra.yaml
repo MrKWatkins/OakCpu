@@ -11,6 +11,7 @@
 instructions:
   - group: Z80N Barrel Shift
     mnemonic: BSRA DE, B
+    documentation: "Shifts DE right by the number of bits in the low five bits of B, preserving the sign bit."
     opcodes:
       - opcode: 0xED 0x29
     steps:

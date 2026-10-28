@@ -1,6 +1,7 @@
 instructions:
   - group: Rotate and Shift
     mnemonic: SRA R0
+    documentation: "Shifts {R0} right one bit; bit 0 is copied to the carry flag and bit 7 keeps its value, preserving the sign."
     opcodes:
       - opcode: 0xCB 0x28
         R0: B
@@ -30,6 +31,7 @@ instructions:
 
   - group: Rotate and Shift
     mnemonic: SRA (HL)
+    documentation: "Shifts the byte at (HL) right one bit; bit 0 is copied to the carry flag and bit 7 keeps its value, preserving the sign."
     opcodes:
       - opcode: 0xCB 0x2E
     steps:
@@ -53,6 +55,7 @@ instructions:
 
   - group: Rotate and Shift
     mnemonic: SRA (IX + d)
+    documentation: "Shifts the byte at (IX + d) right one bit; bit 0 is copied to the carry flag and bit 7 keeps its value, preserving the sign."
     opcode_table: DDCB
     opcodes:
       - opcode: 0x2E
@@ -79,6 +82,8 @@ instructions:
 
   - group: Rotate and Shift
     mnemonic: SRA (IX + d), R0
+    documentation: "Shifts the byte at (IX + d) right one bit, copying bit 0 to the carry flag and keeping bit 7 to preserve the sign, and stores the result in both the byte at (IX + d) and {R0}."
+    undocumented: true
     opcode_table: DDCB
     opcodes:
       - opcode: 0x28
@@ -118,6 +123,7 @@ instructions:
 
   - group: Rotate and Shift
     mnemonic: SRA (IY + d)
+    documentation: "Shifts the byte at (IY + d) right one bit; bit 0 is copied to the carry flag and bit 7 keeps its value, preserving the sign."
     opcode_table: FDCB
     opcodes:
       - opcode: 0x2E
@@ -144,6 +150,8 @@ instructions:
 
   - group: Rotate and Shift
     mnemonic: SRA (IY + d), R0
+    documentation: "Shifts the byte at (IY + d) right one bit, copying bit 0 to the carry flag and keeping bit 7 to preserve the sign, and stores the result in both the byte at (IY + d) and {R0}."
+    undocumented: true
     opcode_table: FDCB
     opcodes:
       - opcode: 0x28

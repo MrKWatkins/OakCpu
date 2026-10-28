@@ -11,6 +11,7 @@
 instructions:
   - group: Z80N Next Register
     mnemonic: NEXTREG $n, $n
+    documentation: "Writes the second n to the ZX Spectrum Next register numbered by the first n."
     opcodes:
       - opcode: 0xED 0x91
     steps:
@@ -30,6 +31,7 @@ instructions:
 
   - group: Z80N Next Register
     mnemonic: NEXTREG $n, A
+    documentation: "Writes A to the ZX Spectrum Next register numbered n."
     opcodes:
       - opcode: 0xED 0x92
     steps:

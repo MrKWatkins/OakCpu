@@ -16,6 +16,7 @@
 instructions:
   - group: Z80N Block Transfer
     mnemonic: LDIX
+    documentation: "Copies the byte at (HL) to (DE) unless it equals A, then increments HL and DE and decrements BC."
     opcodes:
       - opcode: 0xED 0xA4
     steps:

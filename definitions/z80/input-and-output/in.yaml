@@ -1,6 +1,7 @@
 instructions:
   - group: Input and Output
     mnemonic: IN A, (n)
+    documentation: "Reads a byte from port n into A, with A on the high half of the address bus."
     opcodes:
       - opcode: 0xDB
       - opcode: 0xDD 0xDB
@@ -17,6 +18,7 @@ instructions:
       - 
   - group: Input and Output
     mnemonic: IN R0, (C)
+    documentation: "Reads a byte from the port addressed by BC into {R0}."
     opcodes:
       - opcode: 0xED 0x40
         R0: B
@@ -49,6 +51,8 @@ instructions:
         
   - group: Input and Output
     mnemonic: IN (C)
+    documentation: "Reads a byte from the port addressed by BC, setting the flags from it and discarding the value."
+    undocumented: true
     opcodes:
       - opcode: 0xED 0x70
     steps:

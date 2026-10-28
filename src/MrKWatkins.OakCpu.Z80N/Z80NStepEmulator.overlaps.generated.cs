@@ -117,7 +117,7 @@ public sealed unsafe partial class Z80NStepEmulator
         emulator.Q = emulator.F;
     }
 
-    // Overlap 0x08: EX AF; AF' [0]
+    // Overlap 0x08: EX AF, AF' [0]
     private static void Overlap4(Z80NStepEmulator emulator)
     {
         var temp = emulator.Shadow_AF;
@@ -1747,7 +1747,7 @@ public sealed unsafe partial class Z80NStepEmulator
         emulator.Q = 0x00;
     }
 
-    // Overlap 0xEB: EX DE; HL [0]
+    // Overlap 0xEB: EX DE, HL [0]
     private static void Overlap125(Z80NStepEmulator emulator)
     {
         var temp = emulator.DE;
@@ -4632,7 +4632,7 @@ public sealed unsafe partial class Z80NStepEmulator
         emulator.Q = emulator.F;
     }
 
-    // Overlap 0xDD 0x08: EX AF; AF' [0]
+    // Overlap 0xDD 0x08: EX AF, AF' [0]
     private static void Overlap355(Z80NStepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -6385,7 +6385,7 @@ public sealed unsafe partial class Z80NStepEmulator
         emulator.Q = 0x00;
     }
 
-    // Overlap 0xDD 0xEB: EX DE; HL [0]
+    // Overlap 0xDD 0xEB: EX DE, HL [0]
     private static void Overlap476(Z80NStepEmulator emulator)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;

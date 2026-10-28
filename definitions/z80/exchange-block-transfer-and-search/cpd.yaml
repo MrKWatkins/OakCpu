@@ -1,6 +1,7 @@
 instructions:
   - group: Exchange, Block Transfer, and Search
     mnemonic: CPD
+    documentation: "Compares A with the byte at (HL) by subtraction, setting the flags from the result, then decrements HL and BC."
     opcodes:
       - opcode: 0xED 0xA9
     steps:

@@ -11,6 +11,7 @@
 instructions:
   - group: Z80N Arithmetic
     mnemonic: ADD RP0, A
+    documentation: "Adds A to {RP0}."
     opcodes:
       - opcode: 0xED 0x31
         RP0: HL

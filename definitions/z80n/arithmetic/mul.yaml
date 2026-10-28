@@ -6,6 +6,7 @@
 instructions:
   - group: Z80N Arithmetic
     mnemonic: MUL D, E
+    documentation: "Multiplies D by E, storing the 16-bit result in DE."
     opcodes:
       - opcode: 0xED 0x30
     steps:

@@ -8,6 +8,7 @@
 instructions:
   - group: Z80N Arithmetic
     mnemonic: TEST $n
+    documentation: "Sets the flags from the bitwise AND of A and n, discarding the result."
     opcodes:
       - opcode: 0xED 0x27
     steps:

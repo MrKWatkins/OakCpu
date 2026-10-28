@@ -6,6 +6,7 @@
 instructions:
   - group: Z80N Barrel Shift
     mnemonic: BSLA DE, B
+    documentation: "Shifts DE left by the number of bits in the low five bits of B."
     opcodes:
       - opcode: 0xED 0x28
     steps:

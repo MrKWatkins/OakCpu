@@ -1,6 +1,7 @@
 instructions:
   - group: Rotate and Shift
     mnemonic: RRCA
+    documentation: "Rotates A right one bit; bit 0 is copied to both bit 7 and the carry flag."
     opcodes:
       - opcode: 0x0F
       - opcode: 0xDD 0x0F

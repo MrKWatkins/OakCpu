@@ -1,6 +1,7 @@
 instructions:
   - group: 16-Bit Arithmetic
     mnemonic: DEC RP0
+    documentation: "Decrements {RP0}."
     opcodes:
       - opcode: 0x0B
         RP0: BC

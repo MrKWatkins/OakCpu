@@ -1,6 +1,7 @@
 instructions:
   - group: Exchange, Block Transfer, and Search
     mnemonic: CPIR
+    documentation: "Compares A with the byte at (HL) by subtraction, setting the flags from the result, then increments HL and decrements BC, repeating until A matches the byte or BC is zero."
     opcodes:
       - opcode: 0xED 0xB1
     steps:

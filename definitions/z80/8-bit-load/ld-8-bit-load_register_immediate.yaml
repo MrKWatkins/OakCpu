@@ -1,6 +1,7 @@
 instructions:
   - group: 8-Bit Load
     mnemonic: LD R0, n
+    documentation: "Loads n into {R0}."
     opcodes:
       - opcode: 0x06
         R0: B

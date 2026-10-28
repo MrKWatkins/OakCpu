@@ -1,6 +1,7 @@
 instructions:
   - group: 8-Bit Load
     mnemonic: LD (RP0), A
+    documentation: "Stores A at ({RP0})."
     opcodes:
       - opcode: 0x02
         RP0: BC
@@ -22,6 +23,7 @@ instructions:
       - 
   - group: 8-Bit Load
     mnemonic: LD (HL), R0
+    documentation: "Stores {R0} at (HL)."
     opcodes:
       - opcode: 0x70
         R0: B
@@ -45,6 +47,7 @@ instructions:
       - 
   - group: 8-Bit Load
     mnemonic: LD (RP0 + d), R0
+    documentation: "Stores {R0} at ({RP0} + d)."
     opcodes:
       - opcode: 0xDD 0x70
         RP0: IX

@@ -13,6 +13,7 @@
 instructions:
   - group: Z80N Miscellaneous
     mnemonic: OUTINB
+    documentation: "Writes the byte at (HL) to the port addressed by BC, then increments HL, leaving B unchanged."
     opcodes:
       - opcode: 0xED 0x90
     steps:

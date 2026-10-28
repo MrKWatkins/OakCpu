@@ -1,6 +1,7 @@
 instructions:
   - group: 8-Bit Load
     mnemonic: LD R0, R1
+    documentation: "Copies {R1} into {R0}."
     opcodes:
       - opcode: 0x40
         R0: B
@@ -469,6 +470,7 @@ instructions:
 
   - group: 8-Bit Load
     mnemonic: LD R0, A
+    documentation: "Copies A into {R0}."
     opcodes:
       - opcode: 0xED 0x47
         R0: I
@@ -480,6 +482,7 @@ instructions:
       - 
   - group: 8-Bit Load
     mnemonic: LD A, R0
+    documentation: "Copies {R0} into A."
     opcodes:
       - opcode: 0xED 0x57
         R0: I

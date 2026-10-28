@@ -6,6 +6,7 @@
 instructions:
   - group: Z80N Miscellaneous
     mnemonic: SWAPNIB
+    documentation: "Swaps the high and low nibbles of A."
     opcodes:
       - opcode: 0xED 0x23
     steps:

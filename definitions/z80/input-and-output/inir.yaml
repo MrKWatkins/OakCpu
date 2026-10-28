@@ -1,6 +1,10 @@
 instructions:
   - group: Input and Output
     mnemonic: INIR
+    documentation: "Reads a byte from the port addressed by BC into (HL), then increments HL and decrements B, repeating until B is zero."
+    flag_documentation:
+      H: "When the instruction completes, set if (the value read + ((C + 1) & 0xFF)) is greater than 0xFF, otherwise reset. When it repeats, reset if (the value read + ((C + 1) & 0xFF)) is not greater than 0xFF; otherwise set if the low nibble of B is zero when bit 7 of the value read is set, or 0x0F when it is reset, otherwise reset."
+      PV: "When the instruction completes, set if (((the value read + ((C + 1) & 0xFF)) & 7) ^ B) has even parity, otherwise reset. When it repeats, set if (((the value read + ((C + 1) & 0xFF)) & 7) ^ B) and (B & 7) have the same parity, otherwise reset; when (the value read + ((C + 1) & 0xFF)) is greater than 0xFF, ((B - 1) & 7) is used instead of (B & 7) if bit 7 of the value read is set, and ((B + 1) & 7) if it is reset."
     opcodes:
       - opcode: 0xED 0xB2
     steps:

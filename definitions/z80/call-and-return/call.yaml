@@ -1,6 +1,7 @@
 instructions:
   - group: Call and Return
     mnemonic: CALL nn
+    documentation: "Pushes the address of the next instruction onto the stack, then jumps to nn."
     opcodes:
       - opcode: 0xCD
       - opcode: 0xDD 0xCD
@@ -24,6 +25,7 @@ instructions:
       - 
   - group: Call and Return
     mnemonic: CALL C0, nn
+    documentation: "If condition {C0} is met, pushes the address of the next instruction onto the stack and jumps to nn; otherwise continues with the next instruction."
     opcodes:
       - opcode: 0xC4
         C0: NZ

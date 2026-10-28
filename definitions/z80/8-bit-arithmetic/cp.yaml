@@ -1,6 +1,7 @@
 instructions:
   - group: 8-Bit Arithmetic
     mnemonic: CP R0
+    documentation: "Compares A with {R0} by subtracting {R0} from A, setting the flags from the result and leaving A unchanged."
     opcodes:
       - opcode: 0xB8
         R0: B
@@ -60,6 +61,7 @@ instructions:
 
   - group: 8-Bit Arithmetic
     mnemonic: CP n
+    documentation: "Compares A with n by subtracting n from A, setting the flags from the result and leaving A unchanged."
     opcodes:
       - opcode: 0xFE
       - opcode: 0xDD 0xFE
@@ -81,6 +83,7 @@ instructions:
 
   - group: 8-Bit Arithmetic
     mnemonic: CP (HL)
+    documentation: "Compares A with the byte at (HL) by subtracting it from A, setting the flags from the result and leaving A unchanged."
     opcodes:
       - opcode: 0xBE
     steps:
@@ -100,6 +103,7 @@ instructions:
 
   - group: 8-Bit Arithmetic
     mnemonic: CP (RP0 + n)
+    documentation: "Compares A with the byte at ({RP0} + n) by subtracting it from A, setting the flags from the result and leaving A unchanged."
     opcodes:
       - opcode: 0xDD 0xBE
         RP0: IX

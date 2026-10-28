@@ -1,6 +1,7 @@
 instructions:
   - group: 16-Bit Load
     mnemonic: POP RP0
+    documentation: "Pops {RP0} from the stack, loading its low byte from (SP) and its high byte from (SP + 1) and then adding two to SP."
     opcodes:
       - opcode: 0xC1
         RP0: BC

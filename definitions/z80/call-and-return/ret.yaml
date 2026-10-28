@@ -1,6 +1,7 @@
 instructions:
   - group: Call and Return
     mnemonic: RET
+    documentation: "Pops the return address from the stack into PC."
     opcodes:
       - opcode: 0xC9
       - opcode: 0xDD 0xC9
@@ -16,6 +17,7 @@ instructions:
       - 
   - group: Call and Return
     mnemonic: RET C0
+    documentation: "If condition {C0} is met, pops the return address from the stack into PC; otherwise continues with the next instruction."
     opcodes:
       - opcode: 0xC0
         C0: NZ

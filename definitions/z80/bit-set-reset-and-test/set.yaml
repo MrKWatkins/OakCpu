@@ -1,6 +1,7 @@
 instructions:       
   - group: Bit Set, Reset, and Test
     mnemonic: SET N0, R0
+    documentation: "Sets bit {N0} of {R0}."
     opcodes:
       - opcode: 0xCB 0xC0
         N0: 0
@@ -182,6 +183,7 @@ instructions:
 
   - group: Bit Set, Reset, and Test
     mnemonic: SET N0, (HL)
+    documentation: "Sets bit {N0} of the byte at (HL)."
     opcodes:
       - opcode: 0xCB 0xC6
         N0: 0
@@ -211,6 +213,7 @@ instructions:
       - 
   - group: Bit Set, Reset, and Test
     mnemonic: SET N0, (IX + d)
+    documentation: "Sets bit {N0} of the byte at (IX + d)."
     opcode_table: DDCB
     opcodes:
       - opcode: 0xC6
@@ -243,6 +246,8 @@ instructions:
       - 
   - group: Bit Set, Reset, and Test
     mnemonic: SET N0, (IX + d), R0
+    documentation: "Sets bit {N0} of the byte at (IX + d), storing the result in both the byte at (IX + d) and {R0}."
+    undocumented: true
     opcode_table: DDCB
     opcodes:
       - opcode: 0xC0
@@ -434,6 +439,8 @@ instructions:
       - 
   - group: Bit Set, Reset, and Test
     mnemonic: SET N0, (IY + d), R0
+    documentation: "Sets bit {N0} of the byte at (IY + d), storing the result in both the byte at (IY + d) and {R0}."
+    undocumented: true
     opcode_table: FDCB
     opcodes:
       - opcode: 0xC0
@@ -625,6 +632,7 @@ instructions:
       - 
   - group: Bit Set, Reset, and Test
     mnemonic: SET N0, (IY + d)
+    documentation: "Sets bit {N0} of the byte at (IY + d)."
     opcode_table: FDCB
     opcodes:
       - opcode: 0xC6

@@ -228,42 +228,42 @@ public sealed unsafe partial class Z80StepEmulator
     // 0x3A: LD A, (nn) [0]
     // 0x3A: LD A, (nn) [3]
     // 0x3E: LD A, n [0]
-    // 0xC2: JP NZ [0]
-    // 0xC2: JP NZ [3]
-    // 0xC3: JP [0]
-    // 0xC3: JP [3]
+    // 0xC2: JP NZ, nn [0]
+    // 0xC2: JP NZ, nn [3]
+    // 0xC3: JP nn [0]
+    // 0xC3: JP nn [3]
     // 0xC4: CALL NZ, nn [0]
     // 0xC4: CALL NZ, nn [3]
-    // 0xCA: JP Z [0]
-    // 0xCA: JP Z [3]
+    // 0xCA: JP Z, nn [0]
+    // 0xCA: JP Z, nn [3]
     // 0xCC: CALL Z, nn [0]
     // 0xCC: CALL Z, nn [3]
     // 0xCD: CALL nn [0]
     // 0xCD: CALL nn [3]
-    // 0xD2: JP NC [0]
-    // 0xD2: JP NC [3]
+    // 0xD2: JP NC, nn [0]
+    // 0xD2: JP NC, nn [3]
     // 0xD3: OUT (n), A [0]
     // 0xD4: CALL NC, nn [0]
     // 0xD4: CALL NC, nn [3]
-    // 0xDA: JP C [0]
-    // 0xDA: JP C [3]
+    // 0xDA: JP C, nn [0]
+    // 0xDA: JP C, nn [3]
     // 0xDB: IN A, (n) [0]
     // 0xDC: CALL C, nn [0]
     // 0xDC: CALL C, nn [3]
-    // 0xE2: JP PO [0]
-    // 0xE2: JP PO [3]
+    // 0xE2: JP PO, nn [0]
+    // 0xE2: JP PO, nn [3]
     // 0xE4: CALL PO, nn [0]
     // 0xE4: CALL PO, nn [3]
-    // 0xEA: JP PE [0]
-    // 0xEA: JP PE [3]
+    // 0xEA: JP PE, nn [0]
+    // 0xEA: JP PE, nn [3]
     // 0xEC: CALL PE, nn [0]
     // 0xEC: CALL PE, nn [3]
-    // 0xF2: JP P [0]
-    // 0xF2: JP P [3]
+    // 0xF2: JP P, nn [0]
+    // 0xF2: JP P, nn [3]
     // 0xF4: CALL P, nn [0]
     // 0xF4: CALL P, nn [3]
-    // 0xFA: JP M [0]
-    // 0xFA: JP M [3]
+    // 0xFA: JP M, nn [0]
+    // 0xFA: JP M, nn [3]
     // 0xFC: CALL M, nn [0]
     // 0xFC: CALL M, nn [3]
     // 0xDD 0x01: LD BC, nn [3]
@@ -276,24 +276,24 @@ public sealed unsafe partial class Z80StepEmulator
     // 0xDD 0x32: LD (nn), A [3]
     // 0xDD 0x36: LD (IX + d), n [3]
     // 0xDD 0x3A: LD A, (nn) [3]
-    // 0xDD 0xC2: JP NZ [3]
-    // 0xDD 0xC3: JP [3]
+    // 0xDD 0xC2: JP NZ, nn [3]
+    // 0xDD 0xC3: JP nn [3]
     // 0xDD 0xC4: CALL NZ, nn [3]
-    // 0xDD 0xCA: JP Z [3]
+    // 0xDD 0xCA: JP Z, nn [3]
     // 0xDD 0xCB: DDCB Redirect [3]
     // 0xDD 0xCC: CALL Z, nn [3]
     // 0xDD 0xCD: CALL nn [3]
-    // 0xDD 0xD2: JP NC [3]
+    // 0xDD 0xD2: JP NC, nn [3]
     // 0xDD 0xD4: CALL NC, nn [3]
-    // 0xDD 0xDA: JP C [3]
+    // 0xDD 0xDA: JP C, nn [3]
     // 0xDD 0xDC: CALL C, nn [3]
-    // 0xDD 0xE2: JP PO [3]
+    // 0xDD 0xE2: JP PO, nn [3]
     // 0xDD 0xE4: CALL PO, nn [3]
-    // 0xDD 0xEA: JP PE [3]
+    // 0xDD 0xEA: JP PE, nn [3]
     // 0xDD 0xEC: CALL PE, nn [3]
-    // 0xDD 0xF2: JP P [3]
+    // 0xDD 0xF2: JP P, nn [3]
     // 0xDD 0xF4: CALL P, nn [3]
-    // 0xDD 0xFA: JP M [3]
+    // 0xDD 0xFA: JP M, nn [3]
     // 0xDD 0xFC: CALL M, nn [3]
     // 0xED 0x43: LD (nn), BC [3]
     // 0xED 0x4B: LD BC, (nn) [3]
@@ -394,7 +394,7 @@ public sealed unsafe partial class Z80StepEmulator
     // 0x7E: LD A, (HL) [2]
     // 0xC0: RET NZ [6]
     // 0xC1: POP BC [5]
-    // 0xC3: JP [5]
+    // 0xC3: JP nn [5]
     // 0xC4: CALL NZ, nn [12]
     // 0xC5: PUSH BC [6]
     // 0xC7: RST 0x00 [6]
@@ -496,7 +496,7 @@ public sealed unsafe partial class Z80StepEmulator
     // 0xDD 0x7E: LD A, (IX + d) [10]
     // 0xDD 0xC0: RET NZ [6]
     // 0xDD 0xC1: POP BC [5]
-    // 0xDD 0xC3: JP [5]
+    // 0xDD 0xC3: JP nn [5]
     // 0xDD 0xC4: CALL NZ, nn [12]
     // 0xDD 0xC5: PUSH BC [6]
     // 0xDD 0xC7: RST 0x00 [6]
@@ -532,21 +532,21 @@ public sealed unsafe partial class Z80StepEmulator
     // 0xDD 0xF9: LD SP, IX [1]
     // 0xDD 0xFC: CALL M, nn [12]
     // 0xDD 0xFF: RST 0x38 [6]
-    // 0xED 0x41: OUT B, (C) [3]
+    // 0xED 0x41: OUT (C), B [3]
     // 0xED 0x43: LD (nn), BC [11]
-    // 0xED 0x49: OUT C, (C) [3]
+    // 0xED 0x49: OUT (C), C [3]
     // 0xED 0x4B: LD BC, (nn) [11]
-    // 0xED 0x51: OUT D, (C) [3]
+    // 0xED 0x51: OUT (C), D [3]
     // 0xED 0x53: LD (nn), DE [11]
-    // 0xED 0x59: OUT E, (C) [3]
+    // 0xED 0x59: OUT (C), E [3]
     // 0xED 0x5B: LD DE, (nn) [11]
-    // 0xED 0x61: OUT H, (C) [3]
+    // 0xED 0x61: OUT (C), H [3]
     // 0xED 0x63: LD (nn), HL [11]
-    // 0xED 0x69: OUT L, (C) [3]
+    // 0xED 0x69: OUT (C), L [3]
     // 0xED 0x6B: LD HL, (nn) [11]
-    // 0xED 0x71: OUT (C) [3]
+    // 0xED 0x71: OUT (C), 0 [3]
     // 0xED 0x73: LD (nn), SP [11]
-    // 0xED 0x79: OUT A, (C) [3]
+    // 0xED 0x79: OUT (C), A [3]
     // 0xED 0x7B: LD SP, (nn) [11]
     // 0xFD 0x21: LD IY, nn [5]
     // 0xFD 0x22: LD (nn), IY [11]
@@ -1300,64 +1300,64 @@ public sealed unsafe partial class Z80StepEmulator
     // 0x32: LD (nn), A [1]
     // 0x3A: LD A, (nn) [1]
     // 0xC0: RET NZ [2]
-    // 0xC2: JP NZ [1]
-    // 0xC3: JP [1]
+    // 0xC2: JP NZ, nn [1]
+    // 0xC3: JP nn [1]
     // 0xC4: CALL NZ, nn [1]
     // 0xC8: RET Z [2]
     // 0xC9: RET [1]
-    // 0xCA: JP Z [1]
+    // 0xCA: JP Z, nn [1]
     // 0xCC: CALL Z, nn [1]
     // 0xCD: CALL nn [1]
     // 0xD0: RET NC [2]
-    // 0xD2: JP NC [1]
+    // 0xD2: JP NC, nn [1]
     // 0xD4: CALL NC, nn [1]
     // 0xD8: RET C [2]
-    // 0xDA: JP C [1]
+    // 0xDA: JP C, nn [1]
     // 0xDC: CALL C, nn [1]
     // 0xE0: RET PO [2]
-    // 0xE2: JP PO [1]
-    // 0xE3: EX (SP); HL [1]
+    // 0xE2: JP PO, nn [1]
+    // 0xE3: EX (SP), HL [1]
     // 0xE4: CALL PO, nn [1]
     // 0xE8: RET PE [2]
-    // 0xEA: JP PE [1]
+    // 0xEA: JP PE, nn [1]
     // 0xEC: CALL PE, nn [1]
     // 0xF0: RET P [2]
-    // 0xF2: JP P [1]
+    // 0xF2: JP P, nn [1]
     // 0xF4: CALL P, nn [1]
     // 0xF8: RET M [2]
-    // 0xFA: JP M [1]
+    // 0xFA: JP M, nn [1]
     // 0xFC: CALL M, nn [1]
     // 0xDD 0x22: LD (nn), IX [1]
     // 0xDD 0x2A: LD IX, (nn) [1]
     // 0xDD 0x32: LD (nn), A [1]
     // 0xDD 0x3A: LD A, (nn) [1]
     // 0xDD 0xC0: RET NZ [2]
-    // 0xDD 0xC2: JP NZ [1]
-    // 0xDD 0xC3: JP [1]
+    // 0xDD 0xC2: JP NZ, nn [1]
+    // 0xDD 0xC3: JP nn [1]
     // 0xDD 0xC4: CALL NZ, nn [1]
     // 0xDD 0xC8: RET Z [2]
     // 0xDD 0xC9: RET [1]
-    // 0xDD 0xCA: JP Z [1]
+    // 0xDD 0xCA: JP Z, nn [1]
     // 0xDD 0xCC: CALL Z, nn [1]
     // 0xDD 0xCD: CALL nn [1]
     // 0xDD 0xD0: RET NC [2]
-    // 0xDD 0xD2: JP NC [1]
+    // 0xDD 0xD2: JP NC, nn [1]
     // 0xDD 0xD4: CALL NC, nn [1]
     // 0xDD 0xD8: RET C [2]
-    // 0xDD 0xDA: JP C [1]
+    // 0xDD 0xDA: JP C, nn [1]
     // 0xDD 0xDC: CALL C, nn [1]
     // 0xDD 0xE0: RET PO [2]
-    // 0xDD 0xE2: JP PO [1]
-    // 0xDD 0xE3: EX (SP); IX [1]
+    // 0xDD 0xE2: JP PO, nn [1]
+    // 0xDD 0xE3: EX (SP), IX [1]
     // 0xDD 0xE4: CALL PO, nn [1]
     // 0xDD 0xE8: RET PE [2]
-    // 0xDD 0xEA: JP PE [1]
+    // 0xDD 0xEA: JP PE, nn [1]
     // 0xDD 0xEC: CALL PE, nn [1]
     // 0xDD 0xF0: RET P [2]
-    // 0xDD 0xF2: JP P [1]
+    // 0xDD 0xF2: JP P, nn [1]
     // 0xDD 0xF4: CALL P, nn [1]
     // 0xDD 0xF8: RET M [2]
-    // 0xDD 0xFA: JP M [1]
+    // 0xDD 0xFA: JP M, nn [1]
     // 0xDD 0xFC: CALL M, nn [1]
     // 0xED 0x43: LD (nn), BC [1]
     // 0xED 0x45: RETN [1]
@@ -1371,7 +1371,7 @@ public sealed unsafe partial class Z80StepEmulator
     // 0xED 0x7B: LD SP, (nn) [1]
     // 0xFD 0x22: LD (nn), IY [1]
     // 0xFD 0x2A: LD IY, (nn) [1]
-    // 0xFD 0xE3: EX (SP); IY [1]
+    // 0xFD 0xE3: EX (SP), IY [1]
     private static void Step55(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.Z = emulator.data;
@@ -1381,45 +1381,45 @@ public sealed unsafe partial class Z80StepEmulator
     // 0x2A: LD HL, (nn) [4]
     // 0x32: LD (nn), A [4]
     // 0x3A: LD A, (nn) [4]
-    // 0xC2: JP NZ [4]
+    // 0xC2: JP NZ, nn [4]
     // 0xC4: CALL NZ, nn [4]
-    // 0xCA: JP Z [4]
+    // 0xCA: JP Z, nn [4]
     // 0xCC: CALL Z, nn [4]
     // 0xCD: CALL nn [4]
-    // 0xD2: JP NC [4]
+    // 0xD2: JP NC, nn [4]
     // 0xD4: CALL NC, nn [4]
-    // 0xDA: JP C [4]
+    // 0xDA: JP C, nn [4]
     // 0xDC: CALL C, nn [4]
-    // 0xE2: JP PO [4]
-    // 0xE3: EX (SP); HL [4]
+    // 0xE2: JP PO, nn [4]
+    // 0xE3: EX (SP), HL [4]
     // 0xE4: CALL PO, nn [4]
-    // 0xEA: JP PE [4]
+    // 0xEA: JP PE, nn [4]
     // 0xEC: CALL PE, nn [4]
-    // 0xF2: JP P [4]
+    // 0xF2: JP P, nn [4]
     // 0xF4: CALL P, nn [4]
-    // 0xFA: JP M [4]
+    // 0xFA: JP M, nn [4]
     // 0xFC: CALL M, nn [4]
     // 0xDD 0x22: LD (nn), IX [4]
     // 0xDD 0x2A: LD IX, (nn) [4]
     // 0xDD 0x32: LD (nn), A [4]
     // 0xDD 0x3A: LD A, (nn) [4]
-    // 0xDD 0xC2: JP NZ [4]
+    // 0xDD 0xC2: JP NZ, nn [4]
     // 0xDD 0xC4: CALL NZ, nn [4]
-    // 0xDD 0xCA: JP Z [4]
+    // 0xDD 0xCA: JP Z, nn [4]
     // 0xDD 0xCC: CALL Z, nn [4]
     // 0xDD 0xCD: CALL nn [4]
-    // 0xDD 0xD2: JP NC [4]
+    // 0xDD 0xD2: JP NC, nn [4]
     // 0xDD 0xD4: CALL NC, nn [4]
-    // 0xDD 0xDA: JP C [4]
+    // 0xDD 0xDA: JP C, nn [4]
     // 0xDD 0xDC: CALL C, nn [4]
-    // 0xDD 0xE2: JP PO [4]
-    // 0xDD 0xE3: EX (SP); IX [4]
+    // 0xDD 0xE2: JP PO, nn [4]
+    // 0xDD 0xE3: EX (SP), IX [4]
     // 0xDD 0xE4: CALL PO, nn [4]
-    // 0xDD 0xEA: JP PE [4]
+    // 0xDD 0xEA: JP PE, nn [4]
     // 0xDD 0xEC: CALL PE, nn [4]
-    // 0xDD 0xF2: JP P [4]
+    // 0xDD 0xF2: JP P, nn [4]
     // 0xDD 0xF4: CALL P, nn [4]
-    // 0xDD 0xFA: JP M [4]
+    // 0xDD 0xFA: JP M, nn [4]
     // 0xDD 0xFC: CALL M, nn [4]
     // 0xED 0x43: LD (nn), BC [4]
     // 0xED 0x4B: LD BC, (nn) [4]
@@ -1431,7 +1431,7 @@ public sealed unsafe partial class Z80StepEmulator
     // 0xED 0x7B: LD SP, (nn) [4]
     // 0xFD 0x22: LD (nn), IY [4]
     // 0xFD 0x2A: LD IY, (nn) [4]
-    // 0xFD 0xE3: EX (SP); IY [4]
+    // 0xFD 0xE3: EX (SP), IY [4]
     private static void Step56(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.W = emulator.data;
@@ -1977,7 +1977,7 @@ public sealed unsafe partial class Z80StepEmulator
     }
 
     // 0xC0: RET NZ [5]
-    // 0xC3: JP [4]
+    // 0xC3: JP nn [4]
     // 0xC8: RET Z [5]
     // 0xC9: RET [4]
     // 0xD0: RET NC [5]
@@ -1987,7 +1987,7 @@ public sealed unsafe partial class Z80StepEmulator
     // 0xF0: RET P [5]
     // 0xF8: RET M [5]
     // 0xDD 0xC0: RET NZ [5]
-    // 0xDD 0xC3: JP [4]
+    // 0xDD 0xC3: JP nn [4]
     // 0xDD 0xC8: RET Z [5]
     // 0xDD 0xC9: RET [4]
     // 0xDD 0xD0: RET NC [5]
@@ -2004,8 +2004,8 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.PC = (ushort)(emulator.data << 8 | emulator.Z);
     }
 
-    // 0xC2: JP NZ [5]
-    // 0xDD 0xC2: JP NZ [5]
+    // 0xC2: JP NZ, nn [5]
+    // 0xDD 0xC2: JP NZ, nn [5]
     private static void Step211(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b01000000) == 0b00000000 /* condition.NZ */)
@@ -2132,8 +2132,8 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.WZ = 0x00;
     }
 
-    // 0xCA: JP Z [5]
-    // 0xDD 0xCA: JP Z [5]
+    // 0xCA: JP Z, nn [5]
+    // 0xDD 0xCA: JP Z, nn [5]
     private static void Step218(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b01000000) == 0b01000000 /* condition.Z */)
@@ -2187,8 +2187,8 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.WZ = 0x08;
     }
 
-    // 0xD2: JP NC [5]
-    // 0xDD 0xD2: JP NC [5]
+    // 0xD2: JP NC, nn [5]
+    // 0xDD 0xD2: JP NC, nn [5]
     private static void Step221(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b00000001) == 0b00000000 /* condition.NC */)
@@ -2261,8 +2261,8 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.WZ = 0x10;
     }
 
-    // 0xDA: JP C [5]
-    // 0xDD 0xDA: JP C [5]
+    // 0xDA: JP C, nn [5]
+    // 0xDD 0xDA: JP C, nn [5]
     private static void Step229(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b00000001) == 0b00000001 /* condition.C */)
@@ -2316,8 +2316,8 @@ public sealed unsafe partial class Z80StepEmulator
         }
     }
 
-    // 0xE2: JP PO [5]
-    // 0xDD 0xE2: JP PO [5]
+    // 0xE2: JP PO, nn [5]
+    // 0xDD 0xE2: JP PO, nn [5]
     private static void Step233(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b00000100) == 0b00000000 /* condition.PO */)
@@ -2334,34 +2334,34 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.currentStep = 0;
     }
 
-    // 0xE3: EX (SP); HL [0]
+    // 0xE3: EX (SP), HL [0]
     private static void Step234(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.SP;
     }
 
-    // 0xE3: EX (SP); HL [3]
-    // 0xDD 0xE3: EX (SP); IX [3]
-    // 0xFD 0xE3: EX (SP); IY [3]
+    // 0xE3: EX (SP), HL [3]
+    // 0xDD 0xE3: EX (SP), IX [3]
+    // 0xFD 0xE3: EX (SP), IY [3]
     private static void Step235(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = (ushort)(emulator.SP + 0x01);
     }
 
-    // 0xE3: EX (SP); HL [7]
+    // 0xE3: EX (SP), HL [7]
     private static void Step236(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data = emulator.H;
     }
 
-    // 0xE3: EX (SP); HL [10]
+    // 0xE3: EX (SP), HL [10]
     private static void Step237(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.SP;
         emulator.data = emulator.L;
     }
 
-    // 0xE3: EX (SP); HL [14]
+    // 0xE3: EX (SP), HL [14]
     private static void Step238(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.HL = emulator.WZ;
@@ -2419,8 +2419,8 @@ public sealed unsafe partial class Z80StepEmulator
         }
     }
 
-    // 0xEA: JP PE [5]
-    // 0xDD 0xEA: JP PE [5]
+    // 0xEA: JP PE, nn [5]
+    // 0xDD 0xEA: JP PE, nn [5]
     private static void Step244(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b00000100) == 0b00000100 /* condition.PE */)
@@ -2473,8 +2473,8 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.F = emulator.data;
     }
 
-    // 0xF2: JP P [5]
-    // 0xDD 0xF2: JP P [5]
+    // 0xF2: JP P, nn [5]
+    // 0xDD 0xF2: JP P, nn [5]
     private static void Step249(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b10000000) == 0b00000000 /* condition.P */)
@@ -2544,8 +2544,8 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.SP = emulator.HL;
     }
 
-    // 0xFA: JP M [5]
-    // 0xDD 0xFA: JP M [5]
+    // 0xFA: JP M, nn [5]
+    // 0xDD 0xFA: JP M, nn [5]
     private static void Step256(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         if ((emulator.F & 0b10000000) == 0b10000000 /* condition.M */)
@@ -3105,25 +3105,25 @@ public sealed unsafe partial class Z80StepEmulator
     // 0xDD 0x75: LD (IX + d), L [0]
     // 0xDD 0x77: LD (IX + d), A [0]
     // 0xDD 0x7E: LD A, (IX + d) [0]
-    // 0xDD 0xC2: JP NZ [0]
-    // 0xDD 0xC3: JP [0]
+    // 0xDD 0xC2: JP NZ, nn [0]
+    // 0xDD 0xC3: JP nn [0]
     // 0xDD 0xC4: CALL NZ, nn [0]
-    // 0xDD 0xCA: JP Z [0]
+    // 0xDD 0xCA: JP Z, nn [0]
     // 0xDD 0xCC: CALL Z, nn [0]
     // 0xDD 0xCD: CALL nn [0]
-    // 0xDD 0xD2: JP NC [0]
+    // 0xDD 0xD2: JP NC, nn [0]
     // 0xDD 0xD3: OUT (n), A [0]
     // 0xDD 0xD4: CALL NC, nn [0]
-    // 0xDD 0xDA: JP C [0]
+    // 0xDD 0xDA: JP C, nn [0]
     // 0xDD 0xDB: IN A, (n) [0]
     // 0xDD 0xDC: CALL C, nn [0]
-    // 0xDD 0xE2: JP PO [0]
+    // 0xDD 0xE2: JP PO, nn [0]
     // 0xDD 0xE4: CALL PO, nn [0]
-    // 0xDD 0xEA: JP PE [0]
+    // 0xDD 0xEA: JP PE, nn [0]
     // 0xDD 0xEC: CALL PE, nn [0]
-    // 0xDD 0xF2: JP P [0]
+    // 0xDD 0xF2: JP P, nn [0]
     // 0xDD 0xF4: CALL P, nn [0]
-    // 0xDD 0xFA: JP M [0]
+    // 0xDD 0xFA: JP M, nn [0]
     // 0xDD 0xFC: CALL M, nn [0]
     // 0xED 0x43: LD (nn), BC [0]
     // 0xED 0x4B: LD BC, (nn) [0]
@@ -3804,28 +3804,28 @@ public sealed unsafe partial class Z80StepEmulator
         }
     }
 
-    // 0xDD 0xE3: EX (SP); IX [0]
-    // 0xFD 0xE3: EX (SP); IY [0]
+    // 0xDD 0xE3: EX (SP), IX [0]
+    // 0xFD 0xE3: EX (SP), IY [0]
     private static void Step692(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
         emulator.address = emulator.SP;
     }
 
-    // 0xDD 0xE3: EX (SP); IX [7]
+    // 0xDD 0xE3: EX (SP), IX [7]
     private static void Step693(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data = emulator.IXH;
     }
 
-    // 0xDD 0xE3: EX (SP); IX [10]
+    // 0xDD 0xE3: EX (SP), IX [10]
     private static void Step694(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.SP;
         emulator.data = emulator.IXL;
     }
 
-    // 0xDD 0xE3: EX (SP); IX [14]
+    // 0xDD 0xE3: EX (SP), IX [14]
     private static void Step695(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.IX = emulator.WZ;
@@ -3974,7 +3974,7 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.currentStep = 0;
     }
 
-    // 0xED 0x41: OUT B, (C) [0]
+    // 0xED 0x41: OUT (C), B [0]
     private static void Step711(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -3982,14 +3982,14 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.data = emulator.B;
     }
 
-    // 0xED 0x41: OUT B, (C) [2]
-    // 0xED 0x49: OUT C, (C) [2]
-    // 0xED 0x51: OUT D, (C) [2]
-    // 0xED 0x59: OUT E, (C) [2]
-    // 0xED 0x61: OUT H, (C) [2]
-    // 0xED 0x69: OUT L, (C) [2]
-    // 0xED 0x71: OUT (C) [2]
-    // 0xED 0x79: OUT A, (C) [2]
+    // 0xED 0x41: OUT (C), B [2]
+    // 0xED 0x49: OUT (C), C [2]
+    // 0xED 0x51: OUT (C), D [2]
+    // 0xED 0x59: OUT (C), E [2]
+    // 0xED 0x61: OUT (C), H [2]
+    // 0xED 0x69: OUT (C), L [2]
+    // 0xED 0x71: OUT (C), 0 [2]
+    // 0xED 0x79: OUT (C), A [2]
     private static void Step712(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.WZ = (ushort)(emulator.BC + 0x01);
@@ -4081,7 +4081,7 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.currentStep = 0;
     }
 
-    // 0xED 0x49: OUT C, (C) [0]
+    // 0xED 0x49: OUT (C), C [0]
     private static void Step721(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -4146,7 +4146,7 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.currentStep = 0;
     }
 
-    // 0xED 0x51: OUT D, (C) [0]
+    // 0xED 0x51: OUT (C), D [0]
     private static void Step725(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -4234,7 +4234,7 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.currentStep = 0;
     }
 
-    // 0xED 0x59: OUT E, (C) [0]
+    // 0xED 0x59: OUT (C), E [0]
     private static void Step732(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -4307,7 +4307,7 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.currentStep = 0;
     }
 
-    // 0xED 0x61: OUT H, (C) [0]
+    // 0xED 0x61: OUT (C), H [0]
     private static void Step737(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -4376,7 +4376,7 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.currentStep = 0;
     }
 
-    // 0xED 0x69: OUT L, (C) [0]
+    // 0xED 0x69: OUT (C), L [0]
     private static void Step741(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -4443,7 +4443,7 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.currentStep = 0;
     }
 
-    // 0xED 0x71: OUT (C) [0]
+    // 0xED 0x71: OUT (C), 0 [0]
     private static void Step745(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -4509,7 +4509,7 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.currentStep = 0;
     }
 
-    // 0xED 0x79: OUT A, (C) [0]
+    // 0xED 0x79: OUT (C), A [0]
     private static void Step750(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.opcodeStepTable = OpcodeStepTableNoPrefix;
@@ -5547,20 +5547,20 @@ public sealed unsafe partial class Z80StepEmulator
         emulator.PC += 0x01;
     }
 
-    // 0xFD 0xE3: EX (SP); IY [7]
+    // 0xFD 0xE3: EX (SP), IY [7]
     private static void Step848(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.data = emulator.IYH;
     }
 
-    // 0xFD 0xE3: EX (SP); IY [10]
+    // 0xFD 0xE3: EX (SP), IY [10]
     private static void Step849(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.address = emulator.SP;
         emulator.data = emulator.IYL;
     }
 
-    // 0xFD 0xE3: EX (SP); IY [14]
+    // 0xFD 0xE3: EX (SP), IY [14]
     private static void Step850(Z80StepEmulator emulator, ref ActionRequired actionRequired)
     {
         emulator.IY = emulator.WZ;

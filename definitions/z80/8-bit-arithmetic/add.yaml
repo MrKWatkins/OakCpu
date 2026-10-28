@@ -1,6 +1,7 @@
 instructions:
   - group: 8-Bit Arithmetic
     mnemonic: ADD RP0, RP1
+    documentation: "Adds {RP1} to {RP0}."
     opcodes:
       - opcode: 0x09
         RP0: HL
@@ -56,6 +57,7 @@ instructions:
         
   - group: 8-Bit Arithmetic
     mnemonic: ADD A, R0
+    documentation: "Adds {R0} to A."
     opcodes:
       - opcode: 0x80
         R0: B
@@ -115,6 +117,7 @@ instructions:
     
   - group: 8-Bit Arithmetic
     mnemonic: ADD A, n
+    documentation: "Adds n to A."
     opcodes:
       - opcode: 0xC6
       - opcode: 0xDD 0xC6
@@ -136,6 +139,7 @@ instructions:
 
   - group: 8-Bit Arithmetic
     mnemonic: ADD A, (HL)
+    documentation: "Adds the byte at (HL) to A."
     opcodes:
       - opcode: 0x86
     steps:
@@ -155,6 +159,7 @@ instructions:
 
   - group: 8-Bit Arithmetic
     mnemonic: ADD A, (RP0 + n)
+    documentation: "Adds the byte at ({RP0} + n) to A."
     opcodes:
       - opcode: 0xDD 0x86
         RP0: IX

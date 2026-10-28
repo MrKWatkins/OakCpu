@@ -10,6 +10,7 @@
 instructions:
   - group: Z80N Block Transfer
     mnemonic: LDDRX
+    documentation: "Copies the byte at (HL) to (DE) unless it equals A, then decrements HL, increments DE and decrements BC, repeating until BC is zero."
     opcodes:
       - opcode: 0xED 0xBC
     steps:

@@ -1,6 +1,7 @@
 instructions:
   - group: Exchange, Block Transfer, and Search
     mnemonic: LDD
+    documentation: "Copies the byte at (HL) to (DE), then decrements HL, DE and BC."
     opcodes:
       - opcode: 0xED 0xA8
     steps:

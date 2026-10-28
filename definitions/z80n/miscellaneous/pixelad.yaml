@@ -9,6 +9,7 @@
 instructions:
   - group: Z80N Miscellaneous
     mnemonic: PIXELAD
+    documentation: "Sets HL to the ZX Spectrum screen address of the pixel at coordinates D (y) and E (x)."
     opcodes:
       - opcode: 0xED 0x94
     steps:

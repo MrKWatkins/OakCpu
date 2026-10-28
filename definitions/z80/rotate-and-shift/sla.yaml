@@ -1,6 +1,7 @@
 instructions:
   - group: Rotate and Shift
     mnemonic: SLA R0
+    documentation: "Shifts {R0} left one bit; bit 7 is copied to the carry flag and bit 0 is reset."
     opcodes:
       - opcode: 0xCB 0x20
         R0: B
@@ -31,6 +32,7 @@ instructions:
   
   - group: Rotate and Shift
     mnemonic: SLA (HL)
+    documentation: "Shifts the byte at (HL) left one bit; bit 7 is copied to the carry flag and bit 0 is reset."
     opcodes:
       - opcode: 0xCB 0x26
     steps:
@@ -54,6 +56,7 @@ instructions:
 
   - group: Rotate and Shift
     mnemonic: SLA (IX + d)
+    documentation: "Shifts the byte at (IX + d) left one bit; bit 7 is copied to the carry flag and bit 0 is reset."
     opcode_table: DDCB
     opcodes:
       - opcode: 0x26
@@ -80,6 +83,8 @@ instructions:
 
   - group: Rotate and Shift
     mnemonic: SLA (IX + d), R0
+    documentation: "Shifts the byte at (IX + d) left one bit, copying bit 7 to the carry flag and resetting bit 0, and stores the result in both the byte at (IX + d) and {R0}."
+    undocumented: true
     opcode_table: DDCB
     opcodes:
       - opcode: 0x20
@@ -119,6 +124,7 @@ instructions:
 
   - group: Rotate and Shift
     mnemonic: SLA (IY + d)
+    documentation: "Shifts the byte at (IY + d) left one bit; bit 7 is copied to the carry flag and bit 0 is reset."
     opcode_table: FDCB
     opcodes:
       - opcode: 0x26
@@ -145,6 +151,8 @@ instructions:
 
   - group: Rotate and Shift
     mnemonic: SLA (IY + d), R0
+    documentation: "Shifts the byte at (IY + d) left one bit, copying bit 7 to the carry flag and resetting bit 0, and stores the result in both the byte at (IY + d) and {R0}."
+    undocumented: true
     opcode_table: FDCB
     opcodes:
       - opcode: 0x20

@@ -1,6 +1,7 @@
 instructions:
   - group: 16-Bit Load
     mnemonic: LD RP0, RP1
+    documentation: "Copies {RP1} into {RP0}."
     opcodes:
       - opcode: 0xF9
         RP0: SP

@@ -1,6 +1,7 @@
 instructions:
   - group: Input and Output
     mnemonic: OUT (n), A
+    documentation: "Writes A to port n, with A on the high half of the address bus."
     opcodes:
       - opcode: 0xD3
       - opcode: 0xDD 0xD3
@@ -16,7 +17,8 @@ instructions:
 
       - 
   - group: Input and Output
-    mnemonic: OUT R0, (C)
+    mnemonic: OUT (C), R0
+    documentation: "Writes {R0} to the port addressed by BC."
     opcodes:
       - opcode: 0xED 0x41
         R0: B
@@ -40,7 +42,9 @@ instructions:
 
       - 
   - group: Input and Output
-    mnemonic: OUT (C)
+    mnemonic: OUT (C), 0
+    documentation: "Writes zero to the port addressed by BC."
+    undocumented: true
     opcodes:
       - opcode: 0xED 0x71
     steps:

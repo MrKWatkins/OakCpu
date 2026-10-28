@@ -1,6 +1,7 @@
 instructions:
   - group: Input and Output
     mnemonic: INI
+    documentation: "Reads a byte from the port addressed by BC into (HL), then increments HL and decrements B."
     opcodes:
       - opcode: 0xED 0xA2
     steps:
