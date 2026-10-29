@@ -1,6 +1,6 @@
 # LDPIRX
 
-Copies the byte at ((HL & 0xFFF8) + (E & 7)), i.e. from the eight byte aligned pattern at HL, to (DE) unless it equals A, then increments DE and decrements BC, repeating until BC is zero.
+Copies the byte at ((HL & 0xFFF8) + (E & 7)), taken from the eight byte aligned pattern at HL, to (DE) unless it equals A, then increments DE and decrements BC, repeating until BC is zero.
 
 ## Flags
 

@@ -10649,7 +10649,7 @@ instructions:
         documentation: Copied from bit 5 of A.
       H:
         effect: changed
-        documentation: After an addition, i.e. with the N flag reset, set if the low nibble of A was greater than 9 before the adjustment, otherwise reset. After a subtraction, i.e. with the N flag set, set if the H flag was set and the low nibble of A was less than 6 before the adjustment, otherwise reset.
+        documentation: After an addition, when the N flag is reset, set if the low nibble of A was greater than 9 before the adjustment, otherwise reset. After a subtraction, when the N flag is set, set if the H flag was set and the low nibble of A was less than 6 before the adjustment, otherwise reset.
       X:
         effect: changed
         documentation: Copied from bit 3 of A.

@@ -9,7 +9,7 @@ Adjusts A to binary coded decimal after an addition or subtraction of binary cod
 | S | Copied from bit 7 of A. |
 | Z | Set if A is zero, otherwise reset. |
 | Y | Copied from bit 5 of A. |
-| H | After an addition, i.e. with the N flag reset, set if the low nibble of A was greater than 9 before the adjustment, otherwise reset. After a subtraction, i.e. with the N flag set, set if the H flag was set and the low nibble of A was less than 6 before the adjustment, otherwise reset. |
+| H | After an addition, when the N flag is reset, set if the low nibble of A was greater than 9 before the adjustment, otherwise reset. After a subtraction, when the N flag is set, set if the H flag was set and the low nibble of A was less than 6 before the adjustment, otherwise reset. |
 | X | Copied from bit 3 of A. |
 | PV | Set if A has even parity, otherwise reset. |
 | N | Unaffected. |

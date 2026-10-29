@@ -240,7 +240,7 @@ The instructions by group. See [the opcode tables](opcodes.md) for the instructi
 - [LDDX](z80n-block-transfer/lddx.md): Copies the byte at (HL) to (DE) unless it equals A, then decrements HL, increments DE and decrements BC.
 - [LDIRX](z80n-block-transfer/ldirx.md): Copies the byte at (HL) to (DE) unless it equals A, then increments HL and DE and decrements BC, repeating until BC is zero.
 - [LDIX](z80n-block-transfer/ldix.md): Copies the byte at (HL) to (DE) unless it equals A, then increments HL and DE and decrements BC.
-- [LDPIRX](z80n-block-transfer/ldpirx.md): Copies the byte at ((HL & 0xFFF8) + (E & 7)), i.e. from the eight byte aligned pattern at HL, to (DE) unless it equals A, then increments DE and decrements BC, repeating until BC is zero.
+- [LDPIRX](z80n-block-transfer/ldpirx.md): Copies the byte at ((HL & 0xFFF8) + (E & 7)), taken from the eight byte aligned pattern at HL, to (DE) unless it equals A, then increments DE and decrements BC, repeating until BC is zero.
 - [LDWS](z80n-block-transfer/ldws.md): Copies the byte at (HL) to (DE), then increments L and D, stepping down a column of ZX Spectrum screen memory.
 
 ## Z80N Miscellaneous
