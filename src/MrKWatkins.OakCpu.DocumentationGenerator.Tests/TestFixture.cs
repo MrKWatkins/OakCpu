@@ -41,7 +41,7 @@ public abstract class TestFixture
     protected static Instruction GetInstruction(CpuModel model, byte? prefix, byte opcode, string? table = null) =>
         model.Instructions.Single(instruction =>
             instruction.OpcodeTable == table &&
-            (instruction.Prefix == prefix && instruction.Opcode == opcode || instruction.Duplicates.Any(duplicate => duplicate.Prefix == prefix && duplicate.Opcode == opcode)));
+            ((instruction.Prefix == prefix && instruction.Opcode == opcode) || instruction.Duplicates.Any(duplicate => duplicate.Prefix == prefix && duplicate.Opcode == opcode)));
 
     [Pure]
     protected static InstructionYaml GetInstructionYaml(CpuModel model, string form) =>

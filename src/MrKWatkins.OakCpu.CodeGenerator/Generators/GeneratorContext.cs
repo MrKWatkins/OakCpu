@@ -107,7 +107,7 @@ public sealed class GeneratorContext
 
     [Pure]
     public static async Task<GeneratorContext> CreateAsync(string rootNamespace, DirectoryInfo definitionsDirectory) =>
-        Create(rootNamespace, await CpuModel.LoadAsync(definitionsDirectory));
+        Create(rootNamespace, await CpuModel.LoadAsync(definitionsDirectory).ConfigureAwait(false));
 
     [Pure]
     internal static GeneratorContext Create(string rootNamespace, YamlFile yaml) => Create(rootNamespace, CpuModel.Create(yaml));
@@ -165,7 +165,7 @@ public sealed class GeneratorContext
             .ToDictionary(x => x.Step, x => x.Implementation);
 
         var overlapImplementationAndDuplicates = overlapGroups
-            .ToDictionary(group => group.First(), group => (IReadOnlyList<Step>)group.OrderBy(step => model.GetStepLayout(step).Index).ToList());
+            .ToDictionary(group => group.First(), group => (IReadOnlyList<Step>)[.. group.OrderBy(step => model.GetStepLayout(step).Index)]);
 
         var overlapMethodIndices = overlapSteps
             .Select((step, index) => (Step: step, Index: index))
@@ -185,8 +185,7 @@ public sealed class GeneratorContext
 
         var overlapBodies = overlapCandidates.ToDictionary(
             step => step,
-            step => (IReadOnlyList<StatementSyntax>)StatementGenerator.GenerateOverlapStatements(temporaryContext.CreateFileContext(), step)
-                .ToList());
+            step => (IReadOnlyList<StatementSyntax>)[.. StatementGenerator.GenerateOverlapStatements(temporaryContext.CreateFileContext(), step)]);
 
         var groups = new List<IReadOnlyList<Step>>();
         foreach (var step in overlapCandidates)

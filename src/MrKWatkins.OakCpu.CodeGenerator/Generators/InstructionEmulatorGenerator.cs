@@ -40,7 +40,7 @@ public sealed class InstructionEmulatorGenerator : TypeGenerator
             .Select(sequence => (Sequence: sequence, Steps: GetRegularSteps(context.GeneratorContext, sequence)))
             .Select(x => CreateInstructionMethod(context, x.Sequence, x.Steps)));
 
-        return classDeclaration.AddMembers(members.ToArray());
+        return classDeclaration.AddMembers([.. members]);
     }
 
     [Pure]

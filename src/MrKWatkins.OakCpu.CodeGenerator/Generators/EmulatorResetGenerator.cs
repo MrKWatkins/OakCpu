@@ -33,7 +33,7 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
     {
         var statements = ResetSyntax.GenerateResetOpcodeStepTable(context)
             .Concat(GenerateResetDataMembers(context))
-            .Concat(context.GeneratorContext.Configuration.HasPins ? [ResetSyntax.GenerateReset(Field.Name.Pins, DataType.U8)] : Enumerable.Empty<StatementSyntax>())
+            .Concat(context.GeneratorContext.Configuration.HasPins ? [ResetSyntax.GenerateReset(Field.Name.Pins, DataType.U8)] : [])
             .Concat(ResetSyntax.GenerateResetRegisters(context));
 
         return WithXmlDocumentation(
@@ -48,7 +48,7 @@ public sealed class EmulatorResetGenerator : EmulatorClassGenerator
         context.GeneratorContext.Configuration.AllDataMembers.Values
             .Concat<DataMember>([PreDefinedDataMember.OverlapPipeline])
             .Where(m => m != PreDefinedDataMember.OpcodeStepTable)
-            .OrderBy(m => m.Name)
+            .OrderBy(m => m.Name, StringComparer.Ordinal)
             .Select(m => m == PreDefinedDataMember.OverlapPipeline
                 ? GenerateResetOverlapPipeline(context)
                 : ResetSyntax.GenerateReset(m.FieldName, m.Type));

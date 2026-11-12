@@ -30,10 +30,7 @@ public sealed class TypeGeneratorTests : TestFixture
     }
 
     [Test]
-    public void GetFileName()
-    {
-        new TestTypeGenerator().GetFileName(Z80GeneratorContext).Should().Equal("TestFile.generated.cs");
-    }
+    public void GetFileName() => new TestTypeGenerator().GetFileName(Z80GeneratorContext).Should().Equal("TestFile.generated.cs");
 
     [Test]
     public void GenerateFiles_DefaultImplementation()

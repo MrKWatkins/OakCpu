@@ -8,10 +8,7 @@ namespace MrKWatkins.OakCpu.Definitions.Language.Lexing;
 internal sealed record BinaryOperator : Token
 {
     internal BinaryOperator(int index, Operator @operator)
-        : base(index, @operator.Symbol.Length)
-    {
-        Operator = @operator;
-    }
+        : base(index, @operator.Symbol.Length) => Operator = @operator;
 
     internal Operator Operator { get; }
 

@@ -17,13 +17,13 @@ public sealed unsafe partial class Z80NStepEmulator
     public void Reset()
     {
         opcodeStepTable = OpcodeStepTableNoPrefix;
+        iff1 = false;
+        iff2 = false;
+        im = 0;
         address = 0;
         currentStep = 0;
         data = 0;
         halted = false;
-        iff1 = false;
-        iff2 = false;
-        im = 0;
         interrupt = false;
         latch = 0;
         overlapPipeline = default(delegate*<Z80NStepEmulator, void>);

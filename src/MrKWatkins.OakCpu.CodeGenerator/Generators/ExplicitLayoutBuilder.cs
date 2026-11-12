@@ -110,7 +110,7 @@ internal static class ExplicitLayoutBuilder
 
         return FieldDeclaration(VariableDeclaration(type).WithVariables(SingletonSeparatedList(variableDeclarator)))
             .AddAttributeLists(AttributeList(SingletonSeparatedList(CreateFieldOffsetAttribute(context, fieldOffset))))
-            .AddModifiers(modifiers.ToArray());
+            .AddModifiers([.. modifiers]);
     }
 
     /// <summary>

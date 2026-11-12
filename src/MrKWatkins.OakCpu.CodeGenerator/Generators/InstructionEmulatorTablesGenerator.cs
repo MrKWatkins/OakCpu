@@ -65,7 +65,7 @@ public sealed class InstructionEmulatorTablesGenerator : TypeGenerator
             .AddModifiers(Private, Static, Unsafe)
             .WithTypeParameterList(InstructionHandlerSyntax.TypeParameters)
             .WithConstraintClauses(InstructionHandlerSyntax.ConstraintClauses(context.GeneratorContext))
-            .AddMembers(members.ToArray());
+            .AddMembers([.. members]);
     }
 
     [Pure]

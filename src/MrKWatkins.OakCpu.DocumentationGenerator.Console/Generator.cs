@@ -14,7 +14,7 @@ public static class Generator
             var definitionsDirectory = GetChildDirectory(solutionDirectory, "../", "definitions", cpu);
             var outputDirectory = GetChildDirectory(solutionDirectory, "../", "docs", "instructions", cpu);
 
-            var model = await CpuModel.LoadAsync(definitionsDirectory);
+            var model = await CpuModel.LoadAsync(definitionsDirectory).ConfigureAwait(false);
             var documents = DocumentationGenerator.Generate(model);
 
             if (outputDirectory.Exists)
@@ -26,7 +26,7 @@ public static class Generator
             {
                 var file = new FileInfo(Path.Join(outputDirectory.FullName, document.Path));
                 file.Directory!.Create();
-                await File.WriteAllTextAsync(file.FullName, document.Content);
+                await File.WriteAllTextAsync(file.FullName, document.Content).ConfigureAwait(false);
             }
 
             System.Console.WriteLine($"Generation of {documents.Count} documents for {cpu} in {outputDirectory} complete.");

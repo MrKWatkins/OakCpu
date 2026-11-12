@@ -71,10 +71,8 @@ public abstract class TypeGenerator
     }
 
     [MustUseReturnValue]
-    protected virtual BaseTypeDeclarationSyntax CreateType(FileGeneratorContext context)
-    {
+    protected virtual BaseTypeDeclarationSyntax CreateType(FileGeneratorContext context) =>
         throw new NotImplementedException($"{nameof(CreateType)} is not implemented and {nameof(CreateTypes)} has not been overridden.");
-    }
 
     [MustUseReturnValue]
     protected static PropertyDeclarationSyntax CreateGetOnlyProperty(FileGeneratorContext context, string typeName, string propertyName) =>
@@ -237,7 +235,7 @@ public abstract class TypeGenerator
         WithXmlDocumentation(
             ClassDeclaration(className)
                 .AddModifiers(Public, Abstract)
-                .AddMembers(members.ToArray()),
+                .AddMembers([.. members]),
             summary);
 
     /// <summary>
@@ -260,7 +258,7 @@ public abstract class TypeGenerator
             ClassDeclaration(className)
                 .AddModifiers(Public, Sealed)
                 .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(baseClassName)))))
-                .AddMembers(declarations.ToArray()));
+                .AddMembers([.. declarations]));
     }
 
     /// <summary>
@@ -316,8 +314,8 @@ public abstract class TypeGenerator
         members.AddRange(types);
 
         return CompilationUnit()
-            .AddUsings(context.RequiredUsings.CreateUsingDirectives().ToArray())
-            .AddMembers(members.ToArray())
+            .AddUsings([.. context.RequiredUsings.CreateUsingDirectives()])
+            .AddMembers([.. members])
             .NormalizeWhitespace();
     }
 

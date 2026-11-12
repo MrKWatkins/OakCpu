@@ -63,7 +63,7 @@ public sealed class InstructionEmulatorStateGenerator : TypeGenerator
             ClassDeclaration(Class.Name.InstructionEmulator(context))
                 .AddModifiers(Public, Sealed, Unsafe, Partial)
                 .AddAttributeLists(AttributeList(SingletonSeparatedList(ExplicitLayoutBuilder.CreateStructLayoutAttribute(context))))
-                .AddMembers(members.ToArray()),
+                .AddMembers([.. members]),
             $"Represents a {generatorContext.Cpu.Name} emulator that executes one complete instruction at a time.");
     }
 

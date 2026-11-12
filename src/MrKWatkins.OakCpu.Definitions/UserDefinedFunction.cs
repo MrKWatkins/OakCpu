@@ -8,8 +8,6 @@ namespace MrKWatkins.OakCpu.Definitions;
 
 public sealed class UserDefinedFunction : Function
 {
-    private Expression? expression;
-
     private UserDefinedFunction(string name, DataType type, IReadOnlyList<string> parameters, string? documentation, string? notDocumentation, string? valueDocumentation)
         : base(name, type, parameters)
     {
@@ -35,7 +33,7 @@ public sealed class UserDefinedFunction : Function
     /// </summary>
     public string? ValueDocumentation { get; }
 
-    public Expression Expression => expression ?? throw new InvalidOperationException($"{nameof(Expression)} not set.");
+    public Expression Expression { get => field ?? throw new InvalidOperationException($"{nameof(Expression)} not set."); private set; }
 
     public override string ToString() => $"{Name}({string.Join(", ", Parameters)} => {Expression}";
 
@@ -59,5 +57,5 @@ public sealed class UserDefinedFunction : Function
         }
     }
 
-    private void SetExpression(Expression value) => expression = value;
+    private void SetExpression(Expression value) => Expression = value;
 }

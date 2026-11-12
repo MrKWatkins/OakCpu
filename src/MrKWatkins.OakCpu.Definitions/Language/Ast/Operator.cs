@@ -62,7 +62,7 @@ public sealed class Operator
         HasCompoundAssignment = compoundAssignment;
         LeftIdentity = leftIdentity;
         RightIdentity = rightIdentity;
-        BindingPower = (Precedence * 2 + 1, Precedence * 2 + 2);
+        BindingPower = ((Precedence * 2) + 1, (Precedence * 2) + 2);
     }
 
     public string Symbol { get; }

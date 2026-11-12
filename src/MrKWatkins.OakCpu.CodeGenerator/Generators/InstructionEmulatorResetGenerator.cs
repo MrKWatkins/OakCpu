@@ -49,7 +49,7 @@ public sealed class InstructionEmulatorResetGenerator : TypeGenerator
     private static IEnumerable<StatementSyntax> GenerateResetDataMembers(GeneratorContext context) =>
         context.Configuration.AllDataMembers.Values
             .Where(m => m != PreDefinedDataMember.OpcodeStepTable && m != PreDefinedDataMember.CurrentStep)
-            .OrderBy(m => m.Name)
+            .OrderBy(m => m.Name, StringComparer.Ordinal)
             .Select(m => ResetSyntax.GenerateReset(m.FieldName, m.Type));
 
     [Pure]

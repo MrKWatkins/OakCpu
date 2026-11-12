@@ -61,7 +61,7 @@ public sealed class Register
     public static IReadOnlyDictionary<string, Register> Create(IReadOnlyList<RegisterYaml> yamls)
     {
         var registers = new List<Register>();
-        if (yamls.Any(y => y.Type != DataType.U16 && y.Type != DataType.U8))
+        if (yamls.Any(y => y.Type is not DataType.U16 and not DataType.U8))
         {
             throw new InvalidOperationException("Registers must have type u8 or u16.");
         }
@@ -105,5 +105,5 @@ public sealed class Register
     [Pure]
     private static IOrderedEnumerable<RegisterYaml> Order(IEnumerable<RegisterYaml> yamls) =>
         // Put U16s first, so they are all on a two-byte boundary.
-        yamls.OrderByDescending(y => y.Type).ThenBy(y => y.Category).ThenBy(y => y.Name);
+        yamls.OrderByDescending(y => y.Type).ThenBy(y => y.Category, StringComparer.Ordinal).ThenBy(y => y.Name, StringComparer.Ordinal);
 }

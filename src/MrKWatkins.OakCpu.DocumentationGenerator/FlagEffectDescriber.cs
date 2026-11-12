@@ -272,7 +272,7 @@ public sealed partial class FlagEffectDescriber
         switch (expression)
         {
             case Number number:
-                return new ConstantState((number.Value >> bit & 1) == 1);
+                return new ConstantState(((number.Value >> bit) & 1) == 1);
 
             case RegisterAccess { Register.Flags: true }:
                 return null;
@@ -416,31 +416,19 @@ public sealed partial class FlagEffectDescriber
 
             case ConditionalState conditional:
                 var (condition, whenTrue, whenFalse) = conditional;
-                switch (whenTrue, whenFalse)
+                return (whenTrue, whenFalse) switch
                 {
-                    case (ConstantState { Value: true }, ConstantState { Value: false }):
-                        return $"set if {condition.Positive}, otherwise reset";
-
-                    case (ConstantState { Value: false }, ConstantState { Value: true }):
-                        return $"set if {condition.Negative}, otherwise reset";
-
+                    (ConstantState { Value: true }, ConstantState { Value: false }) => $"set if {condition.Positive}, otherwise reset",
+                    (ConstantState { Value: false }, ConstantState { Value: true }) => $"set if {condition.Negative}, otherwise reset",
                     // Two ifs that set the flag, e.g. the Z80's undocumented ANC sets C with N, set it if either condition holds.
-                    case (ConstantState { Value: true }, ConditionalState { WhenTrue: ConstantState { Value: true }, WhenFalse: ConstantState { Value: false } } inner):
-                        return $"set if {condition.Positive} or {inner.Condition.Positive}, otherwise reset";
-
-                    case (ConditionalState { WhenTrue: ConstantState { Value: true }, WhenFalse: ConstantState { Value: false } } inner, ConstantState { Value: false }):
-                        return $"set if {condition.Positive} and {inner.Condition.Positive}, otherwise reset";
-
-                    case (_, UnchangedState):
-                        return $"{Phrase(whenTrue)} if {condition.Positive}, otherwise unaffected";
-
-                    case (UnchangedState, _):
-                        return $"{Phrase(whenFalse)} if {condition.Negative}, otherwise unaffected";
-
-                    default:
-                        return $"{Phrase(whenTrue)} if {condition.Positive}, otherwise {Phrase(whenFalse)}";
-                }
-
+                    (ConstantState { Value: true }, ConditionalState { WhenTrue: ConstantState { Value: true }, WhenFalse: ConstantState { Value: false } } inner) =>
+                        $"set if {condition.Positive} or {inner.Condition.Positive}, otherwise reset",
+                    (ConditionalState { WhenTrue: ConstantState { Value: true }, WhenFalse: ConstantState { Value: false } } inner, ConstantState { Value: false }) =>
+                        $"set if {condition.Positive} and {inner.Condition.Positive}, otherwise reset",
+                    (_, UnchangedState) => $"{Phrase(whenTrue)} if {condition.Positive}, otherwise unaffected",
+                    (UnchangedState, _) => $"{Phrase(whenFalse)} if {condition.Negative}, otherwise unaffected",
+                    _ => $"{Phrase(whenTrue)} if {condition.Positive}, otherwise {Phrase(whenFalse)}",
+                };
             default:
                 throw new InvalidOperationException($"Unexpected state {state}.");
         }
@@ -471,11 +459,11 @@ public sealed partial class FlagEffectDescriber
 
         // The paths differ, e.g. a repeating block instruction sets the undocumented flags from the program counter while it
         // repeats. Describe the completing path first.
-        var completing = distinct.FirstOrDefault(e => e.Completes);
+        var (Effect, _) = distinct.FirstOrDefault(e => e.Completes);
         var repeating = distinct.FirstOrDefault(e => !e.Completes);
-        if (distinct.Count == 2 && completing.Effect != null && repeating.Effect != null)
+        if (distinct.Count == 2 && Effect != null && repeating.Effect != null)
         {
-            return Changed(flag, $"When the instruction completes, {Lower(completing.Effect.Documentation)} When it repeats, {Lower(repeating.Effect.Documentation)}");
+            return Changed(flag, $"When the instruction completes, {Lower(Effect.Documentation)} When it repeats, {Lower(repeating.Effect.Documentation)}");
         }
 
         return Changed(flag, string.Join(" ", distinct.Select((e, index) => $"Path {index + 1}: {e.Effect.Documentation}")));
@@ -488,35 +476,18 @@ public sealed partial class FlagEffectDescriber
     private static string Capitalise(string description) => char.ToUpperInvariant(description[0]) + description[1..];
 
     [Pure]
-    private FlagEffect Describe(Flag flag, Expression expression)
+    private FlagEffect Describe(Flag flag, Expression expression) => expression switch
     {
-        switch (expression)
-        {
-            case Number { Value: 0 }:
-                return new FlagEffect(flag, FlagEffectKind.Reset, "Reset.");
-
-            case Number { Value: 1 }:
-                return new FlagEffect(flag, FlagEffectKind.Set, "Set.");
-
-            case TemporaryVariableAccess temporary when !temporaryNames.ContainsKey(temporary.Name) && temporaries.TryGetValue(temporary.Name, out var definition) && definition != null:
-                return Describe(flag, definition);
-
-            case Call { Function: var function, Arguments: var arguments }:
-                return Changed(flag, DescribeCall(flag, function, arguments, expression));
-
-            case FlagAccess flagAccess:
-                return Changed(flag, $"Set to the previous value of the {flagAccess.Flag.Name} flag.");
-
-            case DataMemberAccess dataMember:
-                return Changed(flag, $"Set to the value of {Operand(dataMember)}.");
-
-            case BinaryOperation binary:
-                return Changed(flag, DescribeComparison(flag, binary) ?? Fallback(expression));
-
-            default:
-                return Changed(flag, Fallback(expression));
-        }
-    }
+        Number { Value: 0 } => new FlagEffect(flag, FlagEffectKind.Reset, "Reset."),
+        Number { Value: 1 } => new FlagEffect(flag, FlagEffectKind.Set, "Set."),
+        TemporaryVariableAccess temporary when !temporaryNames.ContainsKey(temporary.Name) && temporaries.TryGetValue(temporary.Name, out var definition) && definition != null =>
+            Describe(flag, definition),
+        Call { Function: var function, Arguments: var arguments } => Changed(flag, DescribeCall(flag, function, arguments, expression)),
+        FlagAccess flagAccess => Changed(flag, $"Set to the previous value of the {flagAccess.Flag.Name} flag."),
+        DataMemberAccess dataMember => Changed(flag, $"Set to the value of {Operand(dataMember)}."),
+        BinaryOperation binary => Changed(flag, DescribeComparison(flag, binary) ?? Fallback(expression)),
+        _ => Changed(flag, Fallback(expression)),
+    };
 
     [Pure]
     private static FlagEffect Changed(Flag flag, string description) => new(flag, FlagEffectKind.Changed, description);
@@ -572,26 +543,14 @@ public sealed partial class FlagEffectDescriber
     /// expression is not one that can be described as a condition.
     /// </summary>
     [Pure]
-    private Condition? DescribeCondition(Expression expression)
+    private Condition? DescribeCondition(Expression expression) => Resolve(expression) switch
     {
-        switch (Resolve(expression))
-        {
-            case UnaryOperation { Operator: var @operator } unary when @operator == Operator.Not:
-                return DescribeCondition(unary.Expression)?.Negate();
-
-            case FlagAccess flagAccess:
-                return new Condition($"the {flagAccess.Flag.Name} flag is set", $"the {flagAccess.Flag.Name} flag is reset", flagAccess.Flag.Mode);
-
-            case Call { Function: var function, Arguments: var arguments }:
-                return DescribeCallCondition(function, arguments);
-
-            case BinaryOperation binary:
-                return DescribeBinaryCondition(binary);
-
-            default:
-                return null;
-        }
-    }
+        UnaryOperation { Operator: var @operator } unary when @operator == Operator.Not => DescribeCondition(unary.Expression)?.Negate(),
+        FlagAccess flagAccess => new Condition($"the {flagAccess.Flag.Name} flag is set", $"the {flagAccess.Flag.Name} flag is reset", flagAccess.Flag.Mode),
+        Call { Function: var function, Arguments: var arguments } => DescribeCallCondition(function, arguments),
+        BinaryOperation binary => DescribeBinaryCondition(binary),
+        _ => null,
+    };
 
     [Pure]
     private Condition? DescribeBinaryCondition(BinaryOperation binary)

@@ -35,7 +35,7 @@ public static class Parser
 
         try
         {
-            return ParseStatements(context.WithChildVariableScope(), lexer).ToList();
+            return [.. ParseStatements(context.WithChildVariableScope(), lexer)];
         }
         catch (Exception exception)
         {

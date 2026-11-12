@@ -143,8 +143,6 @@ public sealed class OpcodeYamlTests : TestFixture
         opcode.N0.Should().BeNull();
     }
 
-
-
     [Test]
     public void ToString_ReturnsOpcodeString()
     {

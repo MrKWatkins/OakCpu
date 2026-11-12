@@ -6,7 +6,7 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Statements;
 public sealed class StatementGeneratorContext
 {
     public StatementGeneratorContext(FileGeneratorContext fileContext, Step? step)
-        : this(fileContext, step, new HashSet<string>(), ImmutableDictionary<string, Expression>.Empty, false, null, StatementGenerationMode.Normal)
+        : this(fileContext, step, new HashSet<string>(), [], false, null, StatementGenerationMode.Normal)
     {
     }
 
@@ -102,9 +102,7 @@ public sealed class StatementGeneratorContext
         bool? inBooleanContext = null,
         Expression? parent = null,
         bool updateParent = false,
-        StatementGenerationMode? mode = null)
-    {
-        return new StatementGeneratorContext(
+        StatementGenerationMode? mode = null) => new(
             FileContext,
             Step,
             initializedTemporaryVariables ?? InitializedTemporaryVariables,
@@ -112,7 +110,6 @@ public sealed class StatementGeneratorContext
             inBooleanContext ?? InBooleanContext,
             updateParent ? parent : Parent,
             mode ?? Mode);
-    }
 
     public sealed record InstructionStepState(
         string? NextInstructionVariableName,

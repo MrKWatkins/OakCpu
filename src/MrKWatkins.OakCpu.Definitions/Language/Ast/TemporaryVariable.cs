@@ -17,10 +17,7 @@ public sealed class TemporaryVariable
 
     private DataType? type;
 
-    internal TemporaryVariable(string name)
-    {
-        Name = name;
-    }
+    internal TemporaryVariable(string name) => Name = name;
 
     public string Name { get; }
 

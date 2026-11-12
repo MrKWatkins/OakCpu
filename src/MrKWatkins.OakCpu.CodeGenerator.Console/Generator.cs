@@ -13,13 +13,13 @@ public static class Generator
             var solutionDirectory = FindSolutionDirectory();
             var definitionsDirectory = GetChildDirectory(solutionDirectory, "../", "definitions", cpu);
 
-            var generatorContext = await GeneratorContext.CreateAsync(project, definitionsDirectory);
+            var generatorContext = await GeneratorContext.CreateAsync(project, definitionsDirectory).ConfigureAwait(false);
 
             var projectDirectory = GetChildDirectory(solutionDirectory, project);
 
             foreach (var generator in TypeGenerator.AllGenerators)
             {
-                await GenerateAsync(projectDirectory, generatorContext, generator);
+                await GenerateAsync(projectDirectory, generatorContext, generator).ConfigureAwait(false);
             }
 
             System.Console.WriteLine($"Generation of code for {cpu} in {project} complete.");
@@ -42,8 +42,11 @@ public static class Generator
             foreach (var generatedFile in generator.GenerateFiles(generatorContext))
             {
                 var outputPath = Path.Join(projectDirectory.FullName, generatedFile.FileName);
-                await using var writer = File.CreateText(outputPath);
-                await writer.WriteLineAsync(generatedFile.Source);
+                var writer = File.CreateText(outputPath);
+                await using (writer.ConfigureAwait(false))
+                {
+                    await writer.WriteLineAsync(generatedFile.Source).ConfigureAwait(false);
+                }
             }
         }
         catch (Exception exception)

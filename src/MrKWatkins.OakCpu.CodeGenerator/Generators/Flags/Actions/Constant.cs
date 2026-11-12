@@ -7,16 +7,10 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Actions;
 internal sealed class Constant : FlagAction
 {
     private Constant(Flag flag, bool set)
-        : base(flag)
-    {
-        BitMask = set ? flag.BitMask : (byte)0;
-    }
+        : base(flag) => BitMask = set ? flag.BitMask : (byte)0;
 
     internal Constant(IReadOnlyList<Flag> flags, byte bitMask)
-        : base(flags)
-    {
-        BitMask = bitMask;
-    }
+        : base(flags) => BitMask = bitMask;
 
     internal byte BitMask { get; }
 

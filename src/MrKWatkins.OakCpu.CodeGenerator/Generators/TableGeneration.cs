@@ -12,7 +12,7 @@ internal static class TableGeneration
     internal static IEnumerable<MemberDeclarationSyntax> CreateStepTableFields(GeneratorContext context, Func<SequenceGroup, string> getSequenceGroupStepTableFieldName) =>
         context.Configuration.OpcodeStepTables
             .Select(CreateOpcodeStepTableField)
-            .Concat(context.SequenceGroups.Values.OrderBy(group => group.Name).Select(group => CreateSequenceGroupStepTableField(getSequenceGroupStepTableFieldName(group))));
+            .Concat(context.SequenceGroups.Values.OrderBy(group => group.Name, StringComparer.Ordinal).Select(group => CreateSequenceGroupStepTableField(getSequenceGroupStepTableFieldName(group))));
 
     [MustUseReturnValue]
     internal static IfStatementSyntax CreateLittleEndianStatement(FileGeneratorContext context)
@@ -58,7 +58,7 @@ internal static class TableGeneration
             yield return createOpcodeStepTableInitializationStatement(context, group.Key, group, duplicatesByOpcodeTable.TryGetValue(group.Key, out var duplicates) ? duplicates : []);
         }
 
-        foreach (var sequenceGroup in context.GeneratorContext.SequenceGroups.Values.OrderBy(group => group.Name))
+        foreach (var sequenceGroup in context.GeneratorContext.SequenceGroups.Values.OrderBy(group => group.Name, StringComparer.Ordinal))
         {
             yield return createSequenceGroupStepTableInitializationStatement(context, sequenceGroup);
         }
@@ -81,12 +81,12 @@ internal static class TableGeneration
             .Where(i => i.OpcodeTable == null)
             .SelectMany(i => i.Duplicates)
             .GroupBy(d => context.Configuration.OpcodeStepTables.GetForPrefix(d.Prefix!.Value))
-            .Select(g => (g.Key, Items: (IReadOnlyList<(byte Opcode, Step Step)>)g.Select(d => (d.Opcode, d.Step)).ToList()));
+            .Select(g => (g.Key, Items: (IReadOnlyList<(byte Opcode, Step Step)>)[.. g.Select(d => (d.Opcode, d.Step))]));
 
         var duplicatesWithinOpcodeTable = context.Instructions
             .Where(i => i.OpcodeTable != null)
             .GroupBy(context.Configuration.OpcodeStepTables.GetForInstruction)
-            .Select(g => (g.Key, Items: (IReadOnlyList<(byte Opcode, Step Step)>)g.SelectMany(i => i.Duplicates.Select(d => (d.Opcode, d.Step))).ToList()));
+            .Select(g => (g.Key, Items: (IReadOnlyList<(byte Opcode, Step Step)>)[.. g.SelectMany(i => i.Duplicates.Select(d => (d.Opcode, d.Step)))]));
 
         return duplicatesWithPrefix.Concat(duplicatesWithinOpcodeTable).ToDictionary(x => x.Key, x => x.Items);
     }

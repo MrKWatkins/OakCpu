@@ -31,5 +31,5 @@ public sealed record OpcodeDocumentation(
     /// </summary>
     public byte OpcodeByte => Convert.ToByte(HexBytes[^1], 16);
 
-    private string[] HexBytes => Opcode.Split(' ').Where(token => token.Length == 2 && token.All(Uri.IsHexDigit) && token.ToUpperInvariant() == token).ToArray();
+    private string[] HexBytes => [.. Opcode.Split(' ').Where(token => token.Length == 2 && token.All(Uri.IsHexDigit) && token.ToUpperInvariant() == token)];
 }

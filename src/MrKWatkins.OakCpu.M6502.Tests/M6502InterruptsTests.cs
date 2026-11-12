@@ -166,10 +166,7 @@ public sealed class M6502InterruptsTests
             }
         }
 
-        private void Load(ushort startAddress, ReadOnlySpan<byte> bytes)
-        {
-            bytes.CopyTo(memory.AsSpan(startAddress));
-        }
+        private void Load(ushort startAddress, ReadOnlySpan<byte> bytes) => bytes.CopyTo(memory.AsSpan(startAddress));
 
         private void WriteWord(ushort address, ushort value)
         {

@@ -7,10 +7,7 @@ public sealed class PrefixJump : StepSequence
 {
     private PrefixJump(byte prefix, IReadOnlyList<Step> steps)
         // Overlapped because this is an extra step we're using just to change the jump table, it shouldn't count as a T-state. So we need to overlap with the opcode read.
-        : base(null, steps, NextOpcodeMode.Overlapped)
-    {
-        Prefix = prefix;
-    }
+        : base(null, steps, NextOpcodeMode.Overlapped) => Prefix = prefix;
 
     public byte Prefix { get; }
 

@@ -4,10 +4,7 @@ namespace MrKWatkins.OakCpu.Definitions.Language.Ast;
 
 public sealed class CallStatement : Statement
 {
-    internal CallStatement(Call call)
-    {
-        Call = call;
-    }
+    internal CallStatement(Call call) => Call = call;
 
     public Call Call { get; }
 

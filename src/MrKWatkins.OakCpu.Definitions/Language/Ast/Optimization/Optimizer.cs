@@ -11,7 +11,7 @@ internal abstract class Optimizer
     ];
     private static readonly IReadOnlyDictionary<Type, IReadOnlyList<Optimizer>> ByNodeType = All
         .GroupBy(static optimizer => optimizer.NodeType)
-        .ToDictionary(static group => group.Key, static group => (IReadOnlyList<Optimizer>)group.ToArray());
+        .ToDictionary(static group => group.Key, static group => (IReadOnlyList<Optimizer>)[.. group]);
 
     [MustUseReturnValue]
     internal static T Optimize<T>(T node)

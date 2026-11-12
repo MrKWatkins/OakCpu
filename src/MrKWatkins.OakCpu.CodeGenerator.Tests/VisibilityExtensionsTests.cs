@@ -6,10 +6,7 @@ public sealed class VisibilityExtensionsTests
     [TestCase(Visibility.Private, "private")]
     [TestCase(Visibility.Internal, "internal")]
     [TestCase(Visibility.Public, "public")]
-    public void ToSyntax(Visibility visibility, string expected)
-    {
-        visibility.ToSyntax().Text.Should().Equal(expected);
-    }
+    public void ToSyntax(Visibility visibility, string expected) => visibility.ToSyntax().Text.Should().Equal(expected);
 
     [Test]
     public void ToSyntax_ThrowsForUnsupportedVisibility()

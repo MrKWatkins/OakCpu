@@ -25,7 +25,7 @@ public sealed class EmulatorOverlapsGenerator : EmulatorClassGenerator
     protected override ClassDeclarationSyntax PopulateClass(FileGeneratorContext context, ClassDeclarationSyntax classDeclaration) =>
         classDeclaration
             .AddMembers(CreateExecuteOverlapMethod(context), CreateSerializeOverlapPipelineMethod(), CreateRestoreOverlapPipelineMethod())
-            .AddMembers(context.GeneratorContext.OverlapSteps.Select(step => CreateOverlapMethod(context, step)).ToArray());
+            .AddMembers([.. context.GeneratorContext.OverlapSteps.Select(step => CreateOverlapMethod(context, step))]);
 
     [MustUseReturnValue]
     private static MemberDeclarationSyntax CreateOverlapMethod(FileGeneratorContext context, Step step)

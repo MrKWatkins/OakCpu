@@ -17,12 +17,12 @@ public sealed unsafe partial class Z80InstructionEmulator
     public void Reset()
     {
         opcodeStepTable = OpcodeStepTableNoPrefix;
-        address = 0;
-        data = 0;
-        halted = false;
         iff1 = false;
         iff2 = false;
         im = 0;
+        address = 0;
+        data = 0;
+        halted = false;
         interrupt = false;
         latch = 0;
         nextSequenceStep = NoNextSequenceStep;

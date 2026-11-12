@@ -13,7 +13,7 @@ public sealed class FlagsClassGeneratorTests : TestFixture
         var result = string.Join(
             Environment.NewLine + Environment.NewLine,
             FlagsClassGenerator.Instance.GenerateFiles(Z80GeneratorContext)
-                .OrderBy(file => file.FileName)
+                .OrderBy(file => file.FileName, StringComparer.Ordinal)
                 .Select(file => $"=== {file.FileName} ==={Environment.NewLine}{file.Source}"));
         return Verify(result);
     }

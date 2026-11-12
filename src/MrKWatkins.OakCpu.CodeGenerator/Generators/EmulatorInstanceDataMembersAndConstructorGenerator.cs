@@ -65,7 +65,7 @@ public sealed class EmulatorInstanceDataMembersAndConstructorGenerator : Emulato
 
         return classDeclaration
             .AddAttributeLists(AttributeList(SingletonSeparatedList(ExplicitLayoutBuilder.CreateStructLayoutAttribute(context))))
-            .AddMembers(members.ToArray<MemberDeclarationSyntax>());
+            .AddMembers([.. members]);
     }
 
     [Pure]

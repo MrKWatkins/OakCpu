@@ -16,16 +16,10 @@ public sealed class OpcodeYamlDuplicateEqualityComparerTests
     }
 
     [Test]
-    public void Equals_NullLeft()
-    {
-        OpcodeYamlDuplicateEqualityComparer.Instance.Equals(null, new OpcodeYaml { Opcode = "0x00" }).Should().BeFalse();
-    }
+    public void Equals_NullLeft() => OpcodeYamlDuplicateEqualityComparer.Instance.Equals(null, new OpcodeYaml { Opcode = "0x00" }).Should().BeFalse();
 
     [Test]
-    public void Equals_NullRight()
-    {
-        OpcodeYamlDuplicateEqualityComparer.Instance.Equals(new OpcodeYaml { Opcode = "0x00" }, null).Should().BeFalse();
-    }
+    public void Equals_NullRight() => OpcodeYamlDuplicateEqualityComparer.Instance.Equals(new OpcodeYaml { Opcode = "0x00" }, null).Should().BeFalse();
 
     [Test]
     public void GetHashCode_EquivalentOpcodesMatch()

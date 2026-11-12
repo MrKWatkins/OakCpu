@@ -53,7 +53,7 @@ public sealed class InterruptsClassGenerator : TypeGenerator
     [MustUseReturnValue]
     private static IEnumerable<PropertyDeclarationSyntax> CreateInterruptProperties(FileGeneratorContext context, bool createOverrideProperty, bool instructionEmulator = false) =>
         context.GeneratorContext.Interrupts.Properties.Values
-            .OrderBy(property => property.PropertyName)
+            .OrderBy(property => property.PropertyName, StringComparer.Ordinal)
             .Select(property => CreateInterruptProperty(context, property, createOverrideProperty, instructionEmulator));
 
     [MustUseReturnValue]

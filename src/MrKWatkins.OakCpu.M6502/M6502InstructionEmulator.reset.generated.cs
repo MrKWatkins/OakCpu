@@ -18,14 +18,14 @@ public sealed unsafe partial class M6502InstructionEmulator
     {
         opcodeStepTable = OpcodeStepTableNoPrefix;
         ad = 0;
-        address = 0;
-        data = 0;
-        interruptvector = 0;
         irq = false;
+        interruptvector = 0;
         nmi = false;
         pendingnmi = false;
         previousnmi = false;
         sampledirq = false;
+        address = 0;
+        data = 0;
         nextSequenceStep = NoNextSequenceStep;
         PC = 0;
         A = 0;

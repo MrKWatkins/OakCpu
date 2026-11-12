@@ -149,16 +149,11 @@ public sealed class StatementTransitionEmitterTests : TestFixture
     }
 
     [Test]
-    public void GenerateExecuteOverlap()
-    {
-        StatementTransitionEmitter.GenerateExecuteOverlap().ToNormalizedString().Should().Equal("emulator.ExecuteOverlap();");
-    }
+    public void GenerateExecuteOverlap() => StatementTransitionEmitter.GenerateExecuteOverlap().ToNormalizedString().Should().Equal("emulator.ExecuteOverlap();");
 
     [Test]
-    public void CreateSetStep_ForStep()
-    {
+    public void CreateSetStep_ForStep() =>
         StatementTransitionEmitter.CreateSetStep(Z80GeneratorContext, Z80GeneratorContext.OpcodeRead.FirstStep).ToNormalizedString().Should().Equal("emulator.currentStep = 0;");
-    }
 
     [Pure]
     private static Call ParseCall(string statement)

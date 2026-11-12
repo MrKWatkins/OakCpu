@@ -5,10 +5,10 @@ namespace MrKWatkins.OakCpu.Z80.Tests;
 
 public sealed class InterruptBoundaryTests
 {
-    [TestCase((byte)0, (byte)0x46)]
-    [TestCase((byte)1, (byte)0x56)]
-    [TestCase((byte)2, (byte)0x5E)]
-    public void Step_InterruptAfterOverlappedInstruction_CompletesOverlapBeforeInterruptHandling(byte mode, byte interruptModeOpcode)
+    [TestCase((byte)0x46)]
+    [TestCase((byte)0x56)]
+    [TestCase((byte)0x5E)]
+    public void Step_InterruptAfterOverlappedInstruction_CompletesOverlapBeforeInterruptHandling(byte interruptModeOpcode)
     {
         var z80 = new Z80StepEmulatorTestHarness
         {

@@ -164,7 +164,7 @@ public sealed class RegistersClassesGenerator : TypeGenerator
     private static IEnumerable<PropertyDeclarationSyntax> CreateRegisterProperties(FileGeneratorContext context, string? category, bool createOverrideProperty) =>
         context.GeneratorContext.Configuration.Registers.Values
             .Where(register => register.HasRegisterClassProperty && register.Category == category)
-            .OrderBy(register => register.Name)
+            .OrderBy(register => register.Name, StringComparer.Ordinal)
             .Select(register => CreateRegisterProperty(context, register, createOverrideProperty));
 
     [MustUseReturnValue]
@@ -199,7 +199,7 @@ public sealed class RegistersClassesGenerator : TypeGenerator
         .Where(register => register.Category != null)
         .Select(register => register.Category!)
         .Distinct()
-        .OrderBy(category => category);
+        .OrderBy(category => category, StringComparer.Ordinal);
 
     [Pure]
     private static string ToCamelCase(string value) => char.ToLowerInvariant(value[0]) + value[1..];

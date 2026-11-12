@@ -212,7 +212,6 @@
   <Folder Name="/Solution Items/">
     <File Path="../.gitignore" />
     <File Path="../AGENTS.md" />
-    <File Path="../CLAUDE.md" />
     <File Path="../Icon.png" />
     <File Path="../License.md" />
     <File Path="../ReadMe.md" />

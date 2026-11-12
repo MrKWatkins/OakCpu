@@ -243,8 +243,6 @@ public sealed class FunctionYamlTests : TestFixture
         function.Expression.Should().Equal("");
     }
 
-
-
     [Test]
     public void ToString_ReturnsExpectedFormat()
     {

@@ -5,15 +5,9 @@ namespace MrKWatkins.OakCpu.CodeGenerator.Generators.Flags.Actions;
 
 internal abstract class FlagAction
 {
-    private protected FlagAction(Flag flag)
-    {
-        Flags = [flag];
-    }
+    private protected FlagAction(Flag flag) => Flags = [flag];
 
-    private protected FlagAction(IReadOnlyList<Flag> flags)
-    {
-        Flags = flags;
-    }
+    private protected FlagAction(IReadOnlyList<Flag> flags) => Flags = flags;
 
     internal IReadOnlyList<Flag> Flags { get; }
 
@@ -33,12 +27,8 @@ internal abstract class FlagAction
             var flag = context.Configuration.Flags[kvp.Key];
             var action = Constant.CreateOrNull(flag, kvp.Value) ??
                          CopyFrom.CreateOrNull(flag, kvp.Value) ??
-                         BoolExpression.CreateOrNull(flag, kvp.Value);
-
-            if (action == null)
-            {
-                throw new InvalidOperationException($"Could not create action for flag {flag.Name} with value {kvp.Value}.");
-            }
+                         BoolExpression.CreateOrNull(flag, kvp.Value) ??
+                         throw new InvalidOperationException($"Could not create action for flag {flag.Name} with value {kvp.Value}.");
             yield return action;
         }
 
@@ -50,13 +40,10 @@ internal abstract class FlagAction
     }
 
     [Pure]
-    protected static string FlagsNames([InstantHandle] IReadOnlyList<Flag> flags)
+    protected static string FlagsNames([InstantHandle] IReadOnlyList<Flag> flags) => flags.Count switch
     {
-        return flags.Count switch
-        {
-            1 => flags[0].Name,
-            2 => $"{flags[0].Name} and {flags[1].Name}",
-            _ => $"{string.Join(", ", flags.Take(flags.Count - 1))} and {flags.Last().Name}"
-        };
-    }
+        1 => flags[0].Name,
+        2 => $"{flags[0].Name} and {flags[1].Name}",
+        _ => $"{string.Join(", ", flags.Take(flags.Count - 1))} and {flags.Last().Name}"
+    };
 }

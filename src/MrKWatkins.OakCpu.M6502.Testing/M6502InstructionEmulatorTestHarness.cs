@@ -12,10 +12,7 @@ public sealed class M6502InstructionEmulatorTestHarness : M6502TestHarness
         : this(new M6502InstructionEmulator())
     {
     }
-    private M6502InstructionEmulatorTestHarness(M6502InstructionEmulator emulator)
-    {
-        this.emulator = emulator;
-    }
+    private M6502InstructionEmulatorTestHarness(M6502InstructionEmulator emulator) => this.emulator = emulator;
 
     public override byte RegisterA
     {

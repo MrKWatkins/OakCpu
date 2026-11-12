@@ -2,78 +2,24 @@
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <LangVersion>Latest</LangVersion>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <IsPackable>false</IsPackable>
-        <!-- Verify's non-revenue-generating open-source exemption; renew before expiry. -->
+        <!-- Preserve Verify's open-source exemption. -->
         <Verify_SponsorshipExemption>OpenSource</Verify_SponsorshipExemption>
         <Verify_SponsorshipExemptionUntil>2027-10</Verify_SponsorshipExemptionUntil>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
-        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+        <PackageProjectUrl>https://github.com/MrKWatkins/OakCpu</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/MrKWatkins/OakCpu</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JetBrains.Annotations"/>
-
-        <Using Include="System.Diagnostics.CodeAnalysis"/>
-        <Using Include="System.Diagnostics.Contracts"/>
-        <Using Include="System.Diagnostics.Contracts.PureAttribute" Alias="PureAttribute"/>
-        <Using Include="JetBrains.Annotations"/>
+        <PackageReference Include="MrKWatkins.CSharpConventions" PrivateAssets="All" />
+        <PackageReference Include="JetBrains.Annotations" PrivateAssets="All" />
     </ItemGroup>
 
-    <ItemGroup Condition="!$(MSBuildProjectName.EndsWith('Tests'))">
-        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-            <_Parameter1>$(AssemblyName).Tests</_Parameter1>
-        </AssemblyAttribute>
-    </ItemGroup>
-
-    <ItemGroup Condition="$(MSBuildProjectName.EndsWith('Tests'))">
-        <PackageReference Include="MrKWatkins.Assertions"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+    <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
         <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
         <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" PrivateAssets="All" />
+        <PackageReference Include="MrKWatkins.Assertions" />
         <PackageReference Include="NUnit" PrivateAssets="All" />
-        <PackageReference Include="NUnit3TestAdapter" PrivateAssets="All"/>
-
-        <Using Include="MrKWatkins.Assertions"/>
-        <Using Include="NUnit.Framework"/>
-    </ItemGroup>
-
-    <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('Tests'))">
-        <!-- Allow underscores in test method names. -->
-        <NoWarn>CA1707</NoWarn>
-        <IsTestProject>true</IsTestProject>
-        <EnableNUnitRunner>true</EnableNUnitRunner>
-        <OutputType>Exe</OutputType>
-        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
-        <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="!$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Generator')) And !$(MSBuildProjectName.Contains('Definitions')) And !$(MSBuildProjectName.Contains('Benchmarks')) And !$(MSBuildProjectName.Contains('Disassemble'))">
-        <IsPackable>true</IsPackable>
-        <Title>$(MSBuildProjectName)</Title>
-        <Authors>Kevin Watkins</Authors>
-        <Copyright>Kevin Watkins 2025</Copyright>
-        <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-        <PackageProjectUrl>https://github.com/MrKWatkins/OakCpu</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/MrKWatkins/OakCpu</RepositoryUrl>
-        <PackageIcon>Icon.png</PackageIcon>
-        <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    </PropertyGroup>
-
-    <ItemGroup Condition="!$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.EndsWith('Generator')) And !$(MSBuildProjectName.Contains('Definitions')) And !$(MSBuildProjectName.Contains('Benchmarks')) And !$(MSBuildProjectName.Contains('Disassemble'))">
-        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
-        <Content Include="..\..\Icon.png" Pack="true" PackagePath="\">
-            <Link>Icon.png</Link>
-        </Content>
-        <Content Include="..\..\ReadMe.md" Pack="true" PackagePath="\">
-            <Link>ReadMe.md</Link>
-        </Content>
+        <PackageReference Include="NUnit3TestAdapter" PrivateAssets="All" />
     </ItemGroup>
 </Project>

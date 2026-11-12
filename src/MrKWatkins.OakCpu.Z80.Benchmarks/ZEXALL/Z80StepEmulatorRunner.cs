@@ -3,7 +3,7 @@ namespace MrKWatkins.OakCpu.Z80.Benchmarks.ZEXALL;
 internal sealed class Z80StepEmulatorRunner(byte[] initialMemory) : Runner
 {
     private readonly Z80StepEmulator emulator = new();
-    private readonly byte[] memory = initialMemory.ToArray();
+    private readonly byte[] memory = [.. initialMemory];
 
     internal override void Run()
     {

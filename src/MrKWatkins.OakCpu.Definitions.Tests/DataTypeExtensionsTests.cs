@@ -36,9 +36,6 @@ public sealed class DataTypeExtensionsTests
     public void IsSigned(DataType type, bool expected) => type.IsSigned.Should().Equal(expected);
 
     [Test]
-    public void IsSigned_ThrowsForNonNumericType()
-    {
-        DataType.Bool.Invoking(t => _ = t.IsSigned).Should().Throw<NotSupportedException>()
+    public void IsSigned_ThrowsForNonNumericType() => DataType.Bool.Invoking(t => _ = t.IsSigned).Should().Throw<NotSupportedException>()
             .That.Should().HaveMessage("The DataType Bool is not numeric.");
-    }
 }

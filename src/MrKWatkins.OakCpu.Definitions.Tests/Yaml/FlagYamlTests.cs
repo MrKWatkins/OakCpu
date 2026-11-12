@@ -172,8 +172,6 @@ public sealed class FlagYamlTests : TestFixture
         flag.Index.Should().Equal(256);
     }
 
-
-
     [Test]
     public void ToString_ReturnsName()
     {

@@ -6,10 +6,7 @@ namespace MrKWatkins.OakCpu.Definitions.Language.Lexing;
 internal sealed record Identifier : Token
 {
     internal Identifier(int startIndex, string name)
-        : base(startIndex, name.Length)
-    {
-        Name = name;
-    }
+        : base(startIndex, name.Length) => Name = name;
 
     internal string Name { get; }
 

@@ -8,10 +8,7 @@ internal sealed class Z80InstructionEmulatorRunner : Runner
     private readonly Z80InstructionEmulator emulator = new();
     private readonly byte[] memory;
 
-    internal Z80InstructionEmulatorRunner(byte[] initialMemory)
-    {
-        memory = initialMemory.ToArray();
-    }
+    internal Z80InstructionEmulatorRunner(byte[] initialMemory) => memory = [.. initialMemory];
 
     internal override void Run()
     {

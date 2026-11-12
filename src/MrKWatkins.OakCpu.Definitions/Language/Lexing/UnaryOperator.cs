@@ -8,10 +8,7 @@ namespace MrKWatkins.OakCpu.Definitions.Language.Lexing;
 internal sealed record UnaryOperator : Token
 {
     internal UnaryOperator(int index, Operator @operator)
-        : base(index, @operator.Symbol.Length)
-    {
-        Operator = @operator;
-    }
+        : base(index, @operator.Symbol.Length) => Operator = @operator;
 
     internal Operator Operator { get; }
 

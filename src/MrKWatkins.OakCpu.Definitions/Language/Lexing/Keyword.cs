@@ -13,10 +13,7 @@ internal sealed record Keyword : Token
     public static readonly FrozenSet<string> All = new HashSet<string> { If, Else, EndIf, False, True }.ToFrozenSet();
 
     internal Keyword(int index, string name)
-        : base(index, name.Length)
-    {
-        Name = name;
-    }
+        : base(index, name.Length) => Name = name;
 
     public string Name { get; }
 

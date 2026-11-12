@@ -10,7 +10,7 @@ public sealed class InstructionEmulatorTablesGeneratorTests : TestFixture
     [Test]
     public void Generate_IncludesSequenceGroupStepTableField()
     {
-        var sequenceGroup = Z80GeneratorContext.SequenceGroups.Values.OrderBy(group => group.Name).First();
+        var sequenceGroup = Z80GeneratorContext.SequenceGroups.Values.OrderBy(group => group.Name, StringComparer.Ordinal).First();
         var fieldName = $"{sequenceGroup.Name.ToUpperCamelCaseFromSnakeCase()}StepTable";
 
         var result = InstructionEmulatorTablesGenerator.Instance.Generate(Z80GeneratorContext);

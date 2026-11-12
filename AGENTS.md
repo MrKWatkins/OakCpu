@@ -1,6 +1,8 @@
 # AGENTS.md
 
-This file provides guidance to AI agents when working with code in this repository. It exists in three places via symlinks, AGENTS.md, CLAUDE.md and .github/copilot-instructions.md.
+- For C# changes, load and follow the `csharp-conventions` skill.
+
+This file provides guidance to AI agents when working with code in this repository.
 
 ## Project Overview
 
@@ -73,6 +75,10 @@ The merge is performed by `YamlFile.Merge`, before validation:
 
 ## Code Conventions
 
+- Shared compiler rules, test defaults and packaging assets come from `MrKWatkins.CSharpConventions`.
+- Hard wrap C# and Markdown at 180 characters.
+- XML documentation is required for the published emulator libraries. Internal tooling and test helpers explicitly waive missing-comment warnings.
+
 - Always use `var` for local variables.
 - Always use braces for single-line statements.
 - Prefer `internal` over `public` where possible.
@@ -85,12 +91,12 @@ The merge is performed by `YamlFile.Merge`, before validation:
 - End comments with a period.
 - Never leave unnecessary `using` statements.
 - Never add `<Reference>` elements to project files; use `<ProjectReference>` or `<PackageReference>`.
-- Global usings are configured in `src/Directory.Build.props`: `System.Diagnostics.CodeAnalysis`, `System.Diagnostics.Contracts`, `PureAttribute`, and `JetBrains.Annotations`.
+- Global usings are supplied by `MrKWatkins.CSharpConventions`: `System.Diagnostics.CodeAnalysis`, `System.Diagnostics.Contracts`, `PureAttribute`, and `JetBrains.Annotations`.
 - Target framework is `net10.0`; warnings are errors; packages are centrally managed in `src/Directory.Packages.props`.
 
 ## Testing Conventions
 
-- NUnit 4 with `MrKWatkins.Assertions`. (`.Should().Equal()`, `.Should().Throw<>()`, `AssertThat.Invoking()`)
+- NUnit with `MrKWatkins.Assertions`. (`.Should().Equal()`, `.Should().Throw<>()`, `AssertThat.Invoking()`)
 - Global usings for `MrKWatkins.Assertions` and `NUnit.Framework` are configured for test projects.
 - Test names should match the method they're testing.
 - If a method is overloaded then test names should distinguish overloads by their parameter types, separated by underscores.
@@ -101,7 +107,7 @@ The merge is performed by `YamlFile.Merge`, before validation:
 
 ## Formatting Conventions
 
-- Ensure formatting is correct by running `dotnet format src/OakCpu.slnx` after completing code changes.
+- Ensure formatting is correct by running `dotnet format whitespace src/OakCpu.slnx --no-restore --verify-no-changes` after completing code changes.
 - Do not leave generated build, coverage, documentation site, or temporary files in the working tree.
 
 ## Documentation

@@ -90,9 +90,7 @@ public sealed class ConfigurationTests
     private static Configuration CreateConfiguration(
         IReadOnlyList<Register> registers,
         IReadOnlyList<UserDefinedDataMember>? userDefinedDataMembers = null,
-        IReadOnlyList<UserDefinedFunction>? userDefinedFunctions = null)
-    {
-        return new Configuration(
+        IReadOnlyList<UserDefinedFunction>? userDefinedFunctions = null) => new(
             new Dictionary<string, Action>
             {
                 [Action.None.Name] = Action.None
@@ -102,7 +100,6 @@ public sealed class ConfigurationTests
             new OpcodeStepTables([]),
             (userDefinedDataMembers ?? []).ToDictionary(d => d.Name),
             (userDefinedFunctions ?? []).ToDictionary(f => f.Name));
-    }
 
     [Pure]
     private static UserDefinedDataMember CreateUserDefinedDataMember(string name) =>

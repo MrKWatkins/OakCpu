@@ -67,7 +67,7 @@ public sealed class OpcodeStepTables : IEnumerable<OpcodeStepTable>
         {
             yield return prefix;
         }
-        foreach (var custom in Custom.Values.OrderBy(p => p.CustomName))
+        foreach (var custom in Custom.Values.OrderBy(p => p.CustomName, StringComparer.Ordinal))
         {
             yield return custom;
         }

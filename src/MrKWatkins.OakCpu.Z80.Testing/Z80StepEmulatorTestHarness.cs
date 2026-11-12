@@ -196,28 +196,14 @@ public class Z80StepEmulatorTestHarness(Z80StepEmulator emulator) : Z80Steppable
     }
 
     [Pure]
-    private Cycle CreateCycle(ActionRequired actionRequired)
+    private Cycle CreateCycle(ActionRequired actionRequired) => actionRequired switch
     {
-        switch (actionRequired)
-        {
-            case ActionRequired.None:
-                return new Cycle(CycleType.None, TStates, emulator.Address, emulator.Data);
-
-            case ActionRequired.OpcodeRead:
-                return new Cycle(CycleType.MemoryRead, TStates, emulator.Address, emulator.Data, true);
-
-            case ActionRequired.MemoryRead:
-                return new Cycle(CycleType.MemoryRead, TStates, emulator.Address, emulator.Data);
-
-            case ActionRequired.MemoryWrite:
-                return new Cycle(CycleType.MemoryWrite, TStates, emulator.Address, emulator.Data);
-
-            case ActionRequired.IORead:
-                return new Cycle(CycleType.IORead, TStates, emulator.Address, emulator.Data);
-
-            case ActionRequired.IOWrite:
-                return new Cycle(CycleType.IOWrite, TStates, emulator.Address, emulator.Data);
-        }
-        throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");
-    }
+        ActionRequired.None => new Cycle(CycleType.None, TStates, emulator.Address, emulator.Data),
+        ActionRequired.OpcodeRead => new Cycle(CycleType.MemoryRead, TStates, emulator.Address, emulator.Data, true),
+        ActionRequired.MemoryRead => new Cycle(CycleType.MemoryRead, TStates, emulator.Address, emulator.Data),
+        ActionRequired.MemoryWrite => new Cycle(CycleType.MemoryWrite, TStates, emulator.Address, emulator.Data),
+        ActionRequired.IORead => new Cycle(CycleType.IORead, TStates, emulator.Address, emulator.Data),
+        ActionRequired.IOWrite => new Cycle(CycleType.IOWrite, TStates, emulator.Address, emulator.Data),
+        _ => throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported."),
+    };
 }

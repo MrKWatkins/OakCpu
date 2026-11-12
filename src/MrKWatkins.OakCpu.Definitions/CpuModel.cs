@@ -95,7 +95,7 @@ public sealed class CpuModel
     /// and builds the model.
     /// </summary>
     [Pure]
-    public static async Task<CpuModel> LoadAsync(DirectoryInfo definitionsDirectory) => Create(await LoadYamlAsync(definitionsDirectory));
+    public static async Task<CpuModel> LoadAsync(DirectoryInfo definitionsDirectory) => Create(await LoadYamlAsync(definitionsDirectory).ConfigureAwait(false));
 
     /// <summary>
     /// Loads the definitions for a CPU from its definitions directory, merging in the definitions of any CPUs it is based on.
@@ -103,7 +103,7 @@ public sealed class CpuModel
     [Pure]
     public static async Task<YamlFile> LoadYamlAsync(DirectoryInfo definitionsDirectory)
     {
-        var combined = await LoadDirectoryAsync(definitionsDirectory);
+        var combined = await LoadDirectoryAsync(definitionsDirectory).ConfigureAwait(false);
 
         // CPUs can be variants of other CPUs, inheriting their definitions. Definitions directories for the CPUs are siblings of each other.
         var cpus = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { definitionsDirectory.Name };
@@ -121,7 +121,7 @@ public sealed class CpuModel
                 throw new InvalidOperationException($"Could not find the definitions directory {baseDirectory} for base CPU {baseCpu}.");
             }
 
-            combined = YamlFile.Merge(await LoadDirectoryAsync(baseDirectory), combined);
+            combined = YamlFile.Merge(await LoadDirectoryAsync(baseDirectory).ConfigureAwait(false), combined);
         }
 
         return combined;
@@ -137,7 +137,7 @@ public sealed class CpuModel
         var yamls = new List<YamlFile>();
         foreach (var file in definitionsDirectory.GetFiles("*.yaml", SearchOption.AllDirectories).OrderBy(file => file.FullName, StringComparer.Ordinal))
         {
-            yamls.Add(await DeserializeYamlAsync<YamlFile>(file));
+            yamls.Add(await DeserializeYamlAsync<YamlFile>(file).ConfigureAwait(false));
         }
 
         return YamlFile.Combine(yamls);
@@ -148,8 +148,11 @@ public sealed class CpuModel
     {
         try
         {
-            await using var stream = file.OpenRead();
-            return await YamlSerializer.DeserializeAsync<TYaml>(stream, YamlOptions.Instance);
+            var stream = file.OpenRead();
+            await using (stream.ConfigureAwait(false))
+            {
+                return await YamlSerializer.DeserializeAsync<TYaml>(stream, YamlOptions.Instance).ConfigureAwait(false);
+            }
         }
         catch (Exception exception)
         {

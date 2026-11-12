@@ -13,10 +13,7 @@ public sealed class Z80NInstructionEmulatorTestHarness : Z80TestHarness
     {
     }
 
-    private Z80NInstructionEmulatorTestHarness(Z80NInstructionEmulator emulator)
-    {
-        this.emulator = emulator;
-    }
+    private Z80NInstructionEmulatorTestHarness(Z80NInstructionEmulator emulator) => this.emulator = emulator;
 
     public override ushort RegisterAF
     {
@@ -202,31 +199,16 @@ public sealed class Z80NInstructionEmulatorTestHarness : Z80TestHarness
     }
 
     [Pure]
-    private Cycle CreateCycle(ActionRequired actionRequired, ushort address, byte data)
+    private Cycle CreateCycle(ActionRequired actionRequired, ushort address, byte data) => actionRequired switch
     {
-        switch (actionRequired)
-        {
-            case ActionRequired.OpcodeRead:
-                return new Cycle(CycleType.MemoryRead, TStates, address, data, true);
-
-            case ActionRequired.MemoryRead:
-                return new Cycle(CycleType.MemoryRead, TStates, address, data);
-
-            case ActionRequired.MemoryWrite:
-                return new Cycle(CycleType.MemoryWrite, TStates, address, data);
-
-            case ActionRequired.IORead:
-                return new Cycle(CycleType.IORead, TStates, address, data);
-
-            case ActionRequired.IOWrite:
-                return new Cycle(CycleType.IOWrite, TStates, address, data);
-
-            case ActionRequired.NextRegisterWrite:
-                return new Cycle(CycleType.NextRegisterWrite, TStates, address, data);
-        }
-
-        throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported.");
-    }
+        ActionRequired.OpcodeRead => new Cycle(CycleType.MemoryRead, TStates, address, data, true),
+        ActionRequired.MemoryRead => new Cycle(CycleType.MemoryRead, TStates, address, data),
+        ActionRequired.MemoryWrite => new Cycle(CycleType.MemoryWrite, TStates, address, data),
+        ActionRequired.IORead => new Cycle(CycleType.IORead, TStates, address, data),
+        ActionRequired.IOWrite => new Cycle(CycleType.IOWrite, TStates, address, data),
+        ActionRequired.NextRegisterWrite => new Cycle(CycleType.NextRegisterWrite, TStates, address, data),
+        _ => throw new NotSupportedException($"The {nameof(ActionRequired)} {actionRequired} is not supported."),
+    };
 
     private readonly struct BusHandler(Z80NInstructionEmulatorTestHarness harness) : IZ80NBusHandler
     {

@@ -8,10 +8,7 @@ namespace MrKWatkins.OakCpu.Definitions.Language.Lexing;
 internal sealed record Number : Token
 {
     internal Number(int startIndex, int length, int value)
-        : base(startIndex, length)
-    {
-        Value = value;
-    }
+        : base(startIndex, length) => Value = value;
 
     internal int Value { get; }
 

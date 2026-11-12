@@ -42,7 +42,7 @@ public sealed class EmulatorStepsInitializationGenerator : EmulatorClassGenerato
         members.AddRange(TableGeneration.CreateStepTableFields(context, Field.Name.SequenceGroupStepTable));
         members.Add(CreateStaticConstructor(context));
 
-        return classDeclaration.AddMembers(members.ToArray());
+        return classDeclaration.AddMembers([.. members]);
     }
 
     [Pure]

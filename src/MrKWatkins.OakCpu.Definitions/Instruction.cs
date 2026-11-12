@@ -46,7 +46,7 @@ public sealed class Instruction : StepSequence
 
     [Pure]
     public static IReadOnlyList<Instruction> Create(ParserContext context, Cpu cpu, IReadOnlyList<InstructionYaml> yamls) =>
-        yamls.SelectMany(y => Create(context, cpu, y)).OrderBy(i => i.OpcodeTable).ThenBy(i => i.Prefix).ThenBy(i => i.Opcode).ToList();
+        yamls.SelectMany(y => Create(context, cpu, y)).OrderBy(i => i.OpcodeTable, StringComparer.Ordinal).ThenBy(i => i.Prefix).ThenBy(i => i.Opcode).ToList();
 
     [Pure]
     private static IEnumerable<Instruction> Create(ParserContext context, Cpu cpu, InstructionYaml yaml)

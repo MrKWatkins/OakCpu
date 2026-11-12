@@ -24,9 +24,7 @@ internal static class InstructionMethodPlanner
             .Select((step, index) => CreateStepPlan(context, step, overlapStep, index))
             .ToList();
         var localDeclarationCounts = GetLocalDeclarationCounts(stepPlans);
-        stepPlans = stepPlans
-            .Select(stepPlan => stepPlan with { RequiresBlock = RequiresStepBlock(stepPlan.StepStatements, localDeclarationCounts) })
-            .ToList();
+        stepPlans = [.. stepPlans.Select(stepPlan => stepPlan with { RequiresBlock = RequiresStepBlock(stepPlan.StepStatements, localDeclarationCounts) })];
 
         return new InstructionMethodPlan(methodName, comment, sequence, stepPlans, overlapStatements, deferredNextSequence, completesInstructionImplicitly);
     }
@@ -71,11 +69,11 @@ internal static class InstructionMethodPlanner
 
     [Pure]
     private static bool ContainsCurrentStepAssignment(AstNode node, int value) =>
-        node is Assignment
+        (node is Assignment
         {
             Target: DataMemberAccess { DataMember: var dataMember },
             Value: Number { Value: var assignmentValue }
-        } && dataMember == PreDefinedDataMember.CurrentStep && assignmentValue == value ||
+        } && dataMember == PreDefinedDataMember.CurrentStep && assignmentValue == value) ||
         node.Children.Any(child => ContainsCurrentStepAssignment(child, value));
 
     [MustUseReturnValue]

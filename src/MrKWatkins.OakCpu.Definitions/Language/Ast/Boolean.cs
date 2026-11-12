@@ -7,10 +7,7 @@ public sealed class Boolean : Expression
     public static readonly Boolean True = new(true);
     public static readonly Boolean False = new(false);
 
-    private Boolean(bool value)
-    {
-        Value = value;
-    }
+    private Boolean(bool value) => Value = value;
 
     public bool Value { get; }
 

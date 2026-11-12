@@ -9,7 +9,7 @@ public sealed class Call : Expression
     internal Call(Function function, [InstantHandle] IEnumerable<Expression> arguments)
     {
         Function = function;
-        this.arguments = arguments.ToList();
+        this.arguments = [.. arguments];
     }
 
     public Function Function { get; }

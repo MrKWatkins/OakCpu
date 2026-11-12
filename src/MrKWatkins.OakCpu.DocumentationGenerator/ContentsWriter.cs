@@ -86,7 +86,7 @@ public static class ContentsWriter
                 for (var low = 0; low < 16; low++)
                 {
                     markdown.Append(' ');
-                    var opcodeByte = (byte)(high << 4 | low);
+                    var opcodeByte = (byte)((high << 4) | low);
                     if (cells.TryGetValue(opcodeByte, out var cell))
                     {
                         markdown.Append(Link(cell.Opcode.Instruction, cell.Instruction.Page, cell.Opcode.Undocumented));
