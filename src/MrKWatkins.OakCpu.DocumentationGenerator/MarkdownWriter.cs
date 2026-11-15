@@ -39,7 +39,7 @@ public static class MarkdownWriter
         markdown.Append('\n');
         var cycles = documentation.Cpu.Cycles.Name;
         markdown.Append("| Instruction | Opcode | ").Append(cycles).Append(" | Notes |\n");
-        markdown.Append("| ----------- | ------ | ").Append(new string('-', cycles.Length)).Append(" | ----- |\n");
+        markdown.Append("| ----------- | ------ | ").Append('-', cycles.Length).Append(" | ----- |\n");
         foreach (var opcode in documentation.Opcodes)
         {
             markdown.Append("| `").Append(opcode.Instruction).Append("` | `").Append(opcode.Opcode).Append("` | ")
